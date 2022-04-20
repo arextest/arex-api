@@ -2,8 +2,13 @@ package io.arex.report.common;
 
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.validator.internal.util.StringHelper;
-import org.springframework.http.*;
+import org.apache.logging.log4j.util.Strings;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 
@@ -38,7 +43,7 @@ public class HttpUtils {
     public static <T, R> ResponseEntity<T> call(String url, R request, Class<T> responseClazz, HttpMethod httpMethod,
                                                 String contentType, Map<String, String> headers, Integer timeout) {
         ResponseEntity<T> responseEntity = new ResponseEntity<>(HttpStatus.OK);
-        if (StringHelper.isNullOrEmptyString(url)) {
+        if (Strings.isBlank(url)) {
             return responseEntity;
         }
         try {
@@ -52,7 +57,7 @@ public class HttpUtils {
             if (headers != null) {
                 httpHeaders.setAll(headers);
             }
-            if (!StringHelper.isNullOrEmptyString(contentType)) {
+            if (!Strings.isBlank(contentType)) {
                 httpHeaders.setContentType(MediaType.parseMediaType(contentType));
             } else if (httpHeaders.getContentType() == null) {
                 httpHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);

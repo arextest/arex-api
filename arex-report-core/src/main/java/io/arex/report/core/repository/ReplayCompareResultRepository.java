@@ -13,9 +13,9 @@ public interface ReplayCompareResultRepository extends RepositoryProvider {
 
     List<CompareResultDto> findResultWithoutMsg(Long planItemId, String keyWord);
 
-    Pair<List<CompareResultDto>, Long> pageQueryWithoutMsg(Long planId, Long planItemId, String categoryName,
-            Integer resultType, String keyWord,
-            Integer pageIndex, Integer pageSize, Boolean needTotal);
+    // Pair<List<CompareResultDto>, Long> pageQueryWithoutMsg(Long planId, Long planItemId, String categoryName,
+    //         Integer resultType, String keyWord,
+    //         Integer pageIndex, Integer pageSize, Boolean needTotal);
 
     Pair<List<CompareResultDto>, Long> queryCompareResultByPage(Long planId, Integer pageSize, Integer pageIndex);
 

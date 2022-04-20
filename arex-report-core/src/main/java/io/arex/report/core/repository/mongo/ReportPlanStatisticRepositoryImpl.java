@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+import org.bson.Document;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -172,9 +173,9 @@ public class ReportPlanStatisticRepositoryImpl implements ReportPlanStatisticRep
             totalCount = mongoTemplate.count(query, ReportPlanStatisticCollection.class);
         }
 
-        Sort sort = new Sort(Sort.Direction.DESC, PLAN_ID);
-        query.with(sort);
-        Pageable pageable = new PageRequest(request.getPageIndex() - 1, request.getPageSize());
+        Pageable pageable = PageRequest.of(request.getPageIndex() - 1,
+                request.getPageSize(),
+                Sort.by(Sort.Direction.DESC, PLAN_ID));
         query.with(pageable);
 
         List<ReportPlanStatisticCollection> daos = mongoTemplate.find(query, ReportPlanStatisticCollection.class);
@@ -210,9 +211,9 @@ public class ReportPlanStatisticRepositoryImpl implements ReportPlanStatisticRep
 
         Sort sort = null;
         if (desc) {
-            sort = new Sort(Sort.Direction.DESC, orderField);
+            sort = Sort.by(Sort.Direction.DESC, orderField);
         } else {
-            sort = new Sort(Sort.Direction.ASC, orderField);
+            sort = Sort.by(Sort.Direction.ASC, orderField);
         }
         SortOperation sortOperation = Aggregation.sort(sort);
         operations.add(sortOperation);
@@ -259,9 +260,9 @@ public class ReportPlanStatisticRepositoryImpl implements ReportPlanStatisticRep
 
         Sort sort = null;
         if (desc) {
-            sort = new Sort(Sort.Direction.DESC, orderField);
+            sort = Sort.by(Sort.Direction.DESC, orderField);
         } else {
-            sort = new Sort(Sort.Direction.ASC, orderField);
+            sort = Sort.by(Sort.Direction.ASC, orderField);
         }
         SortOperation sortOperation = Aggregation.sort(sort);
         operations.add(sortOperation);
@@ -269,9 +270,9 @@ public class ReportPlanStatisticRepositoryImpl implements ReportPlanStatisticRep
         ProjectionOperation projectionOperation = Aggregation.project(PLAN_ID, DATA_CHANGE_CREATE_TIME, groupField).and(
                 DateOperators.DateToString.dateOf(new AggregationExpression() {
                     @Override
-                    public DBObject toDbObject(AggregationOperationContext aggregationOperationContext) {
-                        BasicDBObject basicDBObject = new BasicDBObject("$toDate", "$dataChangeCreateTime");
-                        return basicDBObject;
+                    public Document toDocument(AggregationOperationContext aggregationOperationContext) {
+                        Document document = new Document("$toDate", "$dataChangeCreateTime");
+                        return document;
                     }
                 }).toString("%Y-%m-%d").withTimezone(DateOperators.Timezone.valueOf("+08"))).as(DATE_TIME);
         operations.add(projectionOperation);
