@@ -16,10 +16,10 @@
             <groupId>io.arex</groupId>
             <artifactId>arex-report-common</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.springframework.data</groupId>
-            <artifactId>spring-data-mongodb</artifactId>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.springframework.data</groupId>-->
+<!--            <artifactId>spring-data-mongodb</artifactId>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>io.arex</groupId>
             <artifactId>arex-report-model-api</artifactId>

@@ -7,7 +7,7 @@ import io.arex.report.model.api.contracts.common.CategoryStatistic;
 import io.arex.report.model.dto.CompareResultDto;
 import io.arex.report.model.enums.DiffResultCode;
 import org.apache.commons.collections4.CollectionUtils;
-import org.hibernate.validator.internal.util.StringHelper;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -49,7 +49,7 @@ public class QueryResponseTypeStatisticService {
                 }
                 Map<Integer, List<CompareResultDto>> resultTypeMap = operationNameMapValue.stream()
                         .filter(item -> item.getDiffResultCode() != null
-                                && !StringHelper.isNullOrEmptyString(item.getRecordId()))
+                                && Strings.isNotBlank(item.getRecordId()))
                         .collect(Collectors.groupingBy(CompareResultDto::getDiffResultCode));
                 if (resultTypeMap == null) {
                     return;

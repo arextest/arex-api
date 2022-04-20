@@ -1,7 +1,7 @@
 package io.arex.report.web.api.service.beans;
 
 import io.arex.report.web.api.service.converter.ZstdJacksonMessageConverter;
-import org.springframework.boot.autoconfigure.web.HttpMessageConverters;
+import org.springframework.boot.autoconfigure.http.HttpMessageConverters;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
