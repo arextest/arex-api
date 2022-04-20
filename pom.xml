@@ -37,6 +37,7 @@
         <arex-report-model-api.version>0.1.0</arex-report-model-api.version>
         <arex-common.version>0.1.0</arex-common.version>
         <springfox-boot-starter.version>3.0.0</springfox-boot-starter.version>
+        <springfox-boot-starter.version>3.0.0</springfox-boot-starter.version>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -74,6 +75,11 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+<!--            <dependency>-->
+<!--                <groupId>org.springframework.data</groupId>-->
+<!--                <artifactId>spring-data-mongodb</artifactId>-->
+<!--                <version>${spring-data-mongodb.version}</version>-->
+<!--            </dependency>-->
             <dependency>
                 <groupId>org.projectlombok</groupId>
                 <artifactId>lombok</artifactId>
