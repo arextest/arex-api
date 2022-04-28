@@ -5,7 +5,7 @@ import io.arex.report.model.dao.mongodb.ReportPlanItemStatisticCollection;
 import io.arex.report.model.dto.PlanItemDto;
 import io.arex.report.model.enums.ReplayStatusType;
 import io.arex.report.model.mapper.PlanItemMapper;
-import org.hibernate.validator.internal.util.StringHelper;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -88,10 +88,10 @@ public class ReportPlanItemStatisticRepositoryImpl implements ReportPlanItemStat
         if (result.getOperationId() != null) {
             update.set(OPERATION_ID, result.getOperationId());
         }
-        if (!StringHelper.isNullOrEmptyString(result.getOperationName())) {
+        if (Strings.isNotBlank(result.getOperationName())) {
             update.set(OPERATION_NAME, result.getOperationName());
         }
-        if (!StringHelper.isNullOrEmptyString(result.getServiceName())) {
+        if (Strings.isNotBlank(result.getServiceName())) {
             update.set(SERVICE_NAME, result.getServiceName());
         }
         if (result.getStatus() != null) {

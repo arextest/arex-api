@@ -7,9 +7,10 @@ import io.arex.report.model.mapper.CompareResultMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.hibernate.validator.internal.util.StringHelper;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -87,45 +88,44 @@ public class ReplayCompareResultRepositoryImpl implements ReplayCompareResultRep
         return result.stream().map(CompareResultMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
     }
 
-    @Override
-    public Pair<List<CompareResultDto>, Long> pageQueryWithoutMsg(Long planId, Long planItemId, String categoryName,
-                                                                  Integer resultType, String keyWord,
-                                                                  Integer pageIndex, Integer pageSize, Boolean needTotal) {
-        Query query = fillFilterConditions(planId, planItemId, categoryName, resultType, keyWord);
+    // @Override
+    // public Pair<List<CompareResultDto>, Long> pageQueryWithoutMsg(Long planId, Long planItemId, String categoryName,
+    //                                                               Integer resultType, String keyWord,
+    //                                                               Integer pageIndex, Integer pageSize, Boolean needTotal) {
+    //     Query query = fillFilterConditions(planId, planItemId, categoryName, resultType, keyWord);
+    //
+    //     query.fields().include(PLAN_ITEM_ID);
+    //     query.fields().include(PLAN_ID);
+    //     query.fields().include(OPERATION_ID);
+    //     query.fields().include(CATEGORY_NAME);
+    //     query.fields().include(OPERATION_NAME);
+    //     query.fields().include(REPLAY_ID);
+    //     query.fields().include(RECORD_ID);
+    //     query.fields().include(DIFF_RESULT_CODE);
+    //     Long totalCount = -1L;
+    //     if (needTotal) {
+    //         totalCount = mongoTemplate.count(query, ReplayCompareResultCollection.class);
+    //     }
+    //     Pageable pageable = new PageRequest(pageIndex, pageSize, Sort.by(direct));
+    //     query.with(pageable);
+    //     List<ReplayCompareResultCollection> result = mongoTemplate.find(query, ReplayCompareResultCollection.class);
+    //     List<CompareResultDto> dtos =
+    //             result.stream().map(CompareResultMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
+    //
+    //     return new MutablePair<>(dtos, totalCount);
+    // }
 
-        query.fields().include(PLAN_ITEM_ID);
-        query.fields().include(PLAN_ID);
-        query.fields().include(OPERATION_ID);
-        query.fields().include(CATEGORY_NAME);
-        query.fields().include(OPERATION_NAME);
-        query.fields().include(REPLAY_ID);
-        query.fields().include(RECORD_ID);
-        query.fields().include(DIFF_RESULT_CODE);
-        Long totalCount = -1L;
-        if (needTotal) {
-            totalCount = mongoTemplate.count(query, ReplayCompareResultCollection.class);
-        }
 
-        Pageable pageable = new PageRequest(pageIndex, pageSize);
-        query.with(pageable);
-        List<ReplayCompareResultCollection> result = mongoTemplate.find(query, ReplayCompareResultCollection.class);
-        List<CompareResultDto> dtos =
-                result.stream().map(CompareResultMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
-
-        return new MutablePair<>(dtos, totalCount);
-    }
-
-    
     @Override
     public Pair<List<CompareResultDto>, Long> queryCompareResultByPage(Long planId,
-                                                                       Integer pageSize,
-                                                                       Integer pageIndex) {
+            Integer pageSize,
+            Integer pageIndex) {
         Query query = Query.query(Criteria.where(PLAN_ID).is(planId));
         query.fields().exclude(BASE_MSG).exclude(TEST_MSG);
-        
+
         Long totalCount = mongoTemplate.count(query, ReplayCompareResultCollection.class);
-        
-        Pageable pageable = new PageRequest(pageIndex, pageSize);
+
+        Pageable pageable = PageRequest.of(pageIndex, pageSize);
         query.with(pageable);
         List<ReplayCompareResultCollection> daos = mongoTemplate.find(query, ReplayCompareResultCollection.class);
         List<CompareResultDto> dtos =
@@ -151,7 +151,7 @@ public class ReplayCompareResultRepositoryImpl implements ReplayCompareResultRep
 
 
     private Query fillFilterConditions(Long planId, Long planItemId, String categoryName, Integer resultType,
-                                       String keyWord) {
+            String keyWord) {
         Query query = new Query();
         if (planId != null) {
             query.addCriteria(Criteria.where(PLAN_ID).is(planId));
@@ -165,7 +165,7 @@ public class ReplayCompareResultRepositoryImpl implements ReplayCompareResultRep
         if (resultType != null) {
             query.addCriteria(Criteria.where(DIFF_RESULT_CODE).is(resultType));
         }
-        if (!StringHelper.isNullOrEmptyString(keyWord)) {
+        if (Strings.isNotBlank(keyWord)) {
             query.addCriteria(new Criteria().orOperator(Criteria.where(REPLAY_ID).regex(".*?" + keyWord + ".*"),
                     Criteria.where(RECORD_ID).regex(".*?" + keyWord + ".*")));
         }
