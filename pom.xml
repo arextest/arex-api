@@ -4,10 +4,10 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>io.arex</groupId>
+    <groupId>com.arextest</groupId>
     <artifactId>arex-report</artifactId>
     <packaging>pom</packaging>
-    <version>0.0.1</version>
+    <version>0.1.0</version>
     <modules>
         <module>arex-report-web-api-service</module>
         <module>arex-report-common</module>
@@ -34,35 +34,35 @@
         <guava.version>31.1-jre</guava.version>
         <shema.inferer.version>0.1.4</shema.inferer.version>
         <snakeyaml.version>1.29</snakeyaml.version>
-        <arex-report-model-api.version>0.0.1</arex-report-model-api.version>
-        <arex-common.version>1.0.0-SNAPSHOT</arex-common.version>
+        <arex-report-model-api.version>0.1.0</arex-report-model-api.version>
+        <arex-common.version>0.1.0</arex-common.version>
         <springfox-boot-starter.version>3.0.0</springfox-boot-starter.version>
     </properties>
     <dependencyManagement>
         <dependencies>
             <!--project file-->
             <dependency>
-                <groupId>io.arex</groupId>
+                <groupId>com.arextest</groupId>
                 <artifactId>arex-report-model</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>io.arex</groupId>
+                <groupId>com.arextest</groupId>
                 <artifactId>arex-report-model-api</artifactId>
                 <version>${arex-report-model-api.version}</version>
             </dependency>
             <dependency>
-                <groupId>io.arex</groupId>
+                <groupId>com.arextest</groupId>
                 <artifactId>arex-report-common</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>io.arex</groupId>
+                <groupId>com.arextest</groupId>
                 <artifactId>arex-report-core</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>io.arex</groupId>
+                <groupId>com.arextest</groupId>
                 <artifactId>arex-common</artifactId>
                 <version>${arex-common.version}</version>
             </dependency>
