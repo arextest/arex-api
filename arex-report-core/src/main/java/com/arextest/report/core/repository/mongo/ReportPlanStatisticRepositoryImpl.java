@@ -278,6 +278,8 @@ public class ReportPlanStatisticRepositoryImpl implements ReportPlanStatisticRep
 
 
         GroupOperation groupOperation = Aggregation.group(DATE_TIME, groupField)
+                .first(groupField).as(groupField)
+                .first(DATE_TIME).as(DATE_TIME)
                 .first(PLAN_ID).as(PLAN_ID)
                 .first(DATA_CHANGE_CREATE_TIME).as(DATA_CHANGE_CREATE_TIME);
         operations.add(groupOperation);
