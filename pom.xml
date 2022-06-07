@@ -38,6 +38,8 @@
         <arex-common.version>0.1.0</arex-common.version>
         <springfox-boot-starter.version>3.0.0</springfox-boot-starter.version>
         <springfox-boot-starter.version>3.0.0</springfox-boot-starter.version>
+        <caffeine.version>2.8.0</caffeine.version>
+        <shedlock-spring.version>4.34.0</shedlock-spring.version>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -154,6 +156,21 @@
                 <artifactId>springfox-boot-starter</artifactId>
                 <version>${springfox-boot-starter.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.github.ben-manes.caffeine</groupId>
+                <artifactId>caffeine</artifactId>
+                <version>${caffeine.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.javacrumbs.shedlock</groupId>
+                <artifactId>shedlock-spring</artifactId>
+                <version>${shedlock-spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.javacrumbs.shedlock</groupId>
+                <artifactId>shedlock-provider-mongo</artifactId>
+                <version>${shedlock-spring.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -173,16 +190,16 @@
         </repository>
     </repositories>
 
-<!--    <distributionManagement>-->
-<!--        <repository>-->
-<!--            <id>releases</id>-->
-<!--            <url>${releases.repo}</url>-->
-<!--        </repository>-->
-<!--        <snapshotRepository>-->
-<!--            <id>snapshots</id>-->
-<!--            <url>${snapshots.repo}</url>-->
-<!--        </snapshotRepository>-->
-<!--    </distributionManagement>-->
+    <!--    <distributionManagement>-->
+    <!--        <repository>-->
+    <!--            <id>releases</id>-->
+    <!--            <url>${releases.repo}</url>-->
+    <!--        </repository>-->
+    <!--        <snapshotRepository>-->
+    <!--            <id>snapshots</id>-->
+    <!--            <url>${snapshots.repo}</url>-->
+    <!--        </snapshotRepository>-->
+    <!--    </distributionManagement>-->
 
     <build>
         <plugins>

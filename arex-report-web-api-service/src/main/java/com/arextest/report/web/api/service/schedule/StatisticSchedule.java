@@ -2,7 +2,9 @@ package com.arextest.report.web.api.service.schedule;
 
 import com.arextest.report.core.business.SceneService;
 import com.arextest.report.core.business.StatisticService;
+import com.arextest.report.core.business.preprocess.PreprocessService;
 import lombok.extern.slf4j.Slf4j;
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +18,8 @@ public class StatisticSchedule {
     private StatisticService statisticService;
     @Resource
     private SceneService sceneService;
+    @Resource
+    private PreprocessService preprocessService;
 
     @Scheduled(cron = "0/5 * * * * ?")
     public void planItemSchedule() {
@@ -25,5 +29,11 @@ public class StatisticSchedule {
     @Scheduled(cron = "1/5 * * * * ?")
     public void sceneSchedule() {
         sceneService.report();
+    }
+
+    @Scheduled(cron = "2/60 * * * * ?")
+    @SchedulerLock(name = "preprocess", lockAtLeastFor = "PT50S", lockAtMostFor = "PT60S")
+    public void preprocess() {
+        preprocessService.updateServletSchema();
     }
 }
