@@ -30,7 +30,7 @@ public class StatisticSchedule {
     public void sceneSchedule() {
         sceneService.report();
     }
-
+  
     @Scheduled(cron = "2/60 * * * * ?")
     @SchedulerLock(name = "preprocess", lockAtLeastFor = "PT50S", lockAtMostFor = "PT60S")
     public void preprocess() {
