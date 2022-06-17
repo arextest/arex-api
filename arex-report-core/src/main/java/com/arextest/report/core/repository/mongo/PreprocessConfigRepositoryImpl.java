@@ -1,6 +1,7 @@
 package com.arextest.report.core.repository.mongo;
 
 import com.arextest.report.core.repository.PreprocessConfigRepository;
+import com.arextest.report.core.repository.mongo.util.MongoHelper;
 import com.arextest.report.model.dao.mongodb.PreprocessConfigCollection;
 import com.arextest.report.model.dto.PreprocessConfigDto;
 import com.arextest.report.model.mapper.PreprocessConfigMapper;
@@ -31,7 +32,7 @@ public class PreprocessConfigRepositoryImpl implements PreprocessConfigRepositor
             return null;
         }
         Query query = Query.query(Criteria.where(NAME).is(name));
-        Update update = ArexUpdate.getUpdate();
+        Update update = MongoHelper.getUpdate();
         update.set(INDEX, index);
         PreprocessConfigCollection dao = mongoTemplate.findAndModify(query,
                 update,

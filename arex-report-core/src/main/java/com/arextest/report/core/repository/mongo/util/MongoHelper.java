@@ -1,4 +1,4 @@
-package com.arextest.report.core.repository.mongo;
+package com.arextest.report.core.repository.mongo.util;
 
 import com.arextest.report.core.repository.RepositoryProvider;
 import com.arextest.report.model.dao.mongodb.ModelBase;
@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.query.Update;
 
 @Slf4j
-public class ArexUpdate {
+public class MongoHelper {
     public static Update getUpdate() {
         Update update = new Update();
         update.set(RepositoryProvider.DATA_CHANGE_UPDATE_TIME, System.currentTimeMillis());

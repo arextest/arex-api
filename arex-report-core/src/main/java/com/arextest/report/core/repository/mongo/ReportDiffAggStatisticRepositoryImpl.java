@@ -1,6 +1,7 @@
 package com.arextest.report.core.repository.mongo;
 
 import com.arextest.report.core.repository.ReportDiffAggStatisticRepository;
+import com.arextest.report.core.repository.mongo.util.MongoHelper;
 import com.arextest.report.model.dao.mongodb.ReportDiffAggStatisticCollection;
 import com.arextest.report.model.dao.mongodb.entity.SceneDetail;
 import com.arextest.report.model.dto.DiffAggDto;
@@ -49,7 +50,7 @@ public class ReportDiffAggStatisticRepositoryImpl implements ReportDiffAggStatis
         if (dto == null) {
             return null;
         }
-        Update update = ArexUpdate.getUpdate();
+        Update update = MongoHelper.getUpdate();
         update.setOnInsert(PLAN_ID, dto.getPlanId())
                 .setOnInsert(OPERATION_ID, dto.getOperationId())
                 .setOnInsert(DATA_CHANGE_CREATE_TIME, System.currentTimeMillis());
