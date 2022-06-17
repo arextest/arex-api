@@ -85,27 +85,4 @@ public class FSTreeRepositoryImpl implements FSTreeRepository {
         });
         return workspaces;
     }
-
-    @Override
-    public FSInterfaceDto saveInterface(FSInterfaceDto interfaceDto) {
-        Query query = Query.query(Criteria.where(DASH_ID).is(interfaceDto.getId()));
-        Update update = ArexUpdate.getUpdate();
-
-        FSInterfaceCollection dao = FSInterfaceMapper.INSTANCE.daoFromDto(interfaceDto);
-        for (java.lang.reflect.Field field : dao.getClass().getDeclaredFields()) {
-            field.setAccessible(true);
-            try {
-                update.set(field.getName(), field.get(dao));
-            } catch (IllegalAccessException e) {
-                LOGGER.error(String.format("failed to get field %s", field.getName()), e);
-            }
-        }
-
-        FSInterfaceCollection result = mongoTemplate.findAndModify(query,
-                update,
-                FindAndModifyOptions.options().upsert(true).returnNew(true),
-                FSInterfaceCollection.class);
-
-        return FSInterfaceMapper.INSTANCE.dtoFromDao(result);
-    }
 }
