@@ -39,9 +39,6 @@
         <caffeine.version>2.8.0</caffeine.version>
         <shedlock-spring.version>4.34.0</shedlock-spring.version>
         <springfox-boot-starter.version>3.0.0</springfox-boot-starter.version>
-        <springfox-boot-starter.version>3.0.0</springfox-boot-starter.version>
-        <caffeine.version>2.8.0</caffeine.version>
-        <shedlock-spring.version>4.34.0</shedlock-spring.version>
     </properties>
     <dependencyManagement>
         <dependencies>
