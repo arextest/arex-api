@@ -1,5 +1,6 @@
 package com.arextest.report.core.business.filesystem;
 
+import com.arextest.report.core.repository.FSInterfaceRepository;
 import com.arextest.report.core.repository.FSTreeRepository;
 import com.arextest.report.model.api.contracts.filesystem.FSAddItemRequestType;
 import com.arextest.report.model.api.contracts.filesystem.FSAddItemResponseType;
@@ -38,6 +39,9 @@ public class FileSystemService {
 
     @Resource
     private FSTreeRepository fsTreeRepository;
+
+    @Resource
+    private FSInterfaceRepository fsInterfaceRepository;
 
     @Resource
     private ItemInfoFactory itemInfoFactory;
@@ -178,7 +182,7 @@ public class FileSystemService {
         FSSaveInterfaceResponseType response = new FSSaveInterfaceResponseType();
         FSInterfaceDto dto = FSInterfaceMapper.INSTANCE.dtoFromContract(request);
         try {
-            fsTreeRepository.saveInterface(dto);
+            fsInterfaceRepository.saveInterface(dto);
         } catch (Exception e) {
             response.setSuccess(false);
         }

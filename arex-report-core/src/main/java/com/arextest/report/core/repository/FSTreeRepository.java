@@ -15,6 +15,4 @@ public interface FSTreeRepository extends RepositoryProvider {
     FSTreeDto queryFSTreeById(String id);
 
     List<WorkspaceDto> queryWorkspacesByUser(String userName);
-
-    FSInterfaceDto saveInterface(FSInterfaceDto interfaceDto);
 }
