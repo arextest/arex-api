@@ -9,10 +9,14 @@ import com.arextest.report.model.api.contracts.filesystem.FSQueryWorkspacesReque
 import com.arextest.report.model.api.contracts.filesystem.FSQueryWorkspacesResponseType;
 import com.arextest.report.model.api.contracts.filesystem.FSRemoveItemRequestType;
 import com.arextest.report.model.api.contracts.filesystem.FSRemoveItemResponseType;
+import com.arextest.report.model.api.contracts.filesystem.FSSaveInterfaceRequestType;
+import com.arextest.report.model.api.contracts.filesystem.FSSaveInterfaceResponseType;
 import com.arextest.report.model.api.contracts.filesystem.FSTreeType;
-import com.arextest.report.model.dto.FSNodeDto;
-import com.arextest.report.model.dto.FSTreeDto;
+import com.arextest.report.model.dto.filesystem.FSInterfaceDto;
+import com.arextest.report.model.dto.filesystem.FSNodeDto;
+import com.arextest.report.model.dto.filesystem.FSTreeDto;
 import com.arextest.report.model.dto.WorkspaceDto;
+import com.arextest.report.model.mapper.FSInterfaceMapper;
 import com.arextest.report.model.mapper.FSTreeMapper;
 import com.arextest.report.model.mapper.WorkspaceMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -21,14 +25,10 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
-import java.util.Set;
 
 @Slf4j
 @Component
@@ -171,6 +171,18 @@ public class FileSystemService {
         FSQueryWorkspacesResponseType response = new FSQueryWorkspacesResponseType();
         List<WorkspaceDto> workspaces = fsTreeRepository.queryWorkspacesByUser(request.getUserName());
         response.setWorkspaces(WorkspaceMapper.INSTANCE.contractFromDtoList(workspaces));
+        return response;
+    }
+
+    public FSSaveInterfaceResponseType saveInterface(FSSaveInterfaceRequestType request) {
+        FSSaveInterfaceResponseType response = new FSSaveInterfaceResponseType();
+        FSInterfaceDto dto = FSInterfaceMapper.INSTANCE.dtoFromContract(request);
+        try {
+            fsTreeRepository.saveInterface(dto);
+        } catch (Exception e) {
+            response.setSuccess(false);
+        }
+        response.setSuccess(true);
         return response;
     }
 

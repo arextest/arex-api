@@ -12,6 +12,8 @@ import com.arextest.report.model.api.contracts.filesystem.FSQueryWorkspacesReque
 import com.arextest.report.model.api.contracts.filesystem.FSQueryWorkspacesResponseType;
 import com.arextest.report.model.api.contracts.filesystem.FSRemoveItemRequestType;
 import com.arextest.report.model.api.contracts.filesystem.FSRemoveItemResponseType;
+import com.arextest.report.model.api.contracts.filesystem.FSSaveInterfaceRequestType;
+import com.arextest.report.model.api.contracts.filesystem.FSSaveInterfaceResponseType;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
@@ -80,6 +82,21 @@ public class FileSystemController {
     public Response queryWorkspaces(@RequestBody FSQueryWorkspacesRequestType request) {
         try {
             FSQueryWorkspacesResponseType response = fileSystemService.queryWorkspacesByUser(request);
+            return ResponseUtils.successResponse(response);
+        } catch (Exception e) {
+            return ResponseUtils.errorResponse(e.getMessage(), ResponseCode.REQUESTED_HANDLE_EXCEPTION);
+        }
+    }
+
+    @PostMapping("/saveInterface")
+    @ResponseBody
+    public Response saveInterface(@RequestBody FSSaveInterfaceRequestType request) {
+        if (StringUtils.isEmpty(request.getId())) {
+            return ResponseUtils.errorResponse("Interface id cannot be empty",
+                    ResponseCode.REQUESTED_PARAMETER_INVALID);
+        }
+        try {
+            FSSaveInterfaceResponseType response = fileSystemService.saveInterface(request);
             return ResponseUtils.successResponse(response);
         } catch (Exception e) {
             return ResponseUtils.errorResponse(e.getMessage(), ResponseCode.REQUESTED_HANDLE_EXCEPTION);

@@ -1,11 +1,15 @@
 package com.arextest.report.core.repository.mongo;
 
 import com.arextest.report.core.repository.FSTreeRepository;
+import com.arextest.report.model.dao.mongodb.FSInterfaceCollection;
 import com.arextest.report.model.dao.mongodb.FSTreeCollection;
-import com.arextest.report.model.dto.FSTreeDto;
+import com.arextest.report.model.dto.filesystem.FSInterfaceDto;
+import com.arextest.report.model.dto.filesystem.FSTreeDto;
 import com.arextest.report.model.dto.WorkspaceDto;
+import com.arextest.report.model.mapper.FSInterfaceMapper;
 import com.arextest.report.model.mapper.FSTreeMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.mapstruct.Mapper;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -80,5 +84,28 @@ public class FSTreeRepositoryImpl implements FSTreeRepository {
             workspaces.add(dto);
         });
         return workspaces;
+    }
+
+    @Override
+    public FSInterfaceDto saveInterface(FSInterfaceDto interfaceDto) {
+        Query query = Query.query(Criteria.where(DASH_ID).is(interfaceDto.getId()));
+        Update update = ArexUpdate.getUpdate();
+
+        FSInterfaceCollection dao = FSInterfaceMapper.INSTANCE.daoFromDto(interfaceDto);
+        for (java.lang.reflect.Field field : dao.getClass().getDeclaredFields()) {
+            field.setAccessible(true);
+            try {
+                update.set(field.getName(), field.get(dao));
+            } catch (IllegalAccessException e) {
+                LOGGER.error(String.format("failed to get field %s", field.getName()), e);
+            }
+        }
+
+        FSInterfaceCollection result = mongoTemplate.findAndModify(query,
+                update,
+                FindAndModifyOptions.options().upsert(true).returnNew(true),
+                FSInterfaceCollection.class);
+
+        return FSInterfaceMapper.INSTANCE.dtoFromDao(result);
     }
 }
