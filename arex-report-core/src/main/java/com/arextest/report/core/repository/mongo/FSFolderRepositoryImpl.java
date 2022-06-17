@@ -2,7 +2,7 @@ package com.arextest.report.core.repository.mongo;
 
 
 import com.arextest.report.core.repository.FSFolderRepository;
-import com.arextest.report.model.dao.mongodb.FSCaseCollection;
+import com.arextest.report.core.repository.mongo.util.MongoHelper;
 import com.arextest.report.model.dao.mongodb.FSFolderCollection;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -22,7 +22,7 @@ public class FSFolderRepositoryImpl implements FSFolderRepository {
     @Override
     public String initFolder() {
         FSFolderCollection dao = new FSFolderCollection();
-        ArexUpdate.initInsertObject(dao);
+        MongoHelper.initInsertObject(dao);
         dao = mongoTemplate.insert(dao);
         return dao.getId();
     }

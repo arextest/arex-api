@@ -1,6 +1,7 @@
 package com.arextest.report.core.repository.mongo;
 
 import com.arextest.report.core.repository.MessagePreprocessRepository;
+import com.arextest.report.core.repository.mongo.util.MongoHelper;
 import com.arextest.report.model.dao.mongodb.MessagePreprocessCollection;
 import com.arextest.report.model.dto.MessagePreprocessDto;
 import com.arextest.report.model.mapper.MessagePreprocessMapper;
@@ -31,7 +32,7 @@ public class MessagePreprocessRepositoryImpl implements MessagePreprocessReposit
         if (dto == null) {
             return null;
         }
-        Update update = ArexUpdate.getUpdate();
+        Update update = MongoHelper.getUpdate();
         update.setOnInsert(PUBLISH_DATE, System.currentTimeMillis());
 
         Query query = Query.query(Criteria.where(KEY).is(dto.getKey())

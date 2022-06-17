@@ -1,15 +1,12 @@
 package com.arextest.report.core.repository.mongo;
 
 import com.arextest.report.core.repository.FSTreeRepository;
-import com.arextest.report.model.dao.mongodb.FSInterfaceCollection;
+import com.arextest.report.core.repository.mongo.util.MongoHelper;
 import com.arextest.report.model.dao.mongodb.FSTreeCollection;
-import com.arextest.report.model.dto.filesystem.FSInterfaceDto;
 import com.arextest.report.model.dto.filesystem.FSTreeDto;
 import com.arextest.report.model.dto.WorkspaceDto;
-import com.arextest.report.model.mapper.FSInterfaceMapper;
 import com.arextest.report.model.mapper.FSTreeMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.mapstruct.Mapper;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -36,7 +33,7 @@ public class FSTreeRepositoryImpl implements FSTreeRepository {
     @Override
     public FSTreeDto initFSTree(FSTreeDto dto) {
         FSTreeCollection dao = FSTreeMapper.INSTANCE.daoFromDto(dto);
-        ArexUpdate.initInsertObject(dao);
+        MongoHelper.initInsertObject(dao);
         FSTreeCollection result = mongoTemplate.insert(dao);
         return FSTreeMapper.INSTANCE.dtoFromDao(result);
     }
@@ -44,7 +41,7 @@ public class FSTreeRepositoryImpl implements FSTreeRepository {
     @Override
     public FSTreeDto updateFSTree(FSTreeDto dto) {
 
-        Update update = ArexUpdate.getUpdate();
+        Update update = MongoHelper.getUpdate();
         update.setOnInsert(WORKSPACE_NAME, dto.getWorkspaceName());
         update.setOnInsert(USERNAME, dto.getUserName());
         update.set(ROOTS, dto.getRoots());

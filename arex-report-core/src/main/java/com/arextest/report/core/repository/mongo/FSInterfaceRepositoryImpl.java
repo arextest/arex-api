@@ -1,6 +1,7 @@
 package com.arextest.report.core.repository.mongo;
 
 import com.arextest.report.core.repository.FSInterfaceRepository;
+import com.arextest.report.core.repository.mongo.util.MongoHelper;
 import com.arextest.report.model.dao.mongodb.FSInterfaceCollection;
 import com.arextest.report.model.dto.filesystem.FSInterfaceDto;
 import com.arextest.report.model.mapper.FSInterfaceMapper;
@@ -26,7 +27,7 @@ public class FSInterfaceRepositoryImpl implements FSInterfaceRepository {
     @Override
     public String initInterface() {
         FSInterfaceCollection dao = new FSInterfaceCollection();
-        ArexUpdate.initInsertObject(dao);
+        MongoHelper.initInsertObject(dao);
         dao = mongoTemplate.insert(dao);
         return dao.getId();
     }
@@ -40,10 +41,10 @@ public class FSInterfaceRepositoryImpl implements FSInterfaceRepository {
     @Override
     public FSInterfaceDto saveInterface(FSInterfaceDto interfaceDto) {
         Query query = Query.query(Criteria.where(DASH_ID).is(interfaceDto.getId()));
-        Update update = ArexUpdate.getUpdate();
+        Update update = MongoHelper.getUpdate();
 
         FSInterfaceCollection dao = FSInterfaceMapper.INSTANCE.daoFromDto(interfaceDto);
-        ArexUpdate.appendFullProperties(update, dao);
+        MongoHelper.appendFullProperties(update, dao);
 
         FSInterfaceCollection result = mongoTemplate.findAndModify(query,
                 update,

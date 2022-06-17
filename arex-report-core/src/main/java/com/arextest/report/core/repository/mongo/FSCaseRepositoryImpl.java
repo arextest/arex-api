@@ -1,6 +1,7 @@
 package com.arextest.report.core.repository.mongo;
 
 import com.arextest.report.core.repository.FSCaseRepository;
+import com.arextest.report.core.repository.mongo.util.MongoHelper;
 import com.arextest.report.model.dao.mongodb.FSCaseCollection;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -20,7 +21,7 @@ public class FSCaseRepositoryImpl implements FSCaseRepository {
     @Override
     public String initCase() {
         FSCaseCollection dao = new FSCaseCollection();
-        ArexUpdate.initInsertObject(dao);
+        MongoHelper.initInsertObject(dao);
         dao = mongoTemplate.insert(dao);
         return dao.getId();
     }
