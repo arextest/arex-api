@@ -1,22 +1,31 @@
 package com.arextest.report.core.business.filesystem;
 
+import com.arextest.report.core.repository.FSCaseRepository;
 import com.arextest.report.core.repository.FSInterfaceRepository;
 import com.arextest.report.core.repository.FSTreeRepository;
 import com.arextest.report.model.api.contracts.filesystem.FSAddItemRequestType;
 import com.arextest.report.model.api.contracts.filesystem.FSAddItemResponseType;
+import com.arextest.report.model.api.contracts.filesystem.FSQueryCaseRequestType;
+import com.arextest.report.model.api.contracts.filesystem.FSQueryCaseResponseType;
+import com.arextest.report.model.api.contracts.filesystem.FSQueryInterfaceRequestType;
+import com.arextest.report.model.api.contracts.filesystem.FSQueryInterfaceResponseType;
 import com.arextest.report.model.api.contracts.filesystem.FSQueryWorkspaceRequestType;
 import com.arextest.report.model.api.contracts.filesystem.FSQueryWorkspaceResponseType;
 import com.arextest.report.model.api.contracts.filesystem.FSQueryWorkspacesRequestType;
 import com.arextest.report.model.api.contracts.filesystem.FSQueryWorkspacesResponseType;
 import com.arextest.report.model.api.contracts.filesystem.FSRemoveItemRequestType;
 import com.arextest.report.model.api.contracts.filesystem.FSRemoveItemResponseType;
+import com.arextest.report.model.api.contracts.filesystem.FSSaveCaseRequestType;
+import com.arextest.report.model.api.contracts.filesystem.FSSaveCaseResponseType;
 import com.arextest.report.model.api.contracts.filesystem.FSSaveInterfaceRequestType;
 import com.arextest.report.model.api.contracts.filesystem.FSSaveInterfaceResponseType;
 import com.arextest.report.model.api.contracts.filesystem.FSTreeType;
+import com.arextest.report.model.dto.filesystem.FSCaseDto;
 import com.arextest.report.model.dto.filesystem.FSInterfaceDto;
 import com.arextest.report.model.dto.filesystem.FSNodeDto;
 import com.arextest.report.model.dto.filesystem.FSTreeDto;
 import com.arextest.report.model.dto.WorkspaceDto;
+import com.arextest.report.model.mapper.FSCaseMapper;
 import com.arextest.report.model.mapper.FSInterfaceMapper;
 import com.arextest.report.model.mapper.FSTreeMapper;
 import com.arextest.report.model.mapper.WorkspaceMapper;
@@ -42,6 +51,9 @@ public class FileSystemService {
 
     @Resource
     private FSInterfaceRepository fsInterfaceRepository;
+
+    @Resource
+    private FSCaseRepository fsCaseRepository;
 
     @Resource
     private ItemInfoFactory itemInfoFactory;
@@ -74,10 +86,11 @@ public class FileSystemService {
                 dto = fsTreeRepository.queryFSTreeById(request.getId());
             }
 
+            String infoId = null;
             if (StringUtils.isEmpty(request.getParentPath())) {
                 FSNodeDto nodeDto = new FSNodeDto();
                 nodeDto.setNodeName(request.getNodeName());
-                String infoId = itemInfo.saveItem();
+                infoId = itemInfo.saveItem();
                 nodeDto.setInfoId(infoId);
                 nodeDto.setNodeType(request.getNodeType());
                 dto.getRoots().put(request.getNodeName(), nodeDto);
@@ -109,7 +122,7 @@ public class FileSystemService {
                     }
                     FSNodeDto newNodeDto = new FSNodeDto();
                     newNodeDto.setNodeName(request.getNodeName());
-                    String infoId = itemInfo.saveItem();
+                    infoId = itemInfo.saveItem();
                     newNodeDto.setInfoId(infoId);
                     newNodeDto.setNodeType(request.getNodeType());
                     current.getChildren().put(request.getNodeName(), newNodeDto);
@@ -120,6 +133,7 @@ public class FileSystemService {
                 }
             }
             fsTreeRepository.updateFSTree(dto);
+            response.setInfoId(infoId);
             response.setSuccess(true);
 
         } catch (Exception e) {
@@ -188,6 +202,34 @@ public class FileSystemService {
         }
         response.setSuccess(true);
         return response;
+    }
+
+    public FSQueryInterfaceResponseType queryInterface(FSQueryInterfaceRequestType request) {
+        FSInterfaceDto dto = fsInterfaceRepository.queryInterface(request.getId());
+        if (dto == null) {
+            return new FSQueryInterfaceResponseType();
+        }
+        return FSInterfaceMapper.INSTANCE.contractFromDto(dto);
+    }
+
+    public FSSaveCaseResponseType saveCase(FSSaveCaseRequestType request) {
+        FSSaveCaseResponseType response = new FSSaveCaseResponseType();
+        FSCaseDto dto = FSCaseMapper.INSTANCE.dtoFromContract(request);
+        try {
+            fsCaseRepository.saveCase(dto);
+        } catch (Exception e) {
+            response.setSuccess(false);
+        }
+        response.setSuccess(true);
+        return response;
+    }
+
+    public FSQueryCaseResponseType queryCase(FSQueryCaseRequestType request) {
+        FSCaseDto dto = fsCaseRepository.queryCase(request.getId());
+        if (dto == null) {
+            return new FSQueryCaseResponseType();
+        }
+        return FSCaseMapper.INSTANCE.contractFromDto(dto);
     }
 
     private void removeItems(FSNodeDto fsNodeDto) {

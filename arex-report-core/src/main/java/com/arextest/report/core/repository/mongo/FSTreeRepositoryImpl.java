@@ -22,7 +22,6 @@ import java.util.List;
 @Slf4j
 @Component
 public class FSTreeRepositoryImpl implements FSTreeRepository {
-    private static final String DASH_ID = "_id";
     private static final String WORKSPACE_NAME = "workspaceName";
     private static final String USERNAME = "userName";
     private static final String ROOTS = "roots";

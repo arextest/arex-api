@@ -6,6 +6,7 @@ import com.arextest.report.model.dao.mongodb.FSInterfaceCollection;
 import com.arextest.report.model.dto.filesystem.FSInterfaceDto;
 import com.arextest.report.model.mapper.FSInterfaceMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -18,8 +19,6 @@ import javax.annotation.Resource;
 @Slf4j
 @Component
 public class FSInterfaceRepositoryImpl implements FSInterfaceRepository {
-
-    private static final String DASH_ID = "_id";
 
     @Resource
     private MongoTemplate mongoTemplate;
@@ -52,5 +51,14 @@ public class FSInterfaceRepositoryImpl implements FSInterfaceRepository {
                 FSInterfaceCollection.class);
 
         return FSInterfaceMapper.INSTANCE.dtoFromDao(result);
+    }
+
+    @Override
+    public FSInterfaceDto queryInterface(String id) {
+        FSInterfaceCollection dao = mongoTemplate.findById(new ObjectId(id), FSInterfaceCollection.class);
+        if (dao == null) {
+            return null;
+        }
+        return FSInterfaceMapper.INSTANCE.dtoFromDao(dao);
     }
 }

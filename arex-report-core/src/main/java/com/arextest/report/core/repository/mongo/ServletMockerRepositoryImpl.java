@@ -19,7 +19,6 @@ import java.util.stream.Collectors;
 @Component
 public class ServletMockerRepositoryImpl implements ServletMockerRepository {
     private static final String INDEX = "index";
-    private static final String DASH_ID = "_id";
 
     @Resource
     private MongoTemplate mongoTemplate;
