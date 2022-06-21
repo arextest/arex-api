@@ -11,7 +11,6 @@ import java.util.List;
 @Data
 @Document(collection = "FSInterfaceCollection")
 public class FSInterfaceCollection extends ModelBase {
-    private String name;
     private String endpoint;
     private String method;
     private String preRequestScript;

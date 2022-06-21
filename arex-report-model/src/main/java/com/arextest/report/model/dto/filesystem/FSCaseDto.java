@@ -7,7 +7,6 @@ import java.util.List;
 @Data
 public class FSCaseDto {
     private String id;
-    private String name;
     private String preRequestScript;
     private String testScript;
     private BodyDto body;

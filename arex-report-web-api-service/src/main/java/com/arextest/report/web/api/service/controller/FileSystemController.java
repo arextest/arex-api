@@ -16,6 +16,8 @@ import com.arextest.report.model.api.contracts.filesystem.FSQueryWorkspacesReque
 import com.arextest.report.model.api.contracts.filesystem.FSQueryWorkspacesResponseType;
 import com.arextest.report.model.api.contracts.filesystem.FSRemoveItemRequestType;
 import com.arextest.report.model.api.contracts.filesystem.FSRemoveItemResponseType;
+import com.arextest.report.model.api.contracts.filesystem.FSRenameRequestType;
+import com.arextest.report.model.api.contracts.filesystem.FSRenameResponseType;
 import com.arextest.report.model.api.contracts.filesystem.FSSaveCaseRequestType;
 import com.arextest.report.model.api.contracts.filesystem.FSSaveCaseResponseType;
 import com.arextest.report.model.api.contracts.filesystem.FSSaveInterfaceRequestType;
@@ -66,6 +68,27 @@ public class FileSystemController {
         }
         try {
             FSRemoveItemResponseType response = fileSystemService.removeItem(request);
+            return ResponseUtils.successResponse(response);
+        } catch (Exception e) {
+            return ResponseUtils.errorResponse(e.getMessage(), ResponseCode.REQUESTED_HANDLE_EXCEPTION);
+        }
+    }
+
+    @PostMapping("/rename")
+    @ResponseBody
+    public Response rename(@RequestBody FSRenameRequestType request) {
+        if (StringUtils.isEmpty(request.getId())) {
+            return ResponseUtils.errorResponse("Cannot rename item because id is empty",
+                    ResponseCode.REQUESTED_PARAMETER_INVALID);
+        }
+        if (StringUtils.isEmpty(request.getPath())) {
+            return ResponseUtils.errorResponse("Old name cannot be empty",
+                    ResponseCode.REQUESTED_PARAMETER_INVALID);
+        }
+        FSRenameResponseType response = new FSRenameResponseType();
+        try {
+            Boolean success = fileSystemService.rename(request);
+            response.setSuccess(success);
             return ResponseUtils.successResponse(response);
         } catch (Exception e) {
             return ResponseUtils.errorResponse(e.getMessage(), ResponseCode.REQUESTED_HANDLE_EXCEPTION);
