@@ -6,12 +6,18 @@ import com.arextest.common.utils.ResponseUtils;
 import com.arextest.report.core.business.filesystem.FileSystemService;
 import com.arextest.report.model.api.contracts.filesystem.FSAddItemRequestType;
 import com.arextest.report.model.api.contracts.filesystem.FSAddItemResponseType;
+import com.arextest.report.model.api.contracts.filesystem.FSQueryCaseRequestType;
+import com.arextest.report.model.api.contracts.filesystem.FSQueryCaseResponseType;
+import com.arextest.report.model.api.contracts.filesystem.FSQueryInterfaceRequestType;
+import com.arextest.report.model.api.contracts.filesystem.FSQueryInterfaceResponseType;
 import com.arextest.report.model.api.contracts.filesystem.FSQueryWorkspaceRequestType;
 import com.arextest.report.model.api.contracts.filesystem.FSQueryWorkspaceResponseType;
 import com.arextest.report.model.api.contracts.filesystem.FSQueryWorkspacesRequestType;
 import com.arextest.report.model.api.contracts.filesystem.FSQueryWorkspacesResponseType;
 import com.arextest.report.model.api.contracts.filesystem.FSRemoveItemRequestType;
 import com.arextest.report.model.api.contracts.filesystem.FSRemoveItemResponseType;
+import com.arextest.report.model.api.contracts.filesystem.FSSaveCaseRequestType;
+import com.arextest.report.model.api.contracts.filesystem.FSSaveCaseResponseType;
 import com.arextest.report.model.api.contracts.filesystem.FSSaveInterfaceRequestType;
 import com.arextest.report.model.api.contracts.filesystem.FSSaveInterfaceResponseType;
 import lombok.extern.slf4j.Slf4j;
@@ -97,6 +103,43 @@ public class FileSystemController {
         }
         try {
             FSSaveInterfaceResponseType response = fileSystemService.saveInterface(request);
+            return ResponseUtils.successResponse(response);
+        } catch (Exception e) {
+            return ResponseUtils.errorResponse(e.getMessage(), ResponseCode.REQUESTED_HANDLE_EXCEPTION);
+        }
+    }
+
+    @PostMapping("/queryInterface")
+    @ResponseBody
+    public Response queryInterface(@RequestBody FSQueryInterfaceRequestType request) {
+        try {
+            FSQueryInterfaceResponseType response = fileSystemService.queryInterface(request);
+            return ResponseUtils.successResponse(response);
+        } catch (Exception e) {
+            return ResponseUtils.errorResponse(e.getMessage(), ResponseCode.REQUESTED_HANDLE_EXCEPTION);
+        }
+    }
+
+    @PostMapping("/saveCase")
+    @ResponseBody
+    public Response saveCase(@RequestBody FSSaveCaseRequestType request) {
+        if (StringUtils.isEmpty(request.getId())) {
+            return ResponseUtils.errorResponse("Case id cannot be empty",
+                    ResponseCode.REQUESTED_PARAMETER_INVALID);
+        }
+        try {
+            FSSaveCaseResponseType response = fileSystemService.saveCase(request);
+            return ResponseUtils.successResponse(response);
+        } catch (Exception e) {
+            return ResponseUtils.errorResponse(e.getMessage(), ResponseCode.REQUESTED_HANDLE_EXCEPTION);
+        }
+    }
+
+    @PostMapping("/queryCase")
+    @ResponseBody
+    public Response queryCase(@RequestBody FSQueryCaseRequestType request) {
+        try {
+            FSQueryCaseResponseType response = fileSystemService.queryCase(request);
             return ResponseUtils.successResponse(response);
         } catch (Exception e) {
             return ResponseUtils.errorResponse(e.getMessage(), ResponseCode.REQUESTED_HANDLE_EXCEPTION);

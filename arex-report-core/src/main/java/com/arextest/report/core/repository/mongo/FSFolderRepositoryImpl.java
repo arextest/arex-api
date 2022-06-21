@@ -14,8 +14,6 @@ import javax.annotation.Resource;
 @Component
 public class FSFolderRepositoryImpl implements FSFolderRepository {
 
-    private static final String DASH_ID = "_id";
-
     @Resource
     private MongoTemplate mongoTemplate;
 

@@ -36,7 +36,6 @@ public class ReplayCompareResultRepositoryImpl implements ReplayCompareResultRep
     private static final String RECORD_ID = "recordId";
     private static final String DIFF_RESULT_CODE = "diffResultCode";
     private static final String LOGS = "logs";
-    private static final String DASH_ID = "_id";
 
     @Resource
     private MongoTemplate mongoTemplate;
