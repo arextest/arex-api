@@ -15,6 +15,8 @@ import com.arextest.report.model.api.contracts.filesystem.FSQueryWorkspacesReque
 import com.arextest.report.model.api.contracts.filesystem.FSQueryWorkspacesResponseType;
 import com.arextest.report.model.api.contracts.filesystem.FSRemoveItemRequestType;
 import com.arextest.report.model.api.contracts.filesystem.FSRemoveItemResponseType;
+import com.arextest.report.model.api.contracts.filesystem.FSRenameRequestType;
+import com.arextest.report.model.api.contracts.filesystem.FSRenameResponseType;
 import com.arextest.report.model.api.contracts.filesystem.FSSaveCaseRequestType;
 import com.arextest.report.model.api.contracts.filesystem.FSSaveCaseResponseType;
 import com.arextest.report.model.api.contracts.filesystem.FSSaveInterfaceRequestType;
@@ -175,6 +177,38 @@ public class FileSystemService {
         fsTreeRepository.updateFSTree(treeDto);
         response.setSuccess(true);
         return response;
+    }
+
+    public Boolean rename(FSRenameRequestType request) {
+        FSRenameResponseType response = new FSRenameResponseType();
+
+        FSTreeDto fsTreeDto = fsTreeRepository.queryFSTreeById(request.getId());
+        if (fsTreeDto == null) {
+            return false;
+        }
+        String[] pathArr = request.getPath().split(DELIMITER);
+        Map<String, FSNodeDto> tmp = fsTreeDto.getRoots();
+        for (int i = 0; i < pathArr.length - 1; i++) {
+            String pathNode = pathArr[i];
+            if (tmp == null || tmp.size() == 0) {
+                return false;
+            }
+            if (!tmp.containsKey(pathNode)) {
+                return false;
+            }
+            tmp = tmp.get(pathNode).getChildren();
+        }
+        String last = pathArr[pathArr.length - 1];
+        if (!tmp.containsKey(last)) {
+            return false;
+        }
+        FSNodeDto dto = tmp.get(last);
+        tmp.remove(last);
+        dto.setNodeName(request.getNewName());
+        tmp.put(request.getNewName(), dto);
+
+        fsTreeRepository.updateFSTree(fsTreeDto);
+        return true;
     }
 
     public FSQueryWorkspaceResponseType queryWorkspaceById(FSQueryWorkspaceRequestType request) {

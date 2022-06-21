@@ -7,7 +7,6 @@ import java.util.List;
 @Data
 public class FSSaveCaseRequestType {
     private String id;
-    private String name;
     private String preRequestScript;
     private String testScript;
     private BodyType body;

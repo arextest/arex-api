@@ -11,7 +11,6 @@ import java.util.List;
 @Data
 @Document(collection = "FSCaseCollection")
 public class FSCaseCollection extends ModelBase {
-    private String name;
     private String preRequestScript;
     private String testScript;
     private BodyDao body;
