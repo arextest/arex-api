@@ -46,7 +46,6 @@ import java.util.Queue;
 @Component
 public class FileSystemService {
     private static final String DEFAULT_WORKSPACE_NAME = "MyWorkSpace";
-    private static final String DELIMITER = "\\.";
 
     @Resource
     private FSTreeRepository fsTreeRepository;
@@ -89,7 +88,7 @@ public class FileSystemService {
             }
 
             String infoId = null;
-            if (StringUtils.isEmpty(request.getParentPath())) {
+            if (request.getParentPath() == null || request.getParentPath().length == 0) {
                 FSNodeDto nodeDto = new FSNodeDto();
                 nodeDto.setNodeName(request.getNodeName());
                 infoId = itemInfo.saveItem();
@@ -97,7 +96,7 @@ public class FileSystemService {
                 nodeDto.setNodeType(request.getNodeType());
                 dto.getRoots().put(request.getNodeName(), nodeDto);
             } else {
-                String[] nodes = request.getParentPath().split(DELIMITER);
+                String[] nodes = request.getParentPath();
 
                 FSNodeDto current = dto.getRoots().get(nodes[0]);
                 if (current == null) {
@@ -154,7 +153,7 @@ public class FileSystemService {
         }
         Map<String, FSNodeDto> current = treeDto.getRoots();
 
-        String[] nodes = request.getRemoveNodePath().split(DELIMITER);
+        String[] nodes = request.getRemoveNodePath();
         for (int i = 0; i < nodes.length - 1; i++) {
             if (current == null) {
                 response.setSuccess(false);
@@ -180,13 +179,12 @@ public class FileSystemService {
     }
 
     public Boolean rename(FSRenameRequestType request) {
-        FSRenameResponseType response = new FSRenameResponseType();
 
         FSTreeDto fsTreeDto = fsTreeRepository.queryFSTreeById(request.getId());
         if (fsTreeDto == null) {
             return false;
         }
-        String[] pathArr = request.getPath().split(DELIMITER);
+        String[] pathArr = request.getPath();
         Map<String, FSNodeDto> tmp = fsTreeDto.getRoots();
         for (int i = 0; i < pathArr.length - 1; i++) {
             String pathNode = pathArr[i];
