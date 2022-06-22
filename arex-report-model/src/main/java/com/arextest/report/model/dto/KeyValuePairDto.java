@@ -1,4 +1,4 @@
-package com.arextest.report.model.dto.filesystem;
+package com.arextest.report.model.dto;
 
 import lombok.Data;
 

@@ -14,7 +14,6 @@ import com.arextest.report.model.api.contracts.filesystem.FSQueryWorkspaceRespon
 import com.arextest.report.model.api.contracts.filesystem.FSQueryWorkspacesRequestType;
 import com.arextest.report.model.api.contracts.filesystem.FSQueryWorkspacesResponseType;
 import com.arextest.report.model.api.contracts.filesystem.FSRemoveItemRequestType;
-import com.arextest.report.model.api.contracts.filesystem.FSRemoveItemResponseType;
 import com.arextest.report.model.api.contracts.filesystem.FSRenameRequestType;
 import com.arextest.report.model.api.contracts.filesystem.FSSaveCaseRequestType;
 import com.arextest.report.model.api.contracts.filesystem.FSSaveCaseResponseType;
@@ -37,9 +36,7 @@ import org.springframework.stereotype.Component;
 import javax.annotation.Resource;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Queue;
 import java.util.stream.Collectors;
 

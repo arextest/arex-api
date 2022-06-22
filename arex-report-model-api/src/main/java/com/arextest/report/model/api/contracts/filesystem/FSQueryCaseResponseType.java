@@ -1,5 +1,6 @@
 package com.arextest.report.model.api.contracts.filesystem;
 
+import com.arextest.report.model.api.contracts.common.KeyValuePairType;
 import lombok.Data;
 
 import java.util.List;

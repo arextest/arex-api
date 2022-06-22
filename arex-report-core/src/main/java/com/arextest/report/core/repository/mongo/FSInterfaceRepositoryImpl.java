@@ -34,7 +34,7 @@ public class FSInterfaceRepositoryImpl implements FSInterfaceRepository {
     public Boolean removeInterface(String id) {
         Query query = Query.query(Criteria.where(DASH_ID).is(id));
         FSInterfaceCollection dao = mongoTemplate.findAndRemove(query, FSInterfaceCollection.class);
-        return true;
+        return dao != null ? true : false;
     }
 
     @Override
