@@ -1,5 +1,6 @@
 package com.arextest.report.model.dto.filesystem;
 
+import com.arextest.report.model.dto.KeyValuePairDto;
 import lombok.Data;
 
 import java.util.List;
