@@ -62,7 +62,7 @@ public class FileSystemController {
         if (StringUtils.isEmpty(request.getId())) {
             return ResponseUtils.errorResponse("id cannot be empty", ResponseCode.REQUESTED_PARAMETER_INVALID);
         }
-        if (StringUtils.isEmpty(request.getRemoveNodePath())) {
+        if (request.getRemoveNodePath() == null || request.getRemoveNodePath().length == 0) {
             return ResponseUtils.errorResponse("remove node path cannot be empty",
                     ResponseCode.REQUESTED_PARAMETER_INVALID);
         }
@@ -81,7 +81,7 @@ public class FileSystemController {
             return ResponseUtils.errorResponse("Cannot rename item because id is empty",
                     ResponseCode.REQUESTED_PARAMETER_INVALID);
         }
-        if (StringUtils.isEmpty(request.getPath())) {
+        if (request.getPath() == null || request.getPath().length == 0) {
             return ResponseUtils.errorResponse("Old name cannot be empty",
                     ResponseCode.REQUESTED_PARAMETER_INVALID);
         }
