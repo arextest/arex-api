@@ -16,17 +16,16 @@ import com.arextest.report.model.api.contracts.filesystem.FSQueryWorkspacesRespo
 import com.arextest.report.model.api.contracts.filesystem.FSRemoveItemRequestType;
 import com.arextest.report.model.api.contracts.filesystem.FSRemoveItemResponseType;
 import com.arextest.report.model.api.contracts.filesystem.FSRenameRequestType;
-import com.arextest.report.model.api.contracts.filesystem.FSRenameResponseType;
 import com.arextest.report.model.api.contracts.filesystem.FSSaveCaseRequestType;
 import com.arextest.report.model.api.contracts.filesystem.FSSaveCaseResponseType;
 import com.arextest.report.model.api.contracts.filesystem.FSSaveInterfaceRequestType;
 import com.arextest.report.model.api.contracts.filesystem.FSSaveInterfaceResponseType;
 import com.arextest.report.model.api.contracts.filesystem.FSTreeType;
+import com.arextest.report.model.dto.WorkspaceDto;
 import com.arextest.report.model.dto.filesystem.FSCaseDto;
 import com.arextest.report.model.dto.filesystem.FSInterfaceDto;
 import com.arextest.report.model.dto.filesystem.FSNodeDto;
 import com.arextest.report.model.dto.filesystem.FSTreeDto;
-import com.arextest.report.model.dto.WorkspaceDto;
 import com.arextest.report.model.mapper.FSCaseMapper;
 import com.arextest.report.model.mapper.FSInterfaceMapper;
 import com.arextest.report.model.mapper.FSTreeMapper;
@@ -37,10 +36,12 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -81,7 +82,7 @@ public class FileSystemService {
                 dto = new FSTreeDto();
                 dto.setWorkspaceName(request.getWorkspaceName());
                 dto.setUserName(request.getUserName());
-                dto.setRoots(new HashMap<>());
+                dto.setRoots(new ArrayList<>());
                 dto = fsTreeRepository.initFSTree(dto);
             } else {
                 dto = fsTreeRepository.queryFSTreeById(request.getId());
@@ -94,39 +95,44 @@ public class FileSystemService {
                 infoId = itemInfo.saveItem();
                 nodeDto.setInfoId(infoId);
                 nodeDto.setNodeType(request.getNodeType());
-                dto.getRoots().put(request.getNodeName(), nodeDto);
+                dto.getRoots().add(0, nodeDto);
             } else {
                 String[] nodes = request.getParentPath();
 
-                FSNodeDto current = dto.getRoots().get(nodes[0]);
+                FSNodeDto current = findByInfoId(dto.getRoots(), nodes[0]);
                 if (current == null) {
                     response.setSuccess(false);
                     return response;
                 }
-                boolean error = false;
 
+                boolean error = false;
                 for (int i = 1; i < nodes.length; i++) {
                     String node = nodes[i];
                     if (current == null) {
                         error = true;
                         break;
                     }
-                    if (current.getChildren() == null || !current.getChildren().containsKey(node)) {
+                    if (current.getChildren() == null || current.getChildren().size() == 0) {
                         error = true;
                         break;
                     }
-                    current = current.getChildren().get(node);
+                    current = findByInfoId(current.getChildren(), node);
+
+                    if (current == null) {
+                        error = true;
+                        break;
+                    }
                 }
                 if (!error) {
                     if (current.getChildren() == null) {
-                        current.setChildren(new HashMap<>());
+                        current.setChildren(new ArrayList<>());
                     }
                     FSNodeDto newNodeDto = new FSNodeDto();
                     newNodeDto.setNodeName(request.getNodeName());
                     infoId = itemInfo.saveItem();
                     newNodeDto.setInfoId(infoId);
                     newNodeDto.setNodeType(request.getNodeType());
-                    current.getChildren().put(request.getNodeName(), newNodeDto);
+                    current.getChildren().add(0, newNodeDto);
 
                 } else {
                     response.setSuccess(false);
@@ -151,7 +157,7 @@ public class FileSystemService {
             response.setSuccess(false);
             return response;
         }
-        Map<String, FSNodeDto> current = treeDto.getRoots();
+        List<FSNodeDto> current = treeDto.getRoots();
 
         String[] nodes = request.getRemoveNodePath();
         for (int i = 0; i < nodes.length - 1; i++) {
@@ -160,19 +166,22 @@ public class FileSystemService {
                 return response;
             }
             String node = nodes[i];
-            if (!current.containsKey(node)) {
+            FSNodeDto find = findByInfoId(current, node);
+
+            if (find == null) {
                 response.setSuccess(false);
                 return response;
             }
-            current = current.get(node).getChildren();
+            current = find.getChildren();
         }
         if (current == null) {
             response.setSuccess(false);
             return response;
         }
-        FSNodeDto needRemove = current.get(nodes[nodes.length - 1]);
+
+        FSNodeDto needRemove = findByInfoId(current, nodes[nodes.length - 1]);
         removeItems(needRemove);
-        current.remove(needRemove.getNodeName());
+        current.remove(needRemove);
         fsTreeRepository.updateFSTree(treeDto);
         response.setSuccess(true);
         return response;
@@ -185,25 +194,25 @@ public class FileSystemService {
             return false;
         }
         String[] pathArr = request.getPath();
-        Map<String, FSNodeDto> tmp = fsTreeDto.getRoots();
+        List<FSNodeDto> tmp = fsTreeDto.getRoots();
         for (int i = 0; i < pathArr.length - 1; i++) {
             String pathNode = pathArr[i];
             if (tmp == null || tmp.size() == 0) {
                 return false;
             }
-            if (!tmp.containsKey(pathNode)) {
+            FSNodeDto find = findByInfoId(tmp, pathNode);
+            if (find == null) {
                 return false;
             }
-            tmp = tmp.get(pathNode).getChildren();
+            tmp = find.getChildren();
         }
         String last = pathArr[pathArr.length - 1];
-        if (!tmp.containsKey(last)) {
+        FSNodeDto dto = findByInfoId(tmp, last);
+
+        if (dto == null) {
             return false;
         }
-        FSNodeDto dto = tmp.get(last);
-        tmp.remove(last);
         dto.setNodeName(request.getNewName());
-        tmp.put(request.getNewName(), dto);
 
         fsTreeRepository.updateFSTree(fsTreeDto);
         return true;
@@ -276,8 +285,19 @@ public class FileSystemService {
             ItemInfo itemInfo = itemInfoFactory.getItemInfo(fsNodeDto.getNodeType());
             itemInfo.removeItem(dto.getInfoId());
             if (dto.getChildren() != null && dto.getChildren().size() > 0) {
-                queue.addAll(dto.getChildren().values());
+                queue.addAll(dto.getChildren());
             }
         }
+    }
+
+    private FSNodeDto findByInfoId(List<FSNodeDto> list, String infoId) {
+        if (list == null || list.size() == 0) {
+            return null;
+        }
+        List<FSNodeDto> filter = list.stream().filter(f -> f.getInfoId().equals(infoId)).collect(Collectors.toList());
+        if (filter == null || filter.size() == 0) {
+            return null;
+        }
+        return filter.get(0);
     }
 }
