@@ -67,7 +67,8 @@ public class FileSystemController {
                     ResponseCode.REQUESTED_PARAMETER_INVALID);
         }
         try {
-            FSRemoveItemResponseType response = fileSystemService.removeItem(request);
+            FSRemoveItemResponseType response = new FSRemoveItemResponseType();
+            response.setSuccess(fileSystemService.removeItem(request));
             return ResponseUtils.successResponse(response);
         } catch (Exception e) {
             return ResponseUtils.errorResponse(e.getMessage(), ResponseCode.REQUESTED_HANDLE_EXCEPTION);
