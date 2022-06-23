@@ -108,10 +108,6 @@ public class FileSystemService {
                 boolean error = false;
                 for (int i = 1; i < nodes.length; i++) {
                     String node = nodes[i];
-                    if (current == null) {
-                        error = true;
-                        break;
-                    }
                     if (current.getChildren() == null || current.getChildren().size() == 0) {
                         error = true;
                         break;
@@ -150,41 +146,33 @@ public class FileSystemService {
         return response;
     }
 
-    public FSRemoveItemResponseType removeItem(FSRemoveItemRequestType request) {
-        FSRemoveItemResponseType response = new FSRemoveItemResponseType();
+    public Boolean removeItem(FSRemoveItemRequestType request) {
         FSTreeDto treeDto = fsTreeRepository.queryFSTreeById(request.getId());
         if (treeDto == null) {
-            response.setSuccess(false);
-            return response;
+            return false;
         }
         List<FSNodeDto> current = treeDto.getRoots();
+        if (current == null) {
+            return false;
+        }
 
         String[] nodes = request.getRemoveNodePath();
         for (int i = 0; i < nodes.length - 1; i++) {
-            if (current == null) {
-                response.setSuccess(false);
-                return response;
-            }
+
             String node = nodes[i];
             FSNodeDto find = findByInfoId(current, node);
 
-            if (find == null) {
-                response.setSuccess(false);
-                return response;
+            if (find == null || find.getChildren() == null) {
+                return false;
             }
             current = find.getChildren();
-        }
-        if (current == null) {
-            response.setSuccess(false);
-            return response;
         }
 
         FSNodeDto needRemove = findByInfoId(current, nodes[nodes.length - 1]);
         removeItems(needRemove);
         current.remove(needRemove);
         fsTreeRepository.updateFSTree(treeDto);
-        response.setSuccess(true);
-        return response;
+        return true;
     }
 
     public Boolean rename(FSRenameRequestType request) {
@@ -282,7 +270,7 @@ public class FileSystemService {
 
         while (!queue.isEmpty()) {
             FSNodeDto dto = queue.poll();
-            ItemInfo itemInfo = itemInfoFactory.getItemInfo(fsNodeDto.getNodeType());
+            ItemInfo itemInfo = itemInfoFactory.getItemInfo(dto.getNodeType());
             itemInfo.removeItem(dto.getInfoId());
             if (dto.getChildren() != null && dto.getChildren().size() > 0) {
                 queue.addAll(dto.getChildren());
