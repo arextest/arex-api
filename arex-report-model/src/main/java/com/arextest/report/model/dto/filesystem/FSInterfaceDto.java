@@ -8,12 +8,13 @@ import java.util.List;
 @Data
 public class FSInterfaceDto {
     private String id;
-    private String endpoint;
-    private String method;
+    private AddressDto address;
     private String preRequestScript;
     private String testScript;
     private BodyDto body;
     private List<KeyValuePairDto> headers;
     private List<KeyValuePairDto> params;
     private AuthDto auth;
+    private AddressDto baseAddress;
+    private AddressDto testAddress;
 }
