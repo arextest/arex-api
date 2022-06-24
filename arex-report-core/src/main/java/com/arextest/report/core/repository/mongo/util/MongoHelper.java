@@ -17,7 +17,9 @@ public class MongoHelper {
         for (java.lang.reflect.Field field : obj.getClass().getDeclaredFields()) {
             field.setAccessible(true);
             try {
-                update.set(field.getName(), field.get(obj));
+                if (field.get(obj) != null) {
+                    update.set(field.getName(), field.get(obj));
+                }
             } catch (IllegalAccessException e) {
                 LOGGER.error(String.format("Class:[%s]. failed to get field %s",
                         obj.getClass().getName(),
