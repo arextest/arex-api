@@ -21,4 +21,6 @@ public class FSInterfaceCollection extends ModelBase {
     private AuthDao auth;
     private AddressDao baseAddress;
     private AddressDao testAddress;
+    private String parentId;
+    private Integer parentNodeType;
 }

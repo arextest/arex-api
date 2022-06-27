@@ -5,6 +5,7 @@ import com.arextest.report.core.repository.RepositoryProvider;
 import com.arextest.report.core.repository.mongo.util.MongoHelper;
 import com.arextest.report.model.dao.mongodb.FSCaseCollection;
 import com.arextest.report.model.dto.filesystem.FSCaseDto;
+import com.arextest.report.model.dto.filesystem.FSInterfaceDto;
 import com.arextest.report.model.mapper.FSCaseMapper;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
@@ -23,9 +24,11 @@ public class FSCaseRepositoryImpl implements FSCaseRepository {
     private MongoTemplate mongoTemplate;
 
     @Override
-    public String initCase() {
+    public String initCase(String parentId, Integer parentNodeType) {
         FSCaseCollection dao = new FSCaseCollection();
         MongoHelper.initInsertObject(dao);
+        dao.setParentId(parentId);
+        dao.setParentNodeType(parentNodeType);
         dao = mongoTemplate.insert(dao);
         return dao.getId();
     }

@@ -25,6 +25,7 @@ import com.arextest.report.model.dto.filesystem.FSCaseDto;
 import com.arextest.report.model.dto.filesystem.FSInterfaceDto;
 import com.arextest.report.model.dto.filesystem.FSNodeDto;
 import com.arextest.report.model.dto.filesystem.FSTreeDto;
+import com.arextest.report.model.mapper.AddressMapper;
 import com.arextest.report.model.mapper.FSCaseMapper;
 import com.arextest.report.model.mapper.FSInterfaceMapper;
 import com.arextest.report.model.mapper.FSTreeMapper;
@@ -89,7 +90,7 @@ public class FileSystemService {
             if (request.getParentPath() == null || request.getParentPath().length == 0) {
                 FSNodeDto nodeDto = new FSNodeDto();
                 nodeDto.setNodeName(request.getNodeName());
-                infoId = itemInfo.saveItem();
+                infoId = itemInfo.saveItem(null, null);
                 nodeDto.setInfoId(infoId);
                 nodeDto.setNodeType(request.getNodeType());
                 dto.getRoots().add(0, nodeDto);
@@ -122,7 +123,7 @@ public class FileSystemService {
                     }
                     FSNodeDto newNodeDto = new FSNodeDto();
                     newNodeDto.setNodeName(request.getNodeName());
-                    infoId = itemInfo.saveItem();
+                    infoId = itemInfo.saveItem(current.getInfoId(), current.getNodeType());
                     newNodeDto.setInfoId(infoId);
                     newNodeDto.setNodeType(request.getNodeType());
                     current.getChildren().add(0, newNodeDto);
@@ -255,7 +256,16 @@ public class FileSystemService {
         if (dto == null) {
             return new FSQueryCaseResponseType();
         }
-        return FSCaseMapper.INSTANCE.contractFromDto(dto);
+
+        FSQueryCaseResponseType response = FSCaseMapper.INSTANCE.contractFromDto(dto);
+        if (!StringUtils.isEmpty(dto.getParentId()) && dto.getParentNodeType() != null) {
+            FSInterfaceDto fsInterfaceDto = fsInterfaceRepository.queryInterface(dto.getParentId());
+            response.setBaseAddress(AddressMapper.INSTANCE.contractFromDto(fsInterfaceDto.getBaseAddress()));
+            response.setTestAddress(AddressMapper.INSTANCE.contractFromDto(fsInterfaceDto.getTestAddress()));
+            response.setAddress(AddressMapper.INSTANCE.contractFromDto(fsInterfaceDto.getAddress()));
+        }
+
+        return response;
     }
 
     private void removeItems(FSNodeDto fsNodeDto) {
