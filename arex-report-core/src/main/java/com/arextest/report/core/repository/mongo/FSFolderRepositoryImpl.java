@@ -18,9 +18,11 @@ public class FSFolderRepositoryImpl implements FSFolderRepository {
     private MongoTemplate mongoTemplate;
 
     @Override
-    public String initFolder() {
+    public String initFolder(String parentId, Integer parentNodeType) {
         FSFolderCollection dao = new FSFolderCollection();
         MongoHelper.initInsertObject(dao);
+        dao.setParentId(parentId);
+        dao.setParentNodeType(parentNodeType);
         dao = mongoTemplate.insert(dao);
         return dao.getId();
     }

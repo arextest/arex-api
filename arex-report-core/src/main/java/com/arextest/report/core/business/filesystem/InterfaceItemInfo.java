@@ -12,8 +12,8 @@ public class InterfaceItemInfo implements ItemInfo {
     private FSInterfaceRepository fsInterfaceRepository;
 
     @Override
-    public String saveItem() {
-        return fsInterfaceRepository.initInterface();
+    public String saveItem(String parentId, Integer parentNodeType) {
+        return fsInterfaceRepository.initInterface(parentId, parentNodeType);
     }
     @Override
     public Boolean removeItem(String infoId) {

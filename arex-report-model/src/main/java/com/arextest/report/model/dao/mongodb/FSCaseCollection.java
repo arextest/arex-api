@@ -17,4 +17,6 @@ public class FSCaseCollection extends ModelBase {
     private List<KeyValuePairDao> headers;
     private List<KeyValuePairDao> params;
     private AuthDao auth;
+    private String parentId;
+    private Integer parentNodeType;
 }

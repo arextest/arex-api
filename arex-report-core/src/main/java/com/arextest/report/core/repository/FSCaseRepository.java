@@ -4,7 +4,7 @@ import com.arextest.report.model.dto.filesystem.FSCaseDto;
 
 
 public interface FSCaseRepository extends RepositoryProvider {
-    String initCase();
+    String initCase(String parentId, Integer parentNodeType);
 
     Boolean removeCases(String id);
 

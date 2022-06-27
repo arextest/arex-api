@@ -24,9 +24,11 @@ public class FSInterfaceRepositoryImpl implements FSInterfaceRepository {
     private MongoTemplate mongoTemplate;
 
     @Override
-    public String initInterface() {
+    public String initInterface(String parentId, Integer parentNodeType) {
         FSInterfaceCollection dao = new FSInterfaceCollection();
         MongoHelper.initInsertObject(dao);
+        dao.setParentId(parentId);
+        dao.setParentNodeType(parentNodeType);
         dao = mongoTemplate.insert(dao);
         return dao.getId();
     }

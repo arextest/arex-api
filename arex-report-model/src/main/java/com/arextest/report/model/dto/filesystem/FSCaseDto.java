@@ -14,4 +14,6 @@ public class FSCaseDto {
     private List<KeyValuePairDto> headers;
     private List<KeyValuePairDto> params;
     private AuthDto auth;
+    private String parentId;
+    private Integer parentNodeType;
 }
