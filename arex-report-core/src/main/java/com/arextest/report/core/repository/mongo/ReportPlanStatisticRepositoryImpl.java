@@ -1,6 +1,7 @@
 package com.arextest.report.core.repository.mongo;
 
 import com.arextest.report.core.repository.ReportPlanStatisticRepository;
+import com.arextest.report.core.repository.mongo.util.MongoHelper;
 import com.arextest.report.model.api.contracts.QueryPlanStatisticsRequestType;
 import com.arextest.report.model.dao.mongodb.ReportPlanStatisticCollection;
 import com.arextest.report.model.dto.LatestDailySuccessPlanIdDto;
@@ -94,7 +95,7 @@ public class ReportPlanStatisticRepositoryImpl implements ReportPlanStatisticRep
             return false;
         }
 
-        Update update = ArexUpdate.getUpdate();
+        Update update = MongoHelper.getUpdate();
         update.setOnInsert(DATA_CHANGE_CREATE_TIME, System.currentTimeMillis())
                 .setOnInsert(CASE_START_TIME, System.currentTimeMillis())
                 .setOnInsert(CASE_END_TIME, System.currentTimeMillis());
@@ -299,7 +300,7 @@ public class ReportPlanStatisticRepositoryImpl implements ReportPlanStatisticRep
         if (planId == null || planId == 0) {
             return null;
         }
-        Update update = ArexUpdate.getUpdate();
+        Update update = MongoHelper.getUpdate();
         if (status != null) {
             update.set(STATUS, status);
         }

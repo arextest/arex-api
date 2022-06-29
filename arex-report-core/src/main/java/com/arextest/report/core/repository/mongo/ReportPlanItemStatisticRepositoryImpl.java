@@ -1,6 +1,7 @@
 package com.arextest.report.core.repository.mongo;
 
 import com.arextest.report.core.repository.ReportPlanItemStatisticRepository;
+import com.arextest.report.core.repository.mongo.util.MongoHelper;
 import com.arextest.report.model.dao.mongodb.ReportPlanItemStatisticCollection;
 import com.arextest.report.model.dto.PlanItemDto;
 import com.arextest.report.model.enums.ReplayStatusType;
@@ -43,7 +44,7 @@ public class ReportPlanItemStatisticRepositoryImpl implements ReportPlanItemStat
 
     @Override
     public PlanItemDto updatePlanItems(PlanItemDto planItem) {
-        Update update = ArexUpdate.getUpdate();
+        Update update = MongoHelper.getUpdate();
         update.setOnInsert(PLAN_ID, planItem.getPlanId())
                 .setOnInsert(OPERATION_ID, planItem.getOperationId())
                 .setOnInsert(OPERATION_NAME, planItem.getOperationName())
@@ -80,7 +81,7 @@ public class ReportPlanItemStatisticRepositoryImpl implements ReportPlanItemStat
         if (result.getPlanItemId() == null) {
             return false;
         }
-        Update update = ArexUpdate.getUpdate();
+        Update update = MongoHelper.getUpdate();
         update.setOnInsert(DATA_CHANGE_CREATE_TIME, System.currentTimeMillis());
         if (result.getPlanId() != null) {
             update.set(PLAN_ID, result.getPlanId());
@@ -158,7 +159,7 @@ public class ReportPlanItemStatisticRepositoryImpl implements ReportPlanItemStat
         if (planItemId == null || planItemId == 0) {
             return null;
         }
-        Update update = ArexUpdate.getUpdate();
+        Update update = MongoHelper.getUpdate();
         if (status != null) {
             update.set(STATUS, status);
             if (Objects.equals(status, ReplayStatusType.RUNNING)) {

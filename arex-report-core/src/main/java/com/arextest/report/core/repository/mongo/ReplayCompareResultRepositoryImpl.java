@@ -10,6 +10,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -35,7 +36,6 @@ public class ReplayCompareResultRepositoryImpl implements ReplayCompareResultRep
     private static final String RECORD_ID = "recordId";
     private static final String DIFF_RESULT_CODE = "diffResultCode";
     private static final String LOGS = "logs";
-    private static final String DASH_ID = "_id";
 
     @Resource
     private MongoTemplate mongoTemplate;
