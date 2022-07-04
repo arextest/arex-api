@@ -24,7 +24,7 @@ public class CompareController {
     @Resource
     CompareService compareService;
 
-    // 单个case的比较，quickCompare
+    // Comparison of a single case
     @PostMapping("/quickCompare")
     @ResponseBody
     public Response quickCompare(@RequestBody QuickCompareRequestType request) {
@@ -32,7 +32,7 @@ public class CompareController {
         return ResponseUtils.successResponse(response);
     }
 
-    // 多个case的聚合比较，aggCompare
+    // Aggregate comparison of multiple cases
     @PostMapping("/aggCompare")
     @ResponseBody
     public Response aggCompare(@RequestBody QuickCompareRequestType request) {
