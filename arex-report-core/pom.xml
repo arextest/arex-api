@@ -23,6 +23,10 @@
             <groupId>com.arextest</groupId>
             <artifactId>arex-report-common</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.arextest</groupId>
+            <artifactId>compare-sdk</artifactId>
+        </dependency>
 <!--        <dependency>-->
 <!--            <groupId>org.springframework.data</groupId>-->
 <!--            <artifactId>spring-data-mongodb</artifactId>-->
@@ -34,6 +38,16 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
+            <exclusions>
+                <exclusion>
+                    <artifactId>error_prone_annotations</artifactId>
+                    <groupId>com.google.errorprone</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>checker-qual</artifactId>
+                    <groupId>org.checkerframework</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
