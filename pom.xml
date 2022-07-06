@@ -40,6 +40,8 @@
         <caffeine.version>2.8.0</caffeine.version>
         <shedlock-spring.version>4.34.0</shedlock-spring.version>
         <springfox-boot-starter.version>3.0.0</springfox-boot-starter.version>
+        <javax.mail-api.version>1.6.2</javax.mail-api.version>
+        <commons-email.version>1.5</commons-email.version>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -180,6 +182,16 @@
                 <groupId>net.javacrumbs.shedlock</groupId>
                 <artifactId>shedlock-provider-mongo</artifactId>
                 <version>${shedlock-spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-email</artifactId>
+                <version>${commons-email.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.mail</groupId>
+                <artifactId>javax.mail-api</artifactId>
+                <version>${javax.mail-api.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
