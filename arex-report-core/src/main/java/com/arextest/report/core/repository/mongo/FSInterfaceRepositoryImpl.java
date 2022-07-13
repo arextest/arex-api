@@ -2,8 +2,10 @@ package com.arextest.report.core.repository.mongo;
 
 import com.arextest.report.core.repository.FSInterfaceRepository;
 import com.arextest.report.core.repository.mongo.util.MongoHelper;
+import com.arextest.report.model.dao.mongodb.FSCaseCollection;
 import com.arextest.report.model.dao.mongodb.FSInterfaceCollection;
 import com.arextest.report.model.dto.filesystem.FSInterfaceDto;
+import com.arextest.report.model.mapper.FSCaseMapper;
 import com.arextest.report.model.mapper.FSInterfaceMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
@@ -15,6 +17,9 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -62,5 +67,12 @@ public class FSInterfaceRepositoryImpl implements FSInterfaceRepository {
             return null;
         }
         return FSInterfaceMapper.INSTANCE.dtoFromDao(dao);
+    }
+    @Override
+    public List<FSInterfaceDto> queryInterfaces(Set<String> ids) {
+        Set<ObjectId> objectIds = ids.stream().map(id -> new ObjectId(id)).collect(Collectors.toSet());
+        Query query = Query.query(Criteria.where(DASH_ID).in(objectIds));
+        List<FSInterfaceCollection> daos = mongoTemplate.find(query, FSInterfaceCollection.class);
+        return daos.stream().map(FSInterfaceMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
     }
 }

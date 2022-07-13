@@ -4,7 +4,7 @@ import lombok.Data;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
-@Document(collection = "UserCollection")
+@Document(collection = "User")
 public class UserCollection extends ModelBase {
     private String email;
     private String verificationCode;

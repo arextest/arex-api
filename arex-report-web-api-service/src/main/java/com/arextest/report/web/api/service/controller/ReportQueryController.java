@@ -1,15 +1,59 @@
 package com.arextest.report.web.api.service.controller;
 
-import com.arextest.report.core.business.*;
-import com.arextest.report.model.api.contracts.*;
 import com.arextest.common.model.response.Response;
 import com.arextest.common.model.response.ResponseCode;
 import com.arextest.common.utils.ResponseUtils;
+import com.arextest.report.core.business.DiffSceneService;
+import com.arextest.report.core.business.MsgShowService;
+import com.arextest.report.core.business.QueryPlanItemStatisticService;
+import com.arextest.report.core.business.QueryPlanStatisticsService;
+import com.arextest.report.core.business.QueryReplayCaseService;
+import com.arextest.report.core.business.QueryReplayMsgService;
+import com.arextest.report.core.business.QueryResponseTypeStatisticService;
+import com.arextest.report.core.business.ReplayInfoService;
+import com.arextest.report.core.business.ReportService;
+import com.arextest.report.core.business.SchemaInferService;
+import com.arextest.report.model.api.contracts.ChangeReplayStatusRequestType;
+import com.arextest.report.model.api.contracts.ChangeReplayStatusResponseType;
+import com.arextest.report.model.api.contracts.DownloadReplayMsgRequestType;
+import com.arextest.report.model.api.contracts.PushCompareResultsRequestType;
+import com.arextest.report.model.api.contracts.PushCompareResultsResponseType;
+import com.arextest.report.model.api.contracts.QueryCategoryStatisticRequestType;
+import com.arextest.report.model.api.contracts.QueryCategoryStatisticResponseType;
+import com.arextest.report.model.api.contracts.QueryDiffAggInfoRequestType;
+import com.arextest.report.model.api.contracts.QueryDiffAggInfoResponseType;
+import com.arextest.report.model.api.contracts.QueryDifferencesRequestType;
+import com.arextest.report.model.api.contracts.QueryDifferencesResponseType;
+import com.arextest.report.model.api.contracts.QueryFullLinkMsgRequestType;
+import com.arextest.report.model.api.contracts.QueryFullLinkMsgResponseType;
+import com.arextest.report.model.api.contracts.QueryMsgSchemaRequestType;
+import com.arextest.report.model.api.contracts.QueryMsgSchemaResponseType;
+import com.arextest.report.model.api.contracts.QueryMsgShowByCaseRequestType;
+import com.arextest.report.model.api.contracts.QueryMsgShowByCaseResponseType;
+import com.arextest.report.model.api.contracts.QueryMsgWithDiffRequestType;
+import com.arextest.report.model.api.contracts.QueryMsgWithDiffResponseType;
+import com.arextest.report.model.api.contracts.QueryPlanItemStatisticsRequestType;
+import com.arextest.report.model.api.contracts.QueryPlanItemStatisticsResponseType;
+import com.arextest.report.model.api.contracts.QueryPlanStatisticsRequestType;
+import com.arextest.report.model.api.contracts.QueryPlanStatisticsResponseType;
+import com.arextest.report.model.api.contracts.QueryReplayCaseRequestType;
+import com.arextest.report.model.api.contracts.QueryReplayCaseResponseType;
+import com.arextest.report.model.api.contracts.QueryReplayMsgRequestType;
+import com.arextest.report.model.api.contracts.QueryReplayMsgResponseType;
+import com.arextest.report.model.api.contracts.QueryScenesRequestType;
+import com.arextest.report.model.api.contracts.QueryScenesResponseType;
+import com.arextest.report.model.api.contracts.QuerySchemaForConfigRequestType;
+import com.arextest.report.model.api.contracts.ReportInitialRequestType;
+import com.arextest.report.model.api.contracts.ReportInitialResponseType;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONException;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
@@ -41,7 +85,7 @@ public class ReportQueryController {
     @Resource
     private SchemaInferService schemaInferService;
 
-    
+
     @PostMapping("/pushCompareResults")
     @ResponseBody
     public Response pushCompareResults(@RequestBody PushCompareResultsRequestType request) {
@@ -58,7 +102,7 @@ public class ReportQueryController {
         }
     }
 
-    
+
     @PostMapping("/init")
     @ResponseBody
     public Response reportInitial(@RequestBody ReportInitialRequestType request) {
@@ -74,7 +118,7 @@ public class ReportQueryController {
         }
     }
 
-    
+
     @PostMapping("/pushReplayStatus")
     @ResponseBody
     public Response changeReplayStatus(@RequestBody ChangeReplayStatusRequestType request) {
@@ -91,7 +135,7 @@ public class ReportQueryController {
         }
     }
 
-    
+
     @PostMapping("/queryPlanStatistics")
     @ResponseBody
     public Response queryPlanStatistics(@RequestBody QueryPlanStatisticsRequestType request) {
@@ -122,7 +166,7 @@ public class ReportQueryController {
             return ResponseUtils.exceptionResponse(e.toString());
         }
     }
-    
+
     @PostMapping("/queryResponseTypeStatistic")
     @ResponseBody
     public Response queryResponseTypeStatistic(@RequestBody QueryCategoryStatisticRequestType request) {
@@ -185,7 +229,7 @@ public class ReportQueryController {
         return ResponseUtils.successResponse(response);
     }
 
-    
+
     @PostMapping("/queryDifferences")
     @ResponseBody
     public Response queryDifferences(@RequestBody QueryDifferencesRequestType request) {
@@ -208,7 +252,7 @@ public class ReportQueryController {
         }
     }
 
-    
+
     @PostMapping("/queryScenes")
     @ResponseBody
     public Response queryScenes(@RequestBody QueryScenesRequestType request) {
@@ -232,7 +276,7 @@ public class ReportQueryController {
         }
     }
 
-    
+
     @PostMapping("/queryFullLinkMsg")
     @ResponseBody
     public Response queryFullLinkMsg(@RequestBody QueryFullLinkMsgRequestType request) {
@@ -244,7 +288,7 @@ public class ReportQueryController {
         return ResponseUtils.successResponse(response);
     }
 
-    
+
     @PostMapping("/queryReplayMsg")
     @ResponseBody
     public Response queryReplayMsg(@RequestBody QueryReplayMsgRequestType request) {
@@ -256,7 +300,7 @@ public class ReportQueryController {
         return ResponseUtils.successResponse(response);
     }
 
-    
+
     @PostMapping("/downloadReplayMsg")
     @ResponseBody
     public void downloadReplayMsg(@RequestBody DownloadReplayMsgRequestType request, HttpServletResponse response) {
@@ -266,7 +310,7 @@ public class ReportQueryController {
         queryReplayMsgService.downloadReplayMsg(request, response);
     }
 
-    
+
     @PostMapping("/queryMsgSchema")
     @ResponseBody
     public Response queryMsgSchema(@RequestBody QueryMsgSchemaRequestType request) {
@@ -287,5 +331,4 @@ public class ReportQueryController {
         }
         return ResponseUtils.successResponse(response);
     }
-
 }

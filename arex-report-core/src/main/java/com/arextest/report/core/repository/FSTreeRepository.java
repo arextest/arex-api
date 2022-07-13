@@ -6,6 +6,8 @@ import com.arextest.report.model.dto.filesystem.FSTreeDto;
 import com.arextest.report.model.dto.WorkspaceDto;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public interface FSTreeRepository extends RepositoryProvider {
     FSTreeDto initFSTree(FSTreeDto dto);
