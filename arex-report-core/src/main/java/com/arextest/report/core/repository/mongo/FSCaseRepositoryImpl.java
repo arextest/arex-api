@@ -16,6 +16,8 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class FSCaseRepositoryImpl implements FSCaseRepository {
@@ -59,5 +61,12 @@ public class FSCaseRepositoryImpl implements FSCaseRepository {
             return null;
         }
         return FSCaseMapper.INSTANCE.dtoFromDao(dao);
+    }
+    @Override
+    public List<FSCaseDto> queryCases(List<String> ids) {
+        List<ObjectId> objectIds = ids.stream().map(id -> new ObjectId(id)).collect(Collectors.toList());
+        Query query = Query.query(Criteria.where(DASH_ID).in(objectIds));
+        List<FSCaseCollection> daos = mongoTemplate.find(query, FSCaseCollection.class);
+        return daos.stream().map(FSCaseMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
     }
 }

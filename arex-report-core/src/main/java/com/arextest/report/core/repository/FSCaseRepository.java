@@ -2,6 +2,8 @@ package com.arextest.report.core.repository;
 
 import com.arextest.report.model.dto.filesystem.FSCaseDto;
 
+import java.util.List;
+
 
 public interface FSCaseRepository extends RepositoryProvider {
     String initCase(String parentId, Integer parentNodeType);
@@ -11,4 +13,6 @@ public interface FSCaseRepository extends RepositoryProvider {
     FSCaseDto saveCase(FSCaseDto dto);
 
     FSCaseDto queryCase(String id);
+
+    List<FSCaseDto> queryCases(List<String> ids);
 }

@@ -4,7 +4,7 @@ import lombok.Data;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
-@Document(collection = "FSFolderCollection")
+@Document(collection = "FSFolder")
 public class FSFolderCollection extends ModelBase {
     private String parentId;
     private Integer parentNodeType;
