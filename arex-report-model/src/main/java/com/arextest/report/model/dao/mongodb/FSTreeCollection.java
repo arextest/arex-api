@@ -7,7 +7,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.util.List;
 
 @Data
-@Document(collection = "FSTreeCollection")
+@Document(collection = "FSTree")
 public class FSTreeCollection extends ModelBase {
     private String workspaceName;
     private String userName;

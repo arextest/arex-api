@@ -10,7 +10,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.util.List;
 
 @Data
-@Document(collection = "FSInterfaceCollection")
+@Document(collection = "FSInterface")
 public class FSInterfaceCollection extends ModelBase {
     private AddressDao address;
     private String preRequestScript;

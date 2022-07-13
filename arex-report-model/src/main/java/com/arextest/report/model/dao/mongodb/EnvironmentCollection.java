@@ -7,7 +7,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.util.List;
 
 @Data
-@Document(collection = "EnvironmentCollection")
+@Document(collection = "Environment")
 public class EnvironmentCollection extends ModelBase {
     private String workspaceId;
     private String envName;
