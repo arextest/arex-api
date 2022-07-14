@@ -7,6 +7,7 @@ import lombok.Data;
  */
 @Data
 public class MsgCombination {
+    private String caseId;
     private String baseMsg;
     private String testMsg;
 }
