@@ -1,17 +1,7 @@
 package com.arextest.report.core.business;
 
-import com.arextest.report.core.repository.FSCaseRepository;
-import com.arextest.report.core.repository.FSInterfaceRepository;
-import com.arextest.report.core.repository.FSTreeRepository;
-import com.arextest.report.core.repository.ManualReportCaseRepository;
-import com.arextest.report.core.repository.ManualReportPlanItemRepository;
-import com.arextest.report.core.repository.ManualReportPlanRepository;
-import com.arextest.report.model.api.contracts.manualreport.InitManualReportRequestType;
-import com.arextest.report.model.api.contracts.manualreport.InitManualReportResponseType;
-import com.arextest.report.model.api.contracts.manualreport.QueryReportCasesRequestType;
-import com.arextest.report.model.api.contracts.manualreport.ReportCaseIdNameType;
-import com.arextest.report.model.api.contracts.manualreport.ReportCaseType;
-import com.arextest.report.model.api.contracts.manualreport.ReportInterfaceType;
+import com.arextest.report.core.repository.*;
+import com.arextest.report.model.api.contracts.manualreport.*;
 import com.arextest.report.model.dto.filesystem.FSCaseDto;
 import com.arextest.report.model.dto.filesystem.FSInterfaceDto;
 import com.arextest.report.model.dto.filesystem.FSNodeDto;
@@ -26,14 +16,7 @@ import com.arextest.report.model.mapper.ManualReportPlanMapper;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
-import javax.xml.transform.Result;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component

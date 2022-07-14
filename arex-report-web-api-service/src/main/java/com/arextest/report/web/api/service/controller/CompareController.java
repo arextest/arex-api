@@ -3,9 +3,7 @@ package com.arextest.report.web.api.service.controller;
 import com.arextest.common.model.response.Response;
 import com.arextest.common.utils.ResponseUtils;
 import com.arextest.report.core.business.compare.CompareService;
-import com.arextest.report.model.api.contracts.compare.AggCompareResponseType;
-import com.arextest.report.model.api.contracts.compare.QuickCompareRequestType;
-import com.arextest.report.model.api.contracts.compare.QuickCompareResponseType;
+import com.arextest.report.model.api.contracts.compare.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -35,8 +33,16 @@ public class CompareController {
     // Aggregate comparison of multiple cases
     @PostMapping("/aggCompare")
     @ResponseBody
-    public Response aggCompare(@RequestBody QuickCompareRequestType request) {
-        AggCompareResponseType response = null;
-        return ResponseUtils.successResponse(response);
+    public Response aggCompare(@RequestBody AggCompareRequestType request) {
+        compareService.aggCompare(request.getMsgCombinations());
+        return ResponseUtils.successResponse(null);
+    }
+
+    // exception handler
+    @PostMapping("/sendException")
+    @ResponseBody
+    public Response sendException(@RequestBody SendExceptionRequestType request) {
+        compareService.sendException( request.getExceptionMsgs());
+        return ResponseUtils.successResponse(null);
     }
 }
