@@ -25,12 +25,13 @@ import java.util.stream.Collectors;
 @Component
 public class CompareService {
 
+    private static CompareSDK compareSDK = new CompareSDK();
+
     @Autowired
     ManualReportService manualReportService;
 
     public QuickCompareResponseType quickCompare(MsgCombination msgCombination) {
         QuickCompareResponseType quickCompareResponseType = new QuickCompareResponseType();
-        CompareSDK compareSDK = new CompareSDK();
         CompareResult compareResult = compareSDK.compare(msgCombination.getBaseMsg(), msgCombination.getTestMsg());
         quickCompareResponseType.setDiffResultCode(compareResult.getCode());
         quickCompareResponseType.setBaseMsg(compareResult.getProcessedBaseMsg());
@@ -45,7 +46,6 @@ public class CompareService {
     public void aggCompare(List<MsgCombination> msgCombinations) {
         List<SaveManualReportCaseDto> saveManualReportCaseDtos = Optional.ofNullable(msgCombinations)
                 .orElse(new ArrayList<>()).stream().map(item -> {
-                    CompareSDK compareSDK = new CompareSDK();
                     CompareResult compareResult = compareSDK.compare(item.getBaseMsg(), item.getTestMsg());
                     SaveManualReportCaseDto saveManualReportCaseDto = new SaveManualReportCaseDto();
                     saveManualReportCaseDto.setId(item.getCaseId());
