@@ -1,4 +1,4 @@
-package com.arextest.report.model.api.contracts;
+package com.arextest.report.model.api.contracts.login;
 
 import lombok.Data;
 

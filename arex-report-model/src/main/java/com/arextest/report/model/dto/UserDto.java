@@ -7,4 +7,5 @@ public class UserDto {
     private String id;
     private String email;
     private String verificationCode;
+    private String profile;
 }

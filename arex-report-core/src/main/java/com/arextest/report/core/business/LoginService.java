@@ -2,12 +2,14 @@ package com.arextest.report.core.business;
 
 import com.arextest.report.core.business.util.MailUtils;
 import com.arextest.report.core.repository.UserRepository;
-import com.arextest.report.model.api.contracts.VerifyRequestType;
+import com.arextest.report.model.api.contracts.login.UpdateUserProfileRequestType;
+import com.arextest.report.model.api.contracts.login.UserProfileResponseType;
+import com.arextest.report.model.api.contracts.login.VerifyRequestType;
 import com.arextest.report.model.dto.UserDto;
+import com.arextest.report.model.mapper.UserMapper;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
-import javax.security.auth.Subject;
 import java.util.Random;
 
 @Component
@@ -45,6 +47,15 @@ public class LoginService {
             exist = exist & userRepository.saveVerificationCode(userDto);
         }
         return exist;
+    }
+
+    public UserProfileResponseType queryUserProfile(String email) {
+        return UserMapper.INSTANCE.contractFromDto(userRepository.queryUserProfile(email));
+    }
+
+    public Boolean updateUserProfile(UpdateUserProfileRequestType request) {
+        UserDto dto = UserMapper.INSTANCE.dtoFromContract(request);
+        return userRepository.updateUserProfile(dto);
     }
 
     private String generateVerificationCode() {
