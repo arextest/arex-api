@@ -1,11 +1,9 @@
 package com.arextest.report.core.repository.mongo;
 
 import com.arextest.report.core.repository.FSCaseRepository;
-import com.arextest.report.core.repository.RepositoryProvider;
 import com.arextest.report.core.repository.mongo.util.MongoHelper;
 import com.arextest.report.model.dao.mongodb.FSCaseCollection;
 import com.arextest.report.model.dto.filesystem.FSCaseDto;
-import com.arextest.report.model.dto.filesystem.FSInterfaceDto;
 import com.arextest.report.model.mapper.FSCaseMapper;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
@@ -68,5 +66,13 @@ public class FSCaseRepositoryImpl implements FSCaseRepository {
         Query query = Query.query(Criteria.where(DASH_ID).in(objectIds));
         List<FSCaseCollection> daos = mongoTemplate.find(query, FSCaseCollection.class);
         return daos.stream().map(FSCaseMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
+    }
+
+    @Override
+    public String duplicate(FSCaseDto dto) {
+        FSCaseCollection dao = FSCaseMapper.INSTANCE.daoFromDto(dto);
+        MongoHelper.initInsertObject(dao);
+        dao = mongoTemplate.insert(dao);
+        return dao.getId();
     }
 }

@@ -1,6 +1,7 @@
 package com.arextest.report.core.business.filesystem;
 
 import com.arextest.report.core.repository.FSCaseRepository;
+import com.arextest.report.model.dto.filesystem.FSCaseDto;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -18,5 +19,12 @@ public class CaseItemInfo implements ItemInfo {
     @Override
     public Boolean removeItem(String infoId) {
         return fsCaseRepository.removeCases(infoId);
+    }
+    @Override
+    public String duplicate(String parentId, String infoId) {
+        FSCaseDto dto = fsCaseRepository.queryCase(infoId);
+        dto.setId(null);
+        dto.setParentId(parentId);
+        return fsCaseRepository.duplicate(dto);
     }
 }
