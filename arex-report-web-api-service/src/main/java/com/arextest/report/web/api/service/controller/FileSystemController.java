@@ -8,6 +8,7 @@ import com.arextest.report.model.api.contracts.SuccessResponseType;
 import com.arextest.report.model.api.contracts.filesystem.FSAddItemRequestType;
 import com.arextest.report.model.api.contracts.filesystem.FSAddItemResponseType;
 import com.arextest.report.model.api.contracts.filesystem.FSDuplicateRequestType;
+import com.arextest.report.model.api.contracts.filesystem.FSMoveItemRequestType;
 import com.arextest.report.model.api.contracts.filesystem.FSQueryCaseRequestType;
 import com.arextest.report.model.api.contracts.filesystem.FSQueryCaseResponseType;
 import com.arextest.report.model.api.contracts.filesystem.FSQueryInterfaceRequestType;
@@ -111,6 +112,21 @@ public class FileSystemController {
         try {
             SuccessResponseType response = new SuccessResponseType();
             response.setSuccess(fileSystemService.duplicate(request));
+            return ResponseUtils.successResponse(response);
+        } catch (Exception e) {
+            return ResponseUtils.errorResponse(e.getMessage(), ResponseCode.REQUESTED_HANDLE_EXCEPTION);
+        }
+    }
+
+    @PostMapping("/move")
+    @ResponseBody
+    public Response move(@RequestBody FSMoveItemRequestType request) {
+        if (request.getFromNodePath() == null || request.getFromNodePath().length == 0) {
+            return ResponseUtils.errorResponse("source item cannot be empty", ResponseCode.REQUESTED_PARAMETER_INVALID);
+        }
+        try {
+            SuccessResponseType response = new SuccessResponseType();
+            response.setSuccess(fileSystemService.move(request));
             return ResponseUtils.successResponse(response);
         } catch (Exception e) {
             return ResponseUtils.errorResponse(e.getMessage(), ResponseCode.REQUESTED_HANDLE_EXCEPTION);

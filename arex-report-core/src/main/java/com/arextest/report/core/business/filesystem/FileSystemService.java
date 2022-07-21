@@ -6,6 +6,7 @@ import com.arextest.report.core.repository.FSTreeRepository;
 import com.arextest.report.model.api.contracts.filesystem.FSAddItemRequestType;
 import com.arextest.report.model.api.contracts.filesystem.FSAddItemResponseType;
 import com.arextest.report.model.api.contracts.filesystem.FSDuplicateRequestType;
+import com.arextest.report.model.api.contracts.filesystem.FSMoveItemRequestType;
 import com.arextest.report.model.api.contracts.filesystem.FSNodeType;
 import com.arextest.report.model.api.contracts.filesystem.FSQueryCaseRequestType;
 import com.arextest.report.model.api.contracts.filesystem.FSQueryCaseResponseType;
@@ -22,6 +23,7 @@ import com.arextest.report.model.api.contracts.filesystem.FSSaveCaseResponseType
 import com.arextest.report.model.api.contracts.filesystem.FSSaveInterfaceRequestType;
 import com.arextest.report.model.api.contracts.filesystem.FSSaveInterfaceResponseType;
 import com.arextest.report.model.api.contracts.filesystem.FSTreeType;
+import com.arextest.report.model.dao.mongodb.entity.FSNode;
 import com.arextest.report.model.dto.WorkspaceDto;
 import com.arextest.report.model.dto.filesystem.FSCaseDto;
 import com.arextest.report.model.dto.filesystem.FSInterfaceDto;
@@ -222,6 +224,41 @@ public class FileSystemService {
         }
     }
 
+    public boolean move(FSMoveItemRequestType request) {
+        try {
+            FSTreeDto treeDto = fsTreeRepository.queryFSTreeById(request.getId());
+            FSNodeDto current = findByPath(treeDto.getRoots(), request.getFromNodePath());
+            FSNodeDto fromParent = null;
+            FSNodeDto toParent = null;
+            if (request.getFromNodePath().length > 1) {
+                fromParent = findByPath(treeDto.getRoots(),
+                        Arrays.copyOfRange(request.getFromNodePath(), 0, request.getFromNodePath().length - 1));
+            }
+            if (request.getToParentPath() != null && request.getToParentPath().length > 0) {
+                toParent = findByPath(treeDto.getRoots(), request.getToParentPath());
+            }
+            if (toParent == null) {
+                treeDto.getRoots().add(0, current);
+            } else {
+                if (toParent.getChildren() == null) {
+                    toParent.setChildren(new ArrayList<>());
+                }
+                toParent.getChildren().add(0, current);
+            }
+            if (fromParent == null) {
+                treeDto.getRoots().remove(current);
+            } else {
+                fromParent.getChildren().remove(current);
+            }
+            fsTreeRepository.updateFSTree(treeDto);
+            return true;
+        } catch (Exception e) {
+            LOGGER.error("failed to move item", e);
+            return false;
+        }
+
+    }
+
     public FSQueryWorkspaceResponseType queryWorkspaceById(FSQueryWorkspaceRequestType request) {
         FSQueryWorkspaceResponseType response = new FSQueryWorkspaceResponseType();
         FSTreeDto treeDto = fsTreeRepository.queryFSTreeById(request.getId());
@@ -287,6 +324,9 @@ public class FileSystemService {
     }
 
     private FSNodeDto findByPath(List<FSNodeDto> list, String[] pathArr) {
+        if (list == null || list.isEmpty()) {
+            return null;
+        }
         List<FSNodeDto> tmp = list;
         for (int i = 0; i < pathArr.length - 1; i++) {
             String pathNode = pathArr[i];
