@@ -5,6 +5,8 @@ import com.arextest.report.core.repository.FSInterfaceRepository;
 import com.arextest.report.core.repository.FSTreeRepository;
 import com.arextest.report.model.api.contracts.filesystem.FSAddItemRequestType;
 import com.arextest.report.model.api.contracts.filesystem.FSAddItemResponseType;
+import com.arextest.report.model.api.contracts.filesystem.FSDuplicateRequestType;
+import com.arextest.report.model.api.contracts.filesystem.FSNodeType;
 import com.arextest.report.model.api.contracts.filesystem.FSQueryCaseRequestType;
 import com.arextest.report.model.api.contracts.filesystem.FSQueryCaseResponseType;
 import com.arextest.report.model.api.contracts.filesystem.FSQueryInterfaceRequestType;
@@ -37,6 +39,7 @@ import org.springframework.stereotype.Component;
 import javax.annotation.Resource;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Queue;
 import java.util.stream.Collectors;
@@ -45,6 +48,7 @@ import java.util.stream.Collectors;
 @Component
 public class FileSystemService {
     private static final String DEFAULT_WORKSPACE_NAME = "MyWorkSpace";
+    private static final String DUPLICATE_SUFFIX = "_copy";
 
     @Resource
     private FSTreeRepository fsTreeRepository;
@@ -179,21 +183,7 @@ public class FileSystemService {
         if (fsTreeDto == null) {
             return false;
         }
-        String[] pathArr = request.getPath();
-        List<FSNodeDto> tmp = fsTreeDto.getRoots();
-        for (int i = 0; i < pathArr.length - 1; i++) {
-            String pathNode = pathArr[i];
-            if (tmp == null || tmp.size() == 0) {
-                return false;
-            }
-            FSNodeDto find = findByInfoId(tmp, pathNode);
-            if (find == null) {
-                return false;
-            }
-            tmp = find.getChildren();
-        }
-        String last = pathArr[pathArr.length - 1];
-        FSNodeDto dto = findByInfoId(tmp, last);
+        FSNodeDto dto = findByPath(fsTreeDto.getRoots(), request.getPath());
 
         if (dto == null) {
             return false;
@@ -202,6 +192,34 @@ public class FileSystemService {
 
         fsTreeRepository.updateFSTree(fsTreeDto);
         return true;
+    }
+
+    public Boolean duplicate(FSDuplicateRequestType request) {
+        try {
+            FSTreeDto treeDto = fsTreeRepository.queryFSTreeById(request.getId());
+            FSNodeDto parent = null;
+            FSNodeDto current;
+            if (request.getPath().length != 1) {
+                parent = findByPath(treeDto.getRoots(),
+                        Arrays.copyOfRange(request.getPath(), 0, request.getPath().length - 1));
+                current = findByInfoId(parent.getChildren(), request.getPath()[request.getPath().length - 1]);
+            } else {
+                current = findByInfoId(treeDto.getRoots(), request.getPath()[0]);
+            }
+            FSNodeDto dupNodeDto = duplicateInfo(parent == null ? null : parent.getInfoId(),
+                    current.getNodeName() + DUPLICATE_SUFFIX,
+                    current);
+            if (parent == null) {
+                treeDto.getRoots().add(dupNodeDto);
+            } else {
+                parent.getChildren().add(dupNodeDto);
+            }
+            fsTreeRepository.updateFSTree(treeDto);
+            return true;
+        } catch (Exception e) {
+            LOGGER.error("failed to duplicate item", e);
+            return false;
+        }
     }
 
     public FSQueryWorkspaceResponseType queryWorkspaceById(FSQueryWorkspaceRequestType request) {
@@ -268,6 +286,23 @@ public class FileSystemService {
         return response;
     }
 
+    private FSNodeDto findByPath(List<FSNodeDto> list, String[] pathArr) {
+        List<FSNodeDto> tmp = list;
+        for (int i = 0; i < pathArr.length - 1; i++) {
+            String pathNode = pathArr[i];
+            if (tmp == null || tmp.size() == 0) {
+                return null;
+            }
+            FSNodeDto find = findByInfoId(tmp, pathNode);
+            if (find == null) {
+                return null;
+            }
+            tmp = find.getChildren();
+        }
+        String last = pathArr[pathArr.length - 1];
+        return findByInfoId(tmp, last);
+    }
+
     private void removeItems(FSNodeDto fsNodeDto) {
         if (fsNodeDto == null) {
             return;
@@ -294,5 +329,22 @@ public class FileSystemService {
             return null;
         }
         return filter.get(0);
+    }
+
+    private FSNodeDto duplicateInfo(String parentId, String nodeName, FSNodeDto old) {
+        FSNodeDto dto = new FSNodeDto();
+        ItemInfo itemInfo = itemInfoFactory.getItemInfo(old.getNodeType());
+        String dupInfoId = itemInfo.duplicate(parentId, old.getInfoId());
+        dto.setNodeName(nodeName);
+        dto.setInfoId(dupInfoId);
+        dto.setNodeType(old.getNodeType());
+        if (old.getChildren() != null) {
+            dto.setChildren(new ArrayList<>(old.getChildren().size()));
+            for (FSNodeDto oldChild : old.getChildren()) {
+                FSNodeDto dupChild = duplicateInfo(dupInfoId, oldChild.getNodeName(), oldChild);
+                dto.getChildren().add(dupChild);
+            }
+        }
+        return dto;
     }
 }

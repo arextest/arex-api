@@ -2,10 +2,8 @@ package com.arextest.report.core.repository.mongo;
 
 import com.arextest.report.core.repository.FSInterfaceRepository;
 import com.arextest.report.core.repository.mongo.util.MongoHelper;
-import com.arextest.report.model.dao.mongodb.FSCaseCollection;
 import com.arextest.report.model.dao.mongodb.FSInterfaceCollection;
 import com.arextest.report.model.dto.filesystem.FSInterfaceDto;
-import com.arextest.report.model.mapper.FSCaseMapper;
 import com.arextest.report.model.mapper.FSInterfaceMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
@@ -74,5 +72,13 @@ public class FSInterfaceRepositoryImpl implements FSInterfaceRepository {
         Query query = Query.query(Criteria.where(DASH_ID).in(objectIds));
         List<FSInterfaceCollection> daos = mongoTemplate.find(query, FSInterfaceCollection.class);
         return daos.stream().map(FSInterfaceMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
+    }
+
+    @Override
+    public String duplicate(FSInterfaceDto dto) {
+        FSInterfaceCollection dao = FSInterfaceMapper.INSTANCE.daoFromDto(dto);
+        MongoHelper.initInsertObject(dao);
+        dao = mongoTemplate.insert(dao);
+        return dao.getId();
     }
 }

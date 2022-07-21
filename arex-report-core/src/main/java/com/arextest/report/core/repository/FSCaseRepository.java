@@ -15,4 +15,6 @@ public interface FSCaseRepository extends RepositoryProvider {
     FSCaseDto queryCase(String id);
 
     List<FSCaseDto> queryCases(List<String> ids);
+
+    String duplicate(FSCaseDto dto);
 }

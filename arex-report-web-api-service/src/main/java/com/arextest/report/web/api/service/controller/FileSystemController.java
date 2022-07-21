@@ -4,8 +4,10 @@ import com.arextest.common.model.response.Response;
 import com.arextest.common.model.response.ResponseCode;
 import com.arextest.common.utils.ResponseUtils;
 import com.arextest.report.core.business.filesystem.FileSystemService;
+import com.arextest.report.model.api.contracts.SuccessResponseType;
 import com.arextest.report.model.api.contracts.filesystem.FSAddItemRequestType;
 import com.arextest.report.model.api.contracts.filesystem.FSAddItemResponseType;
+import com.arextest.report.model.api.contracts.filesystem.FSDuplicateRequestType;
 import com.arextest.report.model.api.contracts.filesystem.FSQueryCaseRequestType;
 import com.arextest.report.model.api.contracts.filesystem.FSQueryCaseResponseType;
 import com.arextest.report.model.api.contracts.filesystem.FSQueryInterfaceRequestType;
@@ -79,7 +81,7 @@ public class FileSystemController {
     @ResponseBody
     public Response rename(@RequestBody FSRenameRequestType request) {
         if (StringUtils.isEmpty(request.getId())) {
-            return ResponseUtils.errorResponse("Cannot rename item because id is empty",
+            return ResponseUtils.errorResponse("Cannot rename item because workspace id is empty",
                     ResponseCode.REQUESTED_PARAMETER_INVALID);
         }
         if (request.getPath() == null || request.getPath().length == 0) {
@@ -90,6 +92,25 @@ public class FileSystemController {
         try {
             Boolean success = fileSystemService.rename(request);
             response.setSuccess(success);
+            return ResponseUtils.successResponse(response);
+        } catch (Exception e) {
+            return ResponseUtils.errorResponse(e.getMessage(), ResponseCode.REQUESTED_HANDLE_EXCEPTION);
+        }
+    }
+
+    @PostMapping("/duplicate")
+    @ResponseBody
+    public Response duplicate(@RequestBody FSDuplicateRequestType request) {
+        if (StringUtils.isEmpty(request.getId())) {
+            return ResponseUtils.errorResponse("Cannot duplicate item because workspace id is empty",
+                    ResponseCode.REQUESTED_PARAMETER_INVALID);
+        }
+        if (request.getPath() == null || request.getPath().length == 0) {
+            return ResponseUtils.errorResponse("Item path cannot be empty", ResponseCode.REQUESTED_PARAMETER_INVALID);
+        }
+        try {
+            SuccessResponseType response = new SuccessResponseType();
+            response.setSuccess(fileSystemService.duplicate(request));
             return ResponseUtils.successResponse(response);
         } catch (Exception e) {
             return ResponseUtils.errorResponse(e.getMessage(), ResponseCode.REQUESTED_HANDLE_EXCEPTION);

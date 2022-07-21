@@ -16,4 +16,6 @@ public interface FSInterfaceRepository extends RepositoryProvider {
     FSInterfaceDto queryInterface(String id);
 
     List<FSInterfaceDto> queryInterfaces(Set<String> ids);
+
+    String duplicate(FSInterfaceDto dto);
 }
