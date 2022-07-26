@@ -10,6 +10,7 @@ public class MongoHelper {
     public static Update getUpdate() {
         Update update = new Update();
         update.set(RepositoryProvider.DATA_CHANGE_UPDATE_TIME, System.currentTimeMillis());
+        update.setOnInsert(RepositoryProvider.DATA_CHANGE_CREATE_TIME, System.currentTimeMillis());
         return update;
     }
 

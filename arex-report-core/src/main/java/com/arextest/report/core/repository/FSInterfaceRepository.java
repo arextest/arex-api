@@ -11,6 +11,8 @@ public interface FSInterfaceRepository extends RepositoryProvider {
 
     Boolean removeInterface(String id);
 
+    Boolean removeInterfaces(Set<String> ids);
+
     FSInterfaceDto saveInterface(FSInterfaceDto interfaceDto);
 
     FSInterfaceDto queryInterface(String id);

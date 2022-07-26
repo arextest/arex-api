@@ -5,6 +5,7 @@ import com.arextest.report.model.dto.filesystem.FSCaseDto;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import java.util.Set;
 
 @Component("2")
 public class CaseItemInfo implements ItemInfo {
@@ -18,7 +19,11 @@ public class CaseItemInfo implements ItemInfo {
     }
     @Override
     public Boolean removeItem(String infoId) {
-        return fsCaseRepository.removeCases(infoId);
+        return fsCaseRepository.removeCase(infoId);
+    }
+    @Override
+    public Boolean removeItems(Set<String> infoIds) {
+        return null;
     }
     @Override
     public String duplicate(String parentId, String infoId) {

@@ -5,6 +5,7 @@ import com.arextest.report.model.dto.filesystem.FSInterfaceDto;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import java.util.Set;
 
 @Component("1")
 public class InterfaceItemInfo implements ItemInfo {
@@ -19,6 +20,10 @@ public class InterfaceItemInfo implements ItemInfo {
     @Override
     public Boolean removeItem(String infoId) {
         return fsInterfaceRepository.removeInterface(infoId);
+    }
+    @Override
+    public Boolean removeItems(Set<String> infoIds) {
+        return fsInterfaceRepository.removeInterfaces(infoIds);
     }
     @Override
     public String duplicate(String parentId, String infoId) {

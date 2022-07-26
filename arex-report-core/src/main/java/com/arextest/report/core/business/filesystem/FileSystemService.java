@@ -7,7 +7,6 @@ import com.arextest.report.model.api.contracts.filesystem.FSAddItemRequestType;
 import com.arextest.report.model.api.contracts.filesystem.FSAddItemResponseType;
 import com.arextest.report.model.api.contracts.filesystem.FSDuplicateRequestType;
 import com.arextest.report.model.api.contracts.filesystem.FSMoveItemRequestType;
-import com.arextest.report.model.api.contracts.filesystem.FSNodeType;
 import com.arextest.report.model.api.contracts.filesystem.FSQueryCaseRequestType;
 import com.arextest.report.model.api.contracts.filesystem.FSQueryCaseResponseType;
 import com.arextest.report.model.api.contracts.filesystem.FSQueryInterfaceRequestType;
@@ -18,12 +17,12 @@ import com.arextest.report.model.api.contracts.filesystem.FSQueryWorkspacesReque
 import com.arextest.report.model.api.contracts.filesystem.FSQueryWorkspacesResponseType;
 import com.arextest.report.model.api.contracts.filesystem.FSRemoveItemRequestType;
 import com.arextest.report.model.api.contracts.filesystem.FSRenameRequestType;
+import com.arextest.report.model.api.contracts.filesystem.FSRenameWorkspaceRequestType;
 import com.arextest.report.model.api.contracts.filesystem.FSSaveCaseRequestType;
 import com.arextest.report.model.api.contracts.filesystem.FSSaveCaseResponseType;
 import com.arextest.report.model.api.contracts.filesystem.FSSaveInterfaceRequestType;
 import com.arextest.report.model.api.contracts.filesystem.FSSaveInterfaceResponseType;
 import com.arextest.report.model.api.contracts.filesystem.FSTreeType;
-import com.arextest.report.model.dao.mongodb.entity.FSNode;
 import com.arextest.report.model.dto.WorkspaceDto;
 import com.arextest.report.model.dto.filesystem.FSCaseDto;
 import com.arextest.report.model.dto.filesystem.FSInterfaceDto;
@@ -42,8 +41,12 @@ import javax.annotation.Resource;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -256,7 +259,43 @@ public class FileSystemService {
             LOGGER.error("failed to move item", e);
             return false;
         }
+    }
 
+    public Boolean renameWorkspace(FSRenameWorkspaceRequestType request) {
+        FSTreeDto treeDto = new FSTreeDto();
+        treeDto.setId(request.getId());
+        treeDto.setWorkspaceName(request.getWorkspaceName());
+        try {
+            fsTreeRepository.updateFSTree(treeDto);
+            return true;
+        } catch (Exception e) {
+            LOGGER.error("failed to rename workspace", e);
+            return false;
+        }
+    }
+
+    public Boolean deleteWorkspace(String id) {
+        FSTreeDto treeDto = fsTreeRepository.queryFSTreeById(id);
+        Map<Integer, Set<String>> itemMap = new HashMap<>();
+        Queue<FSNodeDto> queue = new ArrayDeque<>(treeDto.getRoots());
+
+        while (!queue.isEmpty()) {
+            FSNodeDto node = queue.poll();
+            if (!itemMap.containsKey(node.getNodeType())) {
+                itemMap.put(node.getNodeType(), new HashSet<>());
+            }
+            itemMap.get(node.getNodeType()).add(node.getInfoId());
+            if (node.getChildren() != null && node.getChildren().size() > 0) {
+                queue.addAll(node.getChildren());
+            }
+        }
+        if (itemMap.size() > 0) {
+            for (Map.Entry<Integer, Set<String>> items : itemMap.entrySet()) {
+                ItemInfo itemInfo = itemInfoFactory.getItemInfo(items.getKey());
+                itemInfo.removeItems(items.getValue());
+            }
+        }
+        return fsTreeRepository.deleteFSTree(id);
     }
 
     public FSQueryWorkspaceResponseType queryWorkspaceById(FSQueryWorkspaceRequestType request) {

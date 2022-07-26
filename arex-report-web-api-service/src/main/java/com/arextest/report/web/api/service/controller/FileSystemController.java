@@ -21,6 +21,7 @@ import com.arextest.report.model.api.contracts.filesystem.FSRemoveItemRequestTyp
 import com.arextest.report.model.api.contracts.filesystem.FSRemoveItemResponseType;
 import com.arextest.report.model.api.contracts.filesystem.FSRenameRequestType;
 import com.arextest.report.model.api.contracts.filesystem.FSRenameResponseType;
+import com.arextest.report.model.api.contracts.filesystem.FSRenameWorkspaceRequestType;
 import com.arextest.report.model.api.contracts.filesystem.FSSaveCaseRequestType;
 import com.arextest.report.model.api.contracts.filesystem.FSSaveCaseResponseType;
 import com.arextest.report.model.api.contracts.filesystem.FSSaveInterfaceRequestType;
@@ -29,10 +30,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import sun.misc.Request;
 
 import javax.annotation.Resource;
 
@@ -50,6 +54,9 @@ public class FileSystemController {
     public Response addItem(@RequestBody FSAddItemRequestType request) {
         if (StringUtils.isEmpty(request.getNodeName())) {
             return ResponseUtils.errorResponse("Node name cannot be empty", ResponseCode.REQUESTED_PARAMETER_INVALID);
+        }
+        if (request.getNodeType() == null) {
+            return ResponseUtils.errorResponse("NodeType cannot be empty", ResponseCode.REQUESTED_PARAMETER_INVALID);
         }
         try {
             FSAddItemResponseType response = fileSystemService.addItem(request);
@@ -127,6 +134,41 @@ public class FileSystemController {
         try {
             SuccessResponseType response = new SuccessResponseType();
             response.setSuccess(fileSystemService.move(request));
+            return ResponseUtils.successResponse(response);
+        } catch (Exception e) {
+            return ResponseUtils.errorResponse(e.getMessage(), ResponseCode.REQUESTED_HANDLE_EXCEPTION);
+        }
+    }
+
+    @DeleteMapping("/workspace/{id}")
+    @ResponseBody
+    public Response deleteWorkspace(@PathVariable String id) {
+        if (StringUtils.isEmpty(id)) {
+            return ResponseUtils.errorResponse("workspace id cannot be empty",
+                    ResponseCode.REQUESTED_PARAMETER_INVALID);
+        }
+        try {
+            SuccessResponseType response = new SuccessResponseType();
+            response.setSuccess(fileSystemService.deleteWorkspace(id));
+            return ResponseUtils.successResponse(response);
+        } catch (Exception e) {
+            return ResponseUtils.errorResponse(e.getMessage(), ResponseCode.REQUESTED_HANDLE_EXCEPTION);
+        }
+    }
+
+    @PostMapping("/renameWorkspace")
+    @ResponseBody
+    public Response renameWorkspace(@RequestBody FSRenameWorkspaceRequestType request) {
+        if (StringUtils.isEmpty(request.getId())) {
+            return ResponseUtils.errorResponse("workspaceId cannot empty", ResponseCode.REQUESTED_PARAMETER_INVALID);
+        }
+        if (StringUtils.isEmpty(request.getWorkspaceName())) {
+            return ResponseUtils.errorResponse("new workspace name cannot be empty",
+                    ResponseCode.REQUESTED_PARAMETER_INVALID);
+        }
+        try {
+            SuccessResponseType response = new SuccessResponseType();
+            response.setSuccess(fileSystemService.renameWorkspace(request));
             return ResponseUtils.successResponse(response);
         } catch (Exception e) {
             return ResponseUtils.errorResponse(e.getMessage(), ResponseCode.REQUESTED_HANDLE_EXCEPTION);
