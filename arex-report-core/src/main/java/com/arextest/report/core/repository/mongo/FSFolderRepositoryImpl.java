@@ -6,6 +6,7 @@ import com.arextest.report.core.repository.mongo.util.MongoHelper;
 import com.arextest.report.model.dao.mongodb.FSFolderCollection;
 import com.arextest.report.model.dto.filesystem.FSFolderDto;
 import com.arextest.report.model.mapper.FSFolderMapper;
+import com.mongodb.client.result.DeleteResult;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -14,6 +15,8 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -42,6 +45,13 @@ public class FSFolderRepositoryImpl implements FSFolderRepository {
             return false;
         }
 
+    }
+    @Override
+    public Boolean removeFolders(Set<String> ids) {
+        Set<ObjectId> objectIds = ids.stream().map(id -> new ObjectId(id)).collect(Collectors.toSet());
+        Query query = Query.query(Criteria.where(DASH_ID).in(objectIds));
+        DeleteResult result = mongoTemplate.remove(query, FSFolderCollection.class);
+        return result.getDeletedCount() > 0;
     }
     @Override
     public FSFolderDto queryById(String id) {

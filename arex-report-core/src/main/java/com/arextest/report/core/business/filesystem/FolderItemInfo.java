@@ -6,6 +6,7 @@ import com.arextest.report.model.dto.filesystem.FSFolderDto;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import java.util.Set;
 
 @Component("3")
 public class FolderItemInfo implements ItemInfo {
@@ -20,6 +21,10 @@ public class FolderItemInfo implements ItemInfo {
     @Override
     public Boolean removeItem(String infoId) {
         return fsFolderRepository.removeFolder(infoId);
+    }
+    @Override
+    public Boolean removeItems(Set<String> infoIds) {
+        return fsFolderRepository.removeFolders(infoIds);
     }
 
     @Override

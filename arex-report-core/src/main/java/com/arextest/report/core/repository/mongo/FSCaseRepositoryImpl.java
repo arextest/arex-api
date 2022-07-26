@@ -5,6 +5,7 @@ import com.arextest.report.core.repository.mongo.util.MongoHelper;
 import com.arextest.report.model.dao.mongodb.FSCaseCollection;
 import com.arextest.report.model.dto.filesystem.FSCaseDto;
 import com.arextest.report.model.mapper.FSCaseMapper;
+import com.mongodb.client.result.DeleteResult;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Component
@@ -33,10 +35,17 @@ public class FSCaseRepositoryImpl implements FSCaseRepository {
         return dao.getId();
     }
     @Override
-    public Boolean removeCases(String id) {
+    public Boolean removeCase(String id) {
         Query query = Query.query(Criteria.where(DASH_ID).is(id));
         FSCaseCollection dao = mongoTemplate.findAndRemove(query, FSCaseCollection.class);
         return true;
+    }
+    @Override
+    public Boolean removeCases(Set<String> ids) {
+        Set<ObjectId> objectIds = ids.stream().map(id -> new ObjectId(id)).collect(Collectors.toSet());
+        Query query = Query.query(Criteria.where(DASH_ID).in(objectIds));
+        DeleteResult result = mongoTemplate.remove(query, FSCaseCollection.class);
+        return result.getDeletedCount() > 0;
     }
     @Override
     public FSCaseDto saveCase(FSCaseDto dto) {

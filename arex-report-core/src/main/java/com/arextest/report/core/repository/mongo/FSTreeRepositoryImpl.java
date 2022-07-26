@@ -6,7 +6,9 @@ import com.arextest.report.model.dao.mongodb.FSTreeCollection;
 import com.arextest.report.model.dto.filesystem.FSTreeDto;
 import com.arextest.report.model.dto.WorkspaceDto;
 import com.arextest.report.model.mapper.FSTreeMapper;
+import com.mongodb.client.result.DeleteResult;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -44,9 +46,7 @@ public class FSTreeRepositoryImpl implements FSTreeRepository {
     public FSTreeDto updateFSTree(FSTreeDto dto) {
 
         Update update = MongoHelper.getUpdate();
-        update.setOnInsert(WORKSPACE_NAME, dto.getWorkspaceName());
-        update.setOnInsert(USERNAME, dto.getUserName());
-        update.set(ROOTS, dto.getRoots());
+        MongoHelper.appendFullProperties(update, dto);
 
         Query query = Query.query(Criteria.where(DASH_ID).is(dto.getId()));
 
@@ -83,5 +83,12 @@ public class FSTreeRepositoryImpl implements FSTreeRepository {
             workspaces.add(dto);
         });
         return workspaces;
+    }
+
+    @Override
+    public Boolean deleteFSTree(String id) {
+        DeleteResult result =
+                mongoTemplate.remove(Query.query(Criteria.where(DASH_ID).is(new ObjectId(id))), FSTreeCollection.class);
+        return result.getDeletedCount() > 0;
     }
 }

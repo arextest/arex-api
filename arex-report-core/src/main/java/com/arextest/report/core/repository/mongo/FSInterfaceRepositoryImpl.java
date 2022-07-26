@@ -5,6 +5,7 @@ import com.arextest.report.core.repository.mongo.util.MongoHelper;
 import com.arextest.report.model.dao.mongodb.FSInterfaceCollection;
 import com.arextest.report.model.dto.filesystem.FSInterfaceDto;
 import com.arextest.report.model.mapper.FSInterfaceMapper;
+import com.mongodb.client.result.DeleteResult;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
@@ -40,6 +41,14 @@ public class FSInterfaceRepositoryImpl implements FSInterfaceRepository {
         Query query = Query.query(Criteria.where(DASH_ID).is(id));
         FSInterfaceCollection dao = mongoTemplate.findAndRemove(query, FSInterfaceCollection.class);
         return dao != null ? true : false;
+    }
+
+    @Override
+    public Boolean removeInterfaces(Set<String> ids) {
+        Set<ObjectId> objectIds = ids.stream().map(id -> new ObjectId(id)).collect(Collectors.toSet());
+        Query query = Query.query(Criteria.where(DASH_ID).in(objectIds));
+        DeleteResult result = mongoTemplate.remove(query, FSInterfaceCollection.class);
+        return result.getDeletedCount() > 0;
     }
 
     @Override
