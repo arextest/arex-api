@@ -8,5 +8,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class UserCollection extends ModelBase {
     private String email;
     private String verificationCode;
+    private Long verificationTime;
     private String profile;
 }
