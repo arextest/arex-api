@@ -4,6 +4,7 @@ package com.arextest.report.core.repository;
 import com.arextest.report.model.dto.filesystem.FSInterfaceDto;
 import com.arextest.report.model.dto.filesystem.FSTreeDto;
 import com.arextest.report.model.dto.WorkspaceDto;
+import com.arextest.report.model.dto.filesystem.UserWorkspaceDto;
 
 import java.util.List;
 import java.util.Map;
@@ -16,7 +17,7 @@ public interface FSTreeRepository extends RepositoryProvider {
 
     FSTreeDto queryFSTreeById(String id);
 
-    List<WorkspaceDto> queryWorkspacesByUser(String userName);
+    List<FSTreeDto> queryFSTreeByIds(Set<String> ids);
 
     Boolean deleteFSTree(String id);
 }

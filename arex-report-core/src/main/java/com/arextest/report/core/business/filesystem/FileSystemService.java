@@ -1,8 +1,10 @@
 package com.arextest.report.core.business.filesystem;
 
+import com.arextest.report.core.business.util.MailUtils;
 import com.arextest.report.core.repository.FSCaseRepository;
 import com.arextest.report.core.repository.FSInterfaceRepository;
 import com.arextest.report.core.repository.FSTreeRepository;
+import com.arextest.report.core.repository.UserWorkspaceRepository;
 import com.arextest.report.model.api.contracts.filesystem.FSAddItemRequestType;
 import com.arextest.report.model.api.contracts.filesystem.FSAddItemResponseType;
 import com.arextest.report.model.api.contracts.filesystem.FSDuplicateRequestType;
@@ -23,18 +25,30 @@ import com.arextest.report.model.api.contracts.filesystem.FSSaveCaseResponseType
 import com.arextest.report.model.api.contracts.filesystem.FSSaveInterfaceRequestType;
 import com.arextest.report.model.api.contracts.filesystem.FSSaveInterfaceResponseType;
 import com.arextest.report.model.api.contracts.filesystem.FSTreeType;
+import com.arextest.report.model.api.contracts.filesystem.InviteToWorkspaceRequestType;
+import com.arextest.report.model.api.contracts.filesystem.InviteToWorkspaceResponseType;
+import com.arextest.report.model.api.contracts.filesystem.LeaveWorkspaceRequestType;
+import com.arextest.report.model.api.contracts.filesystem.ValidInvitationRequestType;
 import com.arextest.report.model.dto.WorkspaceDto;
 import com.arextest.report.model.dto.filesystem.FSCaseDto;
 import com.arextest.report.model.dto.filesystem.FSInterfaceDto;
 import com.arextest.report.model.dto.filesystem.FSNodeDto;
 import com.arextest.report.model.dto.filesystem.FSTreeDto;
+import com.arextest.report.model.dto.filesystem.UserWorkspaceDto;
+import com.arextest.report.model.enums.InvitationType;
+import com.arextest.report.model.enums.RoleType;
 import com.arextest.report.model.mapper.AddressMapper;
 import com.arextest.report.model.mapper.FSCaseMapper;
 import com.arextest.report.model.mapper.FSInterfaceMapper;
 import com.arextest.report.model.mapper.FSTreeMapper;
+import com.arextest.report.model.mapper.UserWorkspaceMapper;
 import com.arextest.report.model.mapper.WorkspaceMapper;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.bson.internal.Base64;
+import org.bson.types.ObjectId;
+import org.json.JSONObject;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -47,6 +61,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -65,7 +80,13 @@ public class FileSystemService {
     private FSCaseRepository fsCaseRepository;
 
     @Resource
+    private UserWorkspaceRepository userWorkspaceRepository;
+
+    @Resource
     private ItemInfoFactory itemInfoFactory;
+
+    @Resource
+    private MailUtils mailUtils;
 
     public FSAddItemResponseType addItem(FSAddItemRequestType request) {
         FSAddItemResponseType response = new FSAddItemResponseType();
@@ -91,6 +112,15 @@ public class FileSystemService {
                 dto.setUserName(request.getUserName());
                 dto.setRoots(new ArrayList<>());
                 dto = fsTreeRepository.initFSTree(dto);
+
+                // add user workspace
+                UserWorkspaceDto userWorkspaceDto = new UserWorkspaceDto();
+                userWorkspaceDto.setWorkspaceId(dto.getId());
+                userWorkspaceDto.setEmail(dto.getUserName());
+                userWorkspaceDto.setRole(RoleType.ADMIN);
+                userWorkspaceDto.setStatus(InvitationType.INVITED);
+                userWorkspaceRepository.update(userWorkspaceDto);
+
             } else {
                 dto = fsTreeRepository.queryFSTreeById(request.getId());
             }
@@ -227,7 +257,7 @@ public class FileSystemService {
         }
     }
 
-    public boolean move(FSMoveItemRequestType request) {
+    public Boolean move(FSMoveItemRequestType request) {
         try {
             FSTreeDto treeDto = fsTreeRepository.queryFSTreeById(request.getId());
             FSNodeDto current = findByPath(treeDto.getRoots(), request.getFromNodePath());
@@ -295,7 +325,9 @@ public class FileSystemService {
                 itemInfo.removeItems(items.getValue());
             }
         }
-        return fsTreeRepository.deleteFSTree(id);
+        Boolean result = userWorkspaceRepository.removeByWorkspaceId(id);
+        result &= fsTreeRepository.deleteFSTree(id);
+        return result;
     }
 
     public FSQueryWorkspaceResponseType queryWorkspaceById(FSQueryWorkspaceRequestType request) {
@@ -308,7 +340,24 @@ public class FileSystemService {
 
     public FSQueryWorkspacesResponseType queryWorkspacesByUser(FSQueryWorkspacesRequestType request) {
         FSQueryWorkspacesResponseType response = new FSQueryWorkspacesResponseType();
-        List<WorkspaceDto> workspaces = fsTreeRepository.queryWorkspacesByUser(request.getUserName());
+        List<UserWorkspaceDto> userWorkspaceDtos = userWorkspaceRepository.queryWorkspacesByUser(request.getUserName());
+        if (userWorkspaceDtos == null) {
+            response.setWorkspaces(new ArrayList<>());
+            return response;
+        }
+        Map<String, Integer> workspaceIdRoleMap = userWorkspaceDtos.stream()
+                .collect(Collectors.toMap(UserWorkspaceDto::getWorkspaceId, UserWorkspaceDto::getRole));
+
+        List<FSTreeDto> treeDtos = fsTreeRepository.queryFSTreeByIds(workspaceIdRoleMap.keySet());
+
+        List<WorkspaceDto> workspaces = new ArrayList<>();
+        treeDtos.forEach(tree -> {
+            WorkspaceDto dto = new WorkspaceDto();
+            dto.setId(tree.getId());
+            dto.setWorkspaceName(tree.getWorkspaceName());
+            dto.setRole(workspaceIdRoleMap.get(dto.getId()));
+            workspaces.add(dto);
+        });
         response.setWorkspaces(WorkspaceMapper.INSTANCE.contractFromDtoList(workspaces));
         return response;
     }
@@ -360,6 +409,41 @@ public class FileSystemService {
         }
 
         return response;
+    }
+
+    public InviteToWorkspaceResponseType inviteToWorkspace(InviteToWorkspaceRequestType request) {
+        InviteToWorkspaceResponseType response = new InviteToWorkspaceResponseType();
+        UserWorkspaceDto userWorkspaceDto =
+                userWorkspaceRepository.queryUserWorkspace(request.getEmail(), request.getWorkspaceId());
+        if (userWorkspaceDto != null && userWorkspaceDto.getStatus() == InvitationType.INVITED) {
+            response.setSuccess(false);
+            response.setReason(String.format("%s is already in the workspace", request.getEmail()));
+            return response;
+        }
+        userWorkspaceDto = UserWorkspaceMapper.INSTANCE.dtoFromContract(request);
+        userWorkspaceDto.setStatus(InvitationType.INVITING);
+        userWorkspaceDto.setToken(UUID.randomUUID().toString());
+
+        Boolean result = sendInviteEmail(request.getInvitor(),
+                request.getEmail(),
+                request.getWorkspaceId(),
+                userWorkspaceDto.getToken());
+
+        userWorkspaceRepository.update(userWorkspaceDto);
+        response.setSuccess(result);
+        return response;
+    }
+
+    public Boolean leaveWorkspace(LeaveWorkspaceRequestType request) {
+        return userWorkspaceRepository.remove(request.getEmail(), request.getWorkspaceId());
+    }
+
+    public Boolean validInvitation(ValidInvitationRequestType request) {
+        UserWorkspaceDto userWorkspaceDto = UserWorkspaceMapper.INSTANCE.dtoFromContract(request);
+        Boolean result = userWorkspaceRepository.verify(userWorkspaceDto);
+        userWorkspaceDto.setStatus(InvitationType.INVITED);
+        userWorkspaceRepository.update(userWorkspaceDto);
+        return result;
     }
 
     private FSNodeDto findByPath(List<FSNodeDto> list, String[] pathArr) {
@@ -425,5 +509,40 @@ public class FileSystemService {
             }
         }
         return dto;
+    }
+
+    private Boolean sendInviteEmail(String invitor, String invitee, String workspaceId, String token) {
+        FSTreeDto workspace = fsTreeRepository.queryFSTreeById(workspaceId);
+        if (workspace == null) {
+            return false;
+        }
+        final String INVITATION_MAIL_SUBJECT = "[ArexTest]You are invited to '%s' workspace";
+
+        InviteObject inviteObject = new InviteObject(invitee, workspaceId, token);
+        JSONObject obj = new JSONObject(inviteObject);
+
+        String address = "http://10.5.153.1:8088/click/?upn=" + Base64.encode(obj.toString().getBytes());
+
+        String context = String.format("%s invites you to join the %s workspace. "
+                + "Please click the below link to join workspace.</br>"
+                + "<a href='%s'>Join and View workspace</a>", invitor, workspace.getWorkspaceName(), address);
+
+        return mailUtils.sendEmail(invitee,
+                String.format(INVITATION_MAIL_SUBJECT, workspace.getWorkspaceName()),
+                context,
+                true);
+    }
+
+    @Data
+    public class InviteObject {
+        private String mail;
+        private String workSpaceId;
+        private String token;
+
+        public InviteObject(String mail, String workSpaceId, String token) {
+            this.mail = mail;
+            this.workSpaceId = workSpaceId;
+            this.token = token;
+        }
     }
 }

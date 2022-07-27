@@ -15,7 +15,7 @@ import java.util.Random;
 @Component
 public class LoginService {
 
-    private static final String SEND_VERIFICATION_CODE_SUBJECT = "[ArexTest] verification code";
+    private static final String SEND_VERIFICATION_CODE_SUBJECT = "[ArexTest] Verification code";
     private static final String SEND_VERIFICATION_CODE_MSG = "Verification Code is: %s";
 
     @Resource
@@ -28,6 +28,7 @@ public class LoginService {
         UserDto user = new UserDto();
         user.setEmail(emailTo);
         user.setVerificationCode(generateVerificationCode());
+        user.setVerificationTime(System.currentTimeMillis());
         boolean success = userRepository.saveVerificationCode(user);
         if (success) {
             success = success & mailUtils.sendEmail(user.getEmail(),

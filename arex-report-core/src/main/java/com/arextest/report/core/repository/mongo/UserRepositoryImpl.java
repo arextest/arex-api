@@ -21,6 +21,7 @@ public class UserRepositoryImpl implements UserRepository {
 
     private static final String EMAIL = "email";
     private static final String VERIFICATION_CODE = "verificationCode";
+    private static final String VERIFICATION_TIME = "verificationTime";
 
     @Resource
     private MongoTemplate mongoTemplate;
@@ -30,6 +31,7 @@ public class UserRepositoryImpl implements UserRepository {
         Query query = Query.query(Criteria.where(EMAIL).is(user.getEmail()));
         Update update = MongoHelper.getUpdate();
         update.set(VERIFICATION_CODE, user.getVerificationCode());
+        update.set(VERIFICATION_TIME, user.getVerificationTime());
         mongoTemplate.findAndModify(query,
                 update,
                 FindAndModifyOptions.options().returnNew(true).upsert(true),
@@ -40,7 +42,7 @@ public class UserRepositoryImpl implements UserRepository {
     public Boolean verify(String email, String verificationCode) {
         Query query = Query.query(Criteria.where(EMAIL).is(email)
                 .and(VERIFICATION_CODE).is(verificationCode)
-                .and(DATA_CHANGE_UPDATE_TIME).gt(System.currentTimeMillis() - 5 * 60 * 1000));
+                .and(VERIFICATION_TIME).gt(System.currentTimeMillis() - 5 * 60 * 1000));
         return mongoTemplate.exists(query, UserCollection.class);
     }
     @Override

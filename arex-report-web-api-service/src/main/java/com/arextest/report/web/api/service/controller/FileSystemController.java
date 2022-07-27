@@ -26,6 +26,10 @@ import com.arextest.report.model.api.contracts.filesystem.FSSaveCaseRequestType;
 import com.arextest.report.model.api.contracts.filesystem.FSSaveCaseResponseType;
 import com.arextest.report.model.api.contracts.filesystem.FSSaveInterfaceRequestType;
 import com.arextest.report.model.api.contracts.filesystem.FSSaveInterfaceResponseType;
+import com.arextest.report.model.api.contracts.filesystem.InviteToWorkspaceRequestType;
+import com.arextest.report.model.api.contracts.filesystem.InviteToWorkspaceResponseType;
+import com.arextest.report.model.api.contracts.filesystem.LeaveWorkspaceRequestType;
+import com.arextest.report.model.api.contracts.filesystem.ValidInvitationRequestType;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
@@ -242,6 +246,63 @@ public class FileSystemController {
     public Response queryCase(@RequestBody FSQueryCaseRequestType request) {
         try {
             FSQueryCaseResponseType response = fileSystemService.queryCase(request);
+            return ResponseUtils.successResponse(response);
+        } catch (Exception e) {
+            return ResponseUtils.errorResponse(e.getMessage(), ResponseCode.REQUESTED_HANDLE_EXCEPTION);
+        }
+    }
+
+    @PostMapping("/inviteToWorkspace")
+    @ResponseBody
+    public Response inviteToWorkspace(@RequestBody InviteToWorkspaceRequestType request) {
+        if (StringUtils.isEmpty(request.getEmail())) {
+            return ResponseUtils.errorResponse("Email cannot be empty", ResponseCode.REQUESTED_PARAMETER_INVALID);
+        }
+        if (StringUtils.isEmpty(request.getWorkspaceId())) {
+            return ResponseUtils.errorResponse("Workspace Id cannot be empty",
+                    ResponseCode.REQUESTED_PARAMETER_INVALID);
+        }
+        try {
+            InviteToWorkspaceResponseType response = fileSystemService.inviteToWorkspace(request);
+            return ResponseUtils.successResponse(response);
+        } catch (Exception e) {
+            return ResponseUtils.errorResponse(e.getMessage(), ResponseCode.REQUESTED_HANDLE_EXCEPTION);
+        }
+    }
+
+    @PostMapping("/leaveWorkspace")
+    @ResponseBody
+    public Response leaveWorkspace(@RequestBody LeaveWorkspaceRequestType request) {
+        if (StringUtils.isEmpty(request.getEmail())) {
+            return ResponseUtils.errorResponse("Email cannot be empty", ResponseCode.REQUESTED_PARAMETER_INVALID);
+        }
+        if (StringUtils.isEmpty(request.getWorkspaceId())) {
+            return ResponseUtils.errorResponse("WorkspaceId cannot be empty", ResponseCode.REQUESTED_PARAMETER_INVALID);
+        }
+        try {
+            SuccessResponseType response = new SuccessResponseType();
+            response.setSuccess(fileSystemService.leaveWorkspace(request));
+            return ResponseUtils.successResponse(response);
+        } catch (Exception e) {
+            return ResponseUtils.errorResponse(e.getMessage(), ResponseCode.REQUESTED_HANDLE_EXCEPTION);
+        }
+    }
+
+    @PostMapping("/validInvitation")
+    @ResponseBody
+    public Response validInvitation(@RequestBody ValidInvitationRequestType request) {
+        if (StringUtils.isEmpty(request.getEmail())) {
+            return ResponseUtils.errorResponse("email cannot be empty", ResponseCode.REQUESTED_PARAMETER_INVALID);
+        }
+        if (StringUtils.isEmpty(request.getWorkspaceId())) {
+            return ResponseUtils.errorResponse("WorkspaceId cannot be empty", ResponseCode.REQUESTED_PARAMETER_INVALID);
+        }
+        if (StringUtils.isEmpty(request.getToken())) {
+            return ResponseUtils.errorResponse("Token cannot be empty", ResponseCode.REQUESTED_PARAMETER_INVALID);
+        }
+        try {
+            SuccessResponseType response = new SuccessResponseType();
+            response.setSuccess(fileSystemService.validInvitation(request));
             return ResponseUtils.successResponse(response);
         } catch (Exception e) {
             return ResponseUtils.errorResponse(e.getMessage(), ResponseCode.REQUESTED_HANDLE_EXCEPTION);

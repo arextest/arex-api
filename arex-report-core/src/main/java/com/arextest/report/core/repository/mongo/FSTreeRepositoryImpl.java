@@ -5,6 +5,7 @@ import com.arextest.report.core.repository.mongo.util.MongoHelper;
 import com.arextest.report.model.dao.mongodb.FSTreeCollection;
 import com.arextest.report.model.dto.filesystem.FSTreeDto;
 import com.arextest.report.model.dto.WorkspaceDto;
+import com.arextest.report.model.dto.filesystem.UserWorkspaceDto;
 import com.arextest.report.model.mapper.FSTreeMapper;
 import com.mongodb.client.result.DeleteResult;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -64,25 +66,12 @@ public class FSTreeRepositoryImpl implements FSTreeRepository {
         FSTreeCollection dao = mongoTemplate.findOne(query, FSTreeCollection.class);
         return FSTreeMapper.INSTANCE.dtoFromDao(dao);
     }
-
     @Override
-    public List<WorkspaceDto> queryWorkspacesByUser(String userName) {
-        Query query = Query.query(Criteria.where(USERNAME).is(userName));
-        Field field = query.fields();
-        field.include(DASH_ID).include(WORKSPACE_NAME);
-        List<FSTreeCollection> trees = mongoTemplate.find(query, FSTreeCollection.class);
-
-        if (trees == null) {
-            return null;
-        }
-        List<WorkspaceDto> workspaces = new ArrayList<>();
-        trees.forEach(tree -> {
-            WorkspaceDto dto = new WorkspaceDto();
-            dto.setId(tree.getId());
-            dto.setWorkspaceName(tree.getWorkspaceName());
-            workspaces.add(dto);
-        });
-        return workspaces;
+    public List<FSTreeDto> queryFSTreeByIds(Set<String> ids) {
+        Set<ObjectId> objectIds = ids.stream().map(id -> new ObjectId(id)).collect(Collectors.toSet());
+        List<FSTreeCollection> daos =
+                mongoTemplate.find(Query.query(Criteria.where(DASH_ID).in(objectIds)), FSTreeCollection.class);
+        return daos.stream().map(FSTreeMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
     }
 
     @Override
