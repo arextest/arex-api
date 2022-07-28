@@ -1,6 +1,5 @@
 package com.arextest.report.model.api.contracts.compare;
 
-import com.arextest.report.model.api.contracts.common.LogEntity;
 import lombok.Data;
 
 import java.util.List;
@@ -13,5 +12,5 @@ public class QuickCompareResponseType {
     private int diffResultCode;
     private String baseMsg;
     private String testMsg;
-    private List<LogEntity> logs;
+    private List<DiffDetail> diffDetails;
 }

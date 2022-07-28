@@ -3,6 +3,10 @@ package com.arextest.report.core.business.compare;
 import com.arextest.diff.model.CompareResult;
 import com.arextest.diff.sdk.CompareSDK;
 import com.arextest.report.core.business.ManualReportService;
+import com.arextest.report.core.business.util.ListUtils;
+import com.arextest.report.model.api.contracts.common.LogEntity;
+import com.arextest.report.model.api.contracts.common.NodeEntity;
+import com.arextest.report.model.api.contracts.compare.DiffDetail;
 import com.arextest.report.model.api.contracts.compare.ExceptionMsg;
 import com.arextest.report.model.api.contracts.compare.MsgCombination;
 import com.arextest.report.model.api.contracts.compare.QuickCompareResponseType;
@@ -12,10 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -37,7 +38,8 @@ public class CompareService {
         quickCompareResponseType.setBaseMsg(compareResult.getProcessedBaseMsg());
         quickCompareResponseType.setTestMsg(compareResult.getProcessedTestMsg());
         if (compareResult.getLogs() != null) {
-            quickCompareResponseType.setLogs(compareResult.getLogs().stream().map(LogEntityMapper.INSTANCE::fromLogEntity).collect(Collectors.toList()));
+            List<LogEntity> logs = compareResult.getLogs().stream().map(LogEntityMapper.INSTANCE::fromLogEntity).collect(Collectors.toList());
+            quickCompareResponseType.setDiffDetails(getDiffDetails(logs));
         }
         return quickCompareResponseType;
     }
@@ -76,6 +78,29 @@ public class CompareService {
         }).collect(Collectors.toList());
         boolean saveResult = manualReportService.saveManualReportCaseResults(saveManualReportCaseDtos);
         printLogger(exceptionMsgs, saveResult);
+    }
+
+    public List<DiffDetail> getDiffDetails(List<LogEntity> logs) {
+
+        List<DiffDetail> diffDetails = new ArrayList<>();
+        Map<String, Map<Integer, List<LogEntity>>> collect = Optional.ofNullable(logs).orElse(new ArrayList<>()).stream()
+                .collect(Collectors.groupingBy(item -> {
+                    int leftSize = item.getPathPair().getLeftUnmatchedPath().size();
+                    int rightSize = item.getPathPair().getRightUnmatchedPath().size();
+                    List<NodeEntity> path = leftSize > rightSize ? item.getPathPair().getLeftUnmatchedPath() : item.getPathPair().getRightUnmatchedPath();
+                    return ListUtils.convertPathToFuzzyPath(path);
+                }, Collectors.groupingBy(item -> item.getPathPair().getUnmatchedType())));
+
+        collect.forEach((k, v) -> {
+            for (Integer unmatchedType : v.keySet()) {
+                DiffDetail diffDetail = new DiffDetail();
+                diffDetail.setPath(k);
+                diffDetail.setUnmatchedType(unmatchedType);
+                diffDetail.setLogs(v.get(unmatchedType));
+                diffDetails.add(diffDetail);
+            }
+        });
+        return diffDetails;
     }
 
     private <T> void printLogger(List<T> msgs, boolean saveResult) {

@@ -28,6 +28,23 @@ public class ListUtils {
         return path.toString();
     }
 
+    public static String convertPathToFuzzyPath(List<NodeEntity> nodes) {
+        if (nodes == null) {
+            return null;
+        }
+        StringBuilder path = new StringBuilder();
+        for (int i = 0; i < nodes.size(); i++) {
+            NodeEntity no = nodes.get(i);
+            if (!StringUtils.isEmpty(no.getNodeName())) {
+                path.append(no.getNodeName() + POINT);
+            }
+        }
+        if (path.length() != 0) {
+            path.deleteCharAt(path.length() - 1);
+        }
+        return path.toString();
+    }
+
     
     public static void removeLast(List<?> list) {
         if (list == null || list.size() == 0) {
