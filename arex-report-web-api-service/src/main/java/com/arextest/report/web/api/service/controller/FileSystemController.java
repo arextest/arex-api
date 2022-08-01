@@ -255,7 +255,7 @@ public class FileSystemController {
     @PostMapping("/inviteToWorkspace")
     @ResponseBody
     public Response inviteToWorkspace(@RequestBody InviteToWorkspaceRequestType request) {
-        if (StringUtils.isEmpty(request.getEmail())) {
+        if (request.getEmails() == null || request.getEmails().size() == 0) {
             return ResponseUtils.errorResponse("Email cannot be empty", ResponseCode.REQUESTED_PARAMETER_INVALID);
         }
         if (StringUtils.isEmpty(request.getWorkspaceId())) {
