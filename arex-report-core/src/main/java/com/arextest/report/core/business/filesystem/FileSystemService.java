@@ -413,24 +413,30 @@ public class FileSystemService {
 
     public InviteToWorkspaceResponseType inviteToWorkspace(InviteToWorkspaceRequestType request) {
         InviteToWorkspaceResponseType response = new InviteToWorkspaceResponseType();
-        UserWorkspaceDto userWorkspaceDto =
-                userWorkspaceRepository.queryUserWorkspace(request.getEmail(), request.getWorkspaceId());
-        if (userWorkspaceDto != null && userWorkspaceDto.getStatus() == InvitationType.INVITED) {
-            response.setSuccess(false);
-            response.setReason(String.format("%s is already in the workspace", request.getEmail()));
-            return response;
+        response.setSuccessUsers(new HashSet<>());
+        response.setFailedUsers(new HashSet<>());
+        for (String email : request.getEmails()) {
+            UserWorkspaceDto userWorkspaceDto =
+                    userWorkspaceRepository.queryUserWorkspace(email, request.getWorkspaceId());
+            if (userWorkspaceDto != null && userWorkspaceDto.getStatus() == InvitationType.INVITED) {
+                response.getFailedUsers().add(email);
+                continue;
+            }
+            userWorkspaceDto = UserWorkspaceMapper.INSTANCE.dtoFromContract(request);
+            userWorkspaceDto.setStatus(InvitationType.INVITING);
+            userWorkspaceDto.setToken(UUID.randomUUID().toString());
+
+            Boolean result = sendInviteEmail(request.getInvitor(),
+                    email,
+                    request.getWorkspaceId(),
+                    userWorkspaceDto.getToken());
+            if (result) {
+                userWorkspaceRepository.update(userWorkspaceDto);
+                response.getSuccessUsers().add(email);
+            } else {
+                response.getFailedUsers().add(email);
+            }
         }
-        userWorkspaceDto = UserWorkspaceMapper.INSTANCE.dtoFromContract(request);
-        userWorkspaceDto.setStatus(InvitationType.INVITING);
-        userWorkspaceDto.setToken(UUID.randomUUID().toString());
-
-        Boolean result = sendInviteEmail(request.getInvitor(),
-                request.getEmail(),
-                request.getWorkspaceId(),
-                userWorkspaceDto.getToken());
-
-        userWorkspaceRepository.update(userWorkspaceDto);
-        response.setSuccess(result);
         return response;
     }
 
