@@ -4,6 +4,6 @@ import lombok.Data;
 
 @Data
 public class LeaveWorkspaceRequestType {
-    private String email;
+    private String userName;
     private String workspaceId;
 }

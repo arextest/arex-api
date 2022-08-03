@@ -4,6 +4,6 @@ import lombok.Data;
 
 @Data
 public class UpdateUserProfileRequestType {
-    private String email;
+    private String userName;
     private String profile;
 }

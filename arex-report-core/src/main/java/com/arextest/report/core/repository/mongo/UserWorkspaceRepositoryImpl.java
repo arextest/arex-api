@@ -2,9 +2,7 @@ package com.arextest.report.core.repository.mongo;
 
 import com.arextest.report.core.repository.UserWorkspaceRepository;
 import com.arextest.report.core.repository.mongo.util.MongoHelper;
-import com.arextest.report.model.dao.mongodb.FSTreeCollection;
 import com.arextest.report.model.dao.mongodb.UserWorkspaceCollection;
-import com.arextest.report.model.dto.WorkspaceDto;
 import com.arextest.report.model.dto.filesystem.UserWorkspaceDto;
 import com.arextest.report.model.enums.InvitationType;
 import com.arextest.report.model.mapper.UserWorkspaceMapper;
@@ -13,13 +11,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Field;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,7 +23,7 @@ import java.util.stream.Collectors;
 @Component
 public class UserWorkspaceRepositoryImpl implements UserWorkspaceRepository {
 
-    private static final String EMAIL = "email";
+    private static final String USER_NAME = "userName";
     private static final String WORKSPACE_ID = "workspaceId";
     private static final String TOKEN = "token";
     private static final String STATUS = "status";
@@ -36,15 +32,15 @@ public class UserWorkspaceRepositoryImpl implements UserWorkspaceRepository {
     private MongoTemplate mongoTemplate;
 
     @Override
-    public UserWorkspaceDto queryUserWorkspace(String email, String workspaceId) {
-        Query query = Query.query(Criteria.where(EMAIL).is(email).and(WORKSPACE_ID).is(workspaceId));
+    public UserWorkspaceDto queryUserWorkspace(String userName, String workspaceId) {
+        Query query = Query.query(Criteria.where(USER_NAME).is(userName).and(WORKSPACE_ID).is(workspaceId));
         query.fields().exclude(TOKEN);
         UserWorkspaceCollection dao = mongoTemplate.findOne(query, UserWorkspaceCollection.class);
         return UserWorkspaceMapper.INSTANCE.dtoFromDao(dao);
     }
     @Override
     public UserWorkspaceDto update(UserWorkspaceDto dto) {
-        Query query = Query.query(Criteria.where(EMAIL).is(dto.getEmail()).and(WORKSPACE_ID).is(dto.getWorkspaceId()));
+        Query query = Query.query(Criteria.where(USER_NAME).is(dto.getUserName()).and(WORKSPACE_ID).is(dto.getWorkspaceId()));
         Update update = MongoHelper.getUpdate();
         MongoHelper.appendFullProperties(update, dto);
 
@@ -56,8 +52,8 @@ public class UserWorkspaceRepositoryImpl implements UserWorkspaceRepository {
     }
     @Override
     public Boolean verify(UserWorkspaceDto dto) {
-        Query query = Query.query(Criteria.where(EMAIL)
-                .is(dto.getEmail())
+        Query query = Query.query(Criteria.where(USER_NAME)
+                .is(dto.getUserName())
                 .and(WORKSPACE_ID)
                 .is(dto.getWorkspaceId())
                 .and(TOKEN)
@@ -67,9 +63,9 @@ public class UserWorkspaceRepositoryImpl implements UserWorkspaceRepository {
         return mongoTemplate.exists(query, UserWorkspaceCollection.class);
     }
     @Override
-    public List<UserWorkspaceDto> queryWorkspacesByUser(String email) {
-        Query query = Query.query(Criteria.where(EMAIL).is(email).and(STATUS).is(InvitationType.INVITED));
-        query.fields().exclude(TOKEN).exclude(STATUS).exclude(EMAIL);
+    public List<UserWorkspaceDto> queryWorkspacesByUser(String userName) {
+        Query query = Query.query(Criteria.where(USER_NAME).is(userName).and(STATUS).is(InvitationType.INVITED));
+        query.fields().exclude(TOKEN).exclude(STATUS).exclude(USER_NAME);
         List<UserWorkspaceCollection> workspaceDaos = mongoTemplate.find(query, UserWorkspaceCollection.class);
         if (workspaceDaos == null) {
             return null;
@@ -77,8 +73,8 @@ public class UserWorkspaceRepositoryImpl implements UserWorkspaceRepository {
         return workspaceDaos.stream().map(UserWorkspaceMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
     }
     @Override
-    public Boolean remove(String email, String workspaceId) {
-        Query query = Query.query(Criteria.where(EMAIL).is(email).and(WORKSPACE_ID).is(workspaceId));
+    public Boolean remove(String userName, String workspaceId) {
+        Query query = Query.query(Criteria.where(USER_NAME).is(userName).and(WORKSPACE_ID).is(workspaceId));
         DeleteResult result = mongoTemplate.remove(query, UserWorkspaceCollection.class);
         return result.getDeletedCount() > 0;
     }
