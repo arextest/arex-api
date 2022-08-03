@@ -26,12 +26,12 @@ public class LoginService {
 
     public Boolean sendVerifyCodeByEmail(String emailTo) {
         UserDto user = new UserDto();
-        user.setEmail(emailTo);
+        user.setUserName(emailTo);
         user.setVerificationCode(generateVerificationCode());
         user.setVerificationTime(System.currentTimeMillis());
         boolean success = userRepository.saveVerificationCode(user);
         if (success) {
-            success = success & mailUtils.sendEmail(user.getEmail(),
+            success = success & mailUtils.sendEmail(user.getUserName(),
                     SEND_VERIFICATION_CODE_SUBJECT,
                     String.format(SEND_VERIFICATION_CODE_MSG, user.getVerificationCode()),
                     true);
@@ -40,18 +40,18 @@ public class LoginService {
     }
 
     public Boolean verify(VerifyRequestType request) {
-        boolean exist = userRepository.verify(request.getEmail(), request.getVerificationCode());
+        boolean exist = userRepository.verify(request.getUserName(), request.getVerificationCode());
         if (exist) {
             UserDto userDto = new UserDto();
-            userDto.setEmail(request.getEmail());
+            userDto.setUserName(request.getUserName());
             userDto.setVerificationCode(generateVerificationCode());
             exist = exist & userRepository.saveVerificationCode(userDto);
         }
         return exist;
     }
 
-    public UserProfileResponseType queryUserProfile(String email) {
-        return UserMapper.INSTANCE.contractFromDto(userRepository.queryUserProfile(email));
+    public UserProfileResponseType queryUserProfile(String userName) {
+        return UserMapper.INSTANCE.contractFromDto(userRepository.queryUserProfile(userName));
     }
 
     public Boolean updateUserProfile(UpdateUserProfileRequestType request) {

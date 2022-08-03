@@ -8,4 +8,5 @@ import java.util.List;
 public class FSRemoveItemRequestType {
     private String id;
     private String[] removeNodePath;
+    private String userName;
 }

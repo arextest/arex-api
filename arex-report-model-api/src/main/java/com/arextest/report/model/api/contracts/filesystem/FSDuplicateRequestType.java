@@ -6,4 +6,5 @@ import lombok.Data;
 public class FSDuplicateRequestType {
     private String id;
     private String[] path;
+    private String userName;
 }

@@ -9,4 +9,5 @@ public class FSRenameRequestType {
     private String id;
     private String[] path;
     private String newName;
+    private String userName;
 }

@@ -4,9 +4,13 @@ import com.arextest.common.model.response.Response;
 import com.arextest.common.model.response.ResponseCode;
 import com.arextest.common.utils.ResponseUtils;
 import com.arextest.report.core.business.filesystem.FileSystemService;
+import com.arextest.report.core.business.filesystem.RolePermission;
 import com.arextest.report.model.api.contracts.SuccessResponseType;
 import com.arextest.report.model.api.contracts.filesystem.FSAddItemRequestType;
 import com.arextest.report.model.api.contracts.filesystem.FSAddItemResponseType;
+import com.arextest.report.model.api.contracts.filesystem.FSAddWorkspaceRequestType;
+import com.arextest.report.model.api.contracts.filesystem.FSAddWorkspaceResponseType;
+import com.arextest.report.model.api.contracts.filesystem.FSDeleteWorkspaceRequestType;
 import com.arextest.report.model.api.contracts.filesystem.FSDuplicateRequestType;
 import com.arextest.report.model.api.contracts.filesystem.FSMoveItemRequestType;
 import com.arextest.report.model.api.contracts.filesystem.FSQueryCaseRequestType;
@@ -34,8 +38,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -52,9 +54,18 @@ public class FileSystemController {
     @Resource
     private FileSystemService fileSystemService;
 
+    @Resource
+    private RolePermission rolePermission;
+
     @PostMapping("/addItem")
     @ResponseBody
     public Response addItem(@RequestBody FSAddItemRequestType request) {
+        if (StringUtils.isNotEmpty(request.getId()) &&
+                !rolePermission.checkPermission(RolePermission.ADD_ITEM,
+                        request.getUserName(),
+                        request.getId())) {
+            return ResponseUtils.errorResponse("no permission", ResponseCode.REQUESTED_HANDLE_EXCEPTION);
+        }
         if (StringUtils.isEmpty(request.getNodeName())) {
             return ResponseUtils.errorResponse("Node name cannot be empty", ResponseCode.REQUESTED_PARAMETER_INVALID);
         }
@@ -72,6 +83,9 @@ public class FileSystemController {
     @PostMapping("/removeItem")
     @ResponseBody
     public Response removeItem(@RequestBody FSRemoveItemRequestType request) {
+        if (!rolePermission.checkPermission(RolePermission.REMOVE_ITEM, request.getUserName(), request.getId())) {
+            return ResponseUtils.errorResponse("no permission", ResponseCode.REQUESTED_HANDLE_EXCEPTION);
+        }
         if (StringUtils.isEmpty(request.getId())) {
             return ResponseUtils.errorResponse("id cannot be empty", ResponseCode.REQUESTED_PARAMETER_INVALID);
         }
@@ -91,6 +105,9 @@ public class FileSystemController {
     @PostMapping("/rename")
     @ResponseBody
     public Response rename(@RequestBody FSRenameRequestType request) {
+        if (!rolePermission.checkPermission(RolePermission.RENAME_ITEM, request.getUserName(), request.getId())) {
+            return ResponseUtils.errorResponse("no permission", ResponseCode.REQUESTED_HANDLE_EXCEPTION);
+        }
         if (StringUtils.isEmpty(request.getId())) {
             return ResponseUtils.errorResponse("Cannot rename item because workspace id is empty",
                     ResponseCode.REQUESTED_PARAMETER_INVALID);
@@ -112,6 +129,9 @@ public class FileSystemController {
     @PostMapping("/duplicate")
     @ResponseBody
     public Response duplicate(@RequestBody FSDuplicateRequestType request) {
+        if (!rolePermission.checkPermission(RolePermission.DUPLICATE_ITEM, request.getUserName(), request.getId())) {
+            return ResponseUtils.errorResponse("no permission", ResponseCode.REQUESTED_HANDLE_EXCEPTION);
+        }
         if (StringUtils.isEmpty(request.getId())) {
             return ResponseUtils.errorResponse("Cannot duplicate item because workspace id is empty",
                     ResponseCode.REQUESTED_PARAMETER_INVALID);
@@ -143,16 +163,35 @@ public class FileSystemController {
         }
     }
 
-    @DeleteMapping("/workspace/{id}")
+    @PostMapping("/addWorkspace")
     @ResponseBody
-    public Response deleteWorkspace(@PathVariable String id) {
-        if (StringUtils.isEmpty(id)) {
+    public Response addWorkspace(@RequestBody FSAddWorkspaceRequestType request) {
+        if (StringUtils.isEmpty(request.getUserName())) {
+            return ResponseUtils.errorResponse("userName cannot be empty", ResponseCode.REQUESTED_PARAMETER_INVALID);
+        }
+        try {
+            FSAddWorkspaceResponseType response = fileSystemService.addWorkspace(request);
+            return ResponseUtils.successResponse(response);
+        } catch (Exception e) {
+            return ResponseUtils.errorResponse(e.getMessage(), ResponseCode.REQUESTED_HANDLE_EXCEPTION);
+        }
+    }
+
+    @PostMapping("/deleteWorkspace")
+    @ResponseBody
+    public Response deleteWorkspace(@RequestBody FSDeleteWorkspaceRequestType request) {
+        if (!rolePermission.checkPermission(RolePermission.DELETE_WORKSPACE_ACTION,
+                request.getUserName(),
+                request.getWorkspaceId())) {
+            return ResponseUtils.errorResponse("no permission", ResponseCode.REQUESTED_HANDLE_EXCEPTION);
+        }
+        if (StringUtils.isEmpty(request.getWorkspaceId())) {
             return ResponseUtils.errorResponse("workspace id cannot be empty",
                     ResponseCode.REQUESTED_PARAMETER_INVALID);
         }
         try {
             SuccessResponseType response = new SuccessResponseType();
-            response.setSuccess(fileSystemService.deleteWorkspace(id));
+            response.setSuccess(fileSystemService.deleteWorkspace(request.getWorkspaceId()));
             return ResponseUtils.successResponse(response);
         } catch (Exception e) {
             return ResponseUtils.errorResponse(e.getMessage(), ResponseCode.REQUESTED_HANDLE_EXCEPTION);
@@ -162,6 +201,9 @@ public class FileSystemController {
     @PostMapping("/renameWorkspace")
     @ResponseBody
     public Response renameWorkspace(@RequestBody FSRenameWorkspaceRequestType request) {
+        if (!rolePermission.checkPermission(RolePermission.RENAME_WORKSPACE, request.getUserName(), request.getId())) {
+            return ResponseUtils.errorResponse("no permission", ResponseCode.REQUESTED_HANDLE_EXCEPTION);
+        }
         if (StringUtils.isEmpty(request.getId())) {
             return ResponseUtils.errorResponse("workspaceId cannot empty", ResponseCode.REQUESTED_PARAMETER_INVALID);
         }
@@ -255,8 +297,13 @@ public class FileSystemController {
     @PostMapping("/inviteToWorkspace")
     @ResponseBody
     public Response inviteToWorkspace(@RequestBody InviteToWorkspaceRequestType request) {
-        if (request.getEmails() == null || request.getEmails().size() == 0) {
-            return ResponseUtils.errorResponse("Email cannot be empty", ResponseCode.REQUESTED_PARAMETER_INVALID);
+        if (!rolePermission.checkPermission(RolePermission.INVITE_TO_WORKSPACE,
+                request.getInvitor(),
+                request.getWorkspaceId())) {
+            return ResponseUtils.errorResponse("no permission", ResponseCode.REQUESTED_HANDLE_EXCEPTION);
+        }
+        if (request.getUserNames() == null || request.getUserNames().size() == 0) {
+            return ResponseUtils.errorResponse("UserNames cannot be empty", ResponseCode.REQUESTED_PARAMETER_INVALID);
         }
         if (StringUtils.isEmpty(request.getWorkspaceId())) {
             return ResponseUtils.errorResponse("Workspace Id cannot be empty",
@@ -273,8 +320,8 @@ public class FileSystemController {
     @PostMapping("/leaveWorkspace")
     @ResponseBody
     public Response leaveWorkspace(@RequestBody LeaveWorkspaceRequestType request) {
-        if (StringUtils.isEmpty(request.getEmail())) {
-            return ResponseUtils.errorResponse("Email cannot be empty", ResponseCode.REQUESTED_PARAMETER_INVALID);
+        if (StringUtils.isEmpty(request.getUserName())) {
+            return ResponseUtils.errorResponse("UserName cannot be empty", ResponseCode.REQUESTED_PARAMETER_INVALID);
         }
         if (StringUtils.isEmpty(request.getWorkspaceId())) {
             return ResponseUtils.errorResponse("WorkspaceId cannot be empty", ResponseCode.REQUESTED_PARAMETER_INVALID);
@@ -291,8 +338,8 @@ public class FileSystemController {
     @PostMapping("/validInvitation")
     @ResponseBody
     public Response validInvitation(@RequestBody ValidInvitationRequestType request) {
-        if (StringUtils.isEmpty(request.getEmail())) {
-            return ResponseUtils.errorResponse("email cannot be empty", ResponseCode.REQUESTED_PARAMETER_INVALID);
+        if (StringUtils.isEmpty(request.getUserName())) {
+            return ResponseUtils.errorResponse("UserName cannot be empty", ResponseCode.REQUESTED_PARAMETER_INVALID);
         }
         if (StringUtils.isEmpty(request.getWorkspaceId())) {
             return ResponseUtils.errorResponse("WorkspaceId cannot be empty", ResponseCode.REQUESTED_PARAMETER_INVALID);
