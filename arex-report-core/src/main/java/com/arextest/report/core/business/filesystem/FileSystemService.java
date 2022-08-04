@@ -160,8 +160,9 @@ public class FileSystemService {
                     return response;
                 }
             }
-            fsTreeRepository.updateFSTree(dto);
+            dto = fsTreeRepository.updateFSTree(dto);
             response.setInfoId(infoId);
+            response.setWorkspaceId(dto.getId());
             response.setSuccess(true);
 
         } catch (Exception e) {
@@ -419,6 +420,7 @@ public class FileSystemService {
                 continue;
             }
             userWorkspaceDto = UserWorkspaceMapper.INSTANCE.dtoFromContract(request);
+            userWorkspaceDto.setUserName(userName);
             userWorkspaceDto.setStatus(InvitationType.INVITING);
             userWorkspaceDto.setToken(UUID.randomUUID().toString());
 
