@@ -3,8 +3,7 @@ package com.arextest.report.model.api.contracts.filesystem;
 import lombok.Data;
 
 @Data
-public class WorkspaceType {
-    private String id;
+public class FSAddWorkspaceRequestType {
     private String workspaceName;
-    private Integer role;
+    private String userName;
 }

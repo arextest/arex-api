@@ -28,15 +28,15 @@ public class LoginController {
     @Resource
     private LoginService loginService;
 
-    @GetMapping("/getVerificationCode/{email}")
+    @GetMapping("/getVerificationCode/{userName}")
     @ResponseBody
-    public Response sendVerifyCodeByEmail(@PathVariable String email) {
-        if (StringUtils.isEmpty(email)) {
-            return ResponseUtils.errorResponse("email cannot be empty", ResponseCode.REQUESTED_PARAMETER_INVALID);
+    public Response sendVerifyCodeByEmail(@PathVariable String userName) {
+        if (StringUtils.isEmpty(userName)) {
+            return ResponseUtils.errorResponse("userName cannot be empty", ResponseCode.REQUESTED_PARAMETER_INVALID);
         }
         try {
             SuccessResponseType response = new SuccessResponseType();
-            response.setSuccess(loginService.sendVerifyCodeByEmail(email));
+            response.setSuccess(loginService.sendVerifyCodeByEmail(userName));
             return ResponseUtils.successResponse(response);
         } catch (Exception e) {
             return ResponseUtils.errorResponse(e.getMessage(), ResponseCode.REQUESTED_HANDLE_EXCEPTION);
@@ -46,8 +46,8 @@ public class LoginController {
     @PostMapping("/verify")
     @ResponseBody
     public Response verify(@RequestBody VerifyRequestType request) {
-        if (StringUtils.isEmpty(request.getEmail())) {
-            return ResponseUtils.errorResponse("email cannot be empty", ResponseCode.REQUESTED_PARAMETER_INVALID);
+        if (StringUtils.isEmpty(request.getUserName())) {
+            return ResponseUtils.errorResponse("userName cannot be empty", ResponseCode.REQUESTED_PARAMETER_INVALID);
         }
         if (StringUtils.isEmpty(request.getVerificationCode())) {
             return ResponseUtils.errorResponse("verification code cannot be empty",
@@ -62,14 +62,14 @@ public class LoginController {
         }
     }
 
-    @GetMapping("/userProfile/{email}")
+    @GetMapping("/userProfile/{userName}")
     @ResponseBody
-    public Response userProfile(@PathVariable String email) {
-        if (StringUtils.isEmpty(email)) {
-            return ResponseUtils.errorResponse("email cannot be empty", ResponseCode.REQUESTED_PARAMETER_INVALID);
+    public Response userProfile(@PathVariable String userName) {
+        if (StringUtils.isEmpty(userName)) {
+            return ResponseUtils.errorResponse("userName cannot be empty", ResponseCode.REQUESTED_PARAMETER_INVALID);
         }
         try {
-            UserProfileResponseType response = loginService.queryUserProfile(email);
+            UserProfileResponseType response = loginService.queryUserProfile(userName);
             return ResponseUtils.successResponse(response);
         } catch (Exception e) {
             return ResponseUtils.errorResponse(e.getMessage(), ResponseCode.REQUESTED_HANDLE_EXCEPTION);
@@ -79,8 +79,8 @@ public class LoginController {
     @PostMapping("/updateUserProfile")
     @ResponseBody
     public Response updateUserProfile(@RequestBody UpdateUserProfileRequestType request) {
-        if (StringUtils.isEmpty(request.getEmail())) {
-            return ResponseUtils.errorResponse("user name(email) cannot be empty",
+        if (StringUtils.isEmpty(request.getUserName())) {
+            return ResponseUtils.errorResponse("userName cannot be empty",
                     ResponseCode.REQUESTED_PARAMETER_INVALID);
         }
         try {

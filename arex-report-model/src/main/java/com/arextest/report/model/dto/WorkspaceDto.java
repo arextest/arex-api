@@ -6,4 +6,5 @@ import lombok.Data;
 public class WorkspaceDto {
     private String id;
     private String workspaceName;
+    private Integer role;
 }

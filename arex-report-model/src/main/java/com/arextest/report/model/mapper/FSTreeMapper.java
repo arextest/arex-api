@@ -1,5 +1,6 @@
 package com.arextest.report.model.mapper;
 
+import com.arextest.report.model.api.contracts.filesystem.FSAddWorkspaceRequestType;
 import com.arextest.report.model.api.contracts.filesystem.FSTreeType;
 import com.arextest.report.model.dao.mongodb.FSTreeCollection;
 import com.arextest.report.model.dto.filesystem.FSTreeDto;
@@ -15,4 +16,6 @@ public interface FSTreeMapper {
     FSTreeCollection daoFromDto(FSTreeDto dto);
 
     FSTreeType contractFromDto(FSTreeDto dto);
+
+    FSTreeDto dtoFromContract(FSAddWorkspaceRequestType contract);
 }
