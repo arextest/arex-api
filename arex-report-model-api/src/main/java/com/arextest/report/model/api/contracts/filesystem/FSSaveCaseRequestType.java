@@ -8,10 +8,13 @@ import java.util.List;
 @Data
 public class FSSaveCaseRequestType {
     private String id;
+    private AddressType address;
     private String preRequestScript;
     private String testScript;
     private BodyType body;
     private List<KeyValuePairType> headers;
     private List<KeyValuePairType> params;
     private AuthType auth;
+    private AddressType baseAddress;
+    private AddressType testAddress;
 }
