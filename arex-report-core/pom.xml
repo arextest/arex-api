@@ -55,7 +55,7 @@
         </dependency>
         <dependency>
             <groupId>org.json</groupId>
-            <artifactId>org.json</artifactId>
+            <artifactId>json</artifactId>
         </dependency>
         <dependency>
             <groupId>cn.hutool</groupId>

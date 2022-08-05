@@ -8,15 +8,11 @@ import com.arextest.report.model.api.contracts.SuccessResponseType;
 import com.arextest.report.model.api.contracts.login.UpdateUserProfileRequestType;
 import com.arextest.report.model.api.contracts.login.UserProfileResponseType;
 import com.arextest.report.model.api.contracts.login.VerifyRequestType;
+import com.arextest.report.model.api.contracts.login.VerifyResponseType;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 
@@ -54,8 +50,7 @@ public class LoginController {
                     ResponseCode.REQUESTED_PARAMETER_INVALID);
         }
         try {
-            SuccessResponseType response = new SuccessResponseType();
-            response.setSuccess(loginService.verify(request));
+            VerifyResponseType response = loginService.verify(request);
             return ResponseUtils.successResponse(response);
         } catch (Exception e) {
             return ResponseUtils.errorResponse(e.getMessage(), ResponseCode.REQUESTED_HANDLE_EXCEPTION);
@@ -86,6 +81,20 @@ public class LoginController {
         try {
             SuccessResponseType response = new SuccessResponseType();
             response.setSuccess(loginService.updateUserProfile(request));
+            return ResponseUtils.successResponse(response);
+        } catch (Exception e) {
+            return ResponseUtils.errorResponse(e.getMessage(), ResponseCode.REQUESTED_HANDLE_EXCEPTION);
+        }
+    }
+
+    @GetMapping("/refresh/{userName}")
+    @ResponseBody
+    public Response refresh(@PathVariable String userName) {
+        if (StringUtils.isEmpty(userName)) {
+            return ResponseUtils.errorResponse("userName cannot be empty", ResponseCode.REQUESTED_PARAMETER_INVALID);
+        }
+        try {
+            VerifyResponseType response = loginService.refresh(userName);
             return ResponseUtils.successResponse(response);
         } catch (Exception e) {
             return ResponseUtils.errorResponse(e.getMessage(), ResponseCode.REQUESTED_HANDLE_EXCEPTION);
