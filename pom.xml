@@ -28,7 +28,7 @@
         <zstd-extend.version>1.0.1</zstd-extend.version>
         <commons-lang3.version>3.8.1</commons-lang3.version>
         <httpclient.version>4.5.2</httpclient.version>
-        <orgjson-verison>2.0</orgjson-verison>
+        <orgjson-verison>20180813</orgjson-verison>
         <jackson-verison>2.10.3</jackson-verison>
         <hutool-all.version>5.7.2</hutool-all.version>
         <guava.version>31.1-jre</guava.version>
@@ -42,6 +42,7 @@
         <springfox-boot-starter.version>3.0.0</springfox-boot-starter.version>
         <javax.mail-api.version>1.6.2</javax.mail-api.version>
         <commons-email.version>1.5</commons-email.version>
+        <jwt.version>3.10.3</jwt.version>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -123,7 +124,7 @@
             </dependency>
             <dependency>
                 <groupId>org.json</groupId>
-                <artifactId>org.json</artifactId>
+                <artifactId>json</artifactId>
                 <version>${orgjson-verison}</version>
             </dependency>
             <dependency>
@@ -145,6 +146,11 @@
                 <groupId>org.yaml</groupId>
                 <artifactId>snakeyaml</artifactId>
                 <version>${snakeyaml.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.auth0</groupId>
+                <artifactId>java-jwt</artifactId>
+                <version>${jwt.version}</version>
             </dependency>
             <!-- test -->
             <dependency>
@@ -202,26 +208,7 @@
             <name>jitpack-name</name>
             <url>https://jitpack.io</url>
         </repository>
-        <repository>
-            <id>github</id>
-            <url>https://raw.github.com/arextest/arex-jar-respository/main</url>
-            <snapshots>
-                <enabled>true</enabled>
-                <updatePolicy>always</updatePolicy>
-            </snapshots>
-        </repository>
     </repositories>
-
-    <!--    <distributionManagement>-->
-    <!--        <repository>-->
-    <!--            <id>releases</id>-->
-    <!--            <url>${releases.repo}</url>-->
-    <!--        </repository>-->
-    <!--        <snapshotRepository>-->
-    <!--            <id>snapshots</id>-->
-    <!--            <url>${snapshots.repo}</url>-->
-    <!--        </snapshotRepository>-->
-    <!--    </distributionManagement>-->
 
     <build>
         <plugins>
@@ -240,40 +227,6 @@
                 <configuration>
                     <failOnMissingWebXml>false</failOnMissingWebXml>
                 </configuration>
-            </plugin>
-            <plugin>
-                <artifactId>maven-deploy-plugin</artifactId>
-                <version>2.8.2</version>
-                <configuration>
-                    <altDeploymentRepository>
-                        maven.repo::default::file://${project.build.directory}/mvn-repo
-                    </altDeploymentRepository>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>com.github.github</groupId>
-                <artifactId>site-maven-plugin</artifactId>
-                <version>0.12</version>
-                <configuration>
-                    <server>github</server>
-                    <message>Maven artifacts for ${project.artifactId}-${project.version}</message>
-                    <outputDirectory>${project.build.directory}/mvn-repo</outputDirectory>
-                    <branch>refs/heads/main</branch>
-                    <merge>true</merge>
-                    <includes>
-                        <include>**/*</include>
-                    </includes>
-                    <repositoryName>arex-jar-respository</repositoryName>
-                    <repositoryOwner>arextest</repositoryOwner>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>site</goal>
-                        </goals>
-                        <phase>deploy</phase>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>
