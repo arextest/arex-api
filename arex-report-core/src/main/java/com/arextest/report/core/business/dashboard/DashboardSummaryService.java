@@ -1,5 +1,6 @@
 package com.arextest.report.core.business.dashboard;
 
+import com.arextest.report.common.EnvProperty;
 import com.arextest.report.common.HttpUtils;
 import com.arextest.report.core.business.CaseCountService;
 import com.arextest.report.core.business.config.ApplicationProperties;
@@ -59,12 +60,14 @@ public class DashboardSummaryService {
     private CaseCountService caseCountService;
 
     @Resource
-    private ApplicationProperties applicationProperties;
+    private EnvProperty envProperty;
 
-    
+
     public List<String> getAllAppId() {
-        
-        ResponseEntity<String> responseEntity = HttpUtils.get(applicationProperties.getConfigServiceUrl() + TOTAL_APP_DESCRIPTION, String.class);
+
+        ResponseEntity<String> responseEntity =
+                HttpUtils.get(envProperty.getString(EnvProperty.AREX_CONFIG_SERVICE_URL) + TOTAL_APP_DESCRIPTION,
+                        String.class);
         List<String> appIds = new ArrayList<>();
         try {
             JSONObject entityBody = new JSONObject(responseEntity.getBody());
@@ -80,21 +83,23 @@ public class DashboardSummaryService {
         return appIds;
     }
 
-    
+
     public DashboardSummaryResponseType getDashboardSummary() {
         DashboardSummaryResponseType dashboardSummaryResponseType = new DashboardSummaryResponseType();
         AppDescription appDescription = new AppDescription();
         Long replayCount = reportPlanStatisticRepository.findReplayCount();
-        
+
         appDescription.setReplayCount(replayCount.intValue());
-        
-        ResponseEntity<String> responseEntity = HttpUtils.get(applicationProperties.getConfigServiceUrl() + TOTAL_APP_DESCRIPTION, String.class);
+
+        ResponseEntity<String> responseEntity =
+                HttpUtils.get(envProperty.getString(EnvProperty.AREX_CONFIG_SERVICE_URL) + TOTAL_APP_DESCRIPTION,
+                        String.class);
         try {
             JSONObject entityBody = new JSONObject(responseEntity.getBody());
             JSONArray bodyJSONArray = entityBody.getJSONArray(BODY);
-            
+
             appDescription.setAppCount(bodyJSONArray.length());
-            
+
             int operationCount = 0;
             for (int i = 0; i < bodyJSONArray.length(); i++) {
                 JSONObject jsonObject = bodyJSONArray.getJSONObject(i);
@@ -110,23 +115,23 @@ public class DashboardSummaryService {
         return null;
     }
 
-    
+
     public DashboardSummaryResponseType getDashboardSummaryByAppId(String appId) {
         DashboardSummaryResponseType dashboardSummaryResponseType = new DashboardSummaryResponseType();
         AppDescription appDescription = new AppDescription();
-        
+
         Long replayCount = reportPlanStatisticRepository.findReplayCountByAppId(appId);
-        
+
         appDescription.setReplayCount(replayCount.intValue());
-        
-        String url = applicationProperties.getConfigServiceUrl() + SINGLE_APP_DESCRIPTION + appId;
+
+        String url = envProperty.getString(EnvProperty.AREX_CONFIG_SERVICE_URL) + SINGLE_APP_DESCRIPTION + appId;
         ResponseEntity<String> responseEntity = HttpUtils.get(url, String.class);
         try {
             JSONObject entityBody = new JSONObject(responseEntity.getBody());
             JSONObject jsonObject = entityBody.getJSONObject(BODY);
-            
+
             appDescription.setOperationCount((Integer) jsonObject.get(OPERATION_COUNT));
-            
+
             appDescription.setOwner(jsonObject.getJSONObject(APPLICATION_DESCRIPTION).getString(OWNER));
             dashboardSummaryResponseType.setAppDescription(appDescription);
             return dashboardSummaryResponseType;
@@ -137,11 +142,18 @@ public class DashboardSummaryService {
     }
 
 
-    
+
     public DashboardAllAppResultsResponseType allAppResults(DashboardAllAppResultsRequestType request) {
 
-        List<ReportPlanStatisticDto> latestSuccessPlanIds = reportPlanStatisticRepository.findLatestSuccessPlanId(DATA_CHANGE_CREATE_TIME,
-                request.getStartTime(), request.getEndTime(), STATUS, ReplayStatusType.FINISHED, APP_ID, DATA_CHANGE_CREATE_TIME, Boolean.TRUE);
+        List<ReportPlanStatisticDto> latestSuccessPlanIds =
+                reportPlanStatisticRepository.findLatestSuccessPlanId(DATA_CHANGE_CREATE_TIME,
+                        request.getStartTime(),
+                        request.getEndTime(),
+                        STATUS,
+                        ReplayStatusType.FINISHED,
+                        APP_ID,
+                        DATA_CHANGE_CREATE_TIME,
+                        Boolean.TRUE);
         Map<Long, AppCaseResult> resultMap = new HashMap<>();
         latestSuccessPlanIds.forEach(item -> {
             AppCaseResult appCaseResult = new AppCaseResult();
@@ -174,18 +186,20 @@ public class DashboardSummaryService {
         return result;
     }
 
-    
+
     public DashboardAllAppDailyResultsResponseType allAppDailyResults(DashboardAllAppDailyResultsRequestType request) {
-        DashboardAllAppDailyResultsResponseType dashboardAllAppDailyResultsResponseType = new DashboardAllAppDailyResultsResponseType();
+        DashboardAllAppDailyResultsResponseType dashboardAllAppDailyResultsResponseType =
+                new DashboardAllAppDailyResultsResponseType();
 
         List<MutablePair<Object, Object>> matchConditions = new ArrayList<>();
         if (StringUtils.isNotEmpty(request.getAppId())) {
             matchConditions.add(new MutablePair<>(APP_ID, request.getAppId()));
         }
         matchConditions.add(new MutablePair<>(STATUS, ReplayStatusType.FINISHED));
-        List<LatestDailySuccessPlanIdDto> latestDailySuccessPlanIdDtos = reportPlanStatisticRepository.findLatestDailySuccessPlanId(
-                DATA_CHANGE_CREATE_TIME, request.getStartTime(), request.getEndTime(),
-                matchConditions, APP_ID, DATA_CHANGE_CREATE_TIME, DATA_CHANGE_CREATE_TIME, true);
+        List<LatestDailySuccessPlanIdDto> latestDailySuccessPlanIdDtos =
+                reportPlanStatisticRepository.findLatestDailySuccessPlanId(
+                        DATA_CHANGE_CREATE_TIME, request.getStartTime(), request.getEndTime(),
+                        matchConditions, APP_ID, DATA_CHANGE_CREATE_TIME, DATA_CHANGE_CREATE_TIME, true);
 
         Map<Long, AppCaseResult> resultMap = new HashMap<>();
         latestDailySuccessPlanIdDtos.forEach(item -> {
@@ -213,9 +227,10 @@ public class DashboardSummaryService {
                 appCaseResult.setErrorCaseCount(caseCount.getErrorCaseCount());
             }
         });
-        Map<String, List<AppCaseResult>> collect = resultMap.values().stream().collect(Collectors.groupingBy(AppCaseResult::getDate));
+        Map<String, List<AppCaseResult>> collect =
+                resultMap.values().stream().collect(Collectors.groupingBy(AppCaseResult::getDate));
 
-        
+
         List<String> betweenDate = getBetweenDate(request.getStartTime(), request.getEndTime());
         List<AppCaseDailyResult> appCaseDailyResults = new ArrayList<>();
         betweenDate.forEach(item -> {
@@ -231,7 +246,7 @@ public class DashboardSummaryService {
     private List<String> getBetweenDate(Long start, Long end) {
         List<String> list = new ArrayList<>();
 
-        
+
         LocalDate startDate = Instant.ofEpochMilli(start).atZone(ZoneOffset.ofHours(8)).toLocalDate();
         LocalDate endDate = Instant.ofEpochMilli(end).atZone(ZoneOffset.ofHours(8)).toLocalDate();
         long distance = ChronoUnit.DAYS.between(startDate, endDate);
