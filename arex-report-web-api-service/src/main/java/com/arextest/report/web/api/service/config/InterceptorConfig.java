@@ -24,7 +24,7 @@ public class InterceptorConfig implements WebMvcConfigurer {
 
         registry.addInterceptor(authorizationInterceptor)
                 .addPathPatterns("/**")
-                // 静态资源
+                // static resource
                 .excludePathPatterns("/js/**", "/css/**", "/images/**", "/lib/**",
                         "/fonts/**")
                 // swagger-ui
