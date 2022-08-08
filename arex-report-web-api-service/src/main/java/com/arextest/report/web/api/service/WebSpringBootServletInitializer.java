@@ -11,12 +11,12 @@ import springfox.documentation.oas.annotations.EnableOpenApi;
 @EnableSchedulerLock(defaultLockAtMostFor = "PT30S")
 @SpringBootApplication(scanBasePackages = "com.arextest.report")
 public class WebSpringBootServletInitializer extends SpringBootServletInitializer {
-    
+
     public static void main(String[] args) {
         SpringApplication.run(WebSpringBootServletInitializer.class, args);
     }
 
-    
+
     @Override
     protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
         return application.sources(WebSpringBootServletInitializer.class);
