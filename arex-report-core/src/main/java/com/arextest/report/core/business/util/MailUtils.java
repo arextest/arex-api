@@ -2,7 +2,6 @@ package com.arextest.report.core.business.util;
 
 
 import com.arextest.report.common.EnvProperty;
-import com.arextest.report.core.business.config.ApplicationProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.mail.HtmlEmail;

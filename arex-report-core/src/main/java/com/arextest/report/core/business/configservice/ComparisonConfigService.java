@@ -1,7 +1,6 @@
 package com.arextest.report.core.business.configservice;
 
 import com.arextest.report.common.EnvProperty;
-import com.arextest.report.core.business.config.ApplicationProperties;
 import com.arextest.report.core.business.util.ConfigServiceUtils;
 import com.arextest.report.model.api.contracts.configservice.*;
 import com.arextest.report.model.mapper.ComparisonDetailsMapper;

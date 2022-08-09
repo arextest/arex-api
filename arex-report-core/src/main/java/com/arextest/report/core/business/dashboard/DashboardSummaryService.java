@@ -3,7 +3,6 @@ package com.arextest.report.core.business.dashboard;
 import com.arextest.report.common.EnvProperty;
 import com.arextest.report.common.HttpUtils;
 import com.arextest.report.core.business.CaseCountService;
-import com.arextest.report.core.business.config.ApplicationProperties;
 import com.arextest.report.core.repository.ReportPlanItemStatisticRepository;
 import com.arextest.report.core.repository.ReportPlanStatisticRepository;
 import com.arextest.report.model.api.contracts.*;

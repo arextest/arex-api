@@ -4,7 +4,6 @@ import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.arextest.report.common.EnvProperty;
-import com.arextest.report.core.business.config.ApplicationProperties;
 import com.arextest.report.core.business.util.ConfigServiceUtils;
 import com.arextest.report.model.api.contracts.configservice.*;
 import com.arextest.report.model.mapper.DynamicClassMapper;

@@ -31,7 +31,7 @@ jobs:
         run: mvn -B -ntp clean package -pl arex-report-model-api -am -DskipTests=true
  
       - name: Publish to Apache Maven Central
-        run: mvn deploy
+        run: mvn deploy -pl arex-report-model-api -am -DshkipTests=true
         env:
           MAVEN_USERNAME: ${{ secrets.MAVEN_OSSRH_USERNAME }}
           MAVEN_CENTRAL_TOKEN: ${{ secrets.MAVEN_OSSRH_TOKEN }}
