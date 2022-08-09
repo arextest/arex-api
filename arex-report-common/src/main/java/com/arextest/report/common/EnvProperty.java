@@ -4,9 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
-import java.util.Iterator;
-import java.util.Map;
-
 @Slf4j
 @Component
 public class EnvProperty {
@@ -19,10 +16,6 @@ public class EnvProperty {
 
 
     public String getString(String key) {
-        String value = System.getenv(key);
-        if (StringUtils.isEmpty(value)) {
-            LOGGER.error(key + "is empty");
-        }
-        return value;
+        return System.getenv(key);
     }
 }
