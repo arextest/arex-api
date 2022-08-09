@@ -14,10 +14,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @CrossOrigin(origins = "*", maxAge = 3600)
 public class CheckHealthController {
 
-    
+
     @GetMapping("/health")
     @ResponseBody
-    public Response checkHealth(){
+    public Response checkHealth() {
         return ResponseUtils.successResponse(true);
     }
 }

@@ -23,7 +23,14 @@ public class InterceptorConfig implements WebMvcConfigurer {
 
         registry.addInterceptor(authorizationInterceptor)
                 .addPathPatterns("/**")
+                // static resource
+                .excludePathPatterns("/js/**", "/css/**", "/images/**", "/lib/**",
+                        "/fonts/**")
+                // swagger-ui
+                .excludePathPatterns("/swagger-resources/**", "/webjars/**",
+                        "/v3/**", "/swagger-ui/**")
                 .excludePathPatterns("/api/login/verify")
+                .excludePathPatterns("/api/login/getVerificationCode/**")
                 .excludePathPatterns("/api/login/refresh/**");
     }
 }

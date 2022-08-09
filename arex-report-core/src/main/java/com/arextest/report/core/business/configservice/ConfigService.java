@@ -3,7 +3,7 @@ package com.arextest.report.core.business.configservice;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
-import com.arextest.report.core.business.config.ApplicationProperties;
+import com.arextest.report.common.EnvProperty;
 import com.arextest.report.core.business.util.ConfigServiceUtils;
 import com.arextest.report.model.api.contracts.configservice.*;
 import com.arextest.report.model.mapper.DynamicClassMapper;
@@ -37,7 +37,7 @@ public class ConfigService {
     private static final String APP_ID = "appId";
 
     @Resource
-    private ApplicationProperties applicationProperties;
+    private EnvProperty envProperty;
 
     @Resource
     private ComparisonConfigService comparisonConfigService;
@@ -74,7 +74,8 @@ public class ConfigService {
             response.setSuccess(false);
         } else {
             if (!updateServiceCollection(templateObj, appId) || !updateDynamicClassCollection(templateObj, appId)
-                    || !updateSchedule(templateObj, appId) || !comparisonConfigService.updateComparison(templateObj, appId)) {
+                    || !updateSchedule(templateObj, appId) || !comparisonConfigService.updateComparison(templateObj,
+                    appId)) {
                 updateServiceCollection(preTemplate, appId);
                 updateDynamicClassCollection(preTemplate, appId);
                 updateSchedule(preTemplate, appId);
@@ -105,7 +106,7 @@ public class ConfigService {
     }
 
     private ServiceCollect getServiceCollection(String appId) {
-        String url = applicationProperties.getConfigServiceUrl() + RECORD_SERVICE_COLLECTION_URL + appId;
+        String url = envProperty.getString(EnvProperty.AREX_CONFIG_SERVICE_URL) + RECORD_SERVICE_COLLECTION_URL + appId;
         return ConfigServiceUtils.produceEntity(ConfigServiceUtils.sendGetHttpRequest(url), ServiceCollect.class);
     }
 
@@ -114,22 +115,25 @@ public class ConfigService {
         if (dynamicClassConfiguration == null) {
             return null;
         }
-        return dynamicClassConfiguration.stream().map(DynamicClassMapper.INSTANCE::formConfig).collect(Collectors.toList());
+        return dynamicClassConfiguration.stream()
+                .map(DynamicClassMapper.INSTANCE::formConfig)
+                .collect(Collectors.toList());
     }
 
     private List<DynamicClassConfiguration> getDynamicClassConfiguration(String appId) {
-        String url = applicationProperties.getConfigServiceUrl() + DYNAMIC_CLASS_URL + appId;
-        return ConfigServiceUtils.produceListEntity(ConfigServiceUtils.sendGetHttpRequest(url), DynamicClassConfiguration.class);
+        String url = envProperty.getString(EnvProperty.AREX_CONFIG_SERVICE_URL) + DYNAMIC_CLASS_URL + appId;
+        return ConfigServiceUtils.produceListEntity(ConfigServiceUtils.sendGetHttpRequest(url),
+                DynamicClassConfiguration.class);
     }
 
     private ReplayConfig getSchedule(String appId) {
-        String url = applicationProperties.getConfigServiceUrl() + SCHEDULE_URL + appId;
+        String url = envProperty.getString(EnvProperty.AREX_CONFIG_SERVICE_URL) + SCHEDULE_URL + appId;
         return ConfigServiceUtils.produceEntity(ConfigServiceUtils.sendGetHttpRequest(url), ReplayConfig.class);
     }
 
 
     private boolean updateServiceCollection(ConfigTemplate templateObj, String appId) {
-        String url = applicationProperties.getConfigServiceUrl() + RECORD_SERVICE_COLLECTION_UPDATE_URL;
+        String url = envProperty.getString(EnvProperty.AREX_CONFIG_SERVICE_URL) + RECORD_SERVICE_COLLECTION_UPDATE_URL;
         ServiceCollect updateObj = null;
         if (templateObj.getRecordConfig() == null || templateObj.getRecordConfig().getServiceCollection() == null) {
             updateObj = new ServiceCollect();
@@ -154,16 +158,20 @@ public class ConfigService {
         }
         List<DynamicClassConfiguration> removeEntity = getDynamicClassConfiguration(appId);
         if (removeEntity != null && !removeEntity.isEmpty()) {
-            result = result && ConfigServiceUtils.sendPostHttpRequest(applicationProperties.getConfigServiceUrl() + DYNAMIC_CLASS_REMOVE_URL, removeEntity);
+            result = result
+                    && ConfigServiceUtils.sendPostHttpRequest(envProperty.getString(EnvProperty.AREX_CONFIG_SERVICE_URL)
+                    + DYNAMIC_CLASS_REMOVE_URL, removeEntity);
         }
         if (updateEntity != null && !updateEntity.isEmpty()) {
-            result = result && ConfigServiceUtils.sendPostHttpRequest(applicationProperties.getConfigServiceUrl() + DYNAMIC_CLASS_INSERT_URL, updateEntity);
+            result = result
+                    && ConfigServiceUtils.sendPostHttpRequest(envProperty.getString(EnvProperty.AREX_CONFIG_SERVICE_URL)
+                    + DYNAMIC_CLASS_INSERT_URL, updateEntity);
         }
         return result;
     }
 
     private boolean updateSchedule(ConfigTemplate templateObj, String appId) {
-        String url = applicationProperties.getConfigServiceUrl() + SCHEDULE_UPDATE_URL;
+        String url = envProperty.getString(EnvProperty.AREX_CONFIG_SERVICE_URL) + SCHEDULE_UPDATE_URL;
         ReplayConfig updateObj = null;
         if (templateObj.getReplayConfig() == null) {
             updateObj = new ReplayConfig();

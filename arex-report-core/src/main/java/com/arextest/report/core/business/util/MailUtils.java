@@ -1,7 +1,7 @@
 package com.arextest.report.core.business.util;
 
 
-import com.arextest.report.core.business.config.ApplicationProperties;
+import com.arextest.report.common.EnvProperty;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.mail.HtmlEmail;
@@ -18,7 +18,7 @@ public class MailUtils {
     private static final String EMAIL_NAME = "ArexTest";
 
     @Resource
-    private ApplicationProperties applicationProperties;
+    private EnvProperty envProperty;
 
     public boolean sendEmail(String mailBox, String subject, String htmlMsg, boolean isSSL) {
         if (StringUtils.isEmpty(mailBox)) {
@@ -30,15 +30,16 @@ public class MailUtils {
             list.add(mailBox);
             String[] tos = list.toArray(new String[list.size()]);
 
-            email.setHostName(applicationProperties.getEmailHost());
+            email.setHostName(envProperty.getString(EnvProperty.AREX_REPORT_EMAIL_HOST));
             if (isSSL) {
                 email.setSSLOnConnect(true);
                 email.setSmtpPort(465);
             }
             // email.setCharset("UTF-8");
             email.addTo(tos);
-            email.setFrom(applicationProperties.getEmailFrom(), EMAIL_NAME);
-            email.setAuthentication(applicationProperties.getEmailFrom(), applicationProperties.getEmailPwd());
+            email.setFrom(envProperty.getString(EnvProperty.AREX_REPORT_EMAIL_FROM), EMAIL_NAME);
+            email.setAuthentication(envProperty.getString(EnvProperty.AREX_REPORT_EMAIL_FROM),
+                    envProperty.getString(EnvProperty.AREX_REPORT_EMAIL_PWD));
             email.setSubject(subject);
             email.setHtmlMsg(htmlMsg);
 

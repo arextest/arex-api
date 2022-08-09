@@ -1,7 +1,7 @@
 package com.arextest.report.web.api.service.beans;
 
+import com.arextest.report.common.EnvProperty;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.MongoDatabaseFactory;
@@ -13,19 +13,20 @@ import org.springframework.data.mongodb.core.convert.DefaultMongoTypeMapper;
 import org.springframework.data.mongodb.core.convert.MappingMongoConverter;
 import org.springframework.data.mongodb.core.mapping.MongoMappingContext;
 
+import javax.annotation.Resource;
+
 
 @Slf4j
 @Configuration
 public class MongodbConfiguration {
-    @Value("${mongo.uri}")
-    private String mongoUrl;
 
+    @Resource
+    private EnvProperty envProperty;
 
     @Bean
     public MongoDatabaseFactory mongoDbFactory() {
         try {
-
-            return new SimpleMongoClientDatabaseFactory(mongoUrl);
+            return new SimpleMongoClientDatabaseFactory(envProperty.getString(EnvProperty.AREX_REPORT_MONGO_URI));
         } catch (Exception e) {
             LOGGER.error("cannot connect mongodb", e);
         }
