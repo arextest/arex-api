@@ -5,6 +5,7 @@ import com.arextest.common.model.response.ResponseCode;
 import com.arextest.common.utils.ResponseUtils;
 import com.arextest.report.common.JwtUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
@@ -14,6 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 /**
  * Created by rchen9 on 2022/8/4.
  */
+@Slf4j
 @Component
 public class RefreshInterceptor extends HandlerInterceptorAdapter {
 
@@ -28,6 +30,7 @@ public class RefreshInterceptor extends HandlerInterceptorAdapter {
             httpServletResponse.setCharacterEncoding("UTF-8");
             Response no_permission = ResponseUtils.errorResponse("Authentication verification failed", ResponseCode.REQUESTED_HANDLE_EXCEPTION);
             httpServletResponse.getWriter().write(mapper.writeValueAsString(no_permission));
+            LOGGER.info(String.format("refresh-token invalid; path: %s", httpServletRequest.getServletPath()));
             return false;
         }
         return true;
