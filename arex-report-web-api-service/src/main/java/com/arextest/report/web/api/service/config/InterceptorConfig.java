@@ -24,13 +24,15 @@ public class InterceptorConfig implements WebMvcConfigurer {
         registry.addInterceptor(authorizationInterceptor)
                 .addPathPatterns("/**")
                 // static resource
-                .excludePathPatterns("/js/**", "/css/**", "/images/**", "/lib/**",
-                        "/fonts/**")
+                .excludePathPatterns("/js/**", "/css/**", "/images/**", "/lib/**", "/fonts/**")
                 // swagger-ui
-                .excludePathPatterns("/swagger-resources/**", "/webjars/**",
-                        "/v3/**", "/swagger-ui/**")
+                .excludePathPatterns("/swagger-resources/**", "/webjars/**", "/v3/**", "/swagger-ui/**")
                 .excludePathPatterns("/api/login/verify")
                 .excludePathPatterns("/api/login/getVerificationCode/**")
-                .excludePathPatterns("/api/login/refresh/**");
+                .excludePathPatterns("/api/login/refresh/**")
+                // healthCheck
+                .excludePathPatterns("/vi/health")
+                // Called by arex-schedule
+                .excludePathPatterns("/api/report/init", "/api/report/pushCompareResults", "/api/report/pushReplayStatus");
     }
 }
