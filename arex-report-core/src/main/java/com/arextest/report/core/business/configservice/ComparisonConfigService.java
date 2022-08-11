@@ -1,14 +1,21 @@
 package com.arextest.report.core.business.configservice;
 
-import com.arextest.report.common.EnvProperty;
 import com.arextest.report.core.business.util.ConfigServiceUtils;
-import com.arextest.report.model.api.contracts.configservice.*;
+import com.arextest.report.model.api.contracts.configservice.CompareConfig;
+import com.arextest.report.model.api.contracts.configservice.ComparisonConfiguration;
+import com.arextest.report.model.api.contracts.configservice.ComparisonDetails;
+import com.arextest.report.model.api.contracts.configservice.ComparisonDetailsConfiguration;
+import com.arextest.report.model.api.contracts.configservice.ConfigTemplate;
 import com.arextest.report.model.mapper.ComparisonDetailsMapper;
 import com.arextest.report.model.mapper.ComparisonMapper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 
@@ -20,8 +27,8 @@ public class ComparisonConfigService {
     private static final String COMPARISON_REMOVE_URL = "/config/comparison/modify/REMOVE";
     private static final String COMPARISON_INSERT_URL = "/config/comparison/modify/INSERT";
 
-    @Resource
-    private EnvProperty envProperty;
+    @Value("${arex.config.service.url}")
+    private String configServiceUrl;
 
     public CompareConfig getCompareConfig(String appId) {
         List<ComparisonConfiguration> totalCompareConfig = getTotalCompareConfig(appId);
@@ -50,19 +57,19 @@ public class ComparisonConfigService {
         boolean result = true;
         if (removeEntity != null && removeEntity.getDetailsList() != null && !removeEntity.getDetailsList().isEmpty()) {
             result = result
-                    && ConfigServiceUtils.sendPostHttpRequest(envProperty.getString(EnvProperty.AREX_CONFIG_SERVICE_URL)
+                    && ConfigServiceUtils.sendPostHttpRequest(configServiceUrl
                     + COMPARISON_REMOVE_URL, removeEntity);
         }
         if (updateEntity != null && updateEntity.getDetailsList() != null && !updateEntity.getDetailsList().isEmpty()) {
             result = result
-                    && ConfigServiceUtils.sendPostHttpRequest(envProperty.getString(EnvProperty.AREX_CONFIG_SERVICE_URL)
+                    && ConfigServiceUtils.sendPostHttpRequest(configServiceUrl
                     + COMPARISON_INSERT_URL, updateEntity);
         }
         return result;
     }
 
     private List<ComparisonConfiguration> getTotalCompareConfig(String appId) {
-        String url = envProperty.getString(EnvProperty.AREX_CONFIG_SERVICE_URL) + COMPARISON_URL + appId;
+        String url = configServiceUrl + COMPARISON_URL + appId;
         return ConfigServiceUtils.produceListEntity(ConfigServiceUtils.sendGetHttpRequest(url),
                 ComparisonConfiguration.class);
     }

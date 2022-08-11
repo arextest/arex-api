@@ -1,10 +1,10 @@
 package com.arextest.report.core.business.util;
 
 
-import com.arextest.report.common.EnvProperty;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.mail.HtmlEmail;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -17,8 +17,12 @@ public class MailUtils {
 
     private static final String EMAIL_NAME = "ArexTest";
 
-    @Resource
-    private EnvProperty envProperty;
+    @Value("${arex.report.email.host}")
+    private String emailHost;
+    @Value("${arex.report.email.from}")
+    private String emailFrom;
+    @Value("${arex.report.email.pwd}")
+    private String emailPassword;
 
     public boolean sendEmail(String mailBox, String subject, String htmlMsg, boolean isSSL) {
         if (StringUtils.isEmpty(mailBox)) {
@@ -30,16 +34,15 @@ public class MailUtils {
             list.add(mailBox);
             String[] tos = list.toArray(new String[list.size()]);
 
-            email.setHostName(envProperty.getString(EnvProperty.AREX_REPORT_EMAIL_HOST));
+            email.setHostName(emailHost);
             if (isSSL) {
                 email.setSSLOnConnect(true);
                 email.setSmtpPort(465);
             }
             // email.setCharset("UTF-8");
             email.addTo(tos);
-            email.setFrom(envProperty.getString(EnvProperty.AREX_REPORT_EMAIL_FROM), EMAIL_NAME);
-            email.setAuthentication(envProperty.getString(EnvProperty.AREX_REPORT_EMAIL_FROM),
-                    envProperty.getString(EnvProperty.AREX_REPORT_EMAIL_PWD));
+            email.setFrom(emailFrom, EMAIL_NAME);
+            email.setAuthentication(emailFrom, emailPassword);
             email.setSubject(subject);
             email.setHtmlMsg(htmlMsg);
 
