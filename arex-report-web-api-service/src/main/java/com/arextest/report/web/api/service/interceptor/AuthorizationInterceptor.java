@@ -25,7 +25,7 @@ public class AuthorizationInterceptor extends HandlerInterceptorAdapter {
             httpServletResponse.setStatus(200);
             httpServletResponse.setContentType("application/json");
             httpServletResponse.setCharacterEncoding("UTF-8");
-            Response no_permission = ResponseUtils.errorResponse("Authentication verification failed", ResponseCode.REQUESTED_HANDLE_EXCEPTION);
+            Response no_permission = ResponseUtils.errorResponse("Authentication verification failed", ResponseCode.AUTHENTICATION_FAILED);
             httpServletResponse.getWriter().write(mapper.writeValueAsString(no_permission));
             LOGGER.info(String.format("access-token invalid; path: %s", httpServletRequest.getServletPath()));
             return false;
