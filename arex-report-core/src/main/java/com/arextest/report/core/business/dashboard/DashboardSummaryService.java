@@ -42,8 +42,8 @@ public class DashboardSummaryService {
     private static final String DATA_CHANGE_CREATE_TIME = "dataChangeCreateTime";
     private static final String STATUS = "status";
     private static final String APP_ID = "appId";
-    private static final String TOTAL_APP_DESCRIPTION = "/config/dashboard/";
-    private static final String SINGLE_APP_DESCRIPTION = "/config/dashboard/appId/";
+    private static final String TOTAL_APP_DESCRIPTION = "/api/config/dashboard/";
+    private static final String SINGLE_APP_DESCRIPTION = "/api/config/dashboard/appId/";
     private static final String BODY = "body";
     private static final String OPERATION_COUNT = "operationCount";
     private static final String OWNER = "owner";

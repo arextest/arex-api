@@ -23,9 +23,9 @@ import java.util.stream.Collectors;
 public class ComparisonConfigService {
 
 
-    private static final String COMPARISON_URL = "/config/comparison/useResultAsList/appId/";
-    private static final String COMPARISON_REMOVE_URL = "/config/comparison/modify/REMOVE";
-    private static final String COMPARISON_INSERT_URL = "/config/comparison/modify/INSERT";
+    private static final String COMPARISON_URL = "/api/config/comparison/useResultAsList/appId/";
+    private static final String COMPARISON_REMOVE_URL = "/api/config/comparison/modify/REMOVE";
+    private static final String COMPARISON_INSERT_URL = "/api/config/comparison/modify/INSERT";
 
     @Value("${arex.config.service.url}")
     private String configServiceUrl;

@@ -1,5 +1,6 @@
 package com.arextest.report.core.business.filesystem;
 
+import com.arextest.report.common.Tuple;
 import cn.hutool.jwt.JWTUtil;
 import com.arextest.report.common.JwtUtil;
 import com.arextest.report.core.business.util.MailUtils;
@@ -14,6 +15,7 @@ import com.arextest.report.model.dto.filesystem.FSInterfaceDto;
 import com.arextest.report.model.dto.filesystem.FSNodeDto;
 import com.arextest.report.model.dto.filesystem.FSTreeDto;
 import com.arextest.report.model.dto.filesystem.UserWorkspaceDto;
+import com.arextest.report.model.enums.FSInfoItem;
 import com.arextest.report.model.enums.InvitationType;
 import com.arextest.report.model.enums.RoleType;
 import com.arextest.report.model.mapper.AddressMapper;
@@ -46,7 +48,9 @@ import java.util.stream.Collectors;
 @Component
 public class FileSystemService {
     private static final String DEFAULT_WORKSPACE_NAME = "MyWorkSpace";
+    private static final String DEFAULT_INTERFACE_NAME = "Default Interface";
     private static final String DUPLICATE_SUFFIX = "_copy";
+
 
     @Resource
     private FSTreeRepository fsTreeRepository;
@@ -65,6 +69,9 @@ public class FileSystemService {
 
     @Resource
     private MailUtils mailUtils;
+
+    @Resource
+    private StorageCase storageCase;
 
     public FSAddItemResponseType addItem(FSAddItemRequestType request) {
         FSAddItemResponseType response = new FSAddItemResponseType();
@@ -384,7 +391,6 @@ public class FileSystemService {
         return response;
     }
 
-
     public InviteToWorkspaceResponseType inviteToWorkspace(InviteToWorkspaceRequestType request) {
         InviteToWorkspaceResponseType response = new InviteToWorkspaceResponseType();
         response.setSuccessUsers(new HashSet<>());
@@ -431,6 +437,54 @@ public class FileSystemService {
         userWorkspaceDto.setStatus(InvitationType.INVITED);
         userWorkspaceRepository.update(userWorkspaceDto);
         return response;
+    }
+
+
+    /**
+     * @return : Tuple<workspaceId,InfoId>
+     */
+    public Tuple<String, String> addItemFromRecord(FSAddItemFromRecordRequestType request) {
+
+        FSTreeDto treeDto = fsTreeRepository.queryFSTreeById(request.getWorkspaceId());
+        if (treeDto == null) {
+            return null;
+        }
+
+        StorageCase.StorageCaseEntity entity = storageCase.getViewRecord(request.getRecordId());
+        if (entity == null) {
+            return null;
+        }
+
+        FSNodeDto parentNode = findByPath(treeDto.getRoots(), request.getParentPath());
+        if (parentNode == null) {
+            return null;
+        }
+        if (parentNode.getNodeType() == FSInfoItem.CASE) {
+            return null;
+        }
+        List<String> path = new ArrayList<>(Arrays.asList(request.getParentPath()));
+        // add default interface if the parent path is Folder
+        if (parentNode.getNodeType() == FSInfoItem.FOLDER) {
+            FSAddItemRequestType addInterface = new FSAddItemRequestType();
+            addInterface.setId(treeDto.getId());
+            addInterface.setNodeName(DEFAULT_INTERFACE_NAME);
+            addInterface.setNodeType(FSInfoItem.INTERFACE);
+            addInterface.setParentPath(request.getParentPath());
+            FSAddItemResponseType addItemResponse = addItem(addInterface);
+            path.add(addItemResponse.getInfoId());
+        }
+
+        FSAddItemRequestType addCase = new FSAddItemRequestType();
+        addCase.setId(treeDto.getId());
+        addCase.setNodeName(request.getNodeName());
+        addCase.setNodeType(FSInfoItem.CASE);
+        addCase.setParentPath(path.toArray(new String[path.size()]));
+        FSAddItemResponseType addCaseResponse = addItem(addCase);
+
+        FSCaseDto caseDto = storageCase.getCase(path.get(path.size() - 1), addCaseResponse.getInfoId(), entity);
+        fsCaseRepository.saveCase(caseDto);
+
+        return new Tuple<>(treeDto.getId(), addCaseResponse.getInfoId());
     }
 
     private FSNodeDto findByPath(List<FSNodeDto> list, String[] pathArr) {
@@ -552,4 +606,7 @@ public class FileSystemService {
             this.token = token;
         }
     }
+
+
+
 }

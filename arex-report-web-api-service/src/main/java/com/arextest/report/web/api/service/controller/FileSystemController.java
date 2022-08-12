@@ -3,6 +3,7 @@ package com.arextest.report.web.api.service.controller;
 import com.arextest.common.model.response.Response;
 import com.arextest.common.model.response.ResponseCode;
 import com.arextest.common.utils.ResponseUtils;
+import com.arextest.report.common.Tuple;
 import com.arextest.report.core.business.filesystem.FileSystemService;
 import com.arextest.report.core.business.filesystem.RolePermission;
 import com.arextest.report.model.api.contracts.SuccessResponseType;
@@ -319,6 +320,31 @@ public class FileSystemController {
         try {
             ValidInvitationResponseType responseType = fileSystemService.validInvitation(request);
             return ResponseUtils.successResponse(responseType);
+        } catch (Exception e) {
+            return ResponseUtils.errorResponse(e.getMessage(), ResponseCode.REQUESTED_HANDLE_EXCEPTION);
+        }
+    }
+
+    @PostMapping("/addItemFromRecord")
+    @ResponseBody
+    public Response addItemFromRecord(@RequestBody FSAddItemFromRecordRequestType request) {
+        if (StringUtils.isEmpty(request.getRecordId())) {
+            return ResponseUtils.errorResponse("RecordId cannot be empty", ResponseCode.REQUESTED_PARAMETER_INVALID);
+        }
+        if (StringUtils.isEmpty(request.getWorkspaceId())) {
+            return ResponseUtils.errorResponse("WorkspaceId cannot be empty", ResponseCode.REQUESTED_PARAMETER_INVALID);
+        }
+        try {
+            Tuple<String, String> result = fileSystemService.addItemFromRecord(request);
+            if (result == null) {
+                return ResponseUtils.errorResponse("Failed to add record case to workspace",
+                        ResponseCode.REQUESTED_HANDLE_EXCEPTION);
+            }
+            FSAddItemFromRecordResponseType response = new FSAddItemFromRecordResponseType();
+            response.setSuccess(true);
+            response.setWorkspaceId(result.x);
+            response.setInfoId(result.y);
+            return ResponseUtils.successResponse(response);
         } catch (Exception e) {
             return ResponseUtils.errorResponse(e.getMessage(), ResponseCode.REQUESTED_HANDLE_EXCEPTION);
         }

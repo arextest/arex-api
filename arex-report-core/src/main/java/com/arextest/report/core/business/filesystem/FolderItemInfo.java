@@ -3,6 +3,7 @@ package com.arextest.report.core.business.filesystem;
 import com.arextest.report.core.repository.FSFolderRepository;
 import com.arextest.report.model.dao.mongodb.FSFolderCollection;
 import com.arextest.report.model.dto.filesystem.FSFolderDto;
+import com.arextest.report.model.enums.FSInfoItem;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
