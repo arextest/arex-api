@@ -35,14 +35,14 @@ import java.util.stream.Collectors;
 @Component
 public class ConfigService {
 
-    private static final String RECORD_SERVICE_COLLECTION_URL = "/config/serviceCollect/useResult/appId/";
-    private static final String DYNAMIC_CLASS_URL = "/config/dynamicClass/useResultAsList/appId/";
-    private static final String SCHEDULE_URL = "/config/schedule/useResult/appId/";
+    private static final String RECORD_SERVICE_COLLECTION_URL = "/api/config/serviceCollect/useResult/appId/";
+    private static final String DYNAMIC_CLASS_URL = "/api/config/dynamicClass/useResultAsList/appId/";
+    private static final String SCHEDULE_URL = "/api/config/schedule/useResult/appId/";
 
-    private static final String RECORD_SERVICE_COLLECTION_UPDATE_URL = "/config/serviceCollect/modify/UPDATE";
-    private static final String DYNAMIC_CLASS_REMOVE_URL = "/config/dynamicClass/batchModify/REMOVE";
-    private static final String DYNAMIC_CLASS_INSERT_URL = "/config/dynamicClass/batchModify/INSERT";
-    private static final String SCHEDULE_UPDATE_URL = "/config/schedule/modify/UPDATE";
+    private static final String RECORD_SERVICE_COLLECTION_UPDATE_URL = "/api/config/serviceCollect/modify/UPDATE";
+    private static final String DYNAMIC_CLASS_REMOVE_URL = "/api/config/dynamicClass/batchModify/REMOVE";
+    private static final String DYNAMIC_CLASS_INSERT_URL = "/api/config/dynamicClass/batchModify/INSERT";
+    private static final String SCHEDULE_UPDATE_URL = "/api/config/schedule/modify/UPDATE";
 
     private static final String APP_ID = "appId";
 
