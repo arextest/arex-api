@@ -6,42 +6,11 @@ import com.arextest.common.utils.ResponseUtils;
 import com.arextest.report.core.business.filesystem.FileSystemService;
 import com.arextest.report.core.business.filesystem.RolePermission;
 import com.arextest.report.model.api.contracts.SuccessResponseType;
-import com.arextest.report.model.api.contracts.filesystem.FSAddItemRequestType;
-import com.arextest.report.model.api.contracts.filesystem.FSAddItemResponseType;
-import com.arextest.report.model.api.contracts.filesystem.FSAddWorkspaceRequestType;
-import com.arextest.report.model.api.contracts.filesystem.FSAddWorkspaceResponseType;
-import com.arextest.report.model.api.contracts.filesystem.FSDeleteWorkspaceRequestType;
-import com.arextest.report.model.api.contracts.filesystem.FSDuplicateRequestType;
-import com.arextest.report.model.api.contracts.filesystem.FSMoveItemRequestType;
-import com.arextest.report.model.api.contracts.filesystem.FSQueryCaseRequestType;
-import com.arextest.report.model.api.contracts.filesystem.FSQueryCaseResponseType;
-import com.arextest.report.model.api.contracts.filesystem.FSQueryInterfaceRequestType;
-import com.arextest.report.model.api.contracts.filesystem.FSQueryInterfaceResponseType;
-import com.arextest.report.model.api.contracts.filesystem.FSQueryWorkspaceRequestType;
-import com.arextest.report.model.api.contracts.filesystem.FSQueryWorkspaceResponseType;
-import com.arextest.report.model.api.contracts.filesystem.FSQueryWorkspacesRequestType;
-import com.arextest.report.model.api.contracts.filesystem.FSQueryWorkspacesResponseType;
-import com.arextest.report.model.api.contracts.filesystem.FSRemoveItemRequestType;
-import com.arextest.report.model.api.contracts.filesystem.FSRemoveItemResponseType;
-import com.arextest.report.model.api.contracts.filesystem.FSRenameRequestType;
-import com.arextest.report.model.api.contracts.filesystem.FSRenameResponseType;
-import com.arextest.report.model.api.contracts.filesystem.FSRenameWorkspaceRequestType;
-import com.arextest.report.model.api.contracts.filesystem.FSSaveCaseRequestType;
-import com.arextest.report.model.api.contracts.filesystem.FSSaveCaseResponseType;
-import com.arextest.report.model.api.contracts.filesystem.FSSaveInterfaceRequestType;
-import com.arextest.report.model.api.contracts.filesystem.FSSaveInterfaceResponseType;
-import com.arextest.report.model.api.contracts.filesystem.InviteToWorkspaceRequestType;
-import com.arextest.report.model.api.contracts.filesystem.InviteToWorkspaceResponseType;
-import com.arextest.report.model.api.contracts.filesystem.LeaveWorkspaceRequestType;
-import com.arextest.report.model.api.contracts.filesystem.ValidInvitationRequestType;
+import com.arextest.report.model.api.contracts.filesystem.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 
@@ -348,9 +317,8 @@ public class FileSystemController {
             return ResponseUtils.errorResponse("Token cannot be empty", ResponseCode.REQUESTED_PARAMETER_INVALID);
         }
         try {
-            SuccessResponseType response = new SuccessResponseType();
-            response.setSuccess(fileSystemService.validInvitation(request));
-            return ResponseUtils.successResponse(response);
+            ValidInvitationResponseType responseType = fileSystemService.validInvitation(request);
+            return ResponseUtils.successResponse(responseType);
         } catch (Exception e) {
             return ResponseUtils.errorResponse(e.getMessage(), ResponseCode.REQUESTED_HANDLE_EXCEPTION);
         }

@@ -1,36 +1,13 @@
 package com.arextest.report.core.business.filesystem;
 
+import cn.hutool.jwt.JWTUtil;
+import com.arextest.report.common.JwtUtil;
 import com.arextest.report.core.business.util.MailUtils;
 import com.arextest.report.core.repository.FSCaseRepository;
 import com.arextest.report.core.repository.FSInterfaceRepository;
 import com.arextest.report.core.repository.FSTreeRepository;
 import com.arextest.report.core.repository.UserWorkspaceRepository;
-import com.arextest.report.model.api.contracts.filesystem.FSAddItemRequestType;
-import com.arextest.report.model.api.contracts.filesystem.FSAddItemResponseType;
-import com.arextest.report.model.api.contracts.filesystem.FSAddWorkspaceRequestType;
-import com.arextest.report.model.api.contracts.filesystem.FSAddWorkspaceResponseType;
-import com.arextest.report.model.api.contracts.filesystem.FSDuplicateRequestType;
-import com.arextest.report.model.api.contracts.filesystem.FSMoveItemRequestType;
-import com.arextest.report.model.api.contracts.filesystem.FSQueryCaseRequestType;
-import com.arextest.report.model.api.contracts.filesystem.FSQueryCaseResponseType;
-import com.arextest.report.model.api.contracts.filesystem.FSQueryInterfaceRequestType;
-import com.arextest.report.model.api.contracts.filesystem.FSQueryInterfaceResponseType;
-import com.arextest.report.model.api.contracts.filesystem.FSQueryWorkspaceRequestType;
-import com.arextest.report.model.api.contracts.filesystem.FSQueryWorkspaceResponseType;
-import com.arextest.report.model.api.contracts.filesystem.FSQueryWorkspacesRequestType;
-import com.arextest.report.model.api.contracts.filesystem.FSQueryWorkspacesResponseType;
-import com.arextest.report.model.api.contracts.filesystem.FSRemoveItemRequestType;
-import com.arextest.report.model.api.contracts.filesystem.FSRenameRequestType;
-import com.arextest.report.model.api.contracts.filesystem.FSRenameWorkspaceRequestType;
-import com.arextest.report.model.api.contracts.filesystem.FSSaveCaseRequestType;
-import com.arextest.report.model.api.contracts.filesystem.FSSaveCaseResponseType;
-import com.arextest.report.model.api.contracts.filesystem.FSSaveInterfaceRequestType;
-import com.arextest.report.model.api.contracts.filesystem.FSSaveInterfaceResponseType;
-import com.arextest.report.model.api.contracts.filesystem.FSTreeType;
-import com.arextest.report.model.api.contracts.filesystem.InviteToWorkspaceRequestType;
-import com.arextest.report.model.api.contracts.filesystem.InviteToWorkspaceResponseType;
-import com.arextest.report.model.api.contracts.filesystem.LeaveWorkspaceRequestType;
-import com.arextest.report.model.api.contracts.filesystem.ValidInvitationRequestType;
+import com.arextest.report.model.api.contracts.filesystem.*;
 import com.arextest.report.model.dto.WorkspaceDto;
 import com.arextest.report.model.dto.filesystem.FSCaseDto;
 import com.arextest.report.model.dto.filesystem.FSInterfaceDto;
@@ -442,12 +419,18 @@ public class FileSystemService {
         return userWorkspaceRepository.remove(request.getUserName(), request.getWorkspaceId());
     }
 
-    public Boolean validInvitation(ValidInvitationRequestType request) {
+    public ValidInvitationResponseType validInvitation(ValidInvitationRequestType request) {
+        ValidInvitationResponseType response = new ValidInvitationResponseType();
         UserWorkspaceDto userWorkspaceDto = UserWorkspaceMapper.INSTANCE.dtoFromContract(request);
         Boolean result = userWorkspaceRepository.verify(userWorkspaceDto);
+        if (Boolean.TRUE.equals(result)){
+            response.setAccessToken(JwtUtil.makeAccessToken(request.getUserName()));
+            response.setRefreshToken(JwtUtil.makeRefreshToken(request.getUserName()));
+        }
+        response.setSuccess(result);
         userWorkspaceDto.setStatus(InvitationType.INVITED);
         userWorkspaceRepository.update(userWorkspaceDto);
-        return result;
+        return response;
     }
 
     private FSNodeDto findByPath(List<FSNodeDto> list, String[] pathArr) {
