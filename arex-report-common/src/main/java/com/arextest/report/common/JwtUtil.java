@@ -35,7 +35,29 @@ public class JwtUtil {
 
     }
 
-    public static DecodedJWT getToken(String token) {
+    public static boolean verifyToken(String field) {
+        if (StringUtils.isEmpty(field)) {
+            return false;
+        }
+        return getToken(field) != null;
+    }
+
+    public static String getUserName(String token){
+        if (StringUtils.isEmpty(token)) {
+            return null;
+        }
+        try {
+            Algorithm algorithm = Algorithm.HMAC256(TOKEN_SECRET);
+            // 验证对象
+            JWTVerifier build = JWT.require(algorithm).build();
+            DecodedJWT verify = build.verify(token);
+            return verify.getClaim("username").asString();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private static DecodedJWT getToken(String token) {
         if (StringUtils.isEmpty(token)) {
             return null;
         }
@@ -47,18 +69,6 @@ public class JwtUtil {
         } catch (Exception e) {
             return null;
         }
-    }
-
-    public static boolean verifyToken(String field) {
-        if (StringUtils.isEmpty(field)) {
-            return false;
-        }
-        return getToken(field) != null;
-    }
-
-    public static void main(String[] args) {
-        System.out.println(makeAccessToken("rchen9@trip.com"));
-        System.out.println(makeRefreshToken("rchen9@trip.com"));
     }
 
 }

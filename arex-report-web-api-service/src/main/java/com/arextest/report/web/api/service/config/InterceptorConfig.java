@@ -33,6 +33,8 @@ public class InterceptorConfig implements WebMvcConfigurer {
                 // healthCheck
                 .excludePathPatterns("/vi/health")
                 // Called by arex-schedule
-                .excludePathPatterns("/api/report/init", "/api/report/pushCompareResults", "/api/report/pushReplayStatus");
+                .excludePathPatterns("/api/report/init", "/api/report/pushCompareResults", "/api/report/pushReplayStatus")
+                // invite to workspace
+                .excludePathPatterns("/api/filesystem/validInvitation");
     }
 }
