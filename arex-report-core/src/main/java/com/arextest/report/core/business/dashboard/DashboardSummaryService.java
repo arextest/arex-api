@@ -1,6 +1,5 @@
 package com.arextest.report.core.business.dashboard;
 
-import com.arextest.report.common.EnvProperty;
 import com.arextest.report.common.HttpUtils;
 import com.arextest.report.core.business.CaseCountService;
 import com.arextest.report.core.repository.ReportPlanItemStatisticRepository;
@@ -19,6 +18,7 @@ import org.apache.commons.lang3.tuple.MutablePair;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
@@ -58,15 +58,14 @@ public class DashboardSummaryService {
     @Resource
     private CaseCountService caseCountService;
 
-    @Resource
-    private EnvProperty envProperty;
+    @Value("${arex.config.service.url}")
+    private String configServiceUrl;
 
 
     public List<String> getAllAppId() {
 
         ResponseEntity<String> responseEntity =
-                HttpUtils.get(envProperty.getString(EnvProperty.AREX_CONFIG_SERVICE_URL) + TOTAL_APP_DESCRIPTION,
-                        String.class);
+                HttpUtils.get(configServiceUrl + TOTAL_APP_DESCRIPTION, String.class);
         List<String> appIds = new ArrayList<>();
         try {
             JSONObject entityBody = new JSONObject(responseEntity.getBody());
@@ -91,8 +90,7 @@ public class DashboardSummaryService {
         appDescription.setReplayCount(replayCount.intValue());
 
         ResponseEntity<String> responseEntity =
-                HttpUtils.get(envProperty.getString(EnvProperty.AREX_CONFIG_SERVICE_URL) + TOTAL_APP_DESCRIPTION,
-                        String.class);
+                HttpUtils.get(configServiceUrl + TOTAL_APP_DESCRIPTION, String.class);
         try {
             JSONObject entityBody = new JSONObject(responseEntity.getBody());
             JSONArray bodyJSONArray = entityBody.getJSONArray(BODY);
@@ -123,7 +121,7 @@ public class DashboardSummaryService {
 
         appDescription.setReplayCount(replayCount.intValue());
 
-        String url = envProperty.getString(EnvProperty.AREX_CONFIG_SERVICE_URL) + SINGLE_APP_DESCRIPTION + appId;
+        String url = configServiceUrl + SINGLE_APP_DESCRIPTION + appId;
         ResponseEntity<String> responseEntity = HttpUtils.get(url, String.class);
         try {
             JSONObject entityBody = new JSONObject(responseEntity.getBody());
