@@ -1,6 +1,5 @@
 package com.arextest.report.core.business;
 
-import cn.hutool.jwt.JWTUtil;
 import com.arextest.report.common.JwtUtil;
 import com.arextest.report.core.business.util.MailUtils;
 import com.arextest.report.core.repository.UserRepository;
