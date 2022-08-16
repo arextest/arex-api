@@ -212,6 +212,17 @@ public class FileSystemController {
         }
     }
 
+    @PostMapping("/queryUsersByWorkspace")
+    @ResponseBody
+    public Response queryUsersByWorkspace(@RequestBody FSQueryUsersByWorkspaceRequestType request) {
+        try {
+            FSQueryUsersByWorkspaceResponseType response = fileSystemService.queryUsersByWorkspace(request);
+            return ResponseUtils.successResponse(response);
+        } catch (Exception e) {
+            return ResponseUtils.errorResponse(e.getMessage(), ResponseCode.REQUESTED_HANDLE_EXCEPTION);
+        }
+    }
+
     @PostMapping("/saveInterface")
     @ResponseBody
     public Response saveInterface(@RequestBody FSSaveInterfaceRequestType request) {
