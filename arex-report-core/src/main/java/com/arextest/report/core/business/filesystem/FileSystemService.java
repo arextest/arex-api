@@ -1,6 +1,7 @@
 package com.arextest.report.core.business.filesystem;
 
 import com.arextest.report.common.JwtUtil;
+import com.arextest.report.common.LoadResource;
 import com.arextest.report.common.Tuple;
 import com.arextest.report.core.business.util.MailUtils;
 import com.arextest.report.core.repository.FSCaseRepository;
@@ -81,6 +82,10 @@ public class FileSystemService {
     private static final String DEFAULT_WORKSPACE_NAME = "MyWorkSpace";
     private static final String DEFAULT_INTERFACE_NAME = "Default Interface";
     private static final String DUPLICATE_SUFFIX = "_copy";
+    private static final String INVITATION_EMAIL_TEMPLATE = "classpath:invitationEmailTemplate.htm";
+    private static final String SOMEBODY_PLACEHOLDER = "{{somebody}}";
+    private static final String WORKSPACE_NAME_PLACEHOLDER = "{{workspaceName}}";
+    private static final String LINK_PLACEHOLDER = "{{link}}";
 
 
     @Resource
@@ -106,6 +111,9 @@ public class FileSystemService {
 
     @Resource
     private StorageCase storageCase;
+
+    @Resource
+    private LoadResource loadResource;
 
 
     public FSAddItemResponseType addItem(FSAddItemRequestType request) {
@@ -620,9 +628,10 @@ public class FileSystemService {
 
         String address = "http://10.5.153.1:8088/click/?upn=" + Base64.encode(obj.toString().getBytes());
 
-        String context = String.format("%s invites you to join the %s workspace. "
-                + "Please click the below link to join workspace.</br>"
-                + "<a href='%s'>Join and View workspace</a>", invitor, workspace.getWorkspaceName(), address);
+        String context = loadResource.getResource(INVITATION_EMAIL_TEMPLATE);
+        context = context.replace(SOMEBODY_PLACEHOLDER, invitor)
+                .replace(WORKSPACE_NAME_PLACEHOLDER, workspace.getWorkspaceName())
+                .replace(LINK_PLACEHOLDER, address);
 
         return mailUtils.sendEmail(invitee,
                 String.format(INVITATION_MAIL_SUBJECT, workspace.getWorkspaceName()),

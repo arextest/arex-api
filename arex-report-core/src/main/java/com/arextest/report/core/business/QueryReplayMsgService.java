@@ -97,7 +97,8 @@ public class QueryReplayMsgService {
 
     public QueryFullLinkMsgResponseType queryFullLinkMsg(QueryFullLinkMsgRequestType request) {
         QueryFullLinkMsgResponseType response = new QueryFullLinkMsgResponseType();
-        List<CompareResultDto> dtos = repository.queryCompareResultsByRecordId(request.getRecordId());
+        List<CompareResultDto> dtos =
+                repository.queryCompareResultsByRecordId(request.getPlanItemId(), request.getRecordId());
         if (dtos == null) {
             return response;
         }
