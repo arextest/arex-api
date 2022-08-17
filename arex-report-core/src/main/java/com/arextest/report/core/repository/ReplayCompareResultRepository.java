@@ -21,5 +21,5 @@ public interface ReplayCompareResultRepository extends RepositoryProvider {
 
     CompareResultDto queryCompareResultsByObjectId(String objectId);
 
-    List<CompareResultDto> queryCompareResultsByRecordId(String recordId);
+    List<CompareResultDto> queryCompareResultsByRecordId(Long planItemId, String recordId);
 }
