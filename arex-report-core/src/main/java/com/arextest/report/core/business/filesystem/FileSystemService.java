@@ -286,13 +286,14 @@ public class FileSystemService {
             if (request.getToParentPath() != null && request.getToParentPath().length > 0) {
                 toParent = findByPath(treeDto.getRoots(), request.getToParentPath());
             }
+            Integer toIndex = request.getToIndex() == null ? 0 : request.getToIndex();
             if (toParent == null) {
-                treeDto.getRoots().add(0, current);
+                treeDto.getRoots().add(toIndex, current);
             } else {
                 if (toParent.getChildren() == null) {
                     toParent.setChildren(new ArrayList<>());
                 }
-                toParent.getChildren().add(0, current);
+                toParent.getChildren().add(toIndex, current);
             }
             if (fromParent == null) {
                 treeDto.getRoots().remove(current);
