@@ -52,7 +52,10 @@ public class LoginService {
 
     public VerifyResponseType verify(VerifyRequestType request) {
         VerifyResponseType responseType = new VerifyResponseType();
-        boolean exist = userRepository.verify(request.getUserName(), request.getVerificationCode());
+
+        boolean exist = saveUserName(request.getUserName()) &&
+                userRepository.verify(request.getUserName(), "000000");
+
         if (exist) {
             UserDto userDto = new UserDto();
             userDto.setUserName(request.getUserName());
@@ -82,6 +85,14 @@ public class LoginService {
         responseType.setAccessToken(JwtUtil.makeAccessToken(userName));
         responseType.setRefreshToken(JwtUtil.makeRefreshToken(userName));
         return responseType;
+    }
+
+    private boolean saveUserName(String userName) {
+        UserDto user = new UserDto();
+        user.setUserName(userName);
+        user.setVerificationCode("000000");
+        user.setVerificationTime(System.currentTimeMillis());
+        return userRepository.saveVerificationCode(user);
     }
 
     private String generateVerificationCode() {

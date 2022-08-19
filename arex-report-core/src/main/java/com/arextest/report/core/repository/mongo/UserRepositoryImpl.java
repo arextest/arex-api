@@ -40,9 +40,9 @@ public class UserRepositoryImpl implements UserRepository {
     }
     @Override
     public Boolean verify(String userName, String verificationCode) {
-        Query query = Query.query(Criteria.where(USER_NAME).is(userName));
-                // .and(VERIFICATION_CODE).is(verificationCode)
-                // .and(VERIFICATION_TIME).gt(System.currentTimeMillis() - 5 * 60 * 1000));
+        Query query = Query.query(Criteria.where(USER_NAME).is(userName)
+                .and(VERIFICATION_CODE).is(verificationCode)
+                .and(VERIFICATION_TIME).gt(System.currentTimeMillis() - 5 * 60 * 1000));
         return mongoTemplate.exists(query, UserCollection.class);
     }
     @Override
