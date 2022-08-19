@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 public class DynamicClassConfiguration {
-    private long id;
+    private String id;
     private String appId;
     private String fullClassName;
     private String methodName;

@@ -6,7 +6,7 @@ import lombok.Data;
 @Data
 public class QueryPlanItemStatisticsRequestType {
     
-    private Long planId;
+    private String planId;
     
-    private Long planItemId;
+    private String planItemId;
 }

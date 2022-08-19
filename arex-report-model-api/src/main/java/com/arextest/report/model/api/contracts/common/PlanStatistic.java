@@ -7,7 +7,7 @@ import lombok.Data;
 public class PlanStatistic {
     
     
-    private Long planId;
+    private String planId;
     
     private String planName;
     

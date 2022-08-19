@@ -80,7 +80,7 @@ public class ReportPlanStatisticRepositoryImpl implements ReportPlanStatisticRep
     }
 
     @Override
-    public ReportPlanStatisticDto findByPlanId(Long planId) {
+    public ReportPlanStatisticDto findByPlanId(String planId) {
         if (planId == null) {
             return null;
         }
@@ -296,8 +296,8 @@ public class ReportPlanStatisticRepositoryImpl implements ReportPlanStatisticRep
 
 
     @Override
-    public ReportPlanStatisticDto changePlanStatus(Long planId, Integer status, Integer totalCaseCount) {
-        if (planId == null || planId == 0) {
+    public ReportPlanStatisticDto changePlanStatus(String planId, Integer status, Integer totalCaseCount) {
+        if (planId == null || planId == "") {
             return null;
         }
         Update update = MongoHelper.getUpdate();
@@ -350,7 +350,7 @@ public class ReportPlanStatisticRepositoryImpl implements ReportPlanStatisticRep
         }
         reportPlanStatisticDto.setAppId(basicDBObject.getString(APP_ID));
         reportPlanStatisticDto.setAppName(basicDBObject.getString(APP_NAME));
-        reportPlanStatisticDto.setPlanId(basicDBObject.getLong(PLAN_ID));
+        reportPlanStatisticDto.setPlanId(basicDBObject.getString(PLAN_ID));
         reportPlanStatisticDto.setDataChangeCreateTime(basicDBObject.getLong(DATA_CHANGE_CREATE_TIME));
         return reportPlanStatisticDto;
     }
@@ -362,7 +362,7 @@ public class ReportPlanStatisticRepositoryImpl implements ReportPlanStatisticRep
         }
         latestDailySuccessPlanIdDto.setDateTime(basicDBObject.getString(DATE_TIME));
         latestDailySuccessPlanIdDto.setAppId(basicDBObject.getString(APP_ID));
-        latestDailySuccessPlanIdDto.setPlanId(basicDBObject.getLong(PLAN_ID));
+        latestDailySuccessPlanIdDto.setPlanId(basicDBObject.getString(PLAN_ID));
         latestDailySuccessPlanIdDto.setDataChangeCreateTime(basicDBObject.getLong(DATA_CHANGE_CREATE_TIME));
         return latestDailySuccessPlanIdDto;
     }

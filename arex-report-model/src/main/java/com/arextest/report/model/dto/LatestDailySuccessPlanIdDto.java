@@ -10,7 +10,7 @@ public class LatestDailySuccessPlanIdDto {
     
     private String appId;
     
-    private Long planId;
+    private String planId;
     
     private Long dataChangeCreateTime;
 }

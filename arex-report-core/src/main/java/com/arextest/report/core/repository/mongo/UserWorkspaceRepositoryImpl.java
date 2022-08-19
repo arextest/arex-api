@@ -40,7 +40,8 @@ public class UserWorkspaceRepositoryImpl implements UserWorkspaceRepository {
     }
     @Override
     public UserWorkspaceDto update(UserWorkspaceDto dto) {
-        Query query = Query.query(Criteria.where(USER_NAME).is(dto.getUserName()).and(WORKSPACE_ID).is(dto.getWorkspaceId()));
+        Query query =
+                Query.query(Criteria.where(USER_NAME).is(dto.getUserName()).and(WORKSPACE_ID).is(dto.getWorkspaceId()));
         Update update = MongoHelper.getUpdate();
         MongoHelper.appendFullProperties(update, dto);
 
@@ -66,6 +67,16 @@ public class UserWorkspaceRepositoryImpl implements UserWorkspaceRepository {
     public List<UserWorkspaceDto> queryWorkspacesByUser(String userName) {
         Query query = Query.query(Criteria.where(USER_NAME).is(userName).and(STATUS).is(InvitationType.INVITED));
         query.fields().exclude(TOKEN).exclude(STATUS).exclude(USER_NAME);
+        List<UserWorkspaceCollection> workspaceDaos = mongoTemplate.find(query, UserWorkspaceCollection.class);
+        if (workspaceDaos == null) {
+            return null;
+        }
+        return workspaceDaos.stream().map(UserWorkspaceMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
+    }
+    @Override
+    public List<UserWorkspaceDto> queryUsersByWorkspace(String workspaceId) {
+        Query query = Query.query(Criteria.where(WORKSPACE_ID).is(workspaceId));
+        query.fields().exclude(TOKEN);
         List<UserWorkspaceCollection> workspaceDaos = mongoTemplate.find(query, UserWorkspaceCollection.class);
         if (workspaceDaos == null) {
             return null;

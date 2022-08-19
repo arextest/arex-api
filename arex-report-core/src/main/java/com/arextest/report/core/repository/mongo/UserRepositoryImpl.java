@@ -60,7 +60,7 @@ public class UserRepositoryImpl implements UserRepository {
         try {
             mongoTemplate.findAndModify(query,
                     update,
-                    FindAndModifyOptions.options().returnNew(true),
+                    FindAndModifyOptions.options().returnNew(true).upsert(true),
                     UserCollection.class);
             return true;
         } catch (Exception e) {

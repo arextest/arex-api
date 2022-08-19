@@ -3,6 +3,7 @@ package com.arextest.report.web.api.service.controller;
 import com.arextest.common.model.response.Response;
 import com.arextest.common.model.response.ResponseCode;
 import com.arextest.common.utils.ResponseUtils;
+import com.arextest.report.common.Tuple;
 import com.arextest.report.core.business.filesystem.FileSystemService;
 import com.arextest.report.core.business.filesystem.RolePermission;
 import com.arextest.report.model.api.contracts.SuccessResponseType;
@@ -211,6 +212,17 @@ public class FileSystemController {
         }
     }
 
+    @PostMapping("/queryUsersByWorkspace")
+    @ResponseBody
+    public Response queryUsersByWorkspace(@RequestBody FSQueryUsersByWorkspaceRequestType request) {
+        try {
+            FSQueryUsersByWorkspaceResponseType response = fileSystemService.queryUsersByWorkspace(request);
+            return ResponseUtils.successResponse(response);
+        } catch (Exception e) {
+            return ResponseUtils.errorResponse(e.getMessage(), ResponseCode.REQUESTED_HANDLE_EXCEPTION);
+        }
+    }
+
     @PostMapping("/saveInterface")
     @ResponseBody
     public Response saveInterface(@RequestBody FSSaveInterfaceRequestType request) {
@@ -317,8 +329,65 @@ public class FileSystemController {
             return ResponseUtils.errorResponse("Token cannot be empty", ResponseCode.REQUESTED_PARAMETER_INVALID);
         }
         try {
+<<<<<<< .mine
             ValidInvitationResponseType responseType = fileSystemService.validInvitation(request);
             return ResponseUtils.successResponse(responseType);
+
+
+
+
+
+
+
+
+
+
+
+=======
+            ValidInvitationResponseType responseType = fileSystemService.validInvitation(request);
+            return ResponseUtils.successResponse(responseType);
+        } catch (Exception e) {
+            return ResponseUtils.errorResponse(e.getMessage(), ResponseCode.REQUESTED_HANDLE_EXCEPTION);
+        }
+    }
+
+    @PostMapping("/addItemFromRecord")
+    @ResponseBody
+    public Response addItemFromRecord(@RequestBody FSAddItemFromRecordRequestType request) {
+        if (StringUtils.isEmpty(request.getRecordId())) {
+            return ResponseUtils.errorResponse("RecordId cannot be empty", ResponseCode.REQUESTED_PARAMETER_INVALID);
+        }
+>>>>>>> .theirs
+        if (StringUtils.isEmpty(request.getWorkspaceId())) {
+<<<<<<< .mine
+
+
+
+
+
+
+
+
+
+
+
+
+
+=======
+            return ResponseUtils.errorResponse("WorkspaceId cannot be empty", ResponseCode.REQUESTED_PARAMETER_INVALID);
+        }
+        try {
+            Tuple<String, String> result = fileSystemService.addItemFromRecord(request);
+            if (result == null) {
+                return ResponseUtils.errorResponse("Failed to add record case to workspace",
+                        ResponseCode.REQUESTED_HANDLE_EXCEPTION);
+            }
+            FSAddItemFromRecordResponseType response = new FSAddItemFromRecordResponseType();
+            response.setSuccess(true);
+            response.setWorkspaceId(result.x);
+            response.setInfoId(result.y);
+            return ResponseUtils.successResponse(response);
+>>>>>>> .theirs
         } catch (Exception e) {
             return ResponseUtils.errorResponse(e.getMessage(), ResponseCode.REQUESTED_HANDLE_EXCEPTION);
         }

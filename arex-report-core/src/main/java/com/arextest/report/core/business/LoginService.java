@@ -1,7 +1,7 @@
 package com.arextest.report.core.business;
 
-import cn.hutool.jwt.JWTUtil;
 import com.arextest.report.common.JwtUtil;
+import com.arextest.report.common.LoadResource;
 import com.arextest.report.core.business.util.MailUtils;
 import com.arextest.report.core.repository.UserRepository;
 import com.arextest.report.model.api.contracts.login.UpdateUserProfileRequestType;
@@ -10,33 +10,46 @@ import com.arextest.report.model.api.contracts.login.VerifyRequestType;
 import com.arextest.report.model.api.contracts.login.VerifyResponseType;
 import com.arextest.report.model.dto.UserDto;
 import com.arextest.report.model.mapper.UserMapper;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Random;
 
+@Slf4j
 @Component
 public class LoginService {
 
     private static final String SEND_VERIFICATION_CODE_SUBJECT = "[ArexTest] Verification code";
-    private static final String SEND_VERIFICATION_CODE_MSG = "Verification Code is: %s";
+    private static final String VERIFICATION_CODE_PLACEHOLDER = "{{verificationCode}}";
+    private static final String VERIFICATION_CODE_EMAIL_TEMPLATE = "classpath:verificationCodeEmailTemplate.htm";
 
     @Resource
     private UserRepository userRepository;
 
     @Resource
+    private LoadResource loadResource;
+
+    @Resource
     private MailUtils mailUtils;
 
     public Boolean sendVerifyCodeByEmail(String emailTo) {
+        String template = loadResource.getResource(VERIFICATION_CODE_EMAIL_TEMPLATE);
         UserDto user = new UserDto();
         user.setUserName(emailTo);
         user.setVerificationCode(generateVerificationCode());
         user.setVerificationTime(System.currentTimeMillis());
         boolean success = userRepository.saveVerificationCode(user);
         if (success) {
+            template = template.replace(VERIFICATION_CODE_PLACEHOLDER, user.getVerificationCode());
             success = success & mailUtils.sendEmail(user.getUserName(),
                     SEND_VERIFICATION_CODE_SUBJECT,
-                    String.format(SEND_VERIFICATION_CODE_MSG, user.getVerificationCode()),
+                    template,
                     true);
         }
         return success;
@@ -84,4 +97,6 @@ public class LoginService {
         }
         return verificationCode.toString();
     }
+
+
 }

@@ -60,7 +60,7 @@ public class ReplayCompareResultRepositoryImpl implements ReplayCompareResultRep
     }
 
     @Override
-    public List<CompareResultDto> findResultWithoutMsg(Long planItemId) {
+    public List<CompareResultDto> findResultWithoutMsg(String planItemId) {
         if (planItemId == null) {
             return new ArrayList<>();
         }
@@ -72,7 +72,7 @@ public class ReplayCompareResultRepositoryImpl implements ReplayCompareResultRep
     }
 
     @Override
-    public List<CompareResultDto> findResultWithoutMsg(Long planItemId, String keyWord) {
+    public List<CompareResultDto> findResultWithoutMsg(String planItemId, String keyWord) {
         Query query = fillFilterConditions(null, planItemId, null, null, keyWord);
 
         query.fields().include(PLAN_ITEM_ID);
@@ -116,7 +116,7 @@ public class ReplayCompareResultRepositoryImpl implements ReplayCompareResultRep
 
 
     @Override
-    public Pair<List<CompareResultDto>, Long> queryCompareResultByPage(Long planId,
+    public Pair<List<CompareResultDto>, Long> queryCompareResultByPage(String planId,
             Integer pageSize,
             Integer pageIndex) {
         Query query = Query.query(Criteria.where(PLAN_ID).is(planId));
@@ -141,15 +141,15 @@ public class ReplayCompareResultRepositoryImpl implements ReplayCompareResultRep
     }
 
     @Override
-    public List<CompareResultDto> queryCompareResultsByRecordId(String recordId) {
+    public List<CompareResultDto> queryCompareResultsByRecordId(Long planItemId, String recordId) {
         Query query = new Query();
-        query.addCriteria(Criteria.where(RECORD_ID).is(recordId));
+        query.addCriteria(Criteria.where(RECORD_ID).is(recordId).and(PLAN_ITEM_ID).is(planItemId));
         List<ReplayCompareResultCollection> daos = mongoTemplate.find(query, ReplayCompareResultCollection.class);
         return daos.stream().map(CompareResultMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
     }
 
 
-    private Query fillFilterConditions(Long planId, Long planItemId, String categoryName, Integer resultType,
+    private Query fillFilterConditions(String planId, String planItemId, String categoryName, Integer resultType,
             String keyWord) {
         Query query = new Query();
         if (planId != null) {

@@ -12,15 +12,15 @@ public interface ReportPlanItemStatisticRepository extends RepositoryProvider {
     boolean findAndModifyBaseInfo(PlanItemDto result);
 
     
-    List<PlanItemDto> findByPlanIdAndPlanItemId(Long planId, Long planItemId);
+    List<PlanItemDto> findByPlanIdAndPlanItemId(String planId, String planItemId);
 
     
-    List<PlanItemDto> findByPlanIds(List<Long> planIds);
+    List<PlanItemDto> findByPlanIds(List<String> planIds);
 
     
-    List<Integer> findStatusesByPlanId(Long planId);
+    List<Integer> findStatusesByPlanId(String planId);
 
     
-    PlanItemDto changePlanItemStatus(Long planItemId, Integer status, Integer totalCaseCount);
+    PlanItemDto changePlanItemStatus(String planItemId, Integer status, Integer totalCaseCount);
 
 }

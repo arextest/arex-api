@@ -7,4 +7,5 @@ public class FSMoveItemRequestType {
     private String id;
     private String[] fromNodePath;
     private String[] toParentPath;
+    private Integer toIndex;
 }

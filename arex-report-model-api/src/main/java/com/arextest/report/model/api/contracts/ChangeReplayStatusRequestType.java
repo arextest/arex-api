@@ -7,7 +7,7 @@ import java.util.List;
 
 @Data
 public class ChangeReplayStatusRequestType {
-    private Long planId;
+    private String planId;
     private Integer totalCaseCount;
     private Integer status;
     private List<ReplayItem> items;
@@ -15,7 +15,7 @@ public class ChangeReplayStatusRequestType {
 
     @Data
     public static class ReplayItem {
-        private Long planItemId;
+        private String planItemId;
         private Integer totalCaseCount;
         private Integer status;
     }

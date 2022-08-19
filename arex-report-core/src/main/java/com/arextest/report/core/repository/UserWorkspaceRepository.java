@@ -14,6 +14,8 @@ public interface UserWorkspaceRepository extends RepositoryProvider {
 
     List<UserWorkspaceDto> queryWorkspacesByUser(String userName);
 
+    List<UserWorkspaceDto> queryUsersByWorkspace(String workspaceId);
+
     Boolean remove(String userName, String workspaceId);
 
     Boolean removeByWorkspaceId(String workspaceId);
