@@ -45,10 +45,10 @@ public class LoginController {
         if (StringUtils.isEmpty(request.getUserName())) {
             return ResponseUtils.errorResponse("userName cannot be empty", ResponseCode.REQUESTED_PARAMETER_INVALID);
         }
-        if (StringUtils.isEmpty(request.getVerificationCode())) {
-            return ResponseUtils.errorResponse("verification code cannot be empty",
-                    ResponseCode.REQUESTED_PARAMETER_INVALID);
-        }
+        // if (StringUtils.isEmpty(request.getVerificationCode())) {
+        //     return ResponseUtils.errorResponse("verification code cannot be empty",
+        //             ResponseCode.REQUESTED_PARAMETER_INVALID);
+        // }
         try {
             VerifyResponseType response = loginService.verify(request);
             return ResponseUtils.successResponse(response);

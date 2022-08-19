@@ -11,14 +11,9 @@ import com.arextest.report.model.api.contracts.login.VerifyResponseType;
 import com.arextest.report.model.dto.UserDto;
 import com.arextest.report.model.mapper.UserMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.Random;
 
 @Slf4j
