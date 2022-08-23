@@ -53,6 +53,7 @@ import com.arextest.report.model.enums.RoleType;
 import com.arextest.report.model.mapper.AddressMapper;
 import com.arextest.report.model.mapper.FSCaseMapper;
 import com.arextest.report.model.mapper.FSInterfaceMapper;
+import com.arextest.report.model.mapper.FSNodeMapper;
 import com.arextest.report.model.mapper.FSTreeMapper;
 import com.arextest.report.model.mapper.UserWorkspaceMapper;
 import com.arextest.report.model.mapper.WorkspaceMapper;
@@ -71,6 +72,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Queue;
 import java.util.Set;
 import java.util.UUID;
@@ -276,7 +278,10 @@ public class FileSystemService {
     public Boolean move(FSMoveItemRequestType request) {
         try {
             FSTreeDto treeDto = fsTreeRepository.queryFSTreeById(request.getId());
-            FSNodeDto current = findByPath(treeDto.getRoots(), request.getFromNodePath());
+            Tuple<Integer, FSNodeDto> current = findByPathWithIndex(treeDto.getRoots(), request.getFromNodePath());
+            if (current == null) {
+                return false;
+            }
             FSNodeDto fromParent = null;
             FSNodeDto toParent = null;
             if (request.getFromNodePath().length > 1) {
@@ -288,17 +293,32 @@ public class FileSystemService {
             }
             Integer toIndex = request.getToIndex() == null ? 0 : request.getToIndex();
             if (toParent == null) {
-                treeDto.getRoots().add(toIndex, current);
+                treeDto.getRoots().add(toIndex, current.y);
             } else {
                 if (toParent.getChildren() == null) {
                     toParent.setChildren(new ArrayList<>());
                 }
-                toParent.getChildren().add(toIndex, current);
+                toParent.getChildren().add(toIndex, current.y);
             }
-            if (fromParent == null) {
-                treeDto.getRoots().remove(current);
+            if (fromParent == null && toParent == null) {
+                if (request.getToIndex() < current.x) {
+                    treeDto.getRoots().remove(current.x + 1);
+                } else {
+                    treeDto.getRoots().remove(current.x);
+                }
+            } else if (fromParent != null && toParent != null
+                    && Objects.equals(fromParent.getInfoId(), toParent.getInfoId())) {
+                if (request.getToIndex() < current.x) {
+                    fromParent.getChildren().remove(current.x + 1);
+                } else {
+                    fromParent.getChildren().remove(current.x);
+                }
             } else {
-                fromParent.getChildren().remove(current);
+                if (fromParent == null) {
+                    treeDto.getRoots().remove(current.x);
+                } else {
+                    fromParent.getChildren().remove(current.x);
+                }
             }
             fsTreeRepository.updateFSTree(treeDto);
             return true;
@@ -553,6 +573,14 @@ public class FileSystemService {
     }
 
     private FSNodeDto findByPath(List<FSNodeDto> list, String[] pathArr) {
+        Tuple<Integer, FSNodeDto> result = findByPathWithIndex(list, pathArr);
+        if (result == null) {
+            return null;
+        }
+        return result.y;
+    }
+
+    private Tuple<Integer, FSNodeDto> findByPathWithIndex(List<FSNodeDto> list, String[] pathArr) {
         if (list == null || list.isEmpty()) {
             return null;
         }
@@ -562,14 +590,14 @@ public class FileSystemService {
             if (tmp == null || tmp.size() == 0) {
                 return null;
             }
-            FSNodeDto find = findByInfoId(tmp, pathNode);
+            Tuple<Integer, FSNodeDto> find = findByInfoIdWithIndex(tmp, pathNode);
             if (find == null) {
                 return null;
             }
-            tmp = find.getChildren();
+            tmp = find.y.getChildren();
         }
         String last = pathArr[pathArr.length - 1];
-        return findByInfoId(tmp, last);
+        return findByInfoIdWithIndex(tmp, last);
     }
 
     private void removeItems(FSNodeDto fsNodeDto) {
@@ -590,14 +618,24 @@ public class FileSystemService {
     }
 
     private FSNodeDto findByInfoId(List<FSNodeDto> list, String infoId) {
+        Tuple<Integer, FSNodeDto> result = findByInfoIdWithIndex(list, infoId);
+        if (result == null) {
+            return null;
+        }
+        return result.y;
+    }
+
+    private Tuple<Integer, FSNodeDto> findByInfoIdWithIndex(List<FSNodeDto> list, String infoId) {
         if (list == null || list.size() == 0) {
             return null;
         }
-        List<FSNodeDto> filter = list.stream().filter(f -> f.getInfoId().equals(infoId)).collect(Collectors.toList());
-        if (filter == null || filter.size() == 0) {
-            return null;
+        for (int i = 0; i < list.size(); i++) {
+            FSNodeDto dto = list.get(i);
+            if (Objects.equals(dto.getInfoId(), infoId)) {
+                return new Tuple<>(i, dto);
+            }
         }
-        return filter.get(0);
+        return null;
     }
 
     private FSNodeDto duplicateInfo(String parentId, String nodeName, FSNodeDto old) {

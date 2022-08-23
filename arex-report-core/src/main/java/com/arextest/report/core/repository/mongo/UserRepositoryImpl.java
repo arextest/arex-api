@@ -27,11 +27,10 @@ public class UserRepositoryImpl implements UserRepository {
     private MongoTemplate mongoTemplate;
 
     @Override
-    public Boolean saveVerificationCode(UserDto user) {
+    public Boolean saveUser(UserDto user) {
         Query query = Query.query(Criteria.where(USER_NAME).is(user.getUserName()));
         Update update = MongoHelper.getUpdate();
-        update.set(VERIFICATION_CODE, user.getVerificationCode());
-        update.set(VERIFICATION_TIME, user.getVerificationTime());
+        MongoHelper.appendFullProperties(update, user);
         mongoTemplate.findAndModify(query,
                 update,
                 FindAndModifyOptions.options().returnNew(true).upsert(true),
@@ -67,5 +66,10 @@ public class UserRepositoryImpl implements UserRepository {
             LOGGER.error("failed to update user profile.", e);
             return false;
         }
+    }
+    @Override
+    public Boolean existUserName(String userName) {
+        Query query = Query.query(Criteria.where(USER_NAME).is(userName));
+        return mongoTemplate.exists(query, UserCollection.class);
     }
 }
