@@ -1,52 +1,14 @@
 package com.arextest.report.core.business.filesystem;
 
-<<<<<<< .mine
-import cn.hutool.jwt.JWTUtil;
-import com.arextest.report.common.JwtUtil;
-
-=======
 import com.arextest.report.common.JwtUtil;
 import com.arextest.report.common.LoadResource;
 import com.arextest.report.common.Tuple;
->>>>>>> .theirs
 import com.arextest.report.core.business.util.MailUtils;
 import com.arextest.report.core.repository.FSCaseRepository;
 import com.arextest.report.core.repository.FSInterfaceRepository;
 import com.arextest.report.core.repository.FSTreeRepository;
 import com.arextest.report.core.repository.UserRepository;
 import com.arextest.report.core.repository.UserWorkspaceRepository;
-<<<<<<< .mine
-import com.arextest.report.model.api.contracts.filesystem.*;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-=======
 import com.arextest.report.model.api.contracts.filesystem.FSAddItemFromRecordRequestType;
 import com.arextest.report.model.api.contracts.filesystem.FSAddItemRequestType;
 import com.arextest.report.model.api.contracts.filesystem.FSAddItemResponseType;
@@ -77,7 +39,6 @@ import com.arextest.report.model.api.contracts.filesystem.InviteToWorkspaceRespo
 import com.arextest.report.model.api.contracts.filesystem.LeaveWorkspaceRequestType;
 import com.arextest.report.model.api.contracts.filesystem.UserType;
 import com.arextest.report.model.api.contracts.filesystem.ValidInvitationRequestType;
->>>>>>> .theirs
 import com.arextest.report.model.api.contracts.filesystem.ValidInvitationResponseType;
 import com.arextest.report.model.dto.UserDto;
 import com.arextest.report.model.dto.WorkspaceDto;
@@ -533,19 +494,11 @@ public class FileSystemService {
         ValidInvitationResponseType response = new ValidInvitationResponseType();
         UserWorkspaceDto userWorkspaceDto = UserWorkspaceMapper.INSTANCE.dtoFromContract(request);
         Boolean result = userWorkspaceRepository.verify(userWorkspaceDto);
-<<<<<<< .mine
-        if (Boolean.TRUE.equals(result)){
-            response.setAccessToken(JwtUtil.makeAccessToken(request.getUserName()));
-            response.setRefreshToken(JwtUtil.makeRefreshToken(request.getUserName()));
-        }
-        response.setSuccess(result);
-=======
         if (Boolean.TRUE.equals(result)) {
             response.setAccessToken(JwtUtil.makeAccessToken(request.getUserName()));
             response.setRefreshToken(JwtUtil.makeRefreshToken(request.getUserName()));
         }
         response.setSuccess(result);
->>>>>>> .theirs
         userWorkspaceDto.setStatus(InvitationType.INVITED);
         userWorkspaceRepository.update(userWorkspaceDto);
         return response;
@@ -719,7 +672,6 @@ public class FileSystemService {
             this.token = token;
         }
     }
-
 
 
 }

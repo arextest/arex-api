@@ -329,21 +329,6 @@ public class FileSystemController {
             return ResponseUtils.errorResponse("Token cannot be empty", ResponseCode.REQUESTED_PARAMETER_INVALID);
         }
         try {
-<<<<<<< .mine
-            ValidInvitationResponseType responseType = fileSystemService.validInvitation(request);
-            return ResponseUtils.successResponse(responseType);
-
-
-
-
-
-
-
-
-
-
-
-=======
             ValidInvitationResponseType responseType = fileSystemService.validInvitation(request);
             return ResponseUtils.successResponse(responseType);
         } catch (Exception e) {
@@ -357,23 +342,7 @@ public class FileSystemController {
         if (StringUtils.isEmpty(request.getRecordId())) {
             return ResponseUtils.errorResponse("RecordId cannot be empty", ResponseCode.REQUESTED_PARAMETER_INVALID);
         }
->>>>>>> .theirs
         if (StringUtils.isEmpty(request.getWorkspaceId())) {
-<<<<<<< .mine
-
-
-
-
-
-
-
-
-
-
-
-
-
-=======
             return ResponseUtils.errorResponse("WorkspaceId cannot be empty", ResponseCode.REQUESTED_PARAMETER_INVALID);
         }
         try {
@@ -387,7 +356,6 @@ public class FileSystemController {
             response.setWorkspaceId(result.x);
             response.setInfoId(result.y);
             return ResponseUtils.successResponse(response);
->>>>>>> .theirs
         } catch (Exception e) {
             return ResponseUtils.errorResponse(e.getMessage(), ResponseCode.REQUESTED_HANDLE_EXCEPTION);
         }
