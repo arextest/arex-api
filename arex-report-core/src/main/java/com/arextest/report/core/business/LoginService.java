@@ -47,8 +47,7 @@ public class LoginService {
             template = template.replace(VERIFICATION_CODE_PLACEHOLDER, user.getVerificationCode());
             success = success & mailUtils.sendEmail(user.getUserName(),
                     SEND_VERIFICATION_CODE_SUBJECT,
-                    template,
-                    true);
+                    template);
         }
         return success;
     }
