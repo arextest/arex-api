@@ -10,7 +10,7 @@ import java.util.List;
 @Getter
 @Setter
 public class ComparisonDetailsConfiguration  {
-    private long id;
+    private String id;
     private String pathName;
     private List<String> pathValue;
 }

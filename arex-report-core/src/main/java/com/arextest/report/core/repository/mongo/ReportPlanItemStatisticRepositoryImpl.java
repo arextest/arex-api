@@ -115,7 +115,7 @@ public class ReportPlanItemStatisticRepositoryImpl implements ReportPlanItemStat
     }
 
     @Override
-    public List<PlanItemDto> findByPlanIdAndPlanItemId(Long planId, Long planItemId) {
+    public List<PlanItemDto> findByPlanIdAndPlanItemId(String planId, String planItemId) {
         if (planId == null && planItemId == null) {
             return new ArrayList<>();
         }
@@ -132,7 +132,7 @@ public class ReportPlanItemStatisticRepositoryImpl implements ReportPlanItemStat
     }
 
     @Override
-    public List<PlanItemDto> findByPlanIds(List<Long> planIds) {
+    public List<PlanItemDto> findByPlanIds(List<String> planIds) {
         if (CollectionUtils.isEmpty(planIds)) {
             return new ArrayList<>();
         }
@@ -144,7 +144,7 @@ public class ReportPlanItemStatisticRepositoryImpl implements ReportPlanItemStat
     }
 
     @Override
-    public List<Integer> findStatusesByPlanId(Long planId) {
+    public List<Integer> findStatusesByPlanId(String planId) {
         if (planId == null) {
             return new ArrayList<>();
         }
@@ -155,8 +155,8 @@ public class ReportPlanItemStatisticRepositoryImpl implements ReportPlanItemStat
     }
 
     @Override
-    public PlanItemDto changePlanItemStatus(Long planItemId, Integer status, Integer totalCaseCount) {
-        if (planItemId == null || planItemId == 0) {
+    public PlanItemDto changePlanItemStatus(String planItemId, Integer status, Integer totalCaseCount) {
+        if (planItemId == null || planItemId == "") {
             return null;
         }
         Update update = MongoHelper.getUpdate();

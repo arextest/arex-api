@@ -9,7 +9,7 @@ import java.util.Date;
 public class ReportPlanStatisticDto {
     
     
-    private Long planId;
+    private String planId;
     
     private Integer status;
     private String appId;

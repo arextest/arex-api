@@ -9,7 +9,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class ReportPlanStatisticCollection extends ModelBase{
     
     
-    private Long planId;
+    private String planId;
     
     private Integer status;
     private String appId;

@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 public class QueryDifferencesRequestType {
-    private Long planItemId;
+    private String planItemId;
     private String categoryName;
     private String operationName;
 }

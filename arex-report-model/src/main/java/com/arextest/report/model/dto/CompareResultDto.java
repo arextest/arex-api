@@ -10,9 +10,9 @@ import java.util.List;
 @Data
 public class CompareResultDto extends BaseDto {
     
-    private Long planId;
+    private String planId;
     
-    private Long operationId;
+    private String operationId;
     
     private String serviceName;
     
@@ -30,7 +30,7 @@ public class CompareResultDto extends BaseDto {
     
     private List<LogEntity> logs;
     // planItemId
-    private Long planItemId;
+    private String planItemId;
     
     private Integer diffResultCode;
     

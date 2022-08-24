@@ -19,8 +19,8 @@ public class CaseCountService {
     @Resource
     private ReportPlanItemStatisticRepository planItemStatisticRepository;
 
-    public Map<Long, CaseCount> calculateCaseCountsByPlanIds(List<Long> planIds) {
-        Map<Long, CaseCount> caseCountMap = new HashMap<>();
+    public Map<String, CaseCount> calculateCaseCountsByPlanIds(List<String> planIds) {
+        Map<String, CaseCount> caseCountMap = new HashMap<>();
         List<PlanItemDto> planItems = planItemStatisticRepository.findByPlanIds(planIds);
         for (PlanItemDto planItem : planItems) {
             if (!caseCountMap.containsKey(planItem.getPlanId())) {

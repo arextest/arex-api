@@ -9,11 +9,11 @@ import java.util.Map;
 @Data
 public class PlanItemDto {
     
-    private Long planItemId;
+    private String planItemId;
     
-    private Long planId;
+    private String planId;
     
-    private Long operationId;
+    private String operationId;
     
     private String operationName;
     

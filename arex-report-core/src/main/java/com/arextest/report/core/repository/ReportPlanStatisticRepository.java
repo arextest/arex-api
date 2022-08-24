@@ -13,7 +13,7 @@ import java.util.List;
 public interface ReportPlanStatisticRepository extends RepositoryProvider {
     List<ReportPlanStatisticDto> findByDataCreateTimeBetween(Date startTime, Date endTime);
 
-    ReportPlanStatisticDto findByPlanId(Long planId);
+    ReportPlanStatisticDto findByPlanId(String planId);
 
     Pair<List<ReportPlanStatisticDto>, Long> pageQueryPlanStatistic(QueryPlanStatisticsRequestType request);
 
@@ -31,5 +31,5 @@ public interface ReportPlanStatisticRepository extends RepositoryProvider {
             List<MutablePair<Object, Object>> matches, String groupField,
             String timeDate, String orderField, boolean desc);
 
-    ReportPlanStatisticDto changePlanStatus(Long planId, Integer status, Integer totalCaseCount);
+    ReportPlanStatisticDto changePlanStatus(String planId, Integer status, Integer totalCaseCount);
 }

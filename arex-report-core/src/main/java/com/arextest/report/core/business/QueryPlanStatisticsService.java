@@ -29,10 +29,10 @@ public class QueryPlanStatisticsService {
         QueryPlanStatisticsResponseType response = new QueryPlanStatisticsResponseType();
         Pair<List<ReportPlanStatisticDto>, Long> result = planStatisticRepository.pageQueryPlanStatistic(request);
 
-        List<Long> planIds = result.getLeft().stream().map(ReportPlanStatisticDto::getPlanId)
+        List<String> planIds = result.getLeft().stream().map(ReportPlanStatisticDto::getPlanId)
                 .collect(Collectors.toList());
 
-        Map<Long, CaseCount> caseCountMap = caseCountService.calculateCaseCountsByPlanIds(planIds);
+        Map<String, CaseCount> caseCountMap = caseCountService.calculateCaseCountsByPlanIds(planIds);
         for (ReportPlanStatisticDto plan : result.getLeft()) {
             CaseCount caseCount = caseCountMap.get(plan.getPlanId());
             if (caseCount == null) {

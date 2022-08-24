@@ -50,8 +50,8 @@ public class DemoController {
         List<CompareResult> results = new ArrayList<>();
         for (int i = 0; i < 100; i++) {
             CompareResult cr = new CompareResult();
-            cr.setPlanId(Long.valueOf(i % 2));
-            cr.setPlanItemId(Long.valueOf(i % 5));
+            cr.setPlanId(String.valueOf(i % 2));
+            cr.setPlanItemId(String.valueOf(i % 5));
             cr.setReplayId("replayid" + i);
             cr.setDiffResultCode(DiffResultCode.COMPARED_INTERNAL_EXCEPTION);
             results.add(cr);
@@ -80,8 +80,8 @@ public class DemoController {
         } catch (Exception e) {
             return ResponseUtils.errorResponse(e.getMessage(), ResponseCode.REQUESTED_HANDLE_EXCEPTION);
         }
-        dto.setPlanItemId(332L);
-        dto.setPlanId(15L);
+        dto.setPlanItemId("332");
+        dto.setPlanId("15");
         dto.setLogs(logs);
         dto.setReplayId("replayid");
         dto.setCategoryName("SOA");
@@ -90,7 +90,7 @@ public class DemoController {
         dto.setTestMsg("testMsg");
         dto.setServiceName("serviceName");
         dto.setOperationName("operationName");
-        dto.setOperationId(333L);
+        dto.setOperationId("333");
         dto.setId("61d7f021ab26e550cfde8223");
 
         sceneService.statisticScenes(dto);
@@ -98,7 +98,7 @@ public class DemoController {
         return ResponseUtils.successResponse(true);
     }
 
-    
+
     @PostMapping("/pagingDemo")
     @ResponseBody
     public Response queryCompareResultsByPage(@RequestBody QueryCompareResultsByPageRequestType request) {

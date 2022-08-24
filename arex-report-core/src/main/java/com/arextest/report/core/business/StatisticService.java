@@ -26,10 +26,10 @@ public class StatisticService {
     private ReportPlanStatisticRepository planStatisticRepository;
 
     
-    private static Map<Long, PlanItemDto> planItemMap = new HashMap<>();
+    private static Map<String, PlanItemDto> planItemMap = new HashMap<>();
 
     
-    private static Map<Long, ReportPlanStatisticDto> planMap = new HashMap<>();
+    private static Map<String, ReportPlanStatisticDto> planMap = new HashMap<>();
 
     
     public void statisticPlanItems(List<CompareResultDto> results) {
@@ -50,11 +50,11 @@ public class StatisticService {
         }
     }
 
-    protected Map<Long, PlanItemDto> getPlanItemMap() {
+    protected Map<String, PlanItemDto> getPlanItemMap() {
         return planItemMap;
     }
 
-    private void updatePlan(Map<Long, ReportPlanStatisticDto> planMap, CompareResultDto result) {
+    private void updatePlan(Map<String, ReportPlanStatisticDto> planMap, CompareResultDto result) {
         if (!planMap.containsKey(result.getPlanId())) {
             ReportPlanStatisticDto planDto = new ReportPlanStatisticDto();
             planDto.setPlanId(result.getPlanId());
@@ -63,7 +63,7 @@ public class StatisticService {
         }
     }
 
-    private void statisticCase(Map<Long, PlanItemDto> planItemMap, CompareResultDto result, StatisticType type) {
+    private void statisticCase(Map<String, PlanItemDto> planItemMap, CompareResultDto result, StatisticType type) {
         PlanItemDto item = null;
         if (!planItemMap.containsKey(result.getPlanItemId())) {
             item = new PlanItemDto();
@@ -124,7 +124,7 @@ public class StatisticService {
             StopWatch sw = new StopWatch();
             sw.start("report plan items");
 
-            for (Map.Entry<Long, PlanItemDto> pi : planItemMap.entrySet()) {
+            for (Map.Entry<String, PlanItemDto> pi : planItemMap.entrySet()) {
                 planItemStatisticRepository.updatePlanItems(pi.getValue());
             }
             planItemMap.clear();

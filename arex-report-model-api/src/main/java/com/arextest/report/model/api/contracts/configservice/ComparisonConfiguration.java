@@ -13,7 +13,7 @@ public class ComparisonConfiguration {
     private String appId;
 
     
-    private Long operationId;
+    private String operationId;
 
     private int categoryType;
     private List<ComparisonDetailsConfiguration> detailsList;

@@ -10,5 +10,5 @@ public class QueryCompareResultsByPageRequestType implements PagingRequest {
     private Integer pageSize;
     private Boolean needTotal;
 
-    private Long planId;
+    private String planId;
 }

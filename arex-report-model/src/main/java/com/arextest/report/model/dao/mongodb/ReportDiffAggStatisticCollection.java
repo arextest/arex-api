@@ -11,11 +11,11 @@ import java.util.Map;
 @Document(collection = "ReportDiffAggStatistic")
 public class ReportDiffAggStatisticCollection {
     
-    private Long planItemId;
+    private String planItemId;
     
-    private Long planId;
+    private String planId;
     
-    private Long operationId;
+    private String operationId;
     
     private String categoryName;
     
