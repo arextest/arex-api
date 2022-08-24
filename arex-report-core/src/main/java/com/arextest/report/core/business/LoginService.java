@@ -4,6 +4,7 @@ import com.arextest.report.common.JwtUtil;
 import com.arextest.report.common.LoadResource;
 import com.arextest.report.core.business.util.MailUtils;
 import com.arextest.report.core.repository.UserRepository;
+import com.arextest.report.model.api.contracts.login.LoginAsGuestResponseType;
 import com.arextest.report.model.api.contracts.login.UpdateUserProfileRequestType;
 import com.arextest.report.model.api.contracts.login.UserProfileResponseType;
 import com.arextest.report.model.api.contracts.login.VerifyRequestType;
@@ -90,8 +91,8 @@ public class LoginService {
         return responseType;
     }
 
-    public VerifyResponseType loginAsGuest(String userName) {
-        VerifyResponseType response = new VerifyResponseType();
+    public LoginAsGuestResponseType loginAsGuest(String userName) {
+        LoginAsGuestResponseType response = new LoginAsGuestResponseType();
         if (StringUtils.isEmpty(userName)) {
             // retry 3 times
             for (int i = 0; i < 3; i++) {
@@ -112,6 +113,7 @@ public class LoginService {
         user.setStatus(UserStatusType.GUEST);
         Boolean result = userRepository.saveUser(user);
         if (result) {
+            response.setUserName(userName);
             response.setSuccess(true);
             response.setAccessToken(JwtUtil.makeAccessToken(userName));
             response.setRefreshToken(JwtUtil.makeRefreshToken(userName));
