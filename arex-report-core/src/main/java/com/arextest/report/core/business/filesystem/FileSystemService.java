@@ -62,6 +62,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.internal.Base64;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -89,6 +90,8 @@ public class FileSystemService {
     private static final String WORKSPACE_NAME_PLACEHOLDER = "{{workspaceName}}";
     private static final String LINK_PLACEHOLDER = "{{link}}";
 
+    @Value("${arex.ui.url}")
+    private String arexUiUrl;
 
     @Resource
     private FSTreeRepository fsTreeRepository;
@@ -665,7 +668,7 @@ public class FileSystemService {
         InviteObject inviteObject = new InviteObject(invitee, workspaceId, token);
         JSONObject obj = new JSONObject(inviteObject);
 
-        String address = "http://10.5.153.1:8088/click/?upn=" + Base64.encode(obj.toString().getBytes());
+        String address = arexUiUrl + "/click/?upn=" + Base64.encode(obj.toString().getBytes());
 
         String context = loadResource.getResource(INVITATION_EMAIL_TEMPLATE);
         context = context.replace(SOMEBODY_PLACEHOLDER, invitor)
@@ -674,8 +677,7 @@ public class FileSystemService {
 
         return mailUtils.sendEmail(invitee,
                 String.format(INVITATION_MAIL_SUBJECT, workspace.getWorkspaceName()),
-                context,
-                true);
+                context);
     }
 
     private FSTreeDto addWorkspace(String workspaceName, String userName) {
