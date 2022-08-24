@@ -307,20 +307,20 @@ public class FileSystemService {
                 if (request.getToIndex() < current.x) {
                     treeDto.getRoots().remove(current.x + 1);
                 } else {
-                    treeDto.getRoots().remove(current.x);
+                    treeDto.getRoots().remove(current.x.intValue());
                 }
             } else if (fromParent != null && toParent != null
                     && Objects.equals(fromParent.getInfoId(), toParent.getInfoId())) {
                 if (request.getToIndex() < current.x) {
                     fromParent.getChildren().remove(current.x + 1);
                 } else {
-                    fromParent.getChildren().remove(current.x);
+                    fromParent.getChildren().remove(current.x.intValue());
                 }
             } else {
                 if (fromParent == null) {
-                    treeDto.getRoots().remove(current.x);
+                    treeDto.getRoots().remove(current.x.intValue());
                 } else {
-                    fromParent.getChildren().remove(current.x);
+                    fromParent.getChildren().remove(current.x.intValue());
                 }
             }
             fsTreeRepository.updateFSTree(treeDto);
