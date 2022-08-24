@@ -1,10 +1,13 @@
 package com.arextest.report.core.business.util;
 
 
+import com.arextest.report.common.HttpUtils;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.mail.HtmlEmail;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -14,42 +17,41 @@ import java.util.List;
 @Component
 public class MailUtils {
 
-    private static final String EMAIL_NAME = "ArexTest";
 
-    @Value("${arex.report.email.host}")
-    private String emailHost;
-    @Value("${arex.report.email.from}")
-    private String emailFrom;
-    @Value("${arex.report.email.pwd}")
-    private String emailPassword;
+    private static final String EMAIL_URL = "http://arextest.com:8081/email/sendEmail";
 
-    public boolean sendEmail(String mailBox, String subject, String htmlMsg, boolean isSSL) {
-        if (StringUtils.isEmpty(mailBox)) {
-            LOGGER.error("email address is empty");
+    private static final String CONTENT_TYPE = "text/html; charset=UTF-8";
+
+    public boolean sendEmail(String mailBox, String subject, String htmlMsg) {
+        SendMailRequest request = new SendMailRequest(mailBox, subject, htmlMsg, CONTENT_TYPE);
+        ResponseEntity<SendMailResponse> response = HttpUtils.post(EMAIL_URL, request, SendMailResponse.class);
+        return response.getBody().getData().getSuccess();
+    }
+
+    @Data
+    public static class SendMailRequest {
+        private String to;
+        private String subject;
+        private String body;
+        private String contentType;
+
+        public SendMailRequest(String to, String subject, String body, String contentType) {
+            this.to = to;
+            this.subject = subject;
+            this.body = body;
+            this.contentType = contentType;
         }
-        try {
-            HtmlEmail email = new HtmlEmail();
-            List<String> list = new ArrayList<>();
-            list.add(mailBox);
-            String[] tos = list.toArray(new String[list.size()]);
+    }
 
-            email.setHostName(emailHost);
-            if (isSSL) {
-                email.setSSLOnConnect(true);
-                email.setSmtpPort(465);
-            }
-            // email.setCharset("UTF-8");
-            email.addTo(tos);
-            email.setFrom(emailFrom, EMAIL_NAME);
-            email.setAuthentication(emailFrom, emailPassword);
-            email.setSubject(subject);
-            email.setHtmlMsg(htmlMsg);
 
-            email.send();
-            return true;
-        } catch (Exception e) {
-            LOGGER.error("Failed to send email", e);
-        }
-        return false;
+    @Data
+    public static class SendMailResponse {
+        private Body data;
+    }
+
+
+    @Data
+    public static class Body {
+        private Boolean success;
     }
 }

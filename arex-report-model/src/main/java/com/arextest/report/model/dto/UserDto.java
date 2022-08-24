@@ -9,4 +9,5 @@ public class UserDto {
     private String verificationCode;
     private Long verificationTime;
     private String profile;
+    private Integer status;
 }
