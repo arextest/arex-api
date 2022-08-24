@@ -6,6 +6,7 @@ import com.arextest.common.utils.ResponseUtils;
 import com.arextest.report.core.business.LoginService;
 import com.arextest.report.model.api.contracts.SuccessResponseType;
 import com.arextest.report.model.api.contracts.login.LoginAsGuestRequestType;
+import com.arextest.report.model.api.contracts.login.LoginAsGuestResponseType;
 import com.arextest.report.model.api.contracts.login.UpdateUserProfileRequestType;
 import com.arextest.report.model.api.contracts.login.UserProfileResponseType;
 import com.arextest.report.model.api.contracts.login.VerifyRequestType;
@@ -106,7 +107,7 @@ public class LoginController {
     @ResponseBody
     public Response loginAsGuest(LoginAsGuestRequestType request) {
         try {
-            VerifyResponseType response = loginService.loginAsGuest(request.getUserName());
+            LoginAsGuestResponseType response = loginService.loginAsGuest(request.getUserName());
             return ResponseUtils.successResponse(response);
         } catch (Exception e) {
             return ResponseUtils.errorResponse(e.getMessage(), ResponseCode.REQUESTED_HANDLE_EXCEPTION);
