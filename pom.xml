@@ -34,7 +34,7 @@
         <guava.version>31.1-jre</guava.version>
         <shema.inferer.version>0.1.4</shema.inferer.version>
         <snakeyaml.version>1.29</snakeyaml.version>
-        <arex-report-model-api.version>0.1.1-SNAPSHOT</arex-report-model-api.version>
+        <arex-report-model-api.version>0.1.1</arex-report-model-api.version>
         <arex-common.version>0.1.1</arex-common.version>
         <compare-sdk.version>0.1.0</compare-sdk.version>
         <caffeine.version>2.8.0</caffeine.version>
