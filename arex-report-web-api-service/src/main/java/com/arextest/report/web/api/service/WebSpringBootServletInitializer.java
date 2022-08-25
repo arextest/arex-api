@@ -1,7 +1,6 @@
 package com.arextest.report.web.api.service;
 
 import lombok.extern.slf4j.Slf4j;
-import net.javacrumbs.shedlock.spring.annotation.EnableSchedulerLock;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
@@ -10,7 +9,7 @@ import springfox.documentation.oas.annotations.EnableOpenApi;
 
 @Slf4j
 @EnableOpenApi
-@EnableSchedulerLock(defaultLockAtMostFor = "PT30S")
+// @EnableSchedulerLock(defaultLockAtMostFor = "PT30S")
 @SpringBootApplication(scanBasePackages = "com.arextest.report")
 public class WebSpringBootServletInitializer extends SpringBootServletInitializer {
 
