@@ -8,9 +8,9 @@ import java.util.List;
 @Data
 public class CompareResult {
     
-    private Long planId;
+    private String planId;
     
-    private Long operationId;
+    private String operationId;
     
     private String serviceName;
     
@@ -28,7 +28,7 @@ public class CompareResult {
     
     private String testMsg;
     
-    private Long planItemId;
+    private String planItemId;
     
     private List<LogEntity> logs;
 }

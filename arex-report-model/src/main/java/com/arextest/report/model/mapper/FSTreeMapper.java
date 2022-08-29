@@ -3,6 +3,8 @@ package com.arextest.report.model.mapper;
 import com.arextest.report.model.api.contracts.filesystem.FSAddWorkspaceRequestType;
 import com.arextest.report.model.api.contracts.filesystem.FSTreeType;
 import com.arextest.report.model.dao.mongodb.FSTreeCollection;
+import com.arextest.report.model.dao.mongodb.entity.FSNode;
+import com.arextest.report.model.dto.filesystem.FSNodeDto;
 import com.arextest.report.model.dto.filesystem.FSTreeDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;

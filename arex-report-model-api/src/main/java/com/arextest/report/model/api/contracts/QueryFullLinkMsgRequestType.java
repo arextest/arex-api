@@ -6,5 +6,5 @@ import lombok.Data;
 @Data
 public class QueryFullLinkMsgRequestType {
     private String recordId;
-    private Long planItemId;
+    private String planItemId;
 }

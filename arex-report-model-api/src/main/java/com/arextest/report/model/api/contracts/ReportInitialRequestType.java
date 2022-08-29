@@ -8,7 +8,7 @@ import java.util.List;
 @Data
 public class ReportInitialRequestType {
     
-    private Long planId;
+    private String planId;
     
     private String planName;
     
@@ -61,8 +61,8 @@ public class ReportInitialRequestType {
     @Data
     public static class ReportItem {
         
-        private Long planItemId;
-        private Long operationId;
+        private String planItemId;
+        private String operationId;
         
         private String operationName;
         private String serviceName;

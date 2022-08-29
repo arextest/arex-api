@@ -5,6 +5,8 @@ import com.arextest.common.model.response.ResponseCode;
 import com.arextest.common.utils.ResponseUtils;
 import com.arextest.report.core.business.LoginService;
 import com.arextest.report.model.api.contracts.SuccessResponseType;
+import com.arextest.report.model.api.contracts.login.LoginAsGuestRequestType;
+import com.arextest.report.model.api.contracts.login.LoginAsGuestResponseType;
 import com.arextest.report.model.api.contracts.login.UpdateUserProfileRequestType;
 import com.arextest.report.model.api.contracts.login.UserProfileResponseType;
 import com.arextest.report.model.api.contracts.login.VerifyRequestType;
@@ -45,10 +47,10 @@ public class LoginController {
         if (StringUtils.isEmpty(request.getUserName())) {
             return ResponseUtils.errorResponse("userName cannot be empty", ResponseCode.REQUESTED_PARAMETER_INVALID);
         }
-        // if (StringUtils.isEmpty(request.getVerificationCode())) {
-        //     return ResponseUtils.errorResponse("verification code cannot be empty",
-        //             ResponseCode.REQUESTED_PARAMETER_INVALID);
-        // }
+        if (StringUtils.isEmpty(request.getVerificationCode())) {
+            return ResponseUtils.errorResponse("verification code cannot be empty",
+                    ResponseCode.REQUESTED_PARAMETER_INVALID);
+        }
         try {
             VerifyResponseType response = loginService.verify(request);
             return ResponseUtils.successResponse(response);
@@ -95,6 +97,17 @@ public class LoginController {
         }
         try {
             VerifyResponseType response = loginService.refresh(userName);
+            return ResponseUtils.successResponse(response);
+        } catch (Exception e) {
+            return ResponseUtils.errorResponse(e.getMessage(), ResponseCode.REQUESTED_HANDLE_EXCEPTION);
+        }
+    }
+
+    @PostMapping("/loginAsGuest")
+    @ResponseBody
+    public Response loginAsGuest(LoginAsGuestRequestType request) {
+        try {
+            LoginAsGuestResponseType response = loginService.loginAsGuest(request.getUserName());
             return ResponseUtils.successResponse(response);
         } catch (Exception e) {
             return ResponseUtils.errorResponse(e.getMessage(), ResponseCode.REQUESTED_HANDLE_EXCEPTION);

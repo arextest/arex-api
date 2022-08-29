@@ -11,7 +11,7 @@ public class QueryReplayCaseRequestType implements PagingRequest {
     private Boolean needTotal;
 
     
-    private Long planItemId;
+    private String planItemId;
 
     
     private Integer diffResultCode;

@@ -38,12 +38,12 @@ public class SceneService {
      */
     @Data
     private class DiffAggKey {
-        public DiffAggKey(Long planItemId, String categoryName, String operationName) {
+        public DiffAggKey(String planItemId, String categoryName, String operationName) {
             this.planItemId = planItemId;
             this.categoryName = categoryName;
             this.operationName = operationName;
         }
-        private Long planItemId;
+        private String planItemId;
         private String categoryName;
         private String operationName;
         @Override

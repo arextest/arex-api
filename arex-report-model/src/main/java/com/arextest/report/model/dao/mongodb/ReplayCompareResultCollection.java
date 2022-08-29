@@ -10,9 +10,9 @@ import java.util.Date;
 @Document(collection = "ReplayCompareResult")
 public class ReplayCompareResultCollection extends ModelBase {
     
-    private Long planId;
+    private String planId;
     
-    private Long operationId;
+    private String operationId;
     
     private String serviceName;
     
@@ -30,7 +30,7 @@ public class ReplayCompareResultCollection extends ModelBase {
     
     private String logs;
     // planItemId
-    private Long planItemId;
+    private String planItemId;
     
     private int diffResultCode;
 

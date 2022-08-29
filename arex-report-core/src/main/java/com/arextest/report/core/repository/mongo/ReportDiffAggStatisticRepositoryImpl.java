@@ -98,7 +98,7 @@ public class ReportDiffAggStatisticRepositoryImpl implements ReportDiffAggStatis
 
     
     @Override
-    public List<DifferenceDto> queryDifferences(Long planItemId, String categoryName, String operationName) {
+    public List<DifferenceDto> queryDifferences(String planItemId, String categoryName, String operationName) {
         List<DifferenceDto> differenceDtos = new ArrayList<>();
 
         Query query = Query.query(Criteria.where(PLAN_ITEM_ID).is(planItemId)
@@ -135,7 +135,7 @@ public class ReportDiffAggStatisticRepositoryImpl implements ReportDiffAggStatis
 
     
     @Override
-    public List<SceneDto> queryScenesByDifference(Long planItemId,
+    public List<SceneDto> queryScenesByDifference(String planItemId,
             String categoryName,
             String operationName,
             String diffName) {

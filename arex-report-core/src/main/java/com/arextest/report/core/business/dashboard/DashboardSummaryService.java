@@ -151,7 +151,7 @@ public class DashboardSummaryService {
                         APP_ID,
                         DATA_CHANGE_CREATE_TIME,
                         Boolean.TRUE);
-        Map<Long, AppCaseResult> resultMap = new HashMap<>();
+        Map<String, AppCaseResult> resultMap = new HashMap<>();
         latestSuccessPlanIds.forEach(item -> {
             AppCaseResult appCaseResult = new AppCaseResult();
             appCaseResult.setAppId(item.getAppId());
@@ -162,12 +162,12 @@ public class DashboardSummaryService {
             appCaseResult.setErrorCaseCount(0);
             resultMap.put(item.getPlanId(), appCaseResult);
         });
-        List<Long> planIds = new ArrayList<>();
+        List<String> planIds = new ArrayList<>();
         latestSuccessPlanIds.forEach(item -> {
             planIds.add(item.getPlanId());
         });
 
-        Map<Long, CaseCount> caseCountMap = caseCountService.calculateCaseCountsByPlanIds(planIds);
+        Map<String, CaseCount> caseCountMap = caseCountService.calculateCaseCountsByPlanIds(planIds);
         resultMap.keySet().forEach(item -> {
             if (caseCountMap.containsKey(item)) {
                 CaseCount caseCount = caseCountMap.get(item);
@@ -198,7 +198,7 @@ public class DashboardSummaryService {
                         DATA_CHANGE_CREATE_TIME, request.getStartTime(), request.getEndTime(),
                         matchConditions, APP_ID, DATA_CHANGE_CREATE_TIME, DATA_CHANGE_CREATE_TIME, true);
 
-        Map<Long, AppCaseResult> resultMap = new HashMap<>();
+        Map<String, AppCaseResult> resultMap = new HashMap<>();
         latestDailySuccessPlanIdDtos.forEach(item -> {
             AppCaseResult appCaseResult = new AppCaseResult();
             appCaseResult.setAppId(item.getAppId());
@@ -210,11 +210,11 @@ public class DashboardSummaryService {
             resultMap.put(item.getPlanId(), appCaseResult);
         });
 
-        List<Long> planIds = new ArrayList<>();
+        List<String> planIds = new ArrayList<>();
         latestDailySuccessPlanIdDtos.forEach(item -> {
             planIds.add(item.getPlanId());
         });
-        Map<Long, CaseCount> caseCountMap = caseCountService.calculateCaseCountsByPlanIds(planIds);
+        Map<String, CaseCount> caseCountMap = caseCountService.calculateCaseCountsByPlanIds(planIds);
         resultMap.keySet().forEach(item -> {
             if (caseCountMap.containsKey(item)) {
                 CaseCount caseCount = caseCountMap.get(item);

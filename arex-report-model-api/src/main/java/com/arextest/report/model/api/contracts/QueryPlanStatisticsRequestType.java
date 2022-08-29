@@ -13,5 +13,5 @@ public class QueryPlanStatisticsRequestType implements PagingRequest {
     
     private String appId;
     
-    private Long planId;
+    private String planId;
 }
