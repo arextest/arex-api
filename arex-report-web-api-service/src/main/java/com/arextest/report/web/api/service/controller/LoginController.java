@@ -105,7 +105,7 @@ public class LoginController {
 
     @PostMapping("/loginAsGuest")
     @ResponseBody
-    public Response loginAsGuest(LoginAsGuestRequestType request) {
+    public Response loginAsGuest(@RequestBody LoginAsGuestRequestType request) {
         try {
             LoginAsGuestResponseType response = loginService.loginAsGuest(request.getUserName());
             return ResponseUtils.successResponse(response);
