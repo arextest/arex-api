@@ -518,15 +518,14 @@ public class FileSystemService {
         UserWorkspaceDto userWorkspaceDto = UserWorkspaceMapper.INSTANCE.dtoFromContract(request);
         Boolean result = userWorkspaceRepository.verify(userWorkspaceDto);
         if (Boolean.TRUE.equals(result)) {
+            userWorkspaceDto.setStatus(InvitationType.INVITED);
+            userWorkspaceRepository.update(userWorkspaceDto);
             response.setAccessToken(JwtUtil.makeAccessToken(request.getUserName()));
             response.setRefreshToken(JwtUtil.makeRefreshToken(request.getUserName()));
         }
         response.setSuccess(result);
-        userWorkspaceDto.setStatus(InvitationType.INVITED);
-        userWorkspaceRepository.update(userWorkspaceDto);
         return response;
     }
-
 
     /**
      * @return : Tuple<workspaceId,InfoId>
