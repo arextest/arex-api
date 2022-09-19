@@ -4,10 +4,13 @@ import com.arextest.common.model.response.Response;
 import com.arextest.common.model.response.ResponseCode;
 import com.arextest.common.utils.ResponseUtils;
 import com.arextest.report.core.business.EnvironmentService;
+import com.arextest.report.core.business.filesystem.RolePermission;
 import com.arextest.report.model.api.contracts.SuccessResponseType;
+import com.arextest.report.model.api.contracts.environment.DuplicateWorkspaceRequestType;
 import com.arextest.report.model.api.contracts.environment.EnvironmentType;
 import com.arextest.report.model.api.contracts.environment.QueryEnvsByWorkspaceRequestType;
 import com.arextest.report.model.api.contracts.environment.QueryEnvsByWorkspaceResponseType;
+import com.arextest.report.model.api.contracts.environment.RemoveEnvironmentRequestType;
 import com.arextest.report.model.api.contracts.environment.SaveEnvironmentRequestType;
 import com.arextest.report.model.api.contracts.environment.SaveEnvironmentResponseType;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +21,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -33,9 +37,13 @@ public class EnvironmentController {
     @Resource
     private EnvironmentService environmentService;
 
+    @Resource
+    private RolePermission rolePermission;
+
     @PostMapping("/saveEnvironment")
     @ResponseBody
-    public Response saveEnvironment(@RequestBody SaveEnvironmentRequestType request) {
+    public Response saveEnvironment(@RequestHeader(name = Constants.ACCESS_TOKEN) String token,
+            @RequestBody SaveEnvironmentRequestType request) {
         if (request.getEnv() == null) {
             return ResponseUtils.errorResponse("env cannot be empty",
                     ResponseCode.REQUESTED_PARAMETER_INVALID);
@@ -43,6 +51,11 @@ public class EnvironmentController {
         if (StringUtils.isEmpty(request.getEnv().getWorkspaceId())) {
             return ResponseUtils.errorResponse("Please provide a workspaceId",
                     ResponseCode.REQUESTED_PARAMETER_INVALID);
+        }
+        if (!rolePermission.checkPermissionByToken(RolePermission.EDIT_ENVIRONMENT,
+                token,
+                request.getEnv().getWorkspaceId())) {
+            return ResponseUtils.errorResponse(Constants.NO_PERMISSION, ResponseCode.REQUESTED_HANDLE_EXCEPTION);
         }
         if (StringUtils.isEmpty(request.getEnv().getEnvName())) {
             return ResponseUtils.errorResponse("Please provide a environment name",
@@ -57,16 +70,20 @@ public class EnvironmentController {
         }
     }
 
-    @DeleteMapping("/{id}")
+    @PostMapping("/removeEnvironment")
     @ResponseBody
-    public Response removeEnvironment(@PathVariable String id) {
-        if (StringUtils.isEmpty(id)) {
+    public Response removeEnvironment(@RequestHeader(name = Constants.ACCESS_TOKEN) String token, @RequestBody
+            RemoveEnvironmentRequestType request) {
+        if (!rolePermission.checkPermissionByToken(RolePermission.EDIT_ENVIRONMENT, token, request.getWorkspaceId())) {
+            return ResponseUtils.errorResponse(Constants.NO_PERMISSION, ResponseCode.REQUESTED_HANDLE_EXCEPTION);
+        }
+        if (StringUtils.isEmpty(request.getId())) {
             return ResponseUtils.errorResponse("environment id cannot be empty",
                     ResponseCode.REQUESTED_PARAMETER_INVALID);
         }
         try {
             SuccessResponseType response = new SuccessResponseType();
-            response.setSuccess(environmentService.removeEnvironment(id));
+            response.setSuccess(environmentService.removeEnvironment(request.getId()));
             return ResponseUtils.successResponse(response);
         } catch (Exception e) {
             return ResponseUtils.errorResponse(e.getMessage(), ResponseCode.REQUESTED_HANDLE_EXCEPTION);
@@ -84,6 +101,30 @@ public class EnvironmentController {
             QueryEnvsByWorkspaceResponseType response = new QueryEnvsByWorkspaceResponseType();
             List<EnvironmentType> envs = environmentService.queryEnvsByWorkspace(request);
             response.setEnvironments(envs);
+            return ResponseUtils.successResponse(response);
+        } catch (Exception e) {
+            return ResponseUtils.errorResponse(e.getMessage(), ResponseCode.REQUESTED_HANDLE_EXCEPTION);
+        }
+    }
+
+    @PostMapping("/duplicateWorkspace")
+    @ResponseBody
+    public Response duplicateWorkspace(@RequestHeader(name = Constants.ACCESS_TOKEN) String token,
+            @RequestBody DuplicateWorkspaceRequestType request) {
+        if (!rolePermission.checkPermissionByToken(RolePermission.EDIT_ENVIRONMENT, token, request.getWorkspaceId())) {
+            return ResponseUtils.errorResponse(Constants.NO_PERMISSION, ResponseCode.REQUESTED_HANDLE_EXCEPTION);
+        }
+        if (StringUtils.isEmpty(request.getId())) {
+            return ResponseUtils.errorResponse("Environment id cannot be empty",
+                    ResponseCode.REQUESTED_PARAMETER_INVALID);
+        }
+        if (StringUtils.isEmpty(request.getWorkspaceId())) {
+            return ResponseUtils.errorResponse("Workspace id cannot be empty",
+                    ResponseCode.REQUESTED_PARAMETER_INVALID);
+        }
+        try {
+            SuccessResponseType response = new SuccessResponseType();
+            response.setSuccess(environmentService.duplicateEnvironment(request));
             return ResponseUtils.successResponse(response);
         } catch (Exception e) {
             return ResponseUtils.errorResponse(e.getMessage(), ResponseCode.REQUESTED_HANDLE_EXCEPTION);

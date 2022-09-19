@@ -1,6 +1,7 @@
 package com.arextest.report.core.business;
 
 import com.arextest.report.core.repository.EnvironmentRepository;
+import com.arextest.report.model.api.contracts.environment.DuplicateWorkspaceRequestType;
 import com.arextest.report.model.api.contracts.environment.EnvironmentType;
 import com.arextest.report.model.api.contracts.environment.QueryEnvsByWorkspaceRequestType;
 import com.arextest.report.model.api.contracts.environment.SaveEnvironmentRequestType;
@@ -16,6 +17,8 @@ import java.util.List;
 @Slf4j
 @Component
 public class EnvironmentService {
+
+    private static final String DUPLICATE_SUFFIX = "_copy";
 
     @Resource
     private EnvironmentRepository environmentRepository;
@@ -42,5 +45,16 @@ public class EnvironmentService {
     public List<EnvironmentType> queryEnvsByWorkspace(QueryEnvsByWorkspaceRequestType request) {
         List<EnvironmentDto> envs = environmentRepository.queryEnvsByWorkspace(request.getWorkspaceId());
         return EnvironmentMapper.INSTANCE.contractFromDtoList(envs);
+    }
+
+    public Boolean duplicateEnvironment(DuplicateWorkspaceRequestType request) {
+        EnvironmentDto env = environmentRepository.queryById(request.getId());
+        if (env == null) {
+            return false;
+        }
+        env.setId(null);
+        env.setEnvName(env.getEnvName() + DUPLICATE_SUFFIX);
+        env = environmentRepository.initEnvironment(env);
+        return env.getId() != null;
     }
 }
