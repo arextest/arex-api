@@ -8,6 +8,7 @@ import java.util.List;
 @Data
 public class FSCaseDto {
     private String id;
+    private String workspaceId;
     private AddressDto address;
     private String preRequestScript;
     private String testScript;

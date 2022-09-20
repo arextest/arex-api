@@ -9,5 +9,6 @@ public class FSNode {
     private String nodeName;
     private Integer nodeType;
     private String infoId;
+    private String method;  // available for nodeType equal 1
     private List<FSNode> children;
 }

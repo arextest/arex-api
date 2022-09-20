@@ -16,8 +16,8 @@ public class FolderItemInfo implements ItemInfo {
     private FSFolderRepository fsFolderRepository;
 
     @Override
-    public String saveItem(String parentId, Integer parentNodeType) {
-        return fsFolderRepository.initFolder(parentId, parentNodeType);
+    public String saveItem(String parentId, Integer parentNodeType, String workspaceId) {
+        return fsFolderRepository.initFolder(parentId, parentNodeType, workspaceId);
     }
     @Override
     public Boolean removeItem(String infoId) {

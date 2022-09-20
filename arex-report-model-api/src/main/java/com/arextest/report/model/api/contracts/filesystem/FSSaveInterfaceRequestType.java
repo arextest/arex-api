@@ -8,6 +8,7 @@ import java.util.List;
 @Data
 public class FSSaveInterfaceRequestType {
     private String id;
+    private String workspaceId;
     private AddressType address;
     private String preRequestScript;
     private String testScript;

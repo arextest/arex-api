@@ -89,6 +89,7 @@ public class FileSystemService {
     private static final String SOMEBODY_PLACEHOLDER = "{{somebody}}";
     private static final String WORKSPACE_NAME_PLACEHOLDER = "{{workspaceName}}";
     private static final String LINK_PLACEHOLDER = "{{link}}";
+    private static final String GET_METHOD = "GET";
 
     @Value("${arex.ui.url}")
     private String arexUiUrl;
@@ -149,9 +150,12 @@ public class FileSystemService {
             if (request.getParentPath() == null || request.getParentPath().length == 0) {
                 FSNodeDto nodeDto = new FSNodeDto();
                 nodeDto.setNodeName(request.getNodeName());
-                infoId = itemInfo.saveItem(null, null);
+                infoId = itemInfo.saveItem(null, null, dto.getId());
                 nodeDto.setInfoId(infoId);
                 nodeDto.setNodeType(request.getNodeType());
+                if (request.getNodeType() == FSInfoItem.INTERFACE) {
+                    nodeDto.setMethod(GET_METHOD);
+                }
                 dto.getRoots().add(0, nodeDto);
             } else {
                 String[] nodes = request.getParentPath();
@@ -182,9 +186,12 @@ public class FileSystemService {
                     }
                     FSNodeDto newNodeDto = new FSNodeDto();
                     newNodeDto.setNodeName(request.getNodeName());
-                    infoId = itemInfo.saveItem(current.getInfoId(), current.getNodeType());
+                    infoId = itemInfo.saveItem(current.getInfoId(), current.getNodeType(), dto.getId());
                     newNodeDto.setInfoId(infoId);
                     newNodeDto.setNodeType(request.getNodeType());
+                    if (request.getNodeType() == FSInfoItem.INTERFACE) {
+                        newNodeDto.setMethod(GET_METHOD);
+                    }
                     current.getChildren().add(0, newNodeDto);
 
                 } else {
@@ -421,10 +428,17 @@ public class FileSystemService {
         FSInterfaceDto dto = FSInterfaceMapper.INSTANCE.dtoFromContract(request);
         try {
             fsInterfaceRepository.saveInterface(dto);
+            // update method in workspace tree
+            FSTreeDto workspace = fsTreeRepository.queryFSTreeById(request.getWorkspaceId());
+            FSNodeDto node = deepFindByInfoId(workspace.getRoots(), request.getId());
+            if (request.getAddress() != null && !Objects.equals(request.getAddress().getMethod(), node.getMethod())) {
+                node.setMethod(request.getAddress().getMethod());
+                fsTreeRepository.updateFSTree(workspace);
+            }
+            response.setSuccess(true);
         } catch (Exception e) {
             response.setSuccess(false);
         }
-        response.setSuccess(true);
         return response;
     }
 
@@ -635,6 +649,20 @@ public class FileSystemService {
             FSNodeDto dto = list.get(i);
             if (Objects.equals(dto.getInfoId(), infoId)) {
                 return new Tuple<>(i, dto);
+            }
+        }
+        return null;
+    }
+
+    private FSNodeDto deepFindByInfoId(List<FSNodeDto> list, String infoId) {
+        Queue<FSNodeDto> queue = new ArrayDeque<>(list);
+        while (!queue.isEmpty()) {
+            FSNodeDto node = queue.poll();
+            if (Objects.equals(node.getInfoId(), infoId)) {
+                return node;
+            }
+            if (node.getChildren() != null && node.getChildren().size() > 0) {
+                queue.addAll(node.getChildren());
             }
         }
         return null;
