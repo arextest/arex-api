@@ -12,6 +12,7 @@ import java.util.List;
 @Data
 @Document(collection = "FSCase")
 public class FSCaseCollection extends ModelBase {
+    private String workspaceId;
     private AddressDao address;
     private String preRequestScript;
     private String testScript;

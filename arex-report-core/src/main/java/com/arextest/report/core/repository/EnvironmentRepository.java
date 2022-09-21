@@ -15,4 +15,6 @@ public interface EnvironmentRepository extends RepositoryProvider {
     boolean removeEnvironment(String id);
 
     List<EnvironmentDto> queryEnvsByWorkspace(String workspaceId);
+
+    EnvironmentDto queryById(String id);
 }
