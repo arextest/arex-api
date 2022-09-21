@@ -5,13 +5,9 @@ import com.arextest.report.core.repository.UserWorkspaceRepository;
 import com.arextest.report.model.dto.filesystem.UserWorkspaceDto;
 import com.arextest.report.model.enums.RoleType;
 import org.apache.commons.lang3.StringUtils;
-import org.omg.CORBA.PRIVATE_MEMBER;
-import org.omg.CORBA.PUBLIC_MEMBER;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
-import java.util.HashMap;
-import java.util.Map;
 
 @Component
 public class RolePermission {
