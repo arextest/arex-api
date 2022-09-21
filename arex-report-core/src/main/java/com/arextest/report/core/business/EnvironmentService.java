@@ -1,7 +1,7 @@
 package com.arextest.report.core.business;
 
 import com.arextest.report.core.repository.EnvironmentRepository;
-import com.arextest.report.model.api.contracts.environment.DuplicateWorkspaceRequestType;
+import com.arextest.report.model.api.contracts.environment.DuplicateEnvironmentRequestType;
 import com.arextest.report.model.api.contracts.environment.EnvironmentType;
 import com.arextest.report.model.api.contracts.environment.QueryEnvsByWorkspaceRequestType;
 import com.arextest.report.model.api.contracts.environment.SaveEnvironmentRequestType;
@@ -47,7 +47,7 @@ public class EnvironmentService {
         return EnvironmentMapper.INSTANCE.contractFromDtoList(envs);
     }
 
-    public Boolean duplicateEnvironment(DuplicateWorkspaceRequestType request) {
+    public Boolean duplicateEnvironment(DuplicateEnvironmentRequestType request) {
         EnvironmentDto env = environmentRepository.queryById(request.getId());
         if (env == null) {
             return false;

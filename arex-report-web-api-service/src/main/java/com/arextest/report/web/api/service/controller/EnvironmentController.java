@@ -6,7 +6,7 @@ import com.arextest.common.utils.ResponseUtils;
 import com.arextest.report.core.business.EnvironmentService;
 import com.arextest.report.core.business.filesystem.RolePermission;
 import com.arextest.report.model.api.contracts.SuccessResponseType;
-import com.arextest.report.model.api.contracts.environment.DuplicateWorkspaceRequestType;
+import com.arextest.report.model.api.contracts.environment.DuplicateEnvironmentRequestType;
 import com.arextest.report.model.api.contracts.environment.EnvironmentType;
 import com.arextest.report.model.api.contracts.environment.QueryEnvsByWorkspaceRequestType;
 import com.arextest.report.model.api.contracts.environment.QueryEnvsByWorkspaceResponseType;
@@ -17,8 +17,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -90,27 +88,10 @@ public class EnvironmentController {
         }
     }
 
-    @PostMapping("/queryEnvsByWorkspace")
+    @PostMapping("/duplicateEnvironment")
     @ResponseBody
-    public Response queryEnvsByWorkspace(@RequestBody QueryEnvsByWorkspaceRequestType request) {
-        if (StringUtils.isEmpty(request.getWorkspaceId())) {
-            return ResponseUtils.errorResponse("workspace id cannot be empty",
-                    ResponseCode.REQUESTED_PARAMETER_INVALID);
-        }
-        try {
-            QueryEnvsByWorkspaceResponseType response = new QueryEnvsByWorkspaceResponseType();
-            List<EnvironmentType> envs = environmentService.queryEnvsByWorkspace(request);
-            response.setEnvironments(envs);
-            return ResponseUtils.successResponse(response);
-        } catch (Exception e) {
-            return ResponseUtils.errorResponse(e.getMessage(), ResponseCode.REQUESTED_HANDLE_EXCEPTION);
-        }
-    }
-
-    @PostMapping("/duplicateWorkspace")
-    @ResponseBody
-    public Response duplicateWorkspace(@RequestHeader(name = Constants.ACCESS_TOKEN) String token,
-            @RequestBody DuplicateWorkspaceRequestType request) {
+    public Response duplicateEnvironment(@RequestHeader(name = Constants.ACCESS_TOKEN) String token,
+            @RequestBody DuplicateEnvironmentRequestType request) {
         if (!rolePermission.checkPermissionByToken(RolePermission.EDIT_ENVIRONMENT, token, request.getWorkspaceId())) {
             return ResponseUtils.errorResponse(Constants.NO_PERMISSION, ResponseCode.REQUESTED_HANDLE_EXCEPTION);
         }
@@ -125,6 +106,23 @@ public class EnvironmentController {
         try {
             SuccessResponseType response = new SuccessResponseType();
             response.setSuccess(environmentService.duplicateEnvironment(request));
+            return ResponseUtils.successResponse(response);
+        } catch (Exception e) {
+            return ResponseUtils.errorResponse(e.getMessage(), ResponseCode.REQUESTED_HANDLE_EXCEPTION);
+        }
+    }
+
+    @PostMapping("/queryEnvsByWorkspace")
+    @ResponseBody
+    public Response queryEnvsByWorkspace(@RequestBody QueryEnvsByWorkspaceRequestType request) {
+        if (StringUtils.isEmpty(request.getWorkspaceId())) {
+            return ResponseUtils.errorResponse("workspace id cannot be empty",
+                    ResponseCode.REQUESTED_PARAMETER_INVALID);
+        }
+        try {
+            QueryEnvsByWorkspaceResponseType response = new QueryEnvsByWorkspaceResponseType();
+            List<EnvironmentType> envs = environmentService.queryEnvsByWorkspace(request);
+            response.setEnvironments(envs);
             return ResponseUtils.successResponse(response);
         } catch (Exception e) {
             return ResponseUtils.errorResponse(e.getMessage(), ResponseCode.REQUESTED_HANDLE_EXCEPTION);
