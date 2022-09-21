@@ -431,9 +431,12 @@ public class FileSystemService {
             // update method in workspace tree
             FSTreeDto workspace = fsTreeRepository.queryFSTreeById(request.getWorkspaceId());
             FSNodeDto node = deepFindByInfoId(workspace.getRoots(), request.getId());
-            if (request.getAddress() != null && !Objects.equals(request.getAddress().getMethod(), node.getMethod())) {
-                node.setMethod(request.getAddress().getMethod());
-                fsTreeRepository.updateFSTree(workspace);
+            if (node != null) {
+                if (request.getAddress() != null && !Objects.equals(request.getAddress().getMethod(),
+                        node.getMethod())) {
+                    node.setMethod(request.getAddress().getMethod());
+                    fsTreeRepository.updateFSTree(workspace);
+                }
             }
             response.setSuccess(true);
         } catch (Exception e) {
