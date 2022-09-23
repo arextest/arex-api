@@ -33,8 +33,8 @@ public class PlanStatistic {
     
     private Long replayStartTime;
     private Long replayEndTime;
-    private Long recordStartTime;
-    private Long recordEndTime;
+    private Long caseStartTime;
+    private Long caseEndTime;
     
     private Integer totalCaseCount;
     private Integer errorCaseCount;
