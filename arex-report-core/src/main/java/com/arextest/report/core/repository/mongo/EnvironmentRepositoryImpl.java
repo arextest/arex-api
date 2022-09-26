@@ -5,6 +5,7 @@ import com.arextest.report.core.repository.mongo.util.MongoHelper;
 import com.arextest.report.model.dao.mongodb.EnvironmentCollection;
 import com.arextest.report.model.dto.EnvironmentDto;
 import com.arextest.report.model.mapper.EnvironmentMapper;
+import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -55,5 +56,10 @@ public class EnvironmentRepositoryImpl implements EnvironmentRepository {
         Query query = Query.query(Criteria.where(WORKSPACE_ID).is(workspaceId));
         List<EnvironmentCollection> envs = mongoTemplate.find(query, EnvironmentCollection.class);
         return EnvironmentMapper.INSTANCE.dtoFromDaoList(envs);
+    }
+    @Override
+    public EnvironmentDto queryById(String id) {
+        EnvironmentCollection dao = mongoTemplate.findById(new ObjectId(id), EnvironmentCollection.class);
+        return EnvironmentMapper.INSTANCE.dtoFromDao(dao);
     }
 }

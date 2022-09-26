@@ -7,7 +7,7 @@ import java.util.Set;
 
 
 public interface FSCaseRepository extends RepositoryProvider {
-    String initCase(String parentId, Integer parentNodeType);
+    String initCase(String parentId, Integer parentNodeType, String workspaceId);
 
     Boolean removeCase(String id);
 

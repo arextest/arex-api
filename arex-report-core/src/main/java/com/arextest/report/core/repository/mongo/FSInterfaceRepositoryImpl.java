@@ -3,6 +3,8 @@ package com.arextest.report.core.repository.mongo;
 import com.arextest.report.core.repository.FSInterfaceRepository;
 import com.arextest.report.core.repository.mongo.util.MongoHelper;
 import com.arextest.report.model.dao.mongodb.FSInterfaceCollection;
+import com.arextest.report.model.dao.mongodb.entity.AddressDao;
+import com.arextest.report.model.dto.filesystem.AddressDto;
 import com.arextest.report.model.dto.filesystem.FSInterfaceDto;
 import com.arextest.report.model.mapper.FSInterfaceMapper;
 import com.mongodb.client.result.DeleteResult;
@@ -24,15 +26,21 @@ import java.util.stream.Collectors;
 @Component
 public class FSInterfaceRepositoryImpl implements FSInterfaceRepository {
 
+    private static final String GET_METHOD = "GET";
+
     @Resource
     private MongoTemplate mongoTemplate;
 
     @Override
-    public String initInterface(String parentId, Integer parentNodeType) {
+    public String initInterface(String parentId, Integer parentNodeType, String workspaceId) {
         FSInterfaceCollection dao = new FSInterfaceCollection();
         MongoHelper.initInsertObject(dao);
+        dao.setWorkspaceId(workspaceId);
         dao.setParentId(parentId);
         dao.setParentNodeType(parentNodeType);
+        AddressDao addressDao = new AddressDao();
+        addressDao.setMethod(GET_METHOD);
+        dao.setAddress(addressDao);
         dao = mongoTemplate.insert(dao);
         return dao.getId();
     }

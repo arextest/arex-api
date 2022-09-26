@@ -14,8 +14,8 @@ public class CaseItemInfo implements ItemInfo {
     private FSCaseRepository fsCaseRepository;
 
     @Override
-    public String saveItem(String parentId, Integer parentNodeType) {
-        return fsCaseRepository.initCase(parentId, parentNodeType);
+    public String saveItem(String parentId, Integer parentNodeType, String workspaceId) {
+        return fsCaseRepository.initCase(parentId, parentNodeType, workspaceId);
     }
     @Override
     public Boolean removeItem(String infoId) {

@@ -6,7 +6,7 @@ import com.arextest.report.model.dto.filesystem.FSFolderDto;
 import java.util.Set;
 
 public interface FSFolderRepository extends RepositoryProvider {
-    String initFolder(String parentId, Integer parentNodeType);
+    String initFolder(String parentId, Integer parentNodeType, String workspaceId);
 
     Boolean removeFolder(String id);
 

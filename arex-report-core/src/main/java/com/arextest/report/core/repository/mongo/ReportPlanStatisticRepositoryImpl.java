@@ -96,14 +96,17 @@ public class ReportPlanStatisticRepositoryImpl implements ReportPlanStatisticRep
         }
 
         Update update = MongoHelper.getUpdate();
-        update.setOnInsert(DATA_CHANGE_CREATE_TIME, System.currentTimeMillis())
-                .setOnInsert(CASE_START_TIME, System.currentTimeMillis())
-                .setOnInsert(CASE_END_TIME, System.currentTimeMillis());
+        update.setOnInsert(DATA_CHANGE_CREATE_TIME, System.currentTimeMillis());
 
+        if (result.getCaseStartTime() != null) {
+            update.set(CASE_START_TIME, result.getCaseStartTime());
+        }
+        if (result.getCaseEndTime() != null) {
+            update.set(CASE_END_TIME, result.getCaseEndTime());
+        }
         if (!StringUtils.isEmpty(result.getPlanName())) {
             update.set(PLAN_NAME, result.getPlanName());
         }
-
         if (result.getStatus() != null) {
             update.set(STATUS, result.getStatus());
         }
