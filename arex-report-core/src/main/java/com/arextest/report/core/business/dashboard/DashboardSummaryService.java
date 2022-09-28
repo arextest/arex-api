@@ -1,25 +1,24 @@
 package com.arextest.report.core.business.dashboard;
 
-import com.arextest.report.common.HttpUtils;
 import com.arextest.report.core.business.CaseCountService;
-import com.arextest.report.core.repository.ReportPlanItemStatisticRepository;
+import com.arextest.report.core.business.configservice.handler.ViewHandler;
 import com.arextest.report.core.repository.ReportPlanStatisticRepository;
-import com.arextest.report.model.api.contracts.*;
+import com.arextest.report.model.api.contracts.DashboardAllAppDailyResultsRequestType;
+import com.arextest.report.model.api.contracts.DashboardAllAppDailyResultsResponseType;
+import com.arextest.report.model.api.contracts.DashboardAllAppResultsRequestType;
+import com.arextest.report.model.api.contracts.DashboardAllAppResultsResponseType;
+import com.arextest.report.model.api.contracts.DashboardSummaryResponseType;
 import com.arextest.report.model.api.contracts.common.AppCaseDailyResult;
 import com.arextest.report.model.api.contracts.common.AppCaseResult;
 import com.arextest.report.model.api.contracts.common.AppDescription;
 import com.arextest.report.model.api.contracts.common.CaseCount;
+import com.arextest.report.model.api.contracts.configservice.dashboard.AppDashboardView;
 import com.arextest.report.model.dto.LatestDailySuccessPlanIdDto;
 import com.arextest.report.model.dto.ReportPlanStatisticDto;
 import com.arextest.report.model.enums.ReplayStatusType;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.MutablePair;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -28,9 +27,11 @@ import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -42,42 +43,24 @@ public class DashboardSummaryService {
     private static final String DATA_CHANGE_CREATE_TIME = "dataChangeCreateTime";
     private static final String STATUS = "status";
     private static final String APP_ID = "appId";
-    private static final String TOTAL_APP_DESCRIPTION = "/api/config/dashboard/";
-    private static final String SINGLE_APP_DESCRIPTION = "/api/config/dashboard/appId/";
-    private static final String BODY = "body";
-    private static final String OPERATION_COUNT = "operationCount";
-    private static final String OWNER = "owner";
-    private static final String APPLICATION_DESCRIPTION = "applicationDescription";
 
     @Resource
     private ReportPlanStatisticRepository reportPlanStatisticRepository;
 
     @Resource
-    private ReportPlanItemStatisticRepository reportPlanItemStatisticRepository;
-
-    @Resource
     private CaseCountService caseCountService;
 
-    @Value("${arex.config.service.url}")
-    private String configServiceUrl;
+    @Resource
+    private ViewHandler<AppDashboardView> numbersDashboardViewHandler;
 
 
     public List<String> getAllAppId() {
 
-        ResponseEntity<String> responseEntity =
-                HttpUtils.get(configServiceUrl + TOTAL_APP_DESCRIPTION, String.class);
+        List<AppDashboardView> appDashboardViews = numbersDashboardViewHandler.useResultAsList();
         List<String> appIds = new ArrayList<>();
-        try {
-            JSONObject entityBody = new JSONObject(responseEntity.getBody());
-            JSONArray bodyJSONArray = entityBody.getJSONArray(BODY);
-            for (int i = 0; i < bodyJSONArray.length(); i++) {
-                JSONObject jsonObject = bodyJSONArray.getJSONObject(i);
-                JSONObject applicationDescription = jsonObject.getJSONObject(APPLICATION_DESCRIPTION);
-                appIds.add(applicationDescription.getString(APP_ID));
-            }
-        } catch (JSONException e) {
-            LOGGER.error("getAllAppId", e);
-        }
+        Optional.ofNullable(appDashboardViews).orElse(Collections.emptyList()).forEach(item -> {
+            appIds.add(item.getApplicationDescription().getAppId());
+        });
         return appIds;
     }
 
@@ -85,31 +68,18 @@ public class DashboardSummaryService {
     public DashboardSummaryResponseType getDashboardSummary() {
         DashboardSummaryResponseType dashboardSummaryResponseType = new DashboardSummaryResponseType();
         AppDescription appDescription = new AppDescription();
-        Long replayCount = reportPlanStatisticRepository.findReplayCount();
 
+        Long replayCount = reportPlanStatisticRepository.findReplayCount();
         appDescription.setReplayCount(replayCount.intValue());
 
-        ResponseEntity<String> responseEntity =
-                HttpUtils.get(configServiceUrl + TOTAL_APP_DESCRIPTION, String.class);
-        try {
-            JSONObject entityBody = new JSONObject(responseEntity.getBody());
-            JSONArray bodyJSONArray = entityBody.getJSONArray(BODY);
+        List<AppDashboardView> appDashboardViews = Optional.ofNullable(numbersDashboardViewHandler.useResultAsList())
+                .orElse(Collections.emptyList());
+        appDescription.setAppCount(appDashboardViews.size());
 
-            appDescription.setAppCount(bodyJSONArray.length());
-
-            int operationCount = 0;
-            for (int i = 0; i < bodyJSONArray.length(); i++) {
-                JSONObject jsonObject = bodyJSONArray.getJSONObject(i);
-                operationCount = operationCount + (Integer) jsonObject.get(OPERATION_COUNT);
-            }
-            appDescription.setOperationCount(operationCount);
-            dashboardSummaryResponseType.setAppDescription(appDescription);
-            return dashboardSummaryResponseType;
-
-        } catch (JSONException e) {
-            LOGGER.error("getDashboardSummary", e);
-        }
-        return null;
+        int sum = appDashboardViews.stream().mapToInt(AppDashboardView::getOperationCount).sum();
+        appDescription.setOperationCount(sum);
+        dashboardSummaryResponseType.setAppDescription(appDescription);
+        return dashboardSummaryResponseType;
     }
 
 
@@ -118,26 +88,16 @@ public class DashboardSummaryService {
         AppDescription appDescription = new AppDescription();
 
         Long replayCount = reportPlanStatisticRepository.findReplayCountByAppId(appId);
-
         appDescription.setReplayCount(replayCount.intValue());
 
-        String url = configServiceUrl + SINGLE_APP_DESCRIPTION + appId;
-        ResponseEntity<String> responseEntity = HttpUtils.get(url, String.class);
-        try {
-            JSONObject entityBody = new JSONObject(responseEntity.getBody());
-            JSONObject jsonObject = entityBody.getJSONObject(BODY);
+        AppDashboardView appDashboardView = numbersDashboardViewHandler.useResult(appId);
+        appDescription.setOperationCount(appDashboardView.getOperationCount());
 
-            appDescription.setOperationCount((Integer) jsonObject.get(OPERATION_COUNT));
+        appDescription.setOwner(appDashboardView.getApplicationDescription().getOwner());
 
-            appDescription.setOwner(jsonObject.getJSONObject(APPLICATION_DESCRIPTION).getString(OWNER));
-            dashboardSummaryResponseType.setAppDescription(appDescription);
-            return dashboardSummaryResponseType;
-        } catch (JSONException e) {
-            LOGGER.error("getDashboardSummaryByAppId", e);
-        }
-        return null;
+        dashboardSummaryResponseType.setAppDescription(appDescription);
+        return dashboardSummaryResponseType;
     }
-
 
 
     public DashboardAllAppResultsResponseType allAppResults(DashboardAllAppResultsRequestType request) {

@@ -1,31 +1,28 @@
-package com.arextest.report.model.api.contracts.configservice;
+package com.arextest.report.model.api.contracts.configservice.yamlTemplate;
 
 import lombok.Data;
 
 import java.util.Collection;
-import java.util.Set;
 
 
 @Data
-public class ServiceCollect {
-    
+public class ServiceConfig {
+
     private int sampleRate;
 
-    private Set<String> excludeDependentOperationSet;
+    private Collection<String> excludeDependentOperationSet;
 
-    
     private Collection<String> excludeDependentServiceSet;
-    
+
     private Collection<String> excludeOperationSet;
 
-    
     private Collection<String> includeServiceSet;
-    
+
     private Collection<String> includeOperationSet;
-    
+
     private int allowDayOfWeeks;
-    
+
     private String allowTimeOfDayFrom;
-    
+
     private String allowTimeOfDayTo;
 }

@@ -1,16 +1,12 @@
 package com.arextest.report.model.api.contracts.configservice;
 
+import com.arextest.report.model.api.contracts.configservice.yamlTemplate.OperationCompareConfig;
 import lombok.Data;
 
-import java.util.Collection;
+import java.util.List;
 
 
 @Data
 public class CompareConfig {
-
-    private Collection<String> exclusions;
-    private Collection<String> inclusions;
-    private Collection<ComparisonDetails> sortKeys;
-    private Collection<ComparisonDetails> references;
-
+    List<OperationCompareConfig> operationCompareConfigs;
 }

@@ -1,124 +1,384 @@
 package com.arextest.report.core.business.configservice;
 
-import com.arextest.report.core.business.util.ConfigServiceUtils;
-import com.arextest.report.model.api.contracts.configservice.CompareConfig;
-import com.arextest.report.model.api.contracts.configservice.ComparisonConfiguration;
-import com.arextest.report.model.api.contracts.configservice.ComparisonDetails;
-import com.arextest.report.model.api.contracts.configservice.ComparisonDetailsConfiguration;
-import com.arextest.report.model.api.contracts.configservice.ConfigTemplate;
-import com.arextest.report.model.mapper.ComparisonDetailsMapper;
-import com.arextest.report.model.mapper.ComparisonMapper;
-import org.springframework.beans.factory.annotation.Value;
+import com.arextest.report.core.business.configservice.comparison.ComparisonExclusionsConfigurableHandler;
+import com.arextest.report.core.business.configservice.comparison.ComparisonInclusionsConfigurableHandler;
+import com.arextest.report.core.business.configservice.comparison.ComparisonListSortConfigurableHandler;
+import com.arextest.report.core.business.configservice.comparison.ComparisonReferenceConfigurableHandler;
+import com.arextest.report.core.business.configservice.handler.ConfigurableHandler;
+import com.arextest.report.model.api.contracts.configservice.application.ApplicationServiceConfiguration;
+import com.arextest.report.model.api.contracts.configservice.replay.AbstractComparisonDetailsConfiguration;
+import com.arextest.report.model.api.contracts.configservice.replay.ComparisonExclusionsConfiguration;
+import com.arextest.report.model.api.contracts.configservice.replay.ComparisonInclusionsConfiguration;
+import com.arextest.report.model.api.contracts.configservice.replay.ComparisonListSortConfiguration;
+import com.arextest.report.model.api.contracts.configservice.replay.ComparisonReferenceConfiguration;
+import com.arextest.report.model.api.contracts.configservice.yamlTemplate.ListSortConfig;
+import com.arextest.report.model.api.contracts.configservice.yamlTemplate.OperationCompareConfig;
+import com.arextest.report.model.api.contracts.configservice.yamlTemplate.ReferenceConfig;
+import com.arextest.report.model.api.contracts.configservice.yamlTemplate.YamlTemplate;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 
 @Component
 public class ComparisonConfigService {
 
+    @Resource
+    ConfigurableHandler<ApplicationServiceConfiguration> applicationServiceConfigurableHandler;
 
-    private static final String COMPARISON_URL = "/api/config/comparison/useResultAsList/appId/";
-    private static final String COMPARISON_REMOVE_URL = "/api/config/comparison/modify/REMOVE";
-    private static final String COMPARISON_INSERT_URL = "/api/config/comparison/modify/INSERT";
+    @Resource
+    ComparisonExclusionsConfigurableHandler comparisonExclusionsConfigurableHandler;
 
-    @Value("${arex.config.service.url}")
-    private String configServiceUrl;
+    @Resource
+    ComparisonInclusionsConfigurableHandler comparisonInclusionsConfigurableHandler;
 
-    public CompareConfig getCompareConfig(String appId) {
-        List<ComparisonConfiguration> totalCompareConfig = getTotalCompareConfig(appId);
-        return ComparisonMapper.INSTANCE.fromConfig(totalCompareConfig);
+    @Resource
+    ComparisonListSortConfigurableHandler comparisonListSortConfigurableHandler;
+
+    @Resource
+    ComparisonReferenceConfigurableHandler comparisonReferenceConfigurableHandler;
+
+
+    public List<OperationCompareConfig> getCompareConfig(String appId) {
+        // k:operationId
+        Map<String, OperationCompareConfig> operationCompareConfigMap = new HashMap<>();
+
+        // k:operationId
+        Map<String, String> operationIdToName = new HashMap<>();
+        // global
+        operationIdToName.put(null, null);
+        List<ApplicationServiceConfiguration> applicationServiceConfigurations = applicationServiceConfigurableHandler.useResultAsList(appId);
+        Optional.ofNullable(applicationServiceConfigurations).orElse(Collections.emptyList()).forEach(
+                service -> {
+                    Optional.ofNullable(service.getOperationList()).orElse(Collections.emptyList()).forEach(
+                            operation -> {
+                                operationIdToName.put(operation.getId(), operation.getOperationName());
+                            }
+                    );
+                }
+        );
+
+        getComparisonExclusions(appId, operationIdToName, operationCompareConfigMap);
+        getComparisonInclusions(appId, operationIdToName, operationCompareConfigMap);
+        getComparisonListSort(appId, operationIdToName, operationCompareConfigMap);
+        getComparisonReference(appId, operationIdToName, operationCompareConfigMap);
+
+        return new ArrayList<>(operationCompareConfigMap.values());
     }
 
 
-    public boolean updateComparison(ConfigTemplate template, String appId) {
-        List<ComparisonConfiguration> comparisonConfigurations =
-                ComparisonMapper.INSTANCE.toConfig(template.getCompareConfig());
-        List<ComparisonConfiguration> totalCompareConfig = getTotalCompareConfig(appId);
-        Map<Integer, ComparisonConfiguration> updateMap = findUpdateEntity(comparisonConfigurations, appId);
-        Map<Integer, ComparisonConfiguration> removeMap = findRemoveEntity(totalCompareConfig, appId);
-        return updateComparisonDetails(updateMap, removeMap, 0)
-                && updateComparisonDetails(updateMap, removeMap, 7)
-                && updateComparisonDetails(updateMap, removeMap, 4)
-                && updateComparisonDetails(updateMap, removeMap, 5);
+    public boolean updateComparison(YamlTemplate template, String appId) {
+
+        // k:operationId
+        Map<String, String> operationNameToId = new HashMap<>();
+        // global
+        operationNameToId.put(null, null);
+        List<ApplicationServiceConfiguration> applicationServiceConfigurations = applicationServiceConfigurableHandler.useResultAsList(appId);
+        Optional.ofNullable(applicationServiceConfigurations).orElse(Collections.emptyList()).forEach(
+                service -> {
+                    Optional.ofNullable(service.getOperationList()).orElse(Collections.emptyList()).forEach(
+                            operation -> {
+                                operationNameToId.put(operation.getOperationName(), operation.getId());
+                            }
+                    );
+                }
+        );
+        List<OperationCompareConfig> compareConfig = template.getCompareConfig();
+
+        return updateComparisonExclusions(appId, operationNameToId, compareConfig)
+                && updateComparisonInclusions(appId, operationNameToId, compareConfig)
+                && updateComparisonListSort(appId, operationNameToId, compareConfig)
+                && updateComparisonReference(appId, operationNameToId, compareConfig);
     }
 
+    private void getComparisonExclusions(String appId, Map<String, String> operationIdToName, Map<String, OperationCompareConfig> operationCompareConfigMap) {
+        List<ComparisonExclusionsConfiguration> comparisonExclusionsConfigurations = comparisonExclusionsConfigurableHandler.useResultAsList(appId);
+        Map<String, List<ComparisonExclusionsConfiguration>> comparisonExclusionsMap = comparisonListGroupBy(comparisonExclusionsConfigurations);
 
-    private boolean updateComparisonDetails(Map<Integer, ComparisonConfiguration> updateMap,
-            Map<Integer, ComparisonConfiguration> removeMap,
-            int categoryType) {
-        ComparisonConfiguration removeEntity = removeMap.get(categoryType);
-        ComparisonConfiguration updateEntity = updateMap.get(categoryType);
-        boolean result = true;
-        if (removeEntity != null && removeEntity.getDetailsList() != null && !removeEntity.getDetailsList().isEmpty()) {
-            result = result
-                    && ConfigServiceUtils.sendPostHttpRequest(configServiceUrl
-                    + COMPARISON_REMOVE_URL, removeEntity);
+        for (Map.Entry<String, String> entry : operationIdToName.entrySet()) {
+            String operationId = entry.getKey();
+            String operationName = entry.getValue();
+
+            if (comparisonExclusionsMap.containsKey(operationId)) {
+                List<List<String>> exclusions = comparisonExclusionsMap.get(operationId).stream()
+                        .map(ComparisonExclusionsConfiguration::getExclusions).collect(Collectors.toList());
+                OperationCompareConfig tempOperationCompareConfig = operationCompareConfigMap.getOrDefault(operationId, new OperationCompareConfig());
+                tempOperationCompareConfig.setOperationName(operationName);
+                tempOperationCompareConfig.setExclusions(FormatPath.formatMultiPath(exclusions));
+                operationCompareConfigMap.put(operationId, tempOperationCompareConfig);
+            }
         }
-        if (updateEntity != null && updateEntity.getDetailsList() != null && !updateEntity.getDetailsList().isEmpty()) {
-            result = result
-                    && ConfigServiceUtils.sendPostHttpRequest(configServiceUrl
-                    + COMPARISON_INSERT_URL, updateEntity);
-        }
-        return result;
     }
 
-    private List<ComparisonConfiguration> getTotalCompareConfig(String appId) {
-        String url = configServiceUrl + COMPARISON_URL + appId;
-        return ConfigServiceUtils.produceListEntity(ConfigServiceUtils.sendGetHttpRequest(url),
-                ComparisonConfiguration.class);
+    private void getComparisonInclusions(String appId, Map<String, String> operationIdToName,
+                                         Map<String, OperationCompareConfig> operationCompareConfigMap) {
+        List<ComparisonInclusionsConfiguration> comparisonInclusionsConfigurations = comparisonInclusionsConfigurableHandler.useResultAsList(appId);
+        Map<String, List<ComparisonInclusionsConfiguration>> comparisonInclusionsMap = comparisonListGroupBy(comparisonInclusionsConfigurations);
+
+        for (Map.Entry<String, String> entry : operationIdToName.entrySet()) {
+            String operationId = entry.getKey();
+            String operationName = entry.getValue();
+
+            if (comparisonInclusionsMap.containsKey(operationId)) {
+                List<List<String>> inclusions = comparisonInclusionsMap.get(operationId).stream()
+                        .map(ComparisonInclusionsConfiguration::getInclusions).collect(Collectors.toList());
+                OperationCompareConfig tempOperationCompareConfig = operationCompareConfigMap.getOrDefault(operationId, new OperationCompareConfig());
+                tempOperationCompareConfig.setOperationName(operationName);
+                tempOperationCompareConfig.setInclusions(FormatPath.formatMultiPath(inclusions));
+                operationCompareConfigMap.put(operationId, tempOperationCompareConfig);
+            }
+        }
+
     }
 
-    private Map<Integer, ComparisonConfiguration> findRemoveEntity(List<ComparisonConfiguration> comparisonConfigurations,
-            String appId) {
-        Map<Integer, ComparisonConfiguration> result = new HashMap<>();
-        if (comparisonConfigurations == null) {
-            return result;
+    private void getComparisonListSort(String appId, Map<String, String> operationIdToName,
+                                       Map<String, OperationCompareConfig> operationCompareConfigMap) {
+        List<ComparisonListSortConfiguration> comparisonListSortConfigurations = comparisonListSortConfigurableHandler.useResultAsList(appId);
+        Map<String, List<ComparisonListSortConfiguration>> comparisonListSortMap = comparisonListGroupBy(comparisonListSortConfigurations);
+
+        for (Map.Entry<String, String> entry : operationIdToName.entrySet()) {
+            String operationId = entry.getKey();
+            String operationName = entry.getValue();
+
+            if (comparisonListSortMap.containsKey(operationId)) {
+                List<ListSortConfig> listSortConfigs = comparisonListSortMap.get(operationId).stream().map(item -> {
+                    ListSortConfig listSortConfig = new ListSortConfig();
+                    listSortConfig.setListPath(FormatPath.formatPath(item.getListPath()));
+                    listSortConfig.setKeys(FormatPath.formatMultiPath(item.getKeys()));
+                    return listSortConfig;
+                }).collect(Collectors.toList());
+
+                OperationCompareConfig tempOperationCompareConfig = operationCompareConfigMap.getOrDefault(operationId, new OperationCompareConfig());
+                tempOperationCompareConfig.setOperationName(operationName);
+                tempOperationCompareConfig.setListSort(listSortConfigs);
+                operationCompareConfigMap.put(operationId, tempOperationCompareConfig);
+            }
         }
-        comparisonConfigurations.stream()
-                .collect(Collectors.groupingBy(ComparisonConfiguration::getCategoryType))
-                .forEach((k, v) -> {
-                    ComparisonConfiguration comparisonConfiguration = v.get(0);
-                    if (comparisonConfiguration != null) {
-                        result.put(k, comparisonConfiguration);
-                    }
-                });
-        return result;
     }
 
-    private Map<Integer, ComparisonConfiguration> findUpdateEntity(List<ComparisonConfiguration> comparisonConfigurations,
-            String appId) {
-        Map<Integer, ComparisonConfiguration> result = new HashMap<>();
-        if (comparisonConfigurations == null || comparisonConfigurations.isEmpty()) {
-            return result;
+    private void getComparisonReference(String appId, Map<String, String> operationIdToName,
+                                        Map<String, OperationCompareConfig> operationCompareConfigMap) {
+        List<ComparisonReferenceConfiguration> comparisonReferenceConfigurations = comparisonReferenceConfigurableHandler.useResultAsList(appId);
+        Map<String, List<ComparisonReferenceConfiguration>> comparisonReferenceMap = comparisonListGroupBy(comparisonReferenceConfigurations);
+
+        for (Map.Entry<String, String> entry : operationIdToName.entrySet()) {
+            String operationId = entry.getKey();
+            String operationName = entry.getValue();
+            if (comparisonReferenceMap.containsKey(operationId)) {
+                List<ReferenceConfig> referenceConfigs = comparisonReferenceMap.get(operationId).stream().map(item -> {
+                    ReferenceConfig referenceConfig = new ReferenceConfig();
+                    referenceConfig.setFkPath(FormatPath.formatPath(item.getFkPath()));
+                    referenceConfig.setPkPath(FormatPath.formatPath(item.getPkPath()));
+                    return referenceConfig;
+                }).collect(Collectors.toList());
+
+                OperationCompareConfig tempOperationCompareConfig = operationCompareConfigMap.getOrDefault(operationId, new OperationCompareConfig());
+                tempOperationCompareConfig.setOperationName(operationName);
+                tempOperationCompareConfig.setReferences(referenceConfigs);
+                operationCompareConfigMap.put(operationId, tempOperationCompareConfig);
+            }
         }
-        comparisonConfigurations.stream().filter(Objects::nonNull).forEach(item -> {
-            item.setAppId(appId);
+    }
+
+    private <T extends AbstractComparisonDetailsConfiguration> Map<String, List<T>> comparisonListGroupBy(List<T> comparisonList) {
+        Map<String, List<T>> comparisonMap = new HashMap<>();
+        Optional.ofNullable(comparisonList).orElse(Collections.emptyList()).forEach(item -> {
+            String operationId = item.getOperationId();
+            List<T> orDefault = comparisonMap.getOrDefault(operationId, new ArrayList<>());
+            orDefault.add(item);
+            comparisonMap.put(operationId, orDefault);
         });
-        comparisonConfigurations.stream()
-                .collect(Collectors.groupingBy(ComparisonConfiguration::getCategoryType))
-                .forEach((k, v) -> {
-                    ComparisonConfiguration comparisonConfiguration = v.get(0);
-                    if (comparisonConfiguration != null) {
-                        result.put(k, comparisonConfiguration);
-                    }
-                });
-        return result;
+        return comparisonMap;
     }
 
-    public static void main(String[] args) {
-        ComparisonDetailsConfiguration detailsConfiguration = new ComparisonDetailsConfiguration();
-        detailsConfiguration.setPathName("test");
-        detailsConfiguration.setPathValue(Arrays.asList("a/test", "b/test"));
-        ComparisonDetails comparisonDetails = ComparisonDetailsMapper.INSTANCE.detailsFormConfig(detailsConfiguration);
-        ComparisonDetailsConfiguration detailsConfiguration1 =
-                ComparisonDetailsMapper.INSTANCE.configFromDetails(comparisonDetails);
+    private boolean updateComparisonExclusions(String appId, Map<String, String> operationNameToId, List<OperationCompareConfig> compareConfig) {
+        // remove
+        if (!comparisonExclusionsConfigurableHandler.removeByAppId(appId)) {
+            return false;
+        }
+
+        // insert
+        List<OperationCompareConfig> operationCompareConfigs = Optional.ofNullable(compareConfig)
+                .orElse(Collections.emptyList())
+                .stream().filter(item -> CollectionUtils.isNotEmpty(item.getExclusions()))
+                .collect(Collectors.toList());
+        for (OperationCompareConfig operationCompareConfig : operationCompareConfigs) {
+            List<List<String>> exclusionCollection = FormatPath.parseMultiPath(operationCompareConfig.getExclusions());
+            List<ComparisonExclusionsConfiguration> comparisonExclusionsConfigurations = Optional.ofNullable(exclusionCollection)
+                    .orElse(Collections.emptyList()).stream()
+                    .filter(ValidUtils::isValid)
+                    .map(exclusions -> {
+                        ComparisonExclusionsConfiguration comparisonExclusionsConfiguration = new ComparisonExclusionsConfiguration();
+                        comparisonExclusionsConfiguration.setAppId(appId);
+                        comparisonExclusionsConfiguration.setOperationId(operationNameToId.get(operationCompareConfig.getOperationName()));
+                        comparisonExclusionsConfiguration.setExclusions(exclusions);
+                        return comparisonExclusionsConfiguration;
+                    }).collect(Collectors.toList());
+            if (!comparisonExclusionsConfigurableHandler.insertList(comparisonExclusionsConfigurations)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean updateComparisonInclusions(String appId, Map<String, String> operationNameToId, List<OperationCompareConfig> compareConfig) {
+        // remove
+        if (!comparisonInclusionsConfigurableHandler.removeByAppId(appId)) {
+            return false;
+        }
+
+        // insert
+        List<OperationCompareConfig> operationCompareConfigs = Optional.ofNullable(compareConfig)
+                .orElse(Collections.emptyList())
+                .stream().filter(item -> CollectionUtils.isNotEmpty(item.getInclusions()))
+                .collect(Collectors.toList());
+
+        for (OperationCompareConfig operationCompareConfig : operationCompareConfigs) {
+            List<List<String>> inclusionCollection = FormatPath.parseMultiPath(operationCompareConfig.getInclusions());
+            List<ComparisonInclusionsConfiguration> comparisonInclusionsConfigurations = Optional.ofNullable(inclusionCollection)
+                    .orElse(Collections.emptyList()).stream()
+                    .filter(ValidUtils::isValid)
+                    .map(inclusions -> {
+                        ComparisonInclusionsConfiguration comparisonInclusionsConfiguration = new ComparisonInclusionsConfiguration();
+                        comparisonInclusionsConfiguration.setAppId(appId);
+                        comparisonInclusionsConfiguration.setOperationId(operationNameToId.get(operationCompareConfig.getOperationName()));
+                        comparisonInclusionsConfiguration.setInclusions(inclusions);
+                        return comparisonInclusionsConfiguration;
+                    }).collect(Collectors.toList());
+            if (!comparisonInclusionsConfigurableHandler.insertList(comparisonInclusionsConfigurations)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean updateComparisonListSort(String appId, Map<String, String> operationNameToId, List<OperationCompareConfig> compareConfig) {
+        // remove
+        if (!comparisonListSortConfigurableHandler.removeByAppId(appId)) {
+            return false;
+        }
+
+        // insert
+        List<OperationCompareConfig> operationCompareConfigs = Optional.ofNullable(compareConfig)
+                .orElse(Collections.emptyList())
+                .stream().filter(item -> CollectionUtils.isNotEmpty(item.getListSort()))
+                .collect(Collectors.toList());
+        for (OperationCompareConfig operationCompareConfig : operationCompareConfigs) {
+            List<ComparisonListSortConfiguration> comparisonListSortConfigurations = new ArrayList<>();
+            Collection<ListSortConfig> listSortConfigs = operationCompareConfig.getListSort();
+            for (ListSortConfig listSortConfig : listSortConfigs) {
+                List<String> listPath = FormatPath.parsePath(listSortConfig.getListPath());
+                List<List<String>> keys = FormatPath.parseMultiPath(listSortConfig.getKeys());
+                if (ValidUtils.isValid(listPath) && ValidUtils.isMultiValid(keys)) {
+                    ComparisonListSortConfiguration comparisonListSortConfiguration = new ComparisonListSortConfiguration();
+                    comparisonListSortConfiguration.setAppId(appId);
+                    comparisonListSortConfiguration.setOperationId(operationNameToId.get(operationCompareConfig.getOperationName()));
+                    comparisonListSortConfiguration.setListPath(listPath);
+                    comparisonListSortConfiguration.setKeys(keys);
+                    comparisonListSortConfigurations.add(comparisonListSortConfiguration);
+                }
+            }
+            if (!comparisonListSortConfigurableHandler.insertList(comparisonListSortConfigurations)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean updateComparisonReference(String appId, Map<String, String> operationNameToId, List<OperationCompareConfig> compareConfigs) {
+        // remove
+        if (!comparisonReferenceConfigurableHandler.removeByAppId(appId)) {
+            return false;
+        }
+
+        // insert
+        List<OperationCompareConfig> operationCompareConfigs = Optional.ofNullable(compareConfigs)
+                .orElse(Collections.emptyList())
+                .stream().filter(item -> CollectionUtils.isNotEmpty(item.getReferences()))
+                .collect(Collectors.toList());
+        for (OperationCompareConfig operationCompareConfig : operationCompareConfigs) {
+            List<ComparisonReferenceConfiguration> comparisonReferenceConfigurations = new ArrayList<>();
+            Collection<ReferenceConfig> referenceConfigs = operationCompareConfig.getReferences();
+            for (ReferenceConfig referenceConfig : referenceConfigs) {
+                List<String> fkPath = FormatPath.parsePath(referenceConfig.getFkPath());
+                List<String> pkPath = FormatPath.parsePath(referenceConfig.getPkPath());
+                if (ValidUtils.isValid(fkPath) && ValidUtils.isValid(pkPath)) {
+                    ComparisonReferenceConfiguration comparisonReferenceConfiguration = new ComparisonReferenceConfiguration();
+                    comparisonReferenceConfiguration.setAppId(appId);
+                    comparisonReferenceConfiguration.setOperationId(operationNameToId.get(operationCompareConfig.getOperationName()));
+                    comparisonReferenceConfiguration.setFkPath(fkPath);
+                    comparisonReferenceConfiguration.setPkPath(pkPath);
+                    comparisonReferenceConfigurations.add(comparisonReferenceConfiguration);
+                }
+            }
+            if (!comparisonReferenceConfigurableHandler.insertList(comparisonReferenceConfigurations)) {
+                return false;
+            }
+        }
+        return true;
     }
 
 
+    private static final class FormatPath {
+
+        private static List<String> formatMultiPath(Collection<List<String>> paths) {
+            if (CollectionUtils.isEmpty(paths)) {
+                return null;
+            }
+            return paths.stream().filter(CollectionUtils::isNotEmpty).map(FormatPath::formatPath).collect(Collectors.toList());
+        }
+
+        private static List<List<String>> parseMultiPath(Collection<String> paths) {
+            if (CollectionUtils.isEmpty(paths)) {
+                return null;
+            }
+            return paths.stream().filter(StringUtils::isNotEmpty).map(FormatPath::parsePath).collect(Collectors.toList());
+        }
+
+
+        private static String formatPath(List<String> path) {
+            if (CollectionUtils.isEmpty(path)) {
+                return null;
+            }
+            return String.join("/", path);
+        }
+
+        private static List<String> parsePath(String path) {
+            if (StringUtils.isEmpty(path)) {
+                return null;
+            }
+            return Arrays.stream(path.split("/")).collect(Collectors.toList());
+        }
+
+    }
+
+    private static final class ValidUtils {
+
+        private static boolean isValid(Collection<String> config) {
+            return CollectionUtils.isNotEmpty(config) && !config.contains("");
+        }
+
+        private static boolean isMultiValid(Collection<List<String>> configs) {
+            if (CollectionUtils.isEmpty(configs)) {
+                return false;
+            }
+            for (List<String> config : configs) {
+                if (!isValid(config)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+    }
 }

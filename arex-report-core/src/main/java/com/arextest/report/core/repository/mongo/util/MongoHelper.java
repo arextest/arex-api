@@ -34,4 +34,18 @@ public class MongoHelper {
         obj.setDataChangeUpdateTime(System.currentTimeMillis());
         return obj;
     }
+
+    public static Update getConfigUpdate() {
+        Update update = new Update();
+        update.set("dataChangeUpdateTime", System.currentTimeMillis());
+        return update;
+    }
+
+    public static void assertNull(String msg, Object... obj) {
+        for (Object o : obj) {
+            if (o == null) {
+                throw new RuntimeException(msg);
+            }
+        }
+    }
 }
