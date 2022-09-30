@@ -4,8 +4,8 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.arextest.report.core.business.configservice.dynamic.DynamicClassConfigurableHandler;
 import com.arextest.report.core.business.configservice.handler.ConfigurableHandler;
-import com.arextest.report.model.api.contracts.configservice.PushConfigTemplateRequestType;
-import com.arextest.report.model.api.contracts.configservice.PushConfigTemplateResponseType;
+import com.arextest.report.model.api.contracts.configservice.PushYamlTemplateRequestType;
+import com.arextest.report.model.api.contracts.configservice.PushYamlTemplateResponseType;
 import com.arextest.report.model.api.contracts.configservice.record.DynamicClassConfiguration;
 import com.arextest.report.model.api.contracts.configservice.record.ServiceCollectConfiguration;
 import com.arextest.report.model.api.contracts.configservice.replay.ScheduleConfiguration;
@@ -22,6 +22,7 @@ import org.yaml.snakeyaml.Yaml;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -48,13 +49,13 @@ public class UpdateYamlTemplateService {
     @Resource
     ConfigurableHandler<ScheduleConfiguration> scheduleConfigurableHandler;
 
-    public PushConfigTemplateResponseType pushConfigTemplate(PushConfigTemplateRequestType request) {
+    public PushYamlTemplateResponseType pushConfigTemplate(PushYamlTemplateRequestType request) {
         String appId = request.getAppId();
         String configTemplate = request.getConfigTemplate();
-        // TODO: 2022/9/28 添加日志
-        PushConfigTemplateResponseType response = new PushConfigTemplateResponseType();
+        PushYamlTemplateResponseType response = new PushYamlTemplateResponseType();
         response.setSuccess(true);
         YamlTemplate preTemplate = queryYamlTemplateService.getConfigTemplate(request.getAppId());
+        LOGGER.info("pushConfigTemplate.preTemplate:", JSONUtil.toJsonStr(preTemplate));
         Yaml yaml = new Yaml();
         YamlTemplate templateObj = null;
         try {
@@ -80,7 +81,6 @@ public class UpdateYamlTemplateService {
     }
 
     private boolean updateServiceCollection(YamlTemplate templateObj, String appId) {
-
         ServiceConfig serviceConfig = templateObj.getRecordConfig().getServiceConfig();
         ServiceCollectConfiguration serviceCollectConfiguration = YamlServiceConfigMapper.INSTANCE.fromYaml(serviceConfig);
         serviceCollectConfiguration.setAppId(appId);
@@ -113,8 +113,12 @@ public class UpdateYamlTemplateService {
 
         ScheduleConfiguration scheduleConfiguration = YamlReplayConfigMapper.INSTANCE.fromYaml(
                 templateObj.getReplayConfig() == null ? new ReplayConfig() : templateObj.getReplayConfig());
+        scheduleConfiguration.setAppId(appId);
         if (scheduleConfiguration.getSendMaxQps() == null) {
             scheduleConfiguration.setSendMaxQps(20);
+        }
+        if (scheduleConfiguration.getTargetEnv() == null) {
+            scheduleConfiguration.setTargetEnv(Collections.emptySet());
         }
         return scheduleConfigurableHandler.update(scheduleConfiguration);
     }

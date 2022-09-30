@@ -3,11 +3,12 @@ package com.arextest.report.web.api.service.controller.configservice;
 import com.arextest.common.model.response.Response;
 import com.arextest.common.model.response.ResponseCode;
 import com.arextest.common.utils.ResponseUtils;
-import com.arextest.report.core.business.configservice.ConfigService;
-import com.arextest.report.model.api.contracts.configservice.PushConfigTemplateRequestType;
-import com.arextest.report.model.api.contracts.configservice.PushConfigTemplateResponseType;
-import com.arextest.report.model.api.contracts.configservice.QueryConfigTemplateRequestType;
-import com.arextest.report.model.api.contracts.configservice.QueryConfigTemplateResponseType;
+import com.arextest.report.core.business.configservice.QueryYamlTemplateService;
+import com.arextest.report.core.business.configservice.UpdateYamlTemplateService;
+import com.arextest.report.model.api.contracts.configservice.PushYamlTemplateRequestType;
+import com.arextest.report.model.api.contracts.configservice.PushYamlTemplateResponseType;
+import com.arextest.report.model.api.contracts.configservice.QueryYamlTemplateRequestType;
+import com.arextest.report.model.api.contracts.configservice.QueryYamlTemplateResponseType;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,28 +23,31 @@ import javax.annotation.Resource;
  */
 @Controller
 @RequestMapping("/api/config/yamlTemplate")
-public class ConfigTemplateController {
+public class YamlTemplateController {
 
     @Resource
-    private ConfigService configService;
+    private QueryYamlTemplateService queryYamlTemplateService;
+
+    @Resource
+    private UpdateYamlTemplateService updateYamlTemplateService;
 
     @PostMapping("/queryConfigTemplate")
     @ResponseBody
-    public Response queryConfigTemplate(@RequestBody QueryConfigTemplateRequestType request) {
+    public Response queryConfigTemplate(@RequestBody QueryYamlTemplateRequestType request) {
         if (StringUtils.isEmpty(request.getAppId())) {
             return ResponseUtils.errorResponse("appId is empty", ResponseCode.REQUESTED_PARAMETER_INVALID);
         }
-        QueryConfigTemplateResponseType response = configService.queryConfigTemplate(request);
+        QueryYamlTemplateResponseType response = queryYamlTemplateService.queryConfigTemplate(request);
         return ResponseUtils.successResponse(response);
     }
 
     @PostMapping("/pushConfigTemplate")
     @ResponseBody
-    public Response pushConfigTemplate(@RequestBody PushConfigTemplateRequestType request) {
+    public Response pushConfigTemplate(@RequestBody PushYamlTemplateRequestType request) {
         if (StringUtils.isEmpty(request.getAppId())) {
             return ResponseUtils.errorResponse("appId is empty", ResponseCode.REQUESTED_PARAMETER_INVALID);
         }
-        PushConfigTemplateResponseType response = configService.pushConfigTemplate(request);
+        PushYamlTemplateResponseType response = updateYamlTemplateService.pushConfigTemplate(request);
         return ResponseUtils.successResponse(response);
     }
 

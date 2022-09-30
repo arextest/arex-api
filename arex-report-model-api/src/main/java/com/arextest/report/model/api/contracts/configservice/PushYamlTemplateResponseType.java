@@ -4,6 +4,6 @@ import lombok.Data;
 
 
 @Data
-public class QueryConfigTemplateResponseType {
-    private String configTemplate;
+public class PushYamlTemplateResponseType {
+    private boolean success;
 }

@@ -1,8 +1,8 @@
 package com.arextest.report.core.business.configservice;
 
 import com.arextest.report.core.business.configservice.handler.ConfigurableHandler;
-import com.arextest.report.model.api.contracts.configservice.QueryConfigTemplateRequestType;
-import com.arextest.report.model.api.contracts.configservice.QueryConfigTemplateResponseType;
+import com.arextest.report.model.api.contracts.configservice.QueryYamlTemplateRequestType;
+import com.arextest.report.model.api.contracts.configservice.QueryYamlTemplateResponseType;
 import com.arextest.report.model.api.contracts.configservice.record.ServiceCollectConfiguration;
 import com.arextest.report.model.api.contracts.configservice.replay.ScheduleConfiguration;
 import com.arextest.report.model.api.contracts.configservice.yamlTemplate.DynamicClass;
@@ -47,8 +47,8 @@ public class QueryYamlTemplateService {
     @Resource
     private ComparisonConfigService comparisonConfigService;
 
-    public QueryConfigTemplateResponseType queryConfigTemplate(QueryConfigTemplateRequestType request) {
-        QueryConfigTemplateResponseType response = new QueryConfigTemplateResponseType();
+    public QueryYamlTemplateResponseType queryConfigTemplate(QueryYamlTemplateRequestType request) {
+        QueryYamlTemplateResponseType response = new QueryYamlTemplateResponseType();
         YamlTemplate yamlTemplate = getConfigTemplate(request.getAppId());
         DumperOptions options = new DumperOptions();
         options.setIndent(2);
