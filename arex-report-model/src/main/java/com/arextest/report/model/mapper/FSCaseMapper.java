@@ -8,7 +8,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
 @Mapper
-public interface FSCaseMapper {
+public interface FSCaseMapper extends FSItemMapper {
     FSCaseMapper INSTANCE = Mappers.getMapper(FSCaseMapper.class);
 
     FSCaseDto dtoFromContract(FSSaveCaseRequestType contract);

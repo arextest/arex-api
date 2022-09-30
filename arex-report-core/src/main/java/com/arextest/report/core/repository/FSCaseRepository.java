@@ -1,6 +1,7 @@
 package com.arextest.report.core.repository;
 
 import com.arextest.report.model.dto.filesystem.FSCaseDto;
+import com.arextest.report.model.dto.filesystem.FSItemDto;
 
 import java.util.List;
 import java.util.Set;
@@ -17,7 +18,7 @@ public interface FSCaseRepository extends RepositoryProvider {
 
     FSCaseDto queryCase(String id);
 
-    List<FSCaseDto> queryCases(List<String> ids);
+    List<FSItemDto> queryCases(List<String> ids);
 
     String duplicate(FSCaseDto dto);
 }

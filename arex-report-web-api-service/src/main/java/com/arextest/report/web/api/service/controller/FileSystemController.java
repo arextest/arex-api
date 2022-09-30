@@ -9,12 +9,20 @@ import com.arextest.report.core.business.filesystem.FileSystemService;
 import com.arextest.report.core.business.filesystem.RolePermission;
 import com.arextest.report.model.api.contracts.SuccessResponseType;
 import com.arextest.report.model.api.contracts.filesystem.*;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.tomcat.util.http.ResponseUtil;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j
 @Controller
@@ -366,6 +374,21 @@ public class FileSystemController {
             response.setSuccess(true);
             response.setWorkspaceId(result.x);
             response.setInfoId(result.y);
+            return ResponseUtils.successResponse(response);
+        } catch (Exception e) {
+            return ResponseUtils.errorResponse(e.getMessage(), ResponseCode.REQUESTED_HANDLE_EXCEPTION);
+        }
+    }
+
+    @PostMapping("/export")
+    @ResponseBody
+    public Response test(@RequestBody FSExportItemRequestType request) {
+        if (StringUtils.isEmpty(request.getWorkspaceId())) {
+            return ResponseUtils.errorResponse("WorkspaceId cannot be empty", ResponseCode.REQUESTED_PARAMETER_INVALID);
+        }
+        try {
+            FSExportItemResponseType response = new FSExportItemResponseType();
+
             return ResponseUtils.successResponse(response);
         } catch (Exception e) {
             return ResponseUtils.errorResponse(e.getMessage(), ResponseCode.REQUESTED_HANDLE_EXCEPTION);

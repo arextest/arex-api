@@ -5,6 +5,7 @@ import com.arextest.report.core.repository.FSFolderRepository;
 import com.arextest.report.core.repository.mongo.util.MongoHelper;
 import com.arextest.report.model.dao.mongodb.FSFolderCollection;
 import com.arextest.report.model.dto.filesystem.FSFolderDto;
+import com.arextest.report.model.dto.filesystem.FSItemDto;
 import com.arextest.report.model.mapper.FSFolderMapper;
 import com.mongodb.client.result.DeleteResult;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +16,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -66,5 +68,12 @@ public class FSFolderRepositoryImpl implements FSFolderRepository {
         MongoHelper.initInsertObject(dao);
         dao = mongoTemplate.insert(dao);
         return dao.getId();
+    }
+    @Override
+    public List<FSItemDto> queryByIds(List<String> ids) {
+        List<ObjectId> objectIds = ids.stream().map(id -> new ObjectId(id)).collect(Collectors.toList());
+        Query query = Query.query(Criteria.where(DASH_ID).in(objectIds));
+        List<FSFolderCollection> results = mongoTemplate.find(query, FSFolderCollection.class);
+        return results.stream().map(FSFolderMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
     }
 }

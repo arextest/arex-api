@@ -6,7 +6,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
 @Mapper
-public interface FSFolderMapper {
+public interface FSFolderMapper extends FSItemMapper {
     FSFolderMapper INSTANCE = Mappers.getMapper(FSFolderMapper.class);
 
     FSFolderDto dtoFromDao(FSFolderCollection dao);

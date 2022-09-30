@@ -2,7 +2,9 @@ package com.arextest.report.core.repository;
 
 
 import com.arextest.report.model.dto.filesystem.FSFolderDto;
+import com.arextest.report.model.dto.filesystem.FSItemDto;
 
+import java.util.List;
 import java.util.Set;
 
 public interface FSFolderRepository extends RepositoryProvider {
@@ -15,4 +17,6 @@ public interface FSFolderRepository extends RepositoryProvider {
     FSFolderDto queryById(String id);
 
     String duplicate(FSFolderDto dto);
+
+    List<FSItemDto> queryByIds(List<String> ids);
 }

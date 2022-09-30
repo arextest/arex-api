@@ -3,6 +3,8 @@ package com.arextest.report.core.business.filesystem;
 import com.arextest.report.common.JwtUtil;
 import com.arextest.report.common.LoadResource;
 import com.arextest.report.common.Tuple;
+import com.arextest.report.core.business.filesystem.importexport.ImportExport;
+import com.arextest.report.core.business.filesystem.importexport.impl.ImportExportFactory;
 import com.arextest.report.core.business.util.MailUtils;
 import com.arextest.report.core.repository.FSCaseRepository;
 import com.arextest.report.core.repository.FSInterfaceRepository;
@@ -15,6 +17,8 @@ import com.arextest.report.model.api.contracts.filesystem.FSAddItemResponseType;
 import com.arextest.report.model.api.contracts.filesystem.FSAddWorkspaceRequestType;
 import com.arextest.report.model.api.contracts.filesystem.FSAddWorkspaceResponseType;
 import com.arextest.report.model.api.contracts.filesystem.FSDuplicateRequestType;
+import com.arextest.report.model.api.contracts.filesystem.FSExportItemRequestType;
+import com.arextest.report.model.api.contracts.filesystem.FSExportItemResponseType;
 import com.arextest.report.model.api.contracts.filesystem.FSMoveItemRequestType;
 import com.arextest.report.model.api.contracts.filesystem.FSQueryCaseRequestType;
 import com.arextest.report.model.api.contracts.filesystem.FSQueryCaseResponseType;
@@ -44,6 +48,7 @@ import com.arextest.report.model.dto.UserDto;
 import com.arextest.report.model.dto.WorkspaceDto;
 import com.arextest.report.model.dto.filesystem.FSCaseDto;
 import com.arextest.report.model.dto.filesystem.FSInterfaceDto;
+import com.arextest.report.model.dto.filesystem.FSItemDto;
 import com.arextest.report.model.dto.filesystem.FSNodeDto;
 import com.arextest.report.model.dto.filesystem.FSTreeDto;
 import com.arextest.report.model.dto.filesystem.UserWorkspaceDto;
@@ -53,12 +58,13 @@ import com.arextest.report.model.enums.RoleType;
 import com.arextest.report.model.mapper.AddressMapper;
 import com.arextest.report.model.mapper.FSCaseMapper;
 import com.arextest.report.model.mapper.FSInterfaceMapper;
-import com.arextest.report.model.mapper.FSNodeMapper;
 import com.arextest.report.model.mapper.FSTreeMapper;
 import com.arextest.report.model.mapper.UserWorkspaceMapper;
 import com.arextest.report.model.mapper.WorkspaceMapper;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.internal.Base64;
 import org.json.JSONObject;
@@ -69,6 +75,7 @@ import javax.annotation.Resource;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -120,6 +127,9 @@ public class FileSystemService {
 
     @Resource
     private LoadResource loadResource;
+
+    @Resource
+    private ImportExportFactory importExportFactory;
 
 
     public FSAddItemResponseType addItem(FSAddItemRequestType request) {
@@ -589,6 +599,57 @@ public class FileSystemService {
         fsCaseRepository.saveCase(caseDto);
 
         return new Tuple<>(treeDto.getId(), addCaseResponse.getInfoId());
+    }
+
+    public Tuple<Boolean, String> export(FSExportItemRequestType request) {
+        FSTreeDto treeDto = fsTreeRepository.queryFSTreeById(request.getWorkspaceId());
+        List<FSNodeDto> nodes;
+        if (ArrayUtils.isEmpty(request.getPath())) {
+            nodes = treeDto.getRoots();
+        } else {
+            FSNodeDto node = findByPath(treeDto.getRoots(), request.getPath());
+            nodes = Arrays.asList(node);
+        }
+        Map<Integer, List<String>> itemInfoIds = getItemInfoIds(nodes);
+        Map<String, FSItemDto> itemInfos = getItemInfos(itemInfoIds);
+
+        ImportExport ie = importExportFactory.getImportExport(request.getType());
+        if (ie == null) {
+            return new Tuple<>(false, null);
+        }
+        String exportString = ie.export(nodes, itemInfos);
+        return new Tuple<>(true, exportString);
+    }
+
+    private Map<Integer, List<String>> getItemInfoIds(List<FSNodeDto> list) {
+        Map<Integer, List<String>> typeInfoIdsMap = new HashMap<>();
+        if (CollectionUtils.isEmpty(list)) {
+            return Collections.EMPTY_MAP;
+        }
+        Queue<FSNodeDto> queue = new ArrayDeque<>(list);
+        while (!queue.isEmpty()) {
+            FSNodeDto node = queue.poll();
+            if (!typeInfoIdsMap.containsKey(node.getNodeType())) {
+                typeInfoIdsMap.put(node.getNodeType(), new ArrayList<>());
+            }
+            typeInfoIdsMap.get(node.getNodeType()).add(node.getInfoId());
+            if (CollectionUtils.isNotEmpty(node.getChildren())) {
+                queue.addAll(node.getChildren());
+            }
+        }
+        return typeInfoIdsMap;
+    }
+
+    private Map<String, FSItemDto> getItemInfos(Map<Integer, List<String>> typeInfoIdsMap) {
+        Map<String, FSItemDto> result = new HashMap<>();
+        for (Map.Entry<Integer, List<String>> entry : typeInfoIdsMap.entrySet()) {
+            ItemInfo itemInfo = itemInfoFactory.getItemInfo(entry.getKey());
+            List<FSItemDto> items = itemInfo.queryByIds(entry.getValue());
+            if (CollectionUtils.isNotEmpty(items)) {
+                items.forEach(item -> result.put(item.getId(), item));
+            }
+        }
+        return result;
     }
 
     private FSNodeDto findByPath(List<FSNodeDto> list, String[] pathArr) {

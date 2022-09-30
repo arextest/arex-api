@@ -8,7 +8,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
 @Mapper
-public interface FSInterfaceMapper {
+public interface FSInterfaceMapper extends FSItemMapper {
     FSInterfaceMapper INSTANCE = Mappers.getMapper(FSInterfaceMapper.class);
 
     FSInterfaceDto dtoFromContract(FSSaveInterfaceRequestType contract);

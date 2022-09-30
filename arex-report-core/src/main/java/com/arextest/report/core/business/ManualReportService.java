@@ -4,6 +4,7 @@ import com.arextest.report.core.repository.*;
 import com.arextest.report.model.api.contracts.manualreport.*;
 import com.arextest.report.model.dto.filesystem.FSCaseDto;
 import com.arextest.report.model.dto.filesystem.FSInterfaceDto;
+import com.arextest.report.model.dto.filesystem.FSItemDto;
 import com.arextest.report.model.dto.filesystem.FSNodeDto;
 import com.arextest.report.model.dto.filesystem.FSTreeDto;
 import com.arextest.report.model.dto.manualreport.ManualReportCaseDto;
@@ -39,8 +40,9 @@ public class ManualReportService {
         InitManualReportResponseType response = new InitManualReportResponseType();
         response.setInterfaces(new ArrayList<>());
 
-        List<FSCaseDto> cases = fsCaseRepository.queryCases(request.getCaseIds());
-        Map<String, List<FSCaseDto>> caseMap = cases.stream().collect(Collectors.groupingBy(FSCaseDto::getParentId));
+        List<FSItemDto> cases = fsCaseRepository.queryCases(request.getCaseIds());
+        Map<String, List<FSCaseDto>> caseMap =
+                cases.stream().map(c -> (FSCaseDto) c).collect(Collectors.groupingBy(FSCaseDto::getParentId));
         Set<String> interfaceIds = cases.stream().map(c -> c.getParentId()).collect(Collectors.toSet());
         Set<String> ids = cases.stream().map(c -> c.getId()).collect(Collectors.toSet());
         ids.addAll(interfaceIds);
@@ -52,14 +54,14 @@ public class ManualReportService {
         response.setReportId(planDto.getId());
 
         // init manualPlanItems
-        List<FSInterfaceDto> interfaceDtos = fsInterfaceRepository.queryInterfaces(interfaceIds);
-        for (FSInterfaceDto interfaceDto : interfaceDtos) {
+        List<FSItemDto> interfaceDtos = fsInterfaceRepository.queryInterfaces(interfaceIds);
+        for (FSItemDto interfaceDto : interfaceDtos) {
             List<FSCaseDto> filterCases = caseMap.get(interfaceDto.getId());
             if (filterCases == null || filterCases.size() == 0) {
                 continue;
             }
             ManualReportPlanItemDto planItemDto =
-                    ManualReportPlanItemMapper.INSTANCE.dtoFromFsInterfaceDto(interfaceDto);
+                    ManualReportPlanItemMapper.INSTANCE.dtoFromFsInterfaceDto((FSInterfaceDto) interfaceDto);
             planItemDto.setPlanId(planDto.getId());
             planItemDto.setInterfaceName(idNameMap.get(planItemDto.getId()));
             planItemDto.setId(null);

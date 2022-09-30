@@ -2,10 +2,13 @@ package com.arextest.report.core.business.filesystem;
 
 import com.arextest.report.core.repository.FSCaseRepository;
 import com.arextest.report.model.dto.filesystem.FSCaseDto;
+import com.arextest.report.model.dto.filesystem.FSItemDto;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Component("2")
 public class CaseItemInfo implements ItemInfo {
@@ -31,5 +34,9 @@ public class CaseItemInfo implements ItemInfo {
         dto.setId(null);
         dto.setParentId(parentId);
         return fsCaseRepository.duplicate(dto);
+    }
+    @Override
+    public List<FSItemDto> queryByIds(List<String> ids) {
+        return fsCaseRepository.queryCases(ids);
     }
 }
