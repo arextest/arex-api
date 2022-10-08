@@ -10,15 +10,20 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-@Component("1")
+@Component("ItemInfo-1")
 public class InterfaceItemInfo implements ItemInfo {
 
     @Resource
     private FSInterfaceRepository fsInterfaceRepository;
 
     @Override
-    public String saveItem(String parentId, Integer parentNodeType, String workspaceId) {
+    public String initItem(String parentId, Integer parentNodeType, String workspaceId) {
         return fsInterfaceRepository.initInterface(parentId, parentNodeType, workspaceId);
+    }
+    @Override
+    public String saveItem(String parentId, Integer parentNodeType, String workspaceId, FSItemDto dto) {
+        FSInterfaceDto interfaceDto = fsInterfaceRepository.saveInterface((FSInterfaceDto) dto);
+        return interfaceDto.getId();
     }
     @Override
     public Boolean removeItem(String infoId) {

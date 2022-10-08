@@ -11,15 +11,20 @@ import javax.annotation.Resource;
 import java.util.List;
 import java.util.Set;
 
-@Component("3")
+@Component("ItemInfo-3")
 public class FolderItemInfo implements ItemInfo {
 
     @Resource
     private FSFolderRepository fsFolderRepository;
 
     @Override
-    public String saveItem(String parentId, Integer parentNodeType, String workspaceId) {
+    public String initItem(String parentId, Integer parentNodeType, String workspaceId) {
         return fsFolderRepository.initFolder(parentId, parentNodeType, workspaceId);
+    }
+    @Override
+    public String saveItem(String parentId, Integer parentNodeType, String workspaceId, FSItemDto dto) {
+        FSFolderDto folderDto = fsFolderRepository.saveFolder((FSFolderDto) dto);
+        return folderDto.getId();
     }
     @Override
     public Boolean removeItem(String infoId) {

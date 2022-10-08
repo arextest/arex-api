@@ -12,12 +12,14 @@ import java.util.Map;
  */
 @Component
 public class ImportExportFactory {
+    private static final String IMPORT_EXPORT = "ImportExport-";
     @Resource
     private Map<String, ImportExport> importExportMap;
 
     public ImportExport getImportExport(Integer type) {
-        if (importExportMap.containsKey(type.toString())) {
-            return importExportMap.get(type.toString());
+        String key = IMPORT_EXPORT + type.toString();
+        if (importExportMap.containsKey(key)) {
+            return importExportMap.get(key);
         }
         return null;
     }

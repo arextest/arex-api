@@ -19,4 +19,6 @@ public interface FSFolderRepository extends RepositoryProvider {
     String duplicate(FSFolderDto dto);
 
     List<FSItemDto> queryByIds(List<String> ids);
+
+    FSFolderDto saveFolder(FSFolderDto dto);
 }

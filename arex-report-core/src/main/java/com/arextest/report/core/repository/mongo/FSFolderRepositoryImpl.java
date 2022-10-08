@@ -4,15 +4,20 @@ package com.arextest.report.core.repository.mongo;
 import com.arextest.report.core.repository.FSFolderRepository;
 import com.arextest.report.core.repository.mongo.util.MongoHelper;
 import com.arextest.report.model.dao.mongodb.FSFolderCollection;
+import com.arextest.report.model.dao.mongodb.FSInterfaceCollection;
 import com.arextest.report.model.dto.filesystem.FSFolderDto;
 import com.arextest.report.model.dto.filesystem.FSItemDto;
 import com.arextest.report.model.mapper.FSFolderMapper;
+import com.arextest.report.model.mapper.FSInterfaceMapper;
 import com.mongodb.client.result.DeleteResult;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
+import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -75,5 +80,27 @@ public class FSFolderRepositoryImpl implements FSFolderRepository {
         Query query = Query.query(Criteria.where(DASH_ID).in(objectIds));
         List<FSFolderCollection> results = mongoTemplate.find(query, FSFolderCollection.class);
         return results.stream().map(FSFolderMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
+    }
+    @Override
+    public FSFolderDto saveFolder(FSFolderDto dto) {
+        if (StringUtils.isEmpty(dto.getId())) {
+            FSFolderCollection dao = FSFolderMapper.INSTANCE.daoFromDto(dto);
+            dao = mongoTemplate.save(dao);
+            return FSFolderMapper.INSTANCE.dtoFromDao(dao);
+        } else {
+            Query query = Query.query(Criteria.where(DASH_ID).is(new ObjectId(dto.getId())));
+            Update update = MongoHelper.getUpdate();
+
+            FSFolderCollection dao = FSFolderMapper.INSTANCE.daoFromDto(dto);
+            MongoHelper.appendFullProperties(update, dao);
+
+            FSFolderCollection result = mongoTemplate.findAndModify(query,
+                    update,
+                    FindAndModifyOptions.options().returnNew(true),
+                    FSFolderCollection.class);
+
+            return FSFolderMapper.INSTANCE.dtoFromDao(result);
+        }
+
     }
 }

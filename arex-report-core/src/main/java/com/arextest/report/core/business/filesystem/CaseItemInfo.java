@@ -10,15 +10,20 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@Component("2")
+@Component("ItemInfo-2")
 public class CaseItemInfo implements ItemInfo {
 
     @Resource
     private FSCaseRepository fsCaseRepository;
 
     @Override
-    public String saveItem(String parentId, Integer parentNodeType, String workspaceId) {
+    public String initItem(String parentId, Integer parentNodeType, String workspaceId) {
         return fsCaseRepository.initCase(parentId, parentNodeType, workspaceId);
+    }
+    @Override
+    public String saveItem(String parentId, Integer parentNodeType, String workspaceId, FSItemDto dto) {
+        FSCaseDto caseDto = fsCaseRepository.saveCase((FSCaseDto) dto);
+        return caseDto.getId();
     }
     @Override
     public Boolean removeItem(String infoId) {

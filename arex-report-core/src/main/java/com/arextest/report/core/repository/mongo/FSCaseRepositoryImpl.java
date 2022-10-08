@@ -4,8 +4,10 @@ import com.arextest.report.core.repository.FSCaseRepository;
 import com.arextest.report.core.repository.mongo.util.MongoHelper;
 import com.arextest.report.model.dao.mongodb.FSCaseCollection;
 import com.arextest.report.model.dto.filesystem.FSCaseDto;
+import com.arextest.report.model.dto.filesystem.FSItemDto;
 import com.arextest.report.model.mapper.FSCaseMapper;
 import com.mongodb.client.result.DeleteResult;
+import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -50,17 +52,23 @@ public class FSCaseRepositoryImpl implements FSCaseRepository {
     }
     @Override
     public FSCaseDto saveCase(FSCaseDto dto) {
-        Query query = Query.query(Criteria.where(DASH_ID).is(dto.getId()));
-        Update update = MongoHelper.getUpdate();
+        if (StringUtils.isEmpty(dto.getId())) {
+            FSCaseCollection dao = FSCaseMapper.INSTANCE.daoFromDto(dto);
+            dao = mongoTemplate.save(dao);
+            return FSCaseMapper.INSTANCE.dtoFromDao(dao);
+        } else {
+            Query query = Query.query(Criteria.where(DASH_ID).is(new ObjectId(dto.getId())));
+            Update update = MongoHelper.getUpdate();
 
-        FSCaseCollection dao = FSCaseMapper.INSTANCE.daoFromDto(dto);
-        MongoHelper.appendFullProperties(update, dao);
+            FSCaseCollection dao = FSCaseMapper.INSTANCE.daoFromDto(dto);
+            MongoHelper.appendFullProperties(update, dao);
 
-        FSCaseCollection result = mongoTemplate.findAndModify(query,
-                update,
-                FindAndModifyOptions.options().returnNew(true).upsert(true),
-                FSCaseCollection.class);
-        return FSCaseMapper.INSTANCE.dtoFromDao(result);
+            FSCaseCollection result = mongoTemplate.findAndModify(query,
+                    update,
+                    FindAndModifyOptions.options().returnNew(true),
+                    FSCaseCollection.class);
+            return FSCaseMapper.INSTANCE.dtoFromDao(result);
+        }
     }
     @Override
     public FSCaseDto queryCase(String id) {
@@ -71,7 +79,7 @@ public class FSCaseRepositoryImpl implements FSCaseRepository {
         return FSCaseMapper.INSTANCE.dtoFromDao(dao);
     }
     @Override
-    public List<FSCaseDto> queryCases(List<String> ids) {
+    public List<FSItemDto> queryCases(List<String> ids) {
         List<ObjectId> objectIds = ids.stream().map(id -> new ObjectId(id)).collect(Collectors.toList());
         Query query = Query.query(Criteria.where(DASH_ID).in(objectIds));
         List<FSCaseCollection> daos = mongoTemplate.find(query, FSCaseCollection.class);

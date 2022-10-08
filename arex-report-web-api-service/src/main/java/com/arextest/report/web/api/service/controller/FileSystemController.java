@@ -8,21 +8,53 @@ import com.arextest.report.common.Tuple;
 import com.arextest.report.core.business.filesystem.FileSystemService;
 import com.arextest.report.core.business.filesystem.RolePermission;
 import com.arextest.report.model.api.contracts.SuccessResponseType;
-import com.arextest.report.model.api.contracts.filesystem.*;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.Data;
+import com.arextest.report.model.api.contracts.filesystem.FSAddItemFromRecordRequestType;
+import com.arextest.report.model.api.contracts.filesystem.FSAddItemFromRecordResponseType;
+import com.arextest.report.model.api.contracts.filesystem.FSAddItemRequestType;
+import com.arextest.report.model.api.contracts.filesystem.FSAddItemResponseType;
+import com.arextest.report.model.api.contracts.filesystem.FSAddWorkspaceRequestType;
+import com.arextest.report.model.api.contracts.filesystem.FSAddWorkspaceResponseType;
+import com.arextest.report.model.api.contracts.filesystem.FSDeleteWorkspaceRequestType;
+import com.arextest.report.model.api.contracts.filesystem.FSDuplicateRequestType;
+import com.arextest.report.model.api.contracts.filesystem.FSExportItemRequestType;
+import com.arextest.report.model.api.contracts.filesystem.FSExportItemResponseType;
+import com.arextest.report.model.api.contracts.filesystem.FSImportItemRequestType;
+import com.arextest.report.model.api.contracts.filesystem.FSMoveItemRequestType;
+import com.arextest.report.model.api.contracts.filesystem.FSQueryCaseRequestType;
+import com.arextest.report.model.api.contracts.filesystem.FSQueryCaseResponseType;
+import com.arextest.report.model.api.contracts.filesystem.FSQueryInterfaceRequestType;
+import com.arextest.report.model.api.contracts.filesystem.FSQueryInterfaceResponseType;
+import com.arextest.report.model.api.contracts.filesystem.FSQueryUsersByWorkspaceRequestType;
+import com.arextest.report.model.api.contracts.filesystem.FSQueryUsersByWorkspaceResponseType;
+import com.arextest.report.model.api.contracts.filesystem.FSQueryWorkspaceRequestType;
+import com.arextest.report.model.api.contracts.filesystem.FSQueryWorkspaceResponseType;
+import com.arextest.report.model.api.contracts.filesystem.FSQueryWorkspacesRequestType;
+import com.arextest.report.model.api.contracts.filesystem.FSQueryWorkspacesResponseType;
+import com.arextest.report.model.api.contracts.filesystem.FSRemoveItemRequestType;
+import com.arextest.report.model.api.contracts.filesystem.FSRemoveItemResponseType;
+import com.arextest.report.model.api.contracts.filesystem.FSRenameRequestType;
+import com.arextest.report.model.api.contracts.filesystem.FSRenameResponseType;
+import com.arextest.report.model.api.contracts.filesystem.FSRenameWorkspaceRequestType;
+import com.arextest.report.model.api.contracts.filesystem.FSSaveCaseRequestType;
+import com.arextest.report.model.api.contracts.filesystem.FSSaveCaseResponseType;
+import com.arextest.report.model.api.contracts.filesystem.FSSaveInterfaceRequestType;
+import com.arextest.report.model.api.contracts.filesystem.FSSaveInterfaceResponseType;
+import com.arextest.report.model.api.contracts.filesystem.InviteToWorkspaceRequestType;
+import com.arextest.report.model.api.contracts.filesystem.InviteToWorkspaceResponseType;
+import com.arextest.report.model.api.contracts.filesystem.LeaveWorkspaceRequestType;
+import com.arextest.report.model.api.contracts.filesystem.ValidInvitationRequestType;
+import com.arextest.report.model.api.contracts.filesystem.ValidInvitationResponseType;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.tomcat.util.http.ResponseUtil;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.List;
 
 @Slf4j
 @Controller
@@ -382,13 +414,36 @@ public class FileSystemController {
 
     @PostMapping("/export")
     @ResponseBody
-    public Response test(@RequestBody FSExportItemRequestType request) {
+    public Response exportItem(@RequestBody FSExportItemRequestType request) {
         if (StringUtils.isEmpty(request.getWorkspaceId())) {
             return ResponseUtils.errorResponse("WorkspaceId cannot be empty", ResponseCode.REQUESTED_PARAMETER_INVALID);
         }
         try {
             FSExportItemResponseType response = new FSExportItemResponseType();
+            Tuple<Boolean, String> result = fileSystemService.exportItem(request);
+            if (!result.x) {
+                return ResponseUtils.errorResponse("Failed to export items", ResponseCode.REQUESTED_HANDLE_EXCEPTION);
+            }
+            response.setExportString(result.y);
+            return ResponseUtils.successResponse(response);
+        } catch (Exception e) {
+            return ResponseUtils.errorResponse(e.getMessage(), ResponseCode.REQUESTED_HANDLE_EXCEPTION);
+        }
+    }
 
+    @PostMapping("/import")
+    @ResponseBody
+    public Response importItem(@RequestBody FSImportItemRequestType request) {
+        if (StringUtils.isEmpty(request.getWorkspaceId())) {
+            return ResponseUtils.errorResponse("WorkspaceId cannot be empty", ResponseCode.REQUESTED_PARAMETER_INVALID);
+        }
+        if (StringUtils.isEmpty(request.getImportString())) {
+            return ResponseUtils.errorResponse("Import string cannot be empty",
+                    ResponseCode.REQUESTED_PARAMETER_INVALID);
+        }
+        try {
+            SuccessResponseType response = new SuccessResponseType();
+            response.setSuccess(fileSystemService.importItem(request));
             return ResponseUtils.successResponse(response);
         } catch (Exception e) {
             return ResponseUtils.errorResponse(e.getMessage(), ResponseCode.REQUESTED_HANDLE_EXCEPTION);
