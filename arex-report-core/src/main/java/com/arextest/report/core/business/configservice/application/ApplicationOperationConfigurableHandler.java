@@ -2,6 +2,7 @@ package com.arextest.report.core.business.configservice.application;
 
 import com.arextest.report.core.business.configservice.handler.AbstractConfigurableHandler;
 import com.arextest.report.core.repository.ConfigRepositoryProvider;
+import com.arextest.report.core.repository.mongo.ApplicationOperationConfigurationRepositoryImpl;
 import com.arextest.report.model.api.contracts.configservice.application.ApplicationOperationConfiguration;
 import com.arextest.report.model.api.contracts.configservice.record.ServiceCollectConfiguration;
 import org.apache.commons.lang3.StringUtils;
@@ -15,13 +16,16 @@ import javax.annotation.Resource;
  * @since 2022/1/23
  */
 @Component
-final class ApplicationOperationConfigurableHandler extends AbstractConfigurableHandler<ApplicationOperationConfiguration> {
+public final class ApplicationOperationConfigurableHandler extends AbstractConfigurableHandler<ApplicationOperationConfiguration> {
     @Resource
     private ServiceCollectConfiguration globalDefaultConfiguration;
 
     protected ApplicationOperationConfigurableHandler(@Autowired ConfigRepositoryProvider<ApplicationOperationConfiguration> repositoryProvider) {
         super(repositoryProvider);
     }
+
+    @Autowired
+    ApplicationOperationConfigurationRepositoryImpl applicationOperationConfigurationRepository;
 
     @Override
     public boolean insert(ApplicationOperationConfiguration configuration) {
@@ -38,6 +42,10 @@ final class ApplicationOperationConfigurableHandler extends AbstractConfigurable
             return super.insert(configuration);
         }
         return true;
+    }
+
+    public ApplicationOperationConfiguration useResultById(String operationId){
+        return applicationOperationConfigurationRepository.listByOperationId(operationId);
     }
 
     private boolean isIncludedOperation(String operationName) {

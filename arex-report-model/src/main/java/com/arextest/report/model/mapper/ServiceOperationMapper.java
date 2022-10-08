@@ -18,6 +18,12 @@ public interface ServiceOperationMapper {
     ApplicationOperationConfiguration dtoFromDao(ServiceOperationCollection dao);
 
     @Mappings({
+            @Mapping(target = "modifiedTime", expression = "java(dao.getDataChangeUpdateTime() == null ? null : new java.sql.Timestamp(dao.getDataChangeUpdateTime()))"),
+            @Mapping(target = "operationResponse", expression = "java(null)")
+    })
+    ApplicationOperationConfiguration baseInfoFromDao(ServiceOperationCollection dao);
+
+    @Mappings({
             @Mapping(target = "id", expression = "java(null)"),
             @Mapping(target = "dataChangeCreateTime", expression = "java(System.currentTimeMillis())"),
             @Mapping(target = "dataChangeUpdateTime", expression = "java(System.currentTimeMillis())")

@@ -14,5 +14,6 @@ public class ApplicationOperationConfiguration extends AbstractConfiguration imp
     private String serviceId;
     private String operationName;
     private int operationType;
+    private String operationResponse;
     private Integer recordedCaseCount;
 }

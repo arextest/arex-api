@@ -30,11 +30,7 @@ public class ApplicationServiceConfigurationRepositoryImpl implements ConfigRepo
 
     @Override
     public List<ApplicationServiceConfiguration> list() {
-        Query query = new Query();
-        List<ServiceCollection> serviceCollections = mongoTemplate.find(query, ServiceCollection.class);
-        List<ApplicationServiceConfiguration> applicationServiceConfigurations = serviceCollections.stream().map(ServiceMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
-        applicationServiceConfigurations.forEach(item -> item.setOperationList(applicationOperationConfigurationRepository.operationList(item.getId())));
-        return applicationServiceConfigurations;
+        throw new UnsupportedOperationException("this method is not implemented");
     }
 
     @Override
@@ -42,7 +38,7 @@ public class ApplicationServiceConfigurationRepositoryImpl implements ConfigRepo
         Query query = Query.query(Criteria.where(APP_ID).is(appId));
         List<ServiceCollection> serviceCollections = mongoTemplate.find(query, ServiceCollection.class);
         List<ApplicationServiceConfiguration> applicationServiceConfigurations = serviceCollections.stream().map(ServiceMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
-        applicationServiceConfigurations.forEach(item -> item.setOperationList(applicationOperationConfigurationRepository.operationList(item.getId())));
+        applicationServiceConfigurations.forEach(item -> item.setOperationList(applicationOperationConfigurationRepository.operationBaseInfoList(item.getId())));
         return applicationServiceConfigurations;
     }
 
