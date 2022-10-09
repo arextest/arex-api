@@ -6,9 +6,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class FSCaseDto {
-    private String id;
-    private String workspaceId;
+public class FSCaseDto extends FSItemDto {
     private AddressDto address;
     private String preRequestScript;
     private String testScript;
@@ -18,6 +16,4 @@ public class FSCaseDto {
     private AuthDto auth;
     private AddressDto baseAddress;
     private AddressDto testAddress;
-    private String parentId;
-    private Integer parentNodeType;
 }

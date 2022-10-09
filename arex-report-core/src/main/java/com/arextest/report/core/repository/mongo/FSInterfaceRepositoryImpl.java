@@ -4,11 +4,12 @@ import com.arextest.report.core.repository.FSInterfaceRepository;
 import com.arextest.report.core.repository.mongo.util.MongoHelper;
 import com.arextest.report.model.dao.mongodb.FSInterfaceCollection;
 import com.arextest.report.model.dao.mongodb.entity.AddressDao;
-import com.arextest.report.model.dto.filesystem.AddressDto;
 import com.arextest.report.model.dto.filesystem.FSInterfaceDto;
+import com.arextest.report.model.dto.filesystem.FSItemDto;
 import com.arextest.report.model.mapper.FSInterfaceMapper;
 import com.mongodb.client.result.DeleteResult;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -61,18 +62,24 @@ public class FSInterfaceRepositoryImpl implements FSInterfaceRepository {
 
     @Override
     public FSInterfaceDto saveInterface(FSInterfaceDto interfaceDto) {
-        Query query = Query.query(Criteria.where(DASH_ID).is(interfaceDto.getId()));
-        Update update = MongoHelper.getUpdate();
+        if (StringUtils.isEmpty(interfaceDto.getId())) {
+            FSInterfaceCollection dao = FSInterfaceMapper.INSTANCE.daoFromDto(interfaceDto);
+            dao = mongoTemplate.save(dao);
+            return FSInterfaceMapper.INSTANCE.dtoFromDao(dao);
+        } else {
+            Query query = Query.query(Criteria.where(DASH_ID).is(new ObjectId(interfaceDto.getId())));
+            Update update = MongoHelper.getUpdate();
 
-        FSInterfaceCollection dao = FSInterfaceMapper.INSTANCE.daoFromDto(interfaceDto);
-        MongoHelper.appendFullProperties(update, dao);
+            FSInterfaceCollection dao = FSInterfaceMapper.INSTANCE.daoFromDto(interfaceDto);
+            MongoHelper.appendFullProperties(update, dao);
 
-        FSInterfaceCollection result = mongoTemplate.findAndModify(query,
-                update,
-                FindAndModifyOptions.options().upsert(true).returnNew(true),
-                FSInterfaceCollection.class);
+            FSInterfaceCollection result = mongoTemplate.findAndModify(query,
+                    update,
+                    FindAndModifyOptions.options().returnNew(true),
+                    FSInterfaceCollection.class);
 
-        return FSInterfaceMapper.INSTANCE.dtoFromDao(result);
+            return FSInterfaceMapper.INSTANCE.dtoFromDao(result);
+        }
     }
 
     @Override
@@ -84,7 +91,7 @@ public class FSInterfaceRepositoryImpl implements FSInterfaceRepository {
         return FSInterfaceMapper.INSTANCE.dtoFromDao(dao);
     }
     @Override
-    public List<FSInterfaceDto> queryInterfaces(Set<String> ids) {
+    public List<FSItemDto> queryInterfaces(Set<String> ids) {
         Set<ObjectId> objectIds = ids.stream().map(id -> new ObjectId(id)).collect(Collectors.toSet());
         Query query = Query.query(Criteria.where(DASH_ID).in(objectIds));
         List<FSInterfaceCollection> daos = mongoTemplate.find(query, FSInterfaceCollection.class);

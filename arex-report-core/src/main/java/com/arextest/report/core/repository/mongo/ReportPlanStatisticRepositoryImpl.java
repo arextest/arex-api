@@ -333,13 +333,7 @@ public class ReportPlanStatisticRepositoryImpl implements ReportPlanStatisticRep
         }
 
         if (!StringUtils.isEmpty(request.getAppId())) {
-            Criteria criteria = new Criteria();
-            criteria.orOperator(
-                    Criteria.where(APP_ID).regex(".*?" + request.getAppId() + ".*"),
-                    Criteria.where(APP_NAME).regex(".*?" + request.getAppId() + ".*"),
-                    Criteria.where(PLAN_NAME).regex(".*?" + request.getAppId() + ".*")
-            );
-            query.addCriteria(criteria);
+            query.addCriteria(Criteria.where(APP_ID).is(request.getAppId()));
         }
         return query;
     }
