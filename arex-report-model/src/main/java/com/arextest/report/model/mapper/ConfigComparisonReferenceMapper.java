@@ -1,28 +1,30 @@
 package com.arextest.report.model.mapper;
 
 
-import com.arextest.report.model.api.contracts.config.record.DynamicClassConfiguration;
-import com.arextest.report.model.dao.mongodb.DynamicClassCollection;
+import com.arextest.report.model.api.contracts.config.replay.ComparisonReferenceConfiguration;
+import com.arextest.report.model.dao.mongodb.ConfigComparisonReferenceCollection;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
 import org.mapstruct.factory.Mappers;
 
-
+/**
+ * Created by rchen9 on 2022/9/16.
+ */
 @Mapper
-public interface DynamicClassMapper {
+public interface ConfigComparisonReferenceMapper {
 
-    DynamicClassMapper INSTANCE = Mappers.getMapper(DynamicClassMapper.class);
+    ConfigComparisonReferenceMapper INSTANCE = Mappers.getMapper(ConfigComparisonReferenceMapper.class);
 
     @Mappings({
             @Mapping(target = "modifiedTime", expression = "java(dao.getDataChangeUpdateTime() == null ? null : new java.sql.Timestamp(dao.getDataChangeUpdateTime()))")
     })
-    DynamicClassConfiguration dtoFromDao(DynamicClassCollection dao);
+    ComparisonReferenceConfiguration dtoFromDao(ConfigComparisonReferenceCollection dao);
 
     @Mappings({
             @Mapping(target = "id", expression = "java(null)"),
             @Mapping(target = "dataChangeCreateTime", expression = "java(System.currentTimeMillis())"),
             @Mapping(target = "dataChangeUpdateTime", expression = "java(System.currentTimeMillis())")
     })
-    DynamicClassCollection daoFromDto(DynamicClassConfiguration dto);
+    ConfigComparisonReferenceCollection daoFromDto(ComparisonReferenceConfiguration dto);
 }
