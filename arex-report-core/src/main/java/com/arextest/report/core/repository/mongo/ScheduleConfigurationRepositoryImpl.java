@@ -4,7 +4,7 @@ package com.arextest.report.core.repository.mongo;
 import com.arextest.report.core.repository.ConfigRepositoryField;
 import com.arextest.report.core.repository.ConfigRepositoryProvider;
 import com.arextest.report.core.repository.mongo.util.MongoHelper;
-import com.arextest.report.model.api.contracts.configservice.replay.ScheduleConfiguration;
+import com.arextest.report.model.api.contracts.config.replay.ScheduleConfiguration;
 import com.arextest.report.model.dao.mongodb.ReplayScheduleConfigCollection;
 import com.arextest.report.model.mapper.ReplayScheduleConfigMapper;
 import com.mongodb.client.result.DeleteResult;

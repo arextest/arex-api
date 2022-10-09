@@ -1,7 +1,7 @@
 package com.arextest.report.model.mapper;
 
 
-import com.arextest.report.model.api.contracts.configservice.application.ApplicationOperationConfiguration;
+import com.arextest.report.model.api.contracts.config.application.ApplicationOperationConfiguration;
 import com.arextest.report.model.dao.mongodb.ServiceOperationCollection;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

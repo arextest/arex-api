@@ -3,7 +3,7 @@ package com.arextest.report.core.repository.mongo;
 import com.arextest.report.core.repository.ConfigRepositoryField;
 import com.arextest.report.core.repository.ConfigRepositoryProvider;
 import com.arextest.report.core.repository.mongo.util.MongoHelper;
-import com.arextest.report.model.api.contracts.configservice.record.DynamicClassConfiguration;
+import com.arextest.report.model.api.contracts.config.record.DynamicClassConfiguration;
 import com.arextest.report.model.dao.mongodb.DynamicClassCollection;
 import com.arextest.report.model.mapper.DynamicClassMapper;
 import com.mongodb.client.result.DeleteResult;

@@ -1,7 +1,7 @@
 package com.arextest.report.model.mapper;
 
-import com.arextest.report.model.api.contracts.configservice.record.ServiceCollectConfiguration;
-import com.arextest.report.model.api.contracts.configservice.yamlTemplate.ServiceConfig;
+import com.arextest.report.model.api.contracts.config.record.ServiceCollectConfiguration;
+import com.arextest.report.model.api.contracts.config.yamlTemplate.ServiceConfig;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 

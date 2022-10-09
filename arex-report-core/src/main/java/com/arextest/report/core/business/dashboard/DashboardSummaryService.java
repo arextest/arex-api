@@ -1,7 +1,7 @@
 package com.arextest.report.core.business.dashboard;
 
 import com.arextest.report.core.business.CaseCountService;
-import com.arextest.report.core.business.configservice.handler.ViewHandler;
+import com.arextest.report.core.business.config.handler.ViewHandler;
 import com.arextest.report.core.repository.ReportPlanStatisticRepository;
 import com.arextest.report.model.api.contracts.DashboardAllAppDailyResultsRequestType;
 import com.arextest.report.model.api.contracts.DashboardAllAppDailyResultsResponseType;
@@ -12,7 +12,7 @@ import com.arextest.report.model.api.contracts.common.AppCaseDailyResult;
 import com.arextest.report.model.api.contracts.common.AppCaseResult;
 import com.arextest.report.model.api.contracts.common.AppDescription;
 import com.arextest.report.model.api.contracts.common.CaseCount;
-import com.arextest.report.model.api.contracts.configservice.dashboard.AppDashboardView;
+import com.arextest.report.model.api.contracts.config.dashboard.AppDashboardView;
 import com.arextest.report.model.dto.LatestDailySuccessPlanIdDto;
 import com.arextest.report.model.dto.ReportPlanStatisticDto;
 import com.arextest.report.model.enums.ReplayStatusType;

@@ -1,7 +1,7 @@
 package com.arextest.report.model.mapper;
 
 
-import com.arextest.report.model.api.contracts.configservice.replay.ComparisonListSortConfiguration;
+import com.arextest.report.model.api.contracts.config.replay.ComparisonListSortConfiguration;
 import com.arextest.report.model.dao.mongodb.ConfigComparisonListSortCollection;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

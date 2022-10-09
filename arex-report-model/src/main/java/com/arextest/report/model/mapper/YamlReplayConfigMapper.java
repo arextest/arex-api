@@ -1,7 +1,7 @@
 package com.arextest.report.model.mapper;
 
-import com.arextest.report.model.api.contracts.configservice.replay.ScheduleConfiguration;
-import com.arextest.report.model.api.contracts.configservice.yamlTemplate.ReplayConfig;
+import com.arextest.report.model.api.contracts.config.replay.ScheduleConfiguration;
+import com.arextest.report.model.api.contracts.config.yamlTemplate.ReplayConfig;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 

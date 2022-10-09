@@ -1,7 +1,7 @@
 package com.arextest.report.model.mapper;
 
-import com.arextest.report.model.api.contracts.configservice.record.DynamicClassConfiguration;
-import com.arextest.report.model.api.contracts.configservice.yamlTemplate.DynamicClass;
+import com.arextest.report.model.api.contracts.config.record.DynamicClassConfiguration;
+import com.arextest.report.model.api.contracts.config.yamlTemplate.DynamicClass;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 

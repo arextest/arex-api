@@ -1,13 +1,13 @@
 package com.arextest.report;
 
-import com.arextest.report.core.business.configservice.QueryYamlTemplateService;
-import com.arextest.report.core.business.configservice.UpdateYamlTemplateService;
+import com.arextest.report.core.business.config.QueryYamlTemplateService;
+import com.arextest.report.core.business.config.UpdateYamlTemplateService;
 import com.arextest.report.core.repository.mongo.ApplicationOperationConfigurationRepositoryImpl;
 import com.arextest.report.core.repository.mongo.DynamicClassConfigurationRepositoryImpl;
-import com.arextest.report.model.api.contracts.configservice.PushYamlTemplateRequestType;
-import com.arextest.report.model.api.contracts.configservice.QueryYamlTemplateRequestType;
-import com.arextest.report.model.api.contracts.configservice.QueryYamlTemplateResponseType;
-import com.arextest.report.model.api.contracts.configservice.application.ApplicationOperationConfiguration;
+import com.arextest.report.model.api.contracts.config.PushYamlTemplateRequestType;
+import com.arextest.report.model.api.contracts.config.QueryYamlTemplateRequestType;
+import com.arextest.report.model.api.contracts.config.QueryYamlTemplateResponseType;
+import com.arextest.report.model.api.contracts.config.application.ApplicationOperationConfiguration;
 import com.arextest.report.web.api.service.WebSpringBootServletInitializer;
 import org.junit.Test;
 import org.junit.runner.RunWith;

@@ -1,7 +1,7 @@
 package com.arextest.report.model.mapper;
 
 
-import com.arextest.report.model.api.contracts.configservice.replay.ComparisonReferenceConfiguration;
+import com.arextest.report.model.api.contracts.config.replay.ComparisonReferenceConfiguration;
 import com.arextest.report.model.dao.mongodb.ConfigComparisonReferenceCollection;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

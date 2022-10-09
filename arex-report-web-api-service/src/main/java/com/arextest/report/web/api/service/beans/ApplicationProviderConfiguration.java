@@ -1,8 +1,8 @@
 package com.arextest.report.web.api.service.beans;
 
-import com.arextest.report.core.business.configservice.provider.Providers;
-import com.arextest.report.model.api.contracts.configservice.application.provider.ApplicationDescriptionProvider;
-import com.arextest.report.model.api.contracts.configservice.application.provider.ApplicationServiceDescriptionProvider;
+import com.arextest.report.core.business.config.provider.Providers;
+import com.arextest.report.model.api.contracts.config.application.provider.ApplicationDescriptionProvider;
+import com.arextest.report.model.api.contracts.config.application.provider.ApplicationServiceDescriptionProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -1,6 +1,6 @@
 package com.arextest.report.model.mapper;
 
-import com.arextest.report.model.api.contracts.configservice.replay.ComparisonExclusionsConfiguration;
+import com.arextest.report.model.api.contracts.config.replay.ComparisonExclusionsConfiguration;
 import com.arextest.report.model.dao.mongodb.ConfigComparisonExclusionsCollection;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

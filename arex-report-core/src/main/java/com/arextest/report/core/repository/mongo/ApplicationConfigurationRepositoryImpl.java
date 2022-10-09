@@ -4,7 +4,7 @@ package com.arextest.report.core.repository.mongo;
 import com.arextest.report.core.repository.ConfigRepositoryField;
 import com.arextest.report.core.repository.ConfigRepositoryProvider;
 import com.arextest.report.core.repository.mongo.util.MongoHelper;
-import com.arextest.report.model.api.contracts.configservice.application.ApplicationConfiguration;
+import com.arextest.report.model.api.contracts.config.application.ApplicationConfiguration;
 import com.arextest.report.model.dao.mongodb.AppCollection;
 import com.arextest.report.model.mapper.AppMapper;
 import com.mongodb.client.result.DeleteResult;
