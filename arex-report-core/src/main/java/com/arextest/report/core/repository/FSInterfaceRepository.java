@@ -2,6 +2,7 @@ package com.arextest.report.core.repository;
 
 
 import com.arextest.report.model.dto.filesystem.FSInterfaceDto;
+import com.arextest.report.model.dto.filesystem.FSItemDto;
 
 import java.util.List;
 import java.util.Set;
@@ -17,7 +18,7 @@ public interface FSInterfaceRepository extends RepositoryProvider {
 
     FSInterfaceDto queryInterface(String id);
 
-    List<FSInterfaceDto> queryInterfaces(Set<String> ids);
+    List<FSItemDto> queryInterfaces(Set<String> ids);
 
     String duplicate(FSInterfaceDto dto);
 }
