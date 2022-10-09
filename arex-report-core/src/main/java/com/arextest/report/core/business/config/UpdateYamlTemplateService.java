@@ -62,6 +62,7 @@ public class UpdateYamlTemplateService {
             Map load = (Map) yaml.load(configTemplate);
             templateObj = JSONUtil.toBean(new JSONObject(load), YamlTemplate.class);
         } catch (Exception e) {
+            LOGGER.error("UpdateYamlTemplateService.pushConfigTemplate", e);
         }
 
         if (templateObj == null) {
