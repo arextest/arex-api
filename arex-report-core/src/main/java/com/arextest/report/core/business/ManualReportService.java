@@ -43,7 +43,7 @@ public class ManualReportService {
         List<FSItemDto> cases = fsCaseRepository.queryCases(request.getCaseIds());
         Map<String, List<FSCaseDto>> caseMap =
                 cases.stream().map(c -> (FSCaseDto) c).collect(Collectors.groupingBy(FSCaseDto::getParentId));
-        Set<String> interfaceIds = cases.stream().map(c -> c.getParentId()).collect(Collectors.toSet());
+        Set<String> interfaceIds = caseMap.keySet();
         Set<String> ids = cases.stream().map(c -> c.getId()).collect(Collectors.toSet());
         ids.addAll(interfaceIds);
         Map<String, String> idNameMap = getNames(request.getWorkspaceId(), ids);

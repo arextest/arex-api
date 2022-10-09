@@ -632,6 +632,9 @@ public class FileSystemService {
             return false;
         }
         ImportExport ie = importExportFactory.getImportExport(request.getType());
+        if (ie == null) {
+            return false;
+        }
         return ie.importItem(treeDto, request.getPath(), request.getImportString());
     }
 
