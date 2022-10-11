@@ -19,6 +19,10 @@ public interface ConfigRepositoryProvider<T> {
 
     boolean insert(T configuration);
 
+    default List<T> listBy(String appId, String operationId) {
+        return null;
+    }
+
     default boolean insertList(List<T> configurationList) {
         if (CollectionUtils.isEmpty(configurationList)) {
             return false;
@@ -39,7 +43,7 @@ public interface ConfigRepositoryProvider<T> {
         return true;
     }
 
-    default boolean removeByAppId(String appId){
+    default boolean removeByAppId(String appId) {
         return false;
     }
 

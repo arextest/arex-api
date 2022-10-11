@@ -28,6 +28,7 @@ public class ComparisonListSortConfigurationRepositoryImpl implements ConfigRepo
         ConfigRepositoryField {
 
     private static final String APP_ID = "appId";
+    private static final String OPERATION_ID = "operationId";
     private static final String LIST_PATH = "listPath";
     private static final String KEYS = "keys";
     private static final String EXPIRATION_TYPE = "expirationType";
@@ -49,16 +50,17 @@ public class ComparisonListSortConfigurationRepositoryImpl implements ConfigRepo
         return configComparisonListSortCollections.stream().map(ConfigComparisonListSortMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
     }
 
+    public List<ComparisonListSortConfiguration> listBy(String appId, String operationId) {
+        Query query = Query.query(Criteria.where(APP_ID).is(appId).and(OPERATION_ID).is(operationId));
+        List<ConfigComparisonListSortCollection> configComparisonListSortCollections = mongoTemplate.find(query, ConfigComparisonListSortCollection.class);
+        return configComparisonListSortCollections.stream().map(ConfigComparisonListSortMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
+    }
+
     @Override
     public boolean update(ComparisonListSortConfiguration configuration) {
         Query query = Query.query(Criteria.where(DASH_ID).is(configuration.getId()));
         Update update = MongoHelper.getConfigUpdate();
-        MongoHelper.assertNull("update parameter is null", configuration.getListPath(), configuration.getKeys(),
-                configuration.getExpirationDate());
-        update.set(LIST_PATH, configuration.getListPath());
-        update.set(KEYS, configuration.getKeys());
-        update.set(EXPIRATION_TYPE, configuration.getExpirationType());
-        update.set(EXPIRATION_DATE, configuration.getExpirationDate());
+        MongoHelper.appendSpecifiedProperties(update, configuration, LIST_PATH, KEYS, EXPIRATION_TYPE, EXPIRATION_DATE);
         UpdateResult updateResult = mongoTemplate.updateMulti(query, update, ConfigComparisonListSortCollection.class);
         return updateResult.getModifiedCount() > 0;
     }

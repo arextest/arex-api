@@ -32,6 +32,14 @@ public abstract class AbstractComparisonConfigurableHandler<T extends AbstractCo
         return comparisonDetails;
     }
 
+    public List<T> useResultAsList(String appId, String operationId) {
+        List<T> comparisonDetails = repositoryProvider.listBy(appId, operationId);
+        if (CollectionUtils.isNotEmpty(comparisonDetails)) {
+            comparisonDetails.removeIf(this::removeDetailsExpired);
+        }
+        return comparisonDetails;
+    }
+
     private boolean removeDetailsExpired(T comparisonDetails) {
         int expirationType = comparisonDetails.getExpirationType();
         if (expirationType == ExpirationType.ABSOLUTE_TIME_EXPIRED.getCodeValue()) {
