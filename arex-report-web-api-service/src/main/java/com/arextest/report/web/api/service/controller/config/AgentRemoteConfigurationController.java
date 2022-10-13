@@ -58,10 +58,11 @@ public final class AgentRemoteConfigurationController {
         if (StringUtils.isEmpty(appId)) {
             return InvalidResponse.REQUESTED_APP_ID_IS_EMPTY;
         }
-        String host = request.getHost();
-        if (StringUtils.isEmpty(host)) {
-            return InvalidResponse.REQUESTED_IP_IS_EMPTY;
-        }
+        String host = "127.0.0.1:8080";
+        // String host = request.getHost();
+        // if (StringUtils.isEmpty(host)) {
+        //     return InvalidResponse.REQUESTED_IP_IS_EMPTY;
+        // }
         LOGGER.info("from appId: {} ,remote Ip: {} load config", request.appId, host);
         ApplicationConfiguration applicationConfiguration = this.loadApplicationResult(request);
         if (applicationConfiguration == null) {
