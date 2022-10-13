@@ -40,14 +40,14 @@ public class ServiceCollectConfiguration extends AbstractConfiguration {
      */
     private Set<String> includeServiceSet;
     /**
-     * The main entry's operation should be  recording it.
+     * The main entry's operation should be recording it.
      * if the value is empty, means there is unlimited
      */
     private Set<String> includeOperationSet;
     /**
      * Bit flag composed of bits that indicate which day of the week are enabled to recording.
      * Day of the week that enabled to recording indicates which bit is 1
-     * SUNDAY -> Saturday : the position of 0 -> the position of 6
+     * MONDAY -> SUNDAY : the position of 0 -> the position of 6
      */
     private int allowDayOfWeeks;
     /**

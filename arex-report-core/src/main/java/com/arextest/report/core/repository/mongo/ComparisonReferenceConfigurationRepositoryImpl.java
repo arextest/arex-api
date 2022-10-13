@@ -29,6 +29,7 @@ public class ComparisonReferenceConfigurationRepositoryImpl implements ConfigRep
         ConfigRepositoryField {
 
     private static final String APP_ID = "appId";
+    private static final String OPERATION_ID = "operationId";
     private static final String PK_PATH = "pkPath";
     private static final String FK_PATH = "fkPath";
     private static final String EXPIRATION_TYPE = "expirationType";
@@ -50,16 +51,17 @@ public class ComparisonReferenceConfigurationRepositoryImpl implements ConfigRep
         return configComparisonReferenceCollections.stream().map(ConfigComparisonReferenceMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
     }
 
+    public List<ComparisonReferenceConfiguration> listBy(String appId, String operationId) {
+        Query query = Query.query(Criteria.where(APP_ID).is(appId).and(OPERATION_ID).is(operationId));
+        List<ConfigComparisonReferenceCollection> configComparisonReferenceCollections = mongoTemplate.find(query, ConfigComparisonReferenceCollection.class);
+        return configComparisonReferenceCollections.stream().map(ConfigComparisonReferenceMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
+    }
+
     @Override
     public boolean update(ComparisonReferenceConfiguration configuration) {
         Query query = Query.query(Criteria.where(DASH_ID).is(configuration.getId()));
         Update update = MongoHelper.getConfigUpdate();
-        MongoHelper.assertNull("update parameter is null", configuration.getPkPath(), configuration.getFkPath(),
-                configuration.getExpirationDate());
-        update.set(PK_PATH, configuration.getPkPath());
-        update.set(FK_PATH, configuration.getFkPath());
-        update.set(EXPIRATION_TYPE, configuration.getExpirationType());
-        update.set(EXPIRATION_DATE, configuration.getExpirationDate());
+        MongoHelper.appendSpecifiedProperties(update, configuration, PK_PATH, FK_PATH, EXPIRATION_TYPE, EXPIRATION_DATE);
         UpdateResult updateResult = mongoTemplate.updateMulti(query, update, ConfigComparisonReferenceCollection.class);
         return updateResult.getModifiedCount() > 0;
     }

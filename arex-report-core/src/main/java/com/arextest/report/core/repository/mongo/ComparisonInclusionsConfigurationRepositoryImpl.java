@@ -26,6 +26,7 @@ public class ComparisonInclusionsConfigurationRepositoryImpl implements ConfigRe
         ConfigRepositoryField {
 
     private static final String APP_ID = "appId";
+    private static final String OPERATION_ID = "operationId";
     private static final String INCLUSIONS = "inclusions";
     private static final String EXPIRATION_TYPE = "expirationType";
     private static final String EXPIRATION_DATE = "expirationDate";
@@ -46,15 +47,17 @@ public class ComparisonInclusionsConfigurationRepositoryImpl implements ConfigRe
         return configComparisonInclusionsCollections.stream().map(ConfigComparisonInclusionsMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
     }
 
+    public List<ComparisonInclusionsConfiguration> listBy(String appId, String operationId) {
+        Query query = Query.query(Criteria.where(APP_ID).is(appId).and(OPERATION_ID).is(operationId));
+        List<ConfigComparisonInclusionsCollection> configComparisonInclusionsCollections = mongoTemplate.find(query, ConfigComparisonInclusionsCollection.class);
+        return configComparisonInclusionsCollections.stream().map(ConfigComparisonInclusionsMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
+    }
+
     @Override
     public boolean update(ComparisonInclusionsConfiguration configuration) {
         Query query = Query.query(Criteria.where(DASH_ID).is(configuration.getId()));
         Update update = MongoHelper.getConfigUpdate();
-        MongoHelper.assertNull("update parameter is null", configuration.getInclusions(),
-                configuration.getExpirationDate());
-        update.set(INCLUSIONS, configuration.getInclusions());
-        update.set(EXPIRATION_TYPE, configuration.getExpirationType());
-        update.set(EXPIRATION_DATE, configuration.getExpirationDate());
+        MongoHelper.appendSpecifiedProperties(update, configuration, INCLUSIONS, EXPIRATION_TYPE, EXPIRATION_DATE);
         UpdateResult updateResult = mongoTemplate.updateMulti(query, update, ConfigComparisonInclusionsCollection.class);
         return updateResult.getModifiedCount() > 0;
     }

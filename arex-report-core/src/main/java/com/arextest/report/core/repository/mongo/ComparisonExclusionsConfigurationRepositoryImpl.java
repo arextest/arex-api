@@ -29,6 +29,7 @@ public class ComparisonExclusionsConfigurationRepositoryImpl implements ConfigRe
         ConfigRepositoryField {
 
     private static final String APP_ID = "appId";
+    private static final String OPERATION_ID = "operationId";
     private static final String EXCLUSIONS = "exclusions";
     private static final String EXPIRATION_TYPE = "expirationType";
     private static final String EXPIRATION_DATE = "expirationDate";
@@ -50,14 +51,17 @@ public class ComparisonExclusionsConfigurationRepositoryImpl implements ConfigRe
     }
 
     @Override
+    public List<ComparisonExclusionsConfiguration> listBy(String appId, String operationId) {
+        Query query = Query.query(Criteria.where(APP_ID).is(appId).and(OPERATION_ID).is(operationId));
+        List<ConfigComparisonExclusionsCollection> configComparisonExclusionsCollections = mongoTemplate.find(query, ConfigComparisonExclusionsCollection.class);
+        return configComparisonExclusionsCollections.stream().map(ConfigComparisonExclusionsMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
+    }
+
+    @Override
     public boolean update(ComparisonExclusionsConfiguration configuration) {
         Query query = Query.query(Criteria.where(DASH_ID).is(configuration.getId()));
         Update update = MongoHelper.getConfigUpdate();
-        MongoHelper.assertNull("update parameter is null", configuration.getExclusions(),
-                configuration.getExpirationDate());
-        update.set(EXCLUSIONS, configuration.getExclusions());
-        update.set(EXPIRATION_TYPE, configuration.getExpirationType());
-        update.set(EXPIRATION_DATE, configuration.getExpirationDate());
+        MongoHelper.appendSpecifiedProperties(update, configuration, EXCLUSIONS, EXPIRATION_TYPE, EXPIRATION_DATE);
         UpdateResult updateResult = mongoTemplate.updateMulti(query, update, ConfigComparisonExclusionsCollection.class);
         return updateResult.getModifiedCount() > 0;
     }
