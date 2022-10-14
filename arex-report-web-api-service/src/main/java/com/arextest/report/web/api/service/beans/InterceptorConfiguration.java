@@ -23,6 +23,8 @@ public class InterceptorConfiguration implements WebMvcConfigurer {
 
         registry.addInterceptor(authorizationInterceptor)
                 .addPathPatterns("/**")
+                // error
+                .excludePathPatterns("/error")
                 // static resource
                 .excludePathPatterns("/js/**", "/css/**", "/images/**", "/lib/**", "/fonts/**")
                 // swagger-ui

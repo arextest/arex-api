@@ -8,6 +8,8 @@ import com.arextest.report.model.api.contracts.common.enums.StatusType;
 import com.arextest.report.model.api.contracts.config.application.ApplicationConfiguration;
 import com.arextest.report.model.api.contracts.config.record.DynamicClassConfiguration;
 import com.arextest.report.model.api.contracts.config.record.ServiceCollectConfiguration;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -58,19 +60,14 @@ public final class AgentRemoteConfigurationController {
         if (StringUtils.isEmpty(appId)) {
             return InvalidResponse.REQUESTED_APP_ID_IS_EMPTY;
         }
-        String host = "127.0.0.1:8080";
-        // String host = request.getHost();
-        // if (StringUtils.isEmpty(host)) {
-        //     return InvalidResponse.REQUESTED_IP_IS_EMPTY;
-        // }
-        LOGGER.info("from appId: {} ,remote Ip: {} load config", request.appId, host);
+        LOGGER.info("from appId: {} , load config", request.appId);
         ApplicationConfiguration applicationConfiguration = this.loadApplicationResult(request);
         if (applicationConfiguration == null) {
-            LOGGER.info("from appId: {} ,remote Ip: {} load config resource not found", request.appId, host);
+            LOGGER.info("from appId: {} load config resource not found", request.appId);
             return ResponseUtils.resourceNotFoundResponse();
         }
         ServiceCollectConfiguration serviceCollectConfiguration = serviceCollectHandler.useResult(appId);
-        applicationServiceHandler.createOrUpdate(request.getAppId(), request.getHost());
+        applicationServiceHandler.createOrUpdate(request.getAppId());
         AgentRemoteConfigurationResponse body = new AgentRemoteConfigurationResponse();
         body.setDynamicClassConfigurationList(dynamicClassHandler.useResultAsList(appId));
         body.setServiceCollectConfiguration(serviceCollectConfiguration);
@@ -92,7 +89,7 @@ public final class AgentRemoteConfigurationController {
         @Override
         public void run() {
             try {
-                applicationServiceHandler.createOrUpdate(request.getAppId(), request.getHost());
+                applicationServiceHandler.createOrUpdate(request.getAppId());
             } catch (Throwable e) {
                 LOGGER.error("update application service error:{}", e.getMessage(), e);
             }
@@ -101,39 +98,12 @@ public final class AgentRemoteConfigurationController {
 
     private ApplicationConfiguration loadApplicationResult(AgentRemoteConfigurationRequest request) {
         ApplicationConfiguration applicationConfiguration = applicationHandler.useResult(request.getAppId());
-        if (applicationConfiguration == null) {
-            return null;
-        }
-        boolean changed = false;
-        String newVersion = request.getCoreVersion();
-        if (newVersionRequested(newVersion, applicationConfiguration.getAgentVersion())) {
-            applicationConfiguration.setAgentVersion(newVersion);
-            changed = true;
-        }
-        newVersion = request.getAgentExtVersion();
-        if (newVersionRequested(newVersion, applicationConfiguration.getAgentExtVersion())) {
-            applicationConfiguration.setAgentExtVersion(newVersion);
-            changed = true;
-        }
-        if (changed) {
-            applicationHandler.update(applicationConfiguration);
-        }
         return applicationConfiguration;
-    }
-
-    private boolean newVersionRequested(String newVersion, String prevVersion) {
-        if (StringUtils.isEmpty(newVersion)) {
-            return false;
-        }
-        return !StringUtils.equals(newVersion, prevVersion);
     }
 
     @Data
     private static final class AgentRemoteConfigurationRequest {
         private String appId;
-        private String agentExtVersion;
-        private String coreVersion;
-        private String host;
     }
 
     @Data

@@ -14,9 +14,6 @@ public class DynamicClassConfiguration extends AbstractConfiguration {
     private String id;
     private String appId;
     private String fullClassName;
-    private String methodName;
-    private String parameterTypes;
-    private String keyFormula;
 
     /**
      * from system provide or user custom provide

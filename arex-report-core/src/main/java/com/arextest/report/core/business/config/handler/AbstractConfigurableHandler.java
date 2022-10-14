@@ -3,7 +3,6 @@ package com.arextest.report.core.business.config.handler;
 import com.arextest.report.core.repository.ConfigRepositoryProvider;
 import org.apache.commons.collections4.CollectionUtils;
 
-import java.util.Collection;
 import java.util.List;
 
 /**
@@ -53,20 +52,6 @@ public abstract class AbstractConfigurableHandler<T> implements ConfigurableHand
     @Override
     public final boolean removeList(List<T> configurationList) {
         return repositoryProvider.removeList(configurationList);
-    }
-
-    public final <V> boolean isIncluded(Collection<V> source, V target) {
-        if (CollectionUtils.isEmpty(source)) {
-            return true;
-        }
-        return source.contains(target);
-    }
-
-    public final <V> boolean isExcluded(Collection<V> source, V target) {
-        if (CollectionUtils.isEmpty(source)) {
-            return false;
-        }
-        return source.contains(target);
     }
 
     @Override
