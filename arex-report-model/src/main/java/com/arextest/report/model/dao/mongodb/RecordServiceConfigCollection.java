@@ -6,8 +6,6 @@ import lombok.NonNull;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.Set;
-
 
 @Data
 @NoArgsConstructor
@@ -20,15 +18,7 @@ public class RecordServiceConfigCollection extends ModelBase {
 
     private int sampleRate;
 
-    private Set<String> excludeDependentOperationSet;
-
-    private Set<String> excludeDependentServiceSet;
-
-    private Set<String> excludeOperationSet;
-
-    private Set<String> includeServiceSet;
-
-    private Set<String> includeOperationSet;
+    private String excludeOperationMap;
 
     private int allowDayOfWeeks;
 

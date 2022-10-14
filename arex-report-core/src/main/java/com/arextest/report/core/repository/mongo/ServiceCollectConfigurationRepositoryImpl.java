@@ -7,6 +7,8 @@ import com.arextest.report.core.repository.mongo.util.MongoHelper;
 import com.arextest.report.model.api.contracts.config.record.ServiceCollectConfiguration;
 import com.arextest.report.model.dao.mongodb.RecordServiceConfigCollection;
 import com.arextest.report.model.mapper.RecordServiceConfigMapper;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,11 +25,7 @@ import java.util.stream.Collectors;
 public class ServiceCollectConfigurationRepositoryImpl implements ConfigRepositoryProvider<ServiceCollectConfiguration>, ConfigRepositoryField {
 
     private static final String SAMPLE_RATE = "sampleRate";
-    private static final String EXCLUDE_DEPENDENT_OPERATION_SET = "excludeDependentOperationSet";
-    private static final String EXCLUDE_DEPENDENT_SERVICE_SET = "excludeDependentServiceSet";
-    private static final String EXCLUDE_OPERATION_SET = "excludeOperationSet";
-    private static final String INCLUDE_OPERATION_SET = "includeOperationSet";
-    private static final String INCLUDE_SERVICE_SET = "includeServiceSet";
+    private static final String EXCLUSION_OPERATION_MAP = "excludeOperationMap";
     private static final String ALLOW_DAY_OF_WEEKS = "allowDayOfWeeks";
     private static final String ALLOW_TIME_OF_DAY_FROM = "allowTimeOfDayFrom";
     private static final String ALLOW_TIME_OF_DAY_TO = "allowTimeOfDayTo";
@@ -35,6 +33,9 @@ public class ServiceCollectConfigurationRepositoryImpl implements ConfigReposito
 
     @Autowired
     MongoTemplate mongoTemplate;
+
+    @Autowired
+    ObjectMapper objectMapper;
 
     @Override
     public List<ServiceCollectConfiguration> list() {
@@ -57,11 +58,10 @@ public class ServiceCollectConfigurationRepositoryImpl implements ConfigReposito
         MongoHelper.assertNull("update parameter is null", configuration.getAllowTimeOfDayFrom(),
                 configuration.getAllowTimeOfDayTo());
         update.set(SAMPLE_RATE, configuration.getSampleRate());
-        update.set(EXCLUDE_DEPENDENT_OPERATION_SET, configuration.getExcludeDependentOperationSet());
-        update.set(EXCLUDE_DEPENDENT_SERVICE_SET, configuration.getExcludeDependentServiceSet());
-        update.set(EXCLUDE_OPERATION_SET, configuration.getExcludeOperationSet());
-        update.set(INCLUDE_OPERATION_SET, configuration.getIncludeOperationSet());
-        update.set(INCLUDE_SERVICE_SET, configuration.getIncludeServiceSet());
+        try {
+            update.set(EXCLUSION_OPERATION_MAP, objectMapper.writeValueAsString(configuration.getExcludeOperationMap()));
+        } catch (JsonProcessingException e) {
+        }
         update.set(ALLOW_DAY_OF_WEEKS, configuration.getAllowDayOfWeeks());
         update.set(ALLOW_TIME_OF_DAY_FROM, configuration.getAllowTimeOfDayFrom());
         update.set(ALLOW_TIME_OF_DAY_TO, configuration.getAllowTimeOfDayTo());

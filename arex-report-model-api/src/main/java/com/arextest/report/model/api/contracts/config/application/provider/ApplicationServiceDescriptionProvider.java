@@ -9,5 +9,5 @@ import java.util.List;
  * @since 2022/1/21
  */
 public interface ApplicationServiceDescriptionProvider {
-    List<? extends ServiceDescription> get(String appId, String host);
+    List<? extends ServiceDescription> get(String appId);
 }

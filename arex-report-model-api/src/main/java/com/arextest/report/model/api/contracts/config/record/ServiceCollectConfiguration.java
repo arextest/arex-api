@@ -5,6 +5,7 @@ import com.arextest.report.model.api.contracts.config.AbstractConfiguration;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -21,29 +22,12 @@ public class ServiceCollectConfiguration extends AbstractConfiguration {
      * if the value is 50,would be recorded 50 times in 100 seconds.
      */
     private int sampleRate;
-
-    private Set<String> excludeDependentOperationSet;
-
     /**
-     * All the dependent services should be skipped when recording.
+     * the dependent operations should be skipped when recording
+     * the exclusion of operations: "/api/order/get/1111": []
+     * the exclusion of db/redis: "htlorderidmdb_dalcluster": ["update", "query"]
      */
-    private Set<String> excludeDependentServiceSet;
-    /**
-     * skip record the operations
-     * excludeOperations, eg:check health
-     */
-    private Set<String> excludeOperationSet;
-
-    /**
-     * The main entry's service should be recorded it.
-     * if the value is empty, means there is unlimited
-     */
-    private Set<String> includeServiceSet;
-    /**
-     * The main entry's operation should be recording it.
-     * if the value is empty, means there is unlimited
-     */
-    private Set<String> includeOperationSet;
+    private Map<String, Set<String>> excludeOperationMap;
     /**
      * Bit flag composed of bits that indicate which day of the week are enabled to recording.
      * Day of the week that enabled to recording indicates which bit is 1

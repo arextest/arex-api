@@ -3,6 +3,7 @@ package com.arextest.report.core.business.config.record;
 import com.arextest.report.core.business.config.handler.AbstractConfigurableHandler;
 import com.arextest.report.core.repository.ConfigRepositoryProvider;
 import com.arextest.report.model.api.contracts.config.record.ServiceCollectConfiguration;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -11,13 +12,18 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 /**
  * @author jmo
  * @since 2022/1/22
  */
+@Slf4j
 @Component
 final class ServiceCollectConfigurableHandler extends AbstractConfigurableHandler<ServiceCollectConfiguration> {
 
@@ -37,6 +43,7 @@ final class ServiceCollectConfigurableHandler extends AbstractConfigurableHandle
         serviceCollectConfiguration.setTimeMock(globalDefaultConfiguration.isTimeMock());
         serviceCollectConfiguration.setAllowTimeOfDayFrom(globalDefaultConfiguration.getAllowTimeOfDayFrom());
         serviceCollectConfiguration.setAllowTimeOfDayTo(globalDefaultConfiguration.getAllowTimeOfDayTo());
+        serviceCollectConfiguration.setExcludeOperationMap(mergeValues(new HashMap<>(), globalDefaultConfiguration.getExcludeOperationMap()));
         return Collections.singletonList(serviceCollectConfiguration);
     }
 
@@ -48,21 +55,9 @@ final class ServiceCollectConfigurableHandler extends AbstractConfigurableHandle
 
     @Override
     protected void mergeGlobalDefaultSettings(ServiceCollectConfiguration source) {
-        Set<String> value = source.getExcludeDependentOperationSet();
-        value = mergeValues(value, globalDefaultConfiguration.getExcludeDependentOperationSet());
-        source.setExcludeDependentOperationSet(value);
-        value = source.getExcludeDependentServiceSet();
-        value = mergeValues(value, globalDefaultConfiguration.getExcludeDependentServiceSet());
-        source.setExcludeDependentServiceSet(value);
-        value = source.getExcludeOperationSet();
-        value = mergeValues(value, globalDefaultConfiguration.getExcludeOperationSet());
-        source.setExcludeOperationSet(value);
-        value = source.getIncludeServiceSet();
-        value = mergeValues(value, globalDefaultConfiguration.getIncludeServiceSet());
-        source.setIncludeServiceSet(value);
-        value = source.getIncludeOperationSet();
-        value = mergeValues(value, globalDefaultConfiguration.getIncludeOperationSet());
-        source.setIncludeOperationSet(value);
+        Map<String, Set<String>> excludeOperationMap = source.getExcludeOperationMap();
+        excludeOperationMap = mergeValues(excludeOperationMap, globalDefaultConfiguration.getExcludeOperationMap());
+        source.setExcludeOperationMap(excludeOperationMap);
     }
 
     @Override
@@ -79,6 +74,22 @@ final class ServiceCollectConfigurableHandler extends AbstractConfigurableHandle
         }
         source.addAll(globalValues);
         return source;
+    }
+
+
+    private <K, V, U> Map<K, Set<V>> mergeValues(Map<K, Set<V>> source, Map<K, U> globalValues) {
+        if (globalValues == null || globalValues.isEmpty()) {
+            return source;
+        }
+        Map<K, Set<V>> valueMap = Optional.ofNullable(source).orElse(new HashMap<>());
+        globalValues.forEach((k, v) -> {
+            Set<V> orDefault = valueMap.getOrDefault(k, new HashSet<>());
+            if (v != null) {
+                orDefault.addAll((List) v);
+            }
+            valueMap.put(k, orDefault);
+        });
+        return valueMap;
     }
 
     @Configuration

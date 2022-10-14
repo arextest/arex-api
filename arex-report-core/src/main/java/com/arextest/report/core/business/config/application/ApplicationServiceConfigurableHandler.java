@@ -8,7 +8,6 @@ import com.arextest.report.model.api.contracts.config.application.ApplicationSer
 import com.arextest.report.model.api.contracts.config.application.OperationDescription;
 import com.arextest.report.model.api.contracts.config.application.ServiceDescription;
 import com.arextest.report.model.api.contracts.config.application.provider.ApplicationServiceDescriptionProvider;
-import com.arextest.report.model.api.contracts.config.record.ServiceCollectConfiguration;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -30,21 +29,19 @@ public final class ApplicationServiceConfigurableHandler extends AbstractConfigu
     private ApplicationServiceDescriptionProvider applicationServiceProvider;
     @Resource
     private AbstractConfigurableHandler<ApplicationOperationConfiguration> operationConfigurableHandler;
-    @Resource
-    private ServiceCollectConfiguration globalDefaultConfiguration;
 
     protected ApplicationServiceConfigurableHandler(@Autowired ConfigRepositoryProvider<ApplicationServiceConfiguration> repositoryProvider) {
         super(repositoryProvider);
     }
 
-    public void createOrUpdate(String appId, String env) {
+    public void createOrUpdate(String appId) {
         if (this.repositoryProvider.count(appId) != 0) {
-            LOGGER.info("skip create serviceList when exists by appId:{},env:{}", appId, env);
+            LOGGER.info("skip create serviceList when exists by appId:{}", appId);
             return;
         }
-        List<? extends ServiceDescription> originServiceList = applicationServiceProvider.get(appId, env);
+        List<? extends ServiceDescription> originServiceList = applicationServiceProvider.get(appId);
         if (CollectionUtils.isEmpty(originServiceList)) {
-            LOGGER.info("skip empty originServiceList from appId:{},env:{}", appId, env);
+            LOGGER.info("skip empty originServiceList from appId:{}", appId);
             return;
         }
         this.create(originServiceList);
@@ -54,9 +51,6 @@ public final class ApplicationServiceConfigurableHandler extends AbstractConfigu
         ApplicationServiceConfiguration serviceConfiguration;
         List<? extends OperationDescription> sourceOperationList;
         for (ServiceDescription originService : originServiceList) {
-            if (!isIncludedService(originService.getServiceName())) {
-                continue;
-            }
             serviceConfiguration = new ApplicationServiceConfiguration();
             serviceConfiguration.setAppId(originService.getAppId());
             serviceConfiguration.setServiceKey(originService.getServiceKey());
@@ -80,10 +74,7 @@ public final class ApplicationServiceConfigurableHandler extends AbstractConfigu
         if (StringUtils.isEmpty(configuration.getServiceKey())) {
             return false;
         }
-        if (isIncludedService(configuration.getServiceName())) {
-            return super.insert(configuration);
-        }
-        return true;
+        return super.insert(configuration);
     }
 
     private void buildOperationList(ApplicationServiceConfiguration service,
@@ -103,9 +94,5 @@ public final class ApplicationServiceConfigurableHandler extends AbstractConfigu
             operationList.add(operationConfiguration);
         }
         service.setOperationList(operationList);
-    }
-
-    private boolean isIncludedService(String serviceName) {
-        return isIncluded(globalDefaultConfiguration.getIncludeServiceSet(), serviceName);
     }
 }

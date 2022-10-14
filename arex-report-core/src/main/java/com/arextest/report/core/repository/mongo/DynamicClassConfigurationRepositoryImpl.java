@@ -23,9 +23,6 @@ public class DynamicClassConfigurationRepositoryImpl implements ConfigRepository
 
     private static final String APP_ID = "appId";
     private static final String FULL_CLASS_NAME = "fullClassName";
-    private static final String METHOD_NAME = "methodName";
-    private static final String PARAMETER_TYPES = "parameterTypes";
-    private static final String KEY_FORMULA = "keyFormula";
 
     @Autowired
     MongoTemplate mongoTemplate;
@@ -49,9 +46,6 @@ public class DynamicClassConfigurationRepositoryImpl implements ConfigRepository
         Query query = Query.query(Criteria.where(DASH_ID).is(configuration.getId()));
         Update update = MongoHelper.getConfigUpdate();
         update.set(FULL_CLASS_NAME, configuration.getFullClassName());
-        update.set(METHOD_NAME, configuration.getMethodName());
-        update.set(PARAMETER_TYPES, configuration.getParameterTypes());
-        update.set(KEY_FORMULA, configuration.getKeyFormula());
         UpdateResult updateResult = mongoTemplate.updateMulti(query, update, DynamicClassCollection.class);
         return updateResult.getModifiedCount() > 0;
     }
