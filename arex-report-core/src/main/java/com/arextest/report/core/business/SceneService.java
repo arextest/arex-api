@@ -128,12 +128,16 @@ public class SceneService {
                 logIndexes.add(new MutablePair<>(i, pathNodeNamePair.getRight()));
             }
         } else if (compareResultDto.getDiffResultCode() == DiffResultCode.COMPARED_INTERNAL_EXCEPTION) {
-            Pair<Integer, String> pair = new MutablePair<>(-1, "invalidCase");
-            List<Pair<Integer, String>> list = new ArrayList<>();
-            list.add(pair);
-            Map<String, List<Pair<Integer, String>>> map = new HashMap<>();
-            map.put("", list);
-            caseMap.put("", map);
+            /**
+             * Invalid cases are temporarily not included in the difference statistics
+             *
+             Pair<Integer, String> pair = new MutablePair<>(-1, "invalidCase");
+             List<Pair<Integer, String>> list = new ArrayList<>();
+             list.add(pair);
+             Map<String, List<Pair<Integer, String>>> map = new HashMap<>();
+             map.put("", list);
+             caseMap.put("", map);
+             */
         }
 
         synchronized (result) {

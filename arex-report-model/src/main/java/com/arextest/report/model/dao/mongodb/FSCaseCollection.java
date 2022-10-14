@@ -24,4 +24,5 @@ public class FSCaseCollection extends ModelBase {
     private AddressDao testAddress;
     private String parentId;
     private Integer parentNodeType;
+    private String recordId;
 }

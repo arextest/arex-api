@@ -8,6 +8,8 @@ import com.arextest.report.model.dto.KeyValuePairDto;
 import com.arextest.report.model.dto.filesystem.AddressDto;
 import com.arextest.report.model.dto.filesystem.BodyDto;
 import com.arextest.report.model.dto.filesystem.FSCaseDto;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Data;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -17,8 +19,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -27,10 +31,13 @@ import java.util.Map;
 public class StorageCase {
     private static final String RECORD_ID = "recordId";
 
-    private static final String STORAGE_VIEW_RECORD_URL = "/api/storage/replay/query/viewRecord";
+    private static final String STORAGE_VIEW_RECORD_URL = "/api/frontEnd/record/queryRecord";
 
     @Value("${arex.storage.service.url}")
     private String storageServiceUrl;
+
+    @Resource
+    private ObjectMapper objectMapper;
 
     @SneakyThrows
     public StorageCaseEntity getViewRecord(String recordId) {
@@ -50,9 +57,8 @@ public class StorageCase {
         if (mainMessages.isEmpty()) {
             return null;
         }
-        String mainMessage = CompressionUtils.useZstdDecompress(mainMessages.get(0));
 
-        return JSONUtil.toBean(mainMessage, StorageCaseEntity.class);
+        return JSONUtil.toBean(mainMessages.get(0), StorageCaseEntity.class);
     }
 
     public FSCaseDto getCase(String parentId, String caseId, StorageCaseEntity entity) {
@@ -62,25 +68,32 @@ public class StorageCase {
         FSCaseDto caseDto = new FSCaseDto();
         caseDto.setParentId(parentId);
         caseDto.setId(caseId);
+        caseDto.setRecordId(entity.getRecordId());
         AddressDto addressDto = new AddressDto();
         addressDto.setMethod(entity.getMethod());
         addressDto.setEndpoint(entity.getPath());
         caseDto.setAddress(addressDto);
 
         List<KeyValuePairDto> kvPair = new ArrayList<>();
-        if (entity.getRequestHeaders() != null) {
-            for (Map.Entry<String, String> header : entity.getRequestHeaders().entrySet()) {
-                KeyValuePairDto kv = new KeyValuePairDto();
-                kv.setKey(header.getKey());
-                kv.setValue(header.getValue());
-                kv.setActive(true);
-                kvPair.add(kv);
+        if (StringUtils.isNotEmpty(entity.getRequestHeaders())) {
+            try {
+                Map<String, String> headers = objectMapper.readValue(entity.getRequestHeaders(), HashMap.class);
+                for (Map.Entry<String, String> header : headers.entrySet()) {
+                    KeyValuePairDto kv = new KeyValuePairDto();
+                    kv.setKey(header.getKey());
+                    kv.setValue(header.getValue());
+                    kv.setActive(true);
+                    kvPair.add(kv);
+                }
+            } catch (JsonProcessingException e) {
+                LOGGER.error("Failed to parse headers", e);
             }
+
         }
         caseDto.setHeaders(kvPair);
         if (!StringUtils.isEmpty(entity.getRequest())) {
             BodyDto bodyDto = new BodyDto();
-            bodyDto.setBody(new String(Base64.getDecoder().decode(entity.getRequest())));
+            bodyDto.setBody(entity.getRequest());
             caseDto.setBody(bodyDto);
         }
         return caseDto;
@@ -88,16 +101,21 @@ public class StorageCase {
 
     @Data
     public class StorageViewRecordEntity {
+        public StorageViewRecordEntity() {
+        }
         private Map<Integer, List<String>> recordResult;
     }
 
 
     @Data
     public class StorageCaseEntity {
+        public StorageCaseEntity() {
+        }
+
         private String recordId;
         private String request;
         private String method;
         private String path;
-        private Map<String, String> requestHeaders;
+        private String requestHeaders;
     }
 }

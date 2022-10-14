@@ -445,14 +445,17 @@ public class FileSystemService {
             fsInterfaceRepository.saveInterface(dto);
             // update method in workspace tree
             FSTreeDto workspace = fsTreeRepository.queryFSTreeById(request.getWorkspaceId());
-            FSNodeDto node = fileSystemUtils.deepFindByInfoId(workspace.getRoots(), request.getId());
-            if (node != null) {
-                if (request.getAddress() != null && !Objects.equals(request.getAddress().getMethod(),
-                        node.getMethod())) {
-                    node.setMethod(request.getAddress().getMethod());
-                    fsTreeRepository.updateFSTree(workspace);
+            if (workspace != null) {
+                FSNodeDto node = fileSystemUtils.deepFindByInfoId(workspace.getRoots(), request.getId());
+                if (node != null) {
+                    if (request.getAddress() != null && !Objects.equals(request.getAddress().getMethod(),
+                            node.getMethod())) {
+                        node.setMethod(request.getAddress().getMethod());
+                        fsTreeRepository.updateFSTree(workspace);
+                    }
                 }
             }
+
             response.setSuccess(true);
         } catch (Exception e) {
             response.setSuccess(false);

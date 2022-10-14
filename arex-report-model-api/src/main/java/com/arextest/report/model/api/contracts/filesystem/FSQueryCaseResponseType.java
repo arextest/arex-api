@@ -17,4 +17,5 @@ public class FSQueryCaseResponseType {
     private AuthType auth;
     private AddressType baseAddress;
     private AddressType testAddress;
+    private String recordId;
 }
