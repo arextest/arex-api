@@ -23,7 +23,7 @@ public class ReportPlanStatisticCollection extends ModelBase{
     private String creator;
     private String targetImageId;
     private String targetImageName;
-    
+
     private Integer caseSourceType;
     private String sourceEnv;
     private String targetEnv;
@@ -41,17 +41,17 @@ public class ReportPlanStatisticCollection extends ModelBase{
     private Long caseStartTime;
     private Long caseEndTime;
     
-    private Integer totalCaseCount;
-    private Integer errorCaseCount;
-    private Integer successCaseCount;
-    private Integer failCaseCount;
-    private Integer waitCaseCount;
-    
-    private Integer totalOperationCount;
-    private Integer errorOperationCount;
-    private Integer successOperationCount;
-    private Integer failOperationCount;
-    private Integer waitOperationCount;
-    
-    private Integer totalServiceCount;
+    // private Integer totalCaseCount;
+    // private Integer errorCaseCount;
+    // private Integer successCaseCount;
+    // private Integer failCaseCount;
+    // private Integer waitCaseCount;
+    //
+    // private Integer totalOperationCount;
+    // private Integer errorOperationCount;
+    // private Integer successOperationCount;
+    // private Integer failOperationCount;
+    // private Integer waitOperationCount;
+    //
+    // private Integer totalServiceCount;
 }

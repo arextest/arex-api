@@ -13,6 +13,7 @@ import javax.annotation.Resource;
 public class RolePermission {
     public static final Integer EDIT_WORKSPACE = RoleType.ADMIN;
     public static final Integer INVITE_TO_WORKSPACE = RoleType.ADMIN;
+    public static final Integer VIEW_WORKSPACE = RoleType.VIEWER;
     public static final Integer EDIT_ITEM = RoleType.EDITOR;
     public static final Integer EDIT_ENVIRONMENT = RoleType.EDITOR;
 

@@ -44,6 +44,7 @@ import com.arextest.report.model.api.contracts.filesystem.InviteToWorkspaceRespo
 import com.arextest.report.model.api.contracts.filesystem.LeaveWorkspaceRequestType;
 import com.arextest.report.model.api.contracts.filesystem.ValidInvitationRequestType;
 import com.arextest.report.model.api.contracts.filesystem.ValidInvitationResponseType;
+import jdk.nashorn.internal.parser.Token;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
@@ -239,7 +240,11 @@ public class FileSystemController {
 
     @PostMapping("/queryWorkspaceById")
     @ResponseBody
-    public Response queryWorkspaceById(@RequestBody FSQueryWorkspaceRequestType request) {
+    public Response queryWorkspaceById(@RequestHeader(name = Constants.ACCESS_TOKEN) String token,
+            @RequestBody FSQueryWorkspaceRequestType request) {
+        if (!rolePermission.checkPermissionByToken(RolePermission.VIEW_WORKSPACE, token, request.getId())) {
+            return ResponseUtils.errorResponse(Constants.NO_PERMISSION, ResponseCode.AUTHENTICATION_FAILED);
+        }
         try {
             FSQueryWorkspaceResponseType response = fileSystemService.queryWorkspaceById(request);
             return ResponseUtils.successResponse(response);
