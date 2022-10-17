@@ -3,6 +3,7 @@ package com.arextest.report.core.business.config.dynamic;
 import com.arextest.report.core.business.config.handler.AbstractConfigurableHandler;
 import com.arextest.report.core.repository.ConfigRepositoryProvider;
 import com.arextest.report.model.api.contracts.config.record.DynamicClassConfiguration;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -29,6 +30,6 @@ public final class DynamicClassConfigurableHandler extends AbstractConfigurableH
     }
 
     public boolean removeByAppId(String appId) {
-        return super.useResultAsList(appId).isEmpty() || repositoryProvider.removeByAppId(appId);
+        return CollectionUtils.isEmpty(super.useResultAsList(appId)) || repositoryProvider.removeByAppId(appId);
     }
 }
