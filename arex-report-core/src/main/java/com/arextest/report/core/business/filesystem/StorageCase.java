@@ -16,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
@@ -25,11 +26,14 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @Slf4j
 @Component
 public class StorageCase {
     private static final String RECORD_ID = "recordId";
+    private static final String AND = "&";
+    private static final String EQUAL = "=";
 
     private static final String STORAGE_VIEW_RECORD_URL = "/api/frontEnd/record/queryRecord";
 
@@ -92,9 +96,26 @@ public class StorageCase {
         }
         caseDto.setHeaders(kvPair);
         if (!StringUtils.isEmpty(entity.getRequest())) {
-            BodyDto bodyDto = new BodyDto();
-            bodyDto.setBody(entity.getRequest());
-            caseDto.setBody(bodyDto);
+            if (Objects.equals(entity.getMethod(), HttpMethod.GET.name())) {
+                String[] params = entity.getRequest().split(AND);
+                List<KeyValuePairDto> paramKvPair = new ArrayList<>();
+                for (String param : params) {
+                    String[] kv = param.split(EQUAL);
+                    if (kv.length != 2) {
+                        continue;
+                    }
+                    KeyValuePairDto paramKv = new KeyValuePairDto();
+                    paramKv.setKey(kv[0]);
+                    paramKv.setValue(kv[1]);
+                    paramKv.setActive(true);
+                    paramKvPair.add(paramKv);
+                }
+                caseDto.setParams(paramKvPair);
+            } else {
+                BodyDto bodyDto = new BodyDto();
+                bodyDto.setBody(entity.getRequest());
+                caseDto.setBody(bodyDto);
+            }
         }
         return caseDto;
     }
