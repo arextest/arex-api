@@ -3,6 +3,7 @@ package com.arextest.report.model.api.contracts.config.yamlTemplate;
 import lombok.Data;
 
 import java.util.Collection;
+import java.util.Map;
 
 
 @Data
@@ -10,15 +11,7 @@ public class ServiceConfig {
 
     private int sampleRate;
 
-    private Collection<String> excludeDependentOperationSet;
-
-    private Collection<String> excludeDependentServiceSet;
-
-    private Collection<String> excludeOperationSet;
-
-    private Collection<String> includeServiceSet;
-
-    private Collection<String> includeOperationSet;
+    private Map<String, Collection<String>> excludeOperationMap;
 
     private int allowDayOfWeeks;
 
