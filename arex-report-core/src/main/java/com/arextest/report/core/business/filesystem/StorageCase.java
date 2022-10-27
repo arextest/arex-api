@@ -35,7 +35,7 @@ public class StorageCase {
     private static final String AND = "&";
     private static final String EQUAL = "=";
 
-    private static final String STORAGE_VIEW_RECORD_URL = "/api/frontEnd/record/queryRecord";
+    private static final String STORAGE_VIEW_RECORD_URL = "/api/report/record/fixRecord";
 
     @Value("${arex.storage.service.url}")
     private String storageServiceUrl;
