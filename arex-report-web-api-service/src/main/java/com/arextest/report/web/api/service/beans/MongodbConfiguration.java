@@ -52,7 +52,7 @@ public class MongodbConfiguration {
     }
 
     public void initIndicesAfterStartup(MongoTemplate mongoTemplate) {
-        mongoTemplate.indexOps(AppCollection.class).ensureIndex(new Index().on("appId", Sort.Direction.ASC).unique());
+        mongoTemplate.indexOps(AppCollection.class).ensureIndex(new Index().on(APP_ID, Sort.Direction.ASC).unique());
         mongoTemplate.indexOps(RecordServiceConfigCollection.class)
                 .ensureIndex(new Index().on(APP_ID, Sort.Direction.ASC).unique());
         mongoTemplate.indexOps(ReplayScheduleConfigCollection.class)
