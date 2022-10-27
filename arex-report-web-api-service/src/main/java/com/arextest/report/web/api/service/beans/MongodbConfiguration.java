@@ -3,6 +3,7 @@ package com.arextest.report.web.api.service.beans;
 import com.arextest.report.model.dao.mongodb.AppCollection;
 import com.arextest.report.model.dao.mongodb.RecordServiceConfigCollection;
 import com.arextest.report.model.dao.mongodb.ReplayScheduleConfigCollection;
+import com.arextest.report.model.dao.mongodb.ServiceOperationCollection;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -26,6 +27,10 @@ public class MongodbConfiguration {
     @Value("${arex.report.mongo.uri}")
     private String mongoUrl;
 
+    private static final String APP_ID = "appId";
+    private static final String SERVICE_ID = "serviceId";
+    private static final String OPERATION_NAME = "operationName";
+
     @Bean
     public MongoDatabaseFactory mongoDbFactory() {
         try {
@@ -47,8 +52,15 @@ public class MongodbConfiguration {
     }
 
     public void initIndicesAfterStartup(MongoTemplate mongoTemplate) {
-        mongoTemplate.indexOps(AppCollection.class).ensureIndex(new Index().on("appId", Sort.Direction.ASC).unique());
-        mongoTemplate.indexOps(RecordServiceConfigCollection.class).ensureIndex(new Index().on("appId", Sort.Direction.ASC).unique());
-        mongoTemplate.indexOps(ReplayScheduleConfigCollection.class).ensureIndex(new Index().on("appId", Sort.Direction.ASC).unique());
+        mongoTemplate.indexOps(AppCollection.class).ensureIndex(new Index().on(APP_ID, Sort.Direction.ASC).unique());
+        mongoTemplate.indexOps(RecordServiceConfigCollection.class)
+                .ensureIndex(new Index().on(APP_ID, Sort.Direction.ASC).unique());
+        mongoTemplate.indexOps(ReplayScheduleConfigCollection.class)
+                .ensureIndex(new Index().on(APP_ID, Sort.Direction.ASC).unique());
+        mongoTemplate.indexOps(ServiceOperationCollection.class)
+                .ensureIndex(new Index().on(APP_ID, Sort.Direction.ASC)
+                        .on(SERVICE_ID, Sort.Direction.ASC)
+                        .on(OPERATION_NAME, Sort.Direction.ASC)
+                        .unique());
     }
 }
