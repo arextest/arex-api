@@ -5,8 +5,5 @@ import lombok.Data;
 
 @Data
 public class LogTag {
-    
-    private int lv;
-    
-    private Boolean ig = false;
+    private int errorType;
 }

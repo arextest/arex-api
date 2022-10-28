@@ -37,12 +37,14 @@ public class FSCaseRepositoryImpl implements FSCaseRepository {
         dao = mongoTemplate.insert(dao);
         return dao.getId();
     }
+
     @Override
     public Boolean removeCase(String id) {
         Query query = Query.query(Criteria.where(DASH_ID).is(id));
         FSCaseCollection dao = mongoTemplate.findAndRemove(query, FSCaseCollection.class);
         return true;
     }
+
     @Override
     public Boolean removeCases(Set<String> ids) {
         Set<ObjectId> objectIds = ids.stream().map(id -> new ObjectId(id)).collect(Collectors.toSet());
@@ -50,6 +52,7 @@ public class FSCaseRepositoryImpl implements FSCaseRepository {
         DeleteResult result = mongoTemplate.remove(query, FSCaseCollection.class);
         return result.getDeletedCount() > 0;
     }
+
     @Override
     public FSCaseDto saveCase(FSCaseDto dto) {
         if (StringUtils.isEmpty(dto.getId())) {
@@ -70,6 +73,21 @@ public class FSCaseRepositoryImpl implements FSCaseRepository {
             return FSCaseMapper.INSTANCE.dtoFromDao(result);
         }
     }
+
+    @Override
+    public boolean updateCase(FSCaseDto dto) {
+        if (StringUtils.isEmpty(dto.getId())) {
+            return false;
+        }
+        Query query = Query.query(Criteria.where(DASH_ID).is(dto.getId()));
+        Update update = MongoHelper.getUpdate();
+        FSCaseCollection dao = FSCaseMapper.INSTANCE.daoFromDto(dto);
+        MongoHelper.appendFullProperties(update, dao);
+        mongoTemplate.findAndModify(query, update, FSCaseCollection.class);
+        return true;
+    }
+
+
     @Override
     public FSCaseDto queryCase(String id) {
         FSCaseCollection dao = mongoTemplate.findById(new ObjectId(id), FSCaseCollection.class);
@@ -78,6 +96,7 @@ public class FSCaseRepositoryImpl implements FSCaseRepository {
         }
         return FSCaseMapper.INSTANCE.dtoFromDao(dao);
     }
+
     @Override
     public List<FSItemDto> queryCases(List<String> ids) {
         List<ObjectId> objectIds = ids.stream().map(id -> new ObjectId(id)).collect(Collectors.toList());

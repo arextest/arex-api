@@ -3,7 +3,19 @@ package com.arextest.report.model.mapper;
 import com.arextest.report.model.api.contracts.config.replay.ScheduleConfiguration;
 import com.arextest.report.model.api.contracts.config.yamlTemplate.ReplayConfig;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.Mappings;
+import org.mapstruct.Named;
 import org.mapstruct.factory.Mappers;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * Created by rchen9 on 2022/9/27.
@@ -11,8 +23,37 @@ import org.mapstruct.factory.Mappers;
 @Mapper
 public interface YamlReplayConfigMapper {
     YamlReplayConfigMapper INSTANCE = Mappers.getMapper(YamlReplayConfigMapper.class);
-
+    @Mappings({
+            @Mapping(target = "excludeOperationMap", qualifiedByName = "toCollection")
+    })
     ReplayConfig toYaml(ScheduleConfiguration scheduleConfiguration);
 
+    @Mappings({
+            @Mapping(target = "excludeOperationMap", qualifiedByName = "toSet")
+    })
     ScheduleConfiguration fromYaml(ReplayConfig replayConfig);
+
+    @Named("toCollection")
+    default Map<String, Collection<String>> toCollection(Map<String, Set<String>> excludeOperationMap) {
+        Map<String, Collection<String>> map = new HashMap<>();
+        if (excludeOperationMap == null) {
+            return null;
+        }
+        excludeOperationMap.forEach((k, v) -> {
+            map.put(k, new ArrayList<>(Optional.ofNullable(v).orElse(Collections.emptySet())));
+        });
+        return map;
+    }
+
+    @Named("toSet")
+    default Map<String, Set<String>> toSet(Map<String, Collection<String>> excludeOperationMap) {
+        Map<String, Set<String>> map = new HashMap<>();
+        if (excludeOperationMap == null) {
+            return null;
+        }
+        excludeOperationMap.forEach((k, v) -> {
+            map.put(k, new HashSet<>(Optional.ofNullable(v).orElse(Collections.emptySet())));
+        });
+        return map;
+    }
 }

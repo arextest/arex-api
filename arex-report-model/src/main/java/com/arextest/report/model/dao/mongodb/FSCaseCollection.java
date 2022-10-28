@@ -3,6 +3,7 @@ package com.arextest.report.model.dao.mongodb;
 import com.arextest.report.model.dao.mongodb.entity.AddressDao;
 import com.arextest.report.model.dao.mongodb.entity.AuthDao;
 import com.arextest.report.model.dao.mongodb.entity.BodyDao;
+import com.arextest.report.model.dao.mongodb.entity.ComparisonMsgDao;
 import com.arextest.report.model.dao.mongodb.entity.KeyValuePairDao;
 import lombok.Data;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -25,4 +26,5 @@ public class FSCaseCollection extends ModelBase {
     private String parentId;
     private Integer parentNodeType;
     private String recordId;
+    private ComparisonMsgDao comparisonMsg;
 }

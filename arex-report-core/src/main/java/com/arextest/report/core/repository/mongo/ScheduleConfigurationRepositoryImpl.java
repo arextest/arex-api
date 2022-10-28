@@ -7,8 +7,11 @@ import com.arextest.report.core.repository.mongo.util.MongoHelper;
 import com.arextest.report.model.api.contracts.config.replay.ScheduleConfiguration;
 import com.arextest.report.model.dao.mongodb.ReplayScheduleConfigCollection;
 import com.arextest.report.model.mapper.ReplayScheduleConfigMapper;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -19,16 +22,20 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Repository
 public class ScheduleConfigurationRepositoryImpl implements ConfigRepositoryProvider<ScheduleConfiguration>, ConfigRepositoryField {
 
     private static final String TARGET_ENV = "targetEnv";
     private static final String SEND_MAX_QPS = "sendMaxQps";
     private static final String OFFSET_DAYS = "offsetDays";
-
+    private static final String EXCLUSION_OPERATION_MAP = "excludeOperationMap";
 
     @Autowired
     MongoTemplate mongoTemplate;
+
+    @Autowired
+    ObjectMapper objectMapper;
 
     @Override
     public List<ScheduleConfiguration> list() {
@@ -48,11 +55,14 @@ public class ScheduleConfigurationRepositoryImpl implements ConfigRepositoryProv
     public boolean update(ScheduleConfiguration configuration) {
         Query query = Query.query(Criteria.where(APP_ID).is(configuration.getAppId()));
         Update update = MongoHelper.getConfigUpdate();
-        MongoHelper.assertNull("update parameter is null", configuration.getTargetEnv(),
-                configuration.getSendMaxQps(), configuration.getOffsetDays());
-        update.set(TARGET_ENV, configuration.getTargetEnv());
-        update.set(SEND_MAX_QPS, configuration.getSendMaxQps());
-        update.set(OFFSET_DAYS, configuration.getOffsetDays());
+        MongoHelper.appendSpecifiedProperties(update, configuration, TARGET_ENV, SEND_MAX_QPS, OFFSET_DAYS);
+        if (configuration.getExcludeOperationMap() != null) {
+            try {
+                update.set(EXCLUSION_OPERATION_MAP, objectMapper.writeValueAsString(configuration.getExcludeOperationMap()));
+            } catch (JsonProcessingException e) {
+                LOGGER.error("ScheduleConfigurationRepositoryImpl.update: serialize excludeOperationMap failed ", e);
+            }
+        }
         UpdateResult updateResult = mongoTemplate.updateMulti(query, update, ReplayScheduleConfigCollection.class);
         return updateResult.getModifiedCount() > 0;
     }

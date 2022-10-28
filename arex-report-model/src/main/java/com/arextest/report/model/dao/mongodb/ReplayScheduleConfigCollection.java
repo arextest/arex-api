@@ -17,10 +17,8 @@ public class ReplayScheduleConfigCollection extends ModelBase {
     @NonNull
     @Indexed(unique = true)
     private String appId;
-    @NonNull
+    private String excludeOperationMap;
     private Integer offsetDays;
-    @NonNull
     private Set<String> targetEnv;
-    @NonNull
     private Integer sendMaxQps;
 }

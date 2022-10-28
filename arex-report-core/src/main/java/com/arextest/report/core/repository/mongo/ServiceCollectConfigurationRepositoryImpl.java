@@ -7,7 +7,6 @@ import com.arextest.report.core.repository.mongo.util.MongoHelper;
 import com.arextest.report.model.api.contracts.config.record.ServiceCollectConfiguration;
 import com.arextest.report.model.dao.mongodb.RecordServiceConfigCollection;
 import com.arextest.report.model.mapper.RecordServiceConfigMapper;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
@@ -25,7 +24,6 @@ import java.util.stream.Collectors;
 public class ServiceCollectConfigurationRepositoryImpl implements ConfigRepositoryProvider<ServiceCollectConfiguration>, ConfigRepositoryField {
 
     private static final String SAMPLE_RATE = "sampleRate";
-    private static final String EXCLUSION_OPERATION_MAP = "excludeOperationMap";
     private static final String ALLOW_DAY_OF_WEEKS = "allowDayOfWeeks";
     private static final String ALLOW_TIME_OF_DAY_FROM = "allowTimeOfDayFrom";
     private static final String ALLOW_TIME_OF_DAY_TO = "allowTimeOfDayTo";
@@ -58,10 +56,6 @@ public class ServiceCollectConfigurationRepositoryImpl implements ConfigReposito
         MongoHelper.assertNull("update parameter is null", configuration.getAllowTimeOfDayFrom(),
                 configuration.getAllowTimeOfDayTo());
         update.set(SAMPLE_RATE, configuration.getSampleRate());
-        try {
-            update.set(EXCLUSION_OPERATION_MAP, objectMapper.writeValueAsString(configuration.getExcludeOperationMap()));
-        } catch (JsonProcessingException e) {
-        }
         update.set(ALLOW_DAY_OF_WEEKS, configuration.getAllowDayOfWeeks());
         update.set(ALLOW_TIME_OF_DAY_FROM, configuration.getAllowTimeOfDayFrom());
         update.set(ALLOW_TIME_OF_DAY_TO, configuration.getAllowTimeOfDayTo());

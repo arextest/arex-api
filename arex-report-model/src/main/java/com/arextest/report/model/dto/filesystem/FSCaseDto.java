@@ -17,4 +17,5 @@ public class FSCaseDto extends FSItemDto {
     private AddressDto baseAddress;
     private AddressDto testAddress;
     private String recordId;
+    private ComparisonMsgDto comparisonMsg;
 }

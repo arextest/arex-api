@@ -106,10 +106,6 @@ public class SceneService {
 
             for (int i = 0; i < compareResultDto.getLogs().size(); i++) {
                 LogEntity log = compareResultDto.getLogs().get(i);
-                // If the node is set to ignore, do nothing
-                if (log.getLogTag().getIg()) {
-                    continue;
-                }
                 Pair<List<NodeEntity>, String> pathNodeNamePair = getPath(log.getPathPair());
                 if (pathNodeNamePair == null) {
                     continue;

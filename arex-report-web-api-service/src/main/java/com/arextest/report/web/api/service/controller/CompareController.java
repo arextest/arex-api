@@ -45,4 +45,11 @@ public class CompareController {
         compareService.sendException( request.getExceptionMsgs());
         return ResponseUtils.successResponse(null);
     }
+
+    @PostMapping("/caseCompare")
+    @ResponseBody
+    public Response caseCompare(@RequestBody CaseCompareRequestType request){
+        CaseCompareResponseType response = compareService.caseCompare(request.getMsgCombination());
+        return ResponseUtils.successResponse(response);
+    }
 }
