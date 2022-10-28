@@ -9,7 +9,6 @@ import java.util.List;
 public class ReportInterfaceType {
     private String id;
     private String interfaceName;
-    private AddressType baseAddress;
     private AddressType testAddress;
     List<ReportCaseIdNameType> reportCases;
 }

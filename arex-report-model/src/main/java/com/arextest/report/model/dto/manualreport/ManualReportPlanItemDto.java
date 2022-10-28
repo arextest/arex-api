@@ -8,6 +8,5 @@ public class ManualReportPlanItemDto {
     private String id;
     private String planId;
     private String interfaceName;
-    private AddressDao baseAddress;
     private AddressDao testAddress;
 }

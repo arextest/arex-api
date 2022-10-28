@@ -9,6 +9,5 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class ManualReportPlanItemCollection extends ModelBase {
     private String planId;
     private String interfaceName;
-    private AddressDao baseAddress;
     private AddressDao testAddress;
 }
