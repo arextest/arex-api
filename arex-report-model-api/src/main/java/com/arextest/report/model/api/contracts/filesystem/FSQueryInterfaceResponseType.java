@@ -15,6 +15,5 @@ public class FSQueryInterfaceResponseType {
     private List<KeyValuePairType> headers;
     private List<KeyValuePairType> params;
     private AuthType auth;
-    private AddressType baseAddress;
     private AddressType testAddress;
 }

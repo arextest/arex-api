@@ -19,7 +19,6 @@ public class CaseItemDto implements Item {
     private List<KeyValuePairDto> headers;
     private List<KeyValuePairDto> params;
     private AuthDto auth;
-    private AddressDto baseAddress;
     private AddressDto testAddress;
     private List<Item> items;
 }

@@ -490,13 +490,6 @@ public class FileSystemService {
         }
 
         FSQueryCaseResponseType response = FSCaseMapper.INSTANCE.contractFromDto(dto);
-        if (!StringUtils.isEmpty(dto.getParentId()) && dto.getParentNodeType() != null) {
-            FSInterfaceDto fsInterfaceDto = fsInterfaceRepository.queryInterface(dto.getParentId());
-            response.setBaseAddress(AddressMapper.INSTANCE.contractFromDto(fsInterfaceDto.getBaseAddress()));
-            response.setTestAddress(AddressMapper.INSTANCE.contractFromDto(fsInterfaceDto.getTestAddress()));
-            response.setAddress(AddressMapper.INSTANCE.contractFromDto(fsInterfaceDto.getAddress()));
-        }
-
         return response;
     }
 

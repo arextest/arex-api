@@ -14,7 +14,6 @@ public class FSCaseDto extends FSItemDto {
     private List<KeyValuePairDto> headers;
     private List<KeyValuePairDto> params;
     private AuthDto auth;
-    private AddressDto baseAddress;
     private AddressDto testAddress;
     private String recordId;
     private ComparisonMsgDto comparisonMsg;
