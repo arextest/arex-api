@@ -18,8 +18,6 @@ public class RecordServiceConfigCollection extends ModelBase {
 
     private int sampleRate;
 
-    private String excludeOperationMap;
-
     private int allowDayOfWeeks;
 
     private boolean timeMock;

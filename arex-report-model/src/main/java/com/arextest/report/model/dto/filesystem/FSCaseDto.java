@@ -1,5 +1,6 @@
 package com.arextest.report.model.dto.filesystem;
 
+import com.arextest.report.model.api.contracts.filesystem.ComparisonMsg;
 import com.arextest.report.model.dto.KeyValuePairDto;
 import lombok.Data;
 
@@ -17,4 +18,5 @@ public class FSCaseDto extends FSItemDto {
     private AddressDto baseAddress;
     private AddressDto testAddress;
     private String recordId;
+    private ComparisonMsg comparisonMsg;
 }

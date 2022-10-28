@@ -43,7 +43,6 @@ final class ServiceCollectConfigurableHandler extends AbstractConfigurableHandle
         serviceCollectConfiguration.setTimeMock(globalDefaultConfiguration.isTimeMock());
         serviceCollectConfiguration.setAllowTimeOfDayFrom(globalDefaultConfiguration.getAllowTimeOfDayFrom());
         serviceCollectConfiguration.setAllowTimeOfDayTo(globalDefaultConfiguration.getAllowTimeOfDayTo());
-        serviceCollectConfiguration.setExcludeOperationMap(mergeValues(new HashMap<>(), globalDefaultConfiguration.getExcludeOperationMap()));
         return Collections.singletonList(serviceCollectConfiguration);
     }
 
@@ -55,9 +54,6 @@ final class ServiceCollectConfigurableHandler extends AbstractConfigurableHandle
 
     @Override
     protected void mergeGlobalDefaultSettings(ServiceCollectConfiguration source) {
-        Map<String, Set<String>> excludeOperationMap = source.getExcludeOperationMap();
-        excludeOperationMap = mergeValues(excludeOperationMap, globalDefaultConfiguration.getExcludeOperationMap());
-        source.setExcludeOperationMap(excludeOperationMap);
     }
 
     @Override
@@ -74,22 +70,6 @@ final class ServiceCollectConfigurableHandler extends AbstractConfigurableHandle
         }
         source.addAll(globalValues);
         return source;
-    }
-
-
-    private <K, V, U> Map<K, Set<V>> mergeValues(Map<K, Set<V>> source, Map<K, U> globalValues) {
-        if (globalValues == null || globalValues.isEmpty()) {
-            return source;
-        }
-        Map<K, Set<V>> valueMap = Optional.ofNullable(source).orElse(new HashMap<>());
-        globalValues.forEach((k, v) -> {
-            Set<V> orDefault = valueMap.getOrDefault(k, new HashSet<>());
-            if (v != null) {
-                orDefault.addAll((List) v);
-            }
-            valueMap.put(k, orDefault);
-        });
-        return valueMap;
     }
 
     @Configuration

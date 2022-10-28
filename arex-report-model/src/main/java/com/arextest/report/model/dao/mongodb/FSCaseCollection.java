@@ -1,5 +1,6 @@
 package com.arextest.report.model.dao.mongodb;
 
+import com.arextest.report.model.api.contracts.filesystem.ComparisonMsg;
 import com.arextest.report.model.dao.mongodb.entity.AddressDao;
 import com.arextest.report.model.dao.mongodb.entity.AuthDao;
 import com.arextest.report.model.dao.mongodb.entity.BodyDao;
@@ -25,4 +26,5 @@ public class FSCaseCollection extends ModelBase {
     private String parentId;
     private Integer parentNodeType;
     private String recordId;
+    private ComparisonMsg comparisonMsg;
 }

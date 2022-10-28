@@ -4,6 +4,7 @@ import com.arextest.report.model.api.contracts.config.AbstractConfiguration;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -14,6 +15,12 @@ import java.util.Set;
 @Setter
 public class ScheduleConfiguration extends AbstractConfiguration {
     private String appId;
+    /**
+     * the dependent operations should be skipped when replaying
+     * the exclusion of operations: "/api/order/get/1111": []
+     * the exclusion of db/redis: "htlorderidmdb_dalcluster": ["update", "query"]
+     */
+    private Map<String, Set<String>> excludeOperationMap;
     /**
      * 默认回放Case范围
      */

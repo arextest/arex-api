@@ -16,6 +16,8 @@ public interface FSCaseRepository extends RepositoryProvider {
 
     FSCaseDto saveCase(FSCaseDto dto);
 
+    boolean updateCase(FSCaseDto dto);
+
     FSCaseDto queryCase(String id);
 
     List<FSItemDto> queryCases(List<String> ids);

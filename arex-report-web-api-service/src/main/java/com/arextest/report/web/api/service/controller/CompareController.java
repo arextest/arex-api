@@ -45,4 +45,11 @@ public class CompareController {
         compareService.sendException( request.getExceptionMsgs());
         return ResponseUtils.successResponse(null);
     }
+
+    @PostMapping("/planCompare")
+    @ResponseBody
+    public Response planCompare(@RequestBody PlanCompareRequestType request){
+        PlanCompareResponseType response = compareService.planCompare(request.getMsgCombination());
+        return ResponseUtils.successResponse(response);
+    }
 }

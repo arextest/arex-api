@@ -4,19 +4,27 @@ import com.arextest.diff.model.CompareResult;
 import com.arextest.diff.sdk.CompareSDK;
 import com.arextest.report.core.business.ManualReportService;
 import com.arextest.report.core.business.util.ListUtils;
+import com.arextest.report.core.repository.FSCaseRepository;
 import com.arextest.report.model.api.contracts.common.LogEntity;
 import com.arextest.report.model.api.contracts.common.NodeEntity;
 import com.arextest.report.model.api.contracts.compare.DiffDetail;
 import com.arextest.report.model.api.contracts.compare.ExceptionMsg;
 import com.arextest.report.model.api.contracts.compare.MsgCombination;
+import com.arextest.report.model.api.contracts.compare.PlanCompareResponseType;
 import com.arextest.report.model.api.contracts.compare.QuickCompareResponseType;
+import com.arextest.report.model.api.contracts.filesystem.ComparisonMsg;
+import com.arextest.report.model.dto.filesystem.FSCaseDto;
 import com.arextest.report.model.dto.manualreport.SaveManualReportCaseDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -30,6 +38,9 @@ public class CompareService {
 
     @Autowired
     ManualReportService manualReportService;
+
+    @Autowired
+    FSCaseRepository fsCaseRepository;
 
     public QuickCompareResponseType quickCompare(MsgCombination msgCombination) {
         QuickCompareResponseType quickCompareResponseType = new QuickCompareResponseType();
@@ -78,6 +89,29 @@ public class CompareService {
         }).collect(Collectors.toList());
         boolean saveResult = manualReportService.saveManualReportCaseResults(saveManualReportCaseDtos);
         printLogger(exceptionMsgs, saveResult);
+    }
+
+
+    public PlanCompareResponseType planCompare(MsgCombination msgCombination) {
+        PlanCompareResponseType planCompareResponseType = new PlanCompareResponseType();
+        CompareResult compareResult = compareSDK.compare(msgCombination.getBaseMsg(), msgCombination.getTestMsg());
+        planCompareResponseType.setDiffResultCode(compareResult.getCode());
+
+        FSCaseDto fsCaseDto = new FSCaseDto();
+        fsCaseDto.setId(msgCombination.getCaseId());
+        ComparisonMsg ComparisonMsg = new ComparisonMsg();
+        ComparisonMsg.setDiffResultCode(compareResult.getCode());
+        ComparisonMsg.setBaseMsg(compareResult.getProcessedBaseMsg());
+        ComparisonMsg.setTestMsg(compareResult.getProcessedTestMsg());
+        if (compareResult.getLogs() != null) {
+            List<LogEntity> logs = compareResult.getLogs().stream().map(LogEntityMapper.INSTANCE::fromLogEntity).collect(Collectors.toList());
+            List<DiffDetail> diffDetails = getDiffDetails(logs);
+            ComparisonMsg.setDiffDetails(diffDetails);
+        }
+        fsCaseDto.setComparisonMsg(ComparisonMsg);
+        fsCaseRepository.updateCase(fsCaseDto);
+
+        return planCompareResponseType;
     }
 
     public List<DiffDetail> getDiffDetails(List<LogEntity> logs) {
