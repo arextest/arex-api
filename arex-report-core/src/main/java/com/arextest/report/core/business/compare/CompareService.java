@@ -10,9 +10,9 @@ import com.arextest.report.model.api.contracts.common.NodeEntity;
 import com.arextest.report.model.api.contracts.compare.DiffDetail;
 import com.arextest.report.model.api.contracts.compare.ExceptionMsg;
 import com.arextest.report.model.api.contracts.compare.MsgCombination;
-import com.arextest.report.model.api.contracts.compare.PlanCompareResponseType;
+import com.arextest.report.model.api.contracts.compare.CaseCompareResponseType;
 import com.arextest.report.model.api.contracts.compare.QuickCompareResponseType;
-import com.arextest.report.model.api.contracts.filesystem.ComparisonMsg;
+import com.arextest.report.model.dto.filesystem.ComparisonMsgDto;
 import com.arextest.report.model.dto.filesystem.FSCaseDto;
 import com.arextest.report.model.dto.manualreport.SaveManualReportCaseDto;
 import lombok.extern.slf4j.Slf4j;
@@ -92,26 +92,26 @@ public class CompareService {
     }
 
 
-    public PlanCompareResponseType planCompare(MsgCombination msgCombination) {
-        PlanCompareResponseType planCompareResponseType = new PlanCompareResponseType();
+    public CaseCompareResponseType caseCompare(MsgCombination msgCombination) {
+        CaseCompareResponseType caseCompareResponseType = new CaseCompareResponseType();
         CompareResult compareResult = compareSDK.compare(msgCombination.getBaseMsg(), msgCombination.getTestMsg());
-        planCompareResponseType.setDiffResultCode(compareResult.getCode());
+        caseCompareResponseType.setDiffResultCode(compareResult.getCode());
 
         FSCaseDto fsCaseDto = new FSCaseDto();
         fsCaseDto.setId(msgCombination.getCaseId());
-        ComparisonMsg ComparisonMsg = new ComparisonMsg();
-        ComparisonMsg.setDiffResultCode(compareResult.getCode());
-        ComparisonMsg.setBaseMsg(compareResult.getProcessedBaseMsg());
-        ComparisonMsg.setTestMsg(compareResult.getProcessedTestMsg());
+        ComparisonMsgDto comparisonMsgDto = new ComparisonMsgDto();
+        comparisonMsgDto.setDiffResultCode(compareResult.getCode());
+        comparisonMsgDto.setBaseMsg(compareResult.getProcessedBaseMsg());
+        comparisonMsgDto.setTestMsg(compareResult.getProcessedTestMsg());
         if (compareResult.getLogs() != null) {
             List<LogEntity> logs = compareResult.getLogs().stream().map(LogEntityMapper.INSTANCE::fromLogEntity).collect(Collectors.toList());
             List<DiffDetail> diffDetails = getDiffDetails(logs);
-            ComparisonMsg.setDiffDetails(diffDetails);
+            comparisonMsgDto.setDiffDetails(diffDetails);
         }
-        fsCaseDto.setComparisonMsg(ComparisonMsg);
+        fsCaseDto.setComparisonMsg(comparisonMsgDto);
         fsCaseRepository.updateCase(fsCaseDto);
 
-        return planCompareResponseType;
+        return caseCompareResponseType;
     }
 
     public List<DiffDetail> getDiffDetails(List<LogEntity> logs) {

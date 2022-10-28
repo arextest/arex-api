@@ -46,10 +46,10 @@ public class CompareController {
         return ResponseUtils.successResponse(null);
     }
 
-    @PostMapping("/planCompare")
+    @PostMapping("/caseCompare")
     @ResponseBody
-    public Response planCompare(@RequestBody PlanCompareRequestType request){
-        PlanCompareResponseType response = compareService.planCompare(request.getMsgCombination());
+    public Response caseCompare(@RequestBody CaseCompareRequestType request){
+        CaseCompareResponseType response = compareService.caseCompare(request.getMsgCombination());
         return ResponseUtils.successResponse(response);
     }
 }

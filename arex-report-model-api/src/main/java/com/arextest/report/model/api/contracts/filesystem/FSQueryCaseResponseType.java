@@ -18,5 +18,5 @@ public class FSQueryCaseResponseType {
     private AddressType baseAddress;
     private AddressType testAddress;
     private String recordId;
-    private ComparisonMsg comparisonMsg;
+    private ComparisonMsgType comparisonMsg;
 }
