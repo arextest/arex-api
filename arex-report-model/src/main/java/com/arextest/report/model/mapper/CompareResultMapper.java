@@ -6,6 +6,9 @@ import com.arextest.report.model.api.contracts.common.CompareResult;
 import com.arextest.report.model.api.contracts.common.LogEntity;
 import com.arextest.report.model.dao.mongodb.ReplayCompareResultCollection;
 import com.arextest.report.model.dto.CompareResultDto;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -72,7 +75,17 @@ public interface CompareResultMapper {
     }
 
     default List<LogEntity> map(String logs) {
-        LogEntity[] logEntities = SerializationUtils.useZstdDeserialize(logs, LogEntity[].class);
+        String s = CompressionUtils.useZstdDecompress(logs);
+        if (StringUtils.isEmpty(s)) {
+            return null;
+        }
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        LogEntity[] logEntities = null;
+        try {
+            logEntities = objectMapper.readValue(s, LogEntity[].class);
+        } catch (JsonProcessingException e) {
+        }
         if (logEntities == null) {
             return null;
         }
