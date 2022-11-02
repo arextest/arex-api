@@ -75,17 +75,7 @@ public interface CompareResultMapper {
     }
 
     default List<LogEntity> map(String logs) {
-        String s = CompressionUtils.useZstdDecompress(logs);
-        if (StringUtils.isEmpty(s)) {
-            return null;
-        }
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        LogEntity[] logEntities = null;
-        try {
-            logEntities = objectMapper.readValue(s, LogEntity[].class);
-        } catch (JsonProcessingException e) {
-        }
+        LogEntity[] logEntities = SerializationUtils.useZstdDeserialize(logs, LogEntity[].class);
         if (logEntities == null) {
             return null;
         }
