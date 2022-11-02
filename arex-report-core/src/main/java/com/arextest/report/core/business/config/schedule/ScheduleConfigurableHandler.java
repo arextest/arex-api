@@ -27,7 +27,11 @@ final class ScheduleConfigurableHandler extends AbstractConfigurableHandler<Sche
 
     @Override
     public boolean update(ScheduleConfiguration configuration) {
-        return super.update(configuration) || super.insert(configuration);
+        if (!super.update(configuration)) {
+            mergeGlobalDefaultSettings(configuration);
+            return super.insert(configuration);
+        }
+        return true;
     }
 
     @Override
@@ -51,4 +55,16 @@ final class ScheduleConfigurableHandler extends AbstractConfigurableHandler<Sche
 
     }
 
+    @Override
+    protected void mergeGlobalDefaultSettings(ScheduleConfiguration source) {
+        if (source.getOffsetDays() == null) {
+            source.setOffsetDays(globalScheduleConfiguration.getOffsetDays());
+        }
+        if (source.getSendMaxQps() == null) {
+            source.setSendMaxQps(globalScheduleConfiguration.getSendMaxQps());
+        }
+        if (source.getTargetEnv() == null) {
+            source.setTargetEnv(globalScheduleConfiguration.getTargetEnv());
+        }
+    }
 }
