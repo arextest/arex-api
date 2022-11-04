@@ -2,6 +2,7 @@ package com.arextest.report.core.business;
 
 import com.arextest.report.common.JwtUtil;
 import com.arextest.report.common.LoadResource;
+import com.arextest.report.core.business.util.LoginLogUtils;
 import com.arextest.report.core.business.util.MailUtils;
 import com.arextest.report.core.repository.UserRepository;
 import com.arextest.report.model.api.contracts.login.LoginAsGuestResponseType;
@@ -37,6 +38,9 @@ public class LoginService {
     @Resource
     private MailUtils mailUtils;
 
+    @Resource
+    private LoginLogUtils loginLogUtils;
+
     public Boolean sendVerifyCodeByEmail(String emailTo) {
         String template = loadResource.getResource(VERIFICATION_CODE_EMAIL_TEMPLATE);
         UserDto user = new UserDto();
@@ -65,6 +69,7 @@ public class LoginService {
             exist = exist & userRepository.saveUser(userDto);
         }
         if (exist) {
+            loginLogUtils.loginLog(request.getUserName());
             responseType.setSuccess(true);
             responseType.setAccessToken(JwtUtil.makeAccessToken(request.getUserName()));
             responseType.setRefreshToken(JwtUtil.makeRefreshToken(request.getUserName()));
@@ -112,6 +117,9 @@ public class LoginService {
         user.setUserName(userName);
         user.setStatus(UserStatusType.GUEST);
         Boolean result = userRepository.saveUser(user);
+
+        loginLogUtils.loginLog(userName);
+
         if (result) {
             response.setUserName(userName);
             response.setSuccess(true);
