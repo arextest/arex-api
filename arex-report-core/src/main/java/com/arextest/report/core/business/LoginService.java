@@ -10,6 +10,7 @@ import com.arextest.report.model.api.contracts.login.UserProfileResponseType;
 import com.arextest.report.model.api.contracts.login.VerifyRequestType;
 import com.arextest.report.model.api.contracts.login.VerifyResponseType;
 import com.arextest.report.model.dto.UserDto;
+import com.arextest.report.model.enums.SendEmailType;
 import com.arextest.report.model.enums.UserStatusType;
 import com.arextest.report.model.mapper.UserMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -48,7 +49,7 @@ public class LoginService {
             template = template.replace(VERIFICATION_CODE_PLACEHOLDER, user.getVerificationCode());
             success = success & mailUtils.sendEmail(user.getUserName(),
                     SEND_VERIFICATION_CODE_SUBJECT,
-                    template);
+                    template, SendEmailType.LOGIN);
         }
         return success;
     }
@@ -112,7 +113,9 @@ public class LoginService {
         user.setUserName(userName);
         user.setStatus(UserStatusType.GUEST);
         Boolean result = userRepository.saveUser(user);
+
         if (result) {
+            mailUtils.sendEmail(userName, SEND_VERIFICATION_CODE_SUBJECT, StringUtils.EMPTY, SendEmailType.LOGIN_AS_GUEST);
             response.setUserName(userName);
             response.setSuccess(true);
             response.setAccessToken(JwtUtil.makeAccessToken(userName));
