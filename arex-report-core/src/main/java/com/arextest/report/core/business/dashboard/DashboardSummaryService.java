@@ -1,7 +1,7 @@
 package com.arextest.report.core.business.dashboard;
 
 import com.arextest.report.core.business.CaseCountService;
-import com.arextest.report.core.business.config.handler.ViewHandler;
+import com.arextest.report.core.business.config.ViewHandler;
 import com.arextest.report.core.repository.ReportPlanStatisticRepository;
 import com.arextest.report.model.api.contracts.DashboardAllAppDailyResultsRequestType;
 import com.arextest.report.model.api.contracts.DashboardAllAppDailyResultsResponseType;

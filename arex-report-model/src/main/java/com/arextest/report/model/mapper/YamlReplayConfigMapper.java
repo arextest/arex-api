@@ -1,7 +1,7 @@
 package com.arextest.report.model.mapper;
 
 import com.arextest.report.model.api.contracts.config.replay.ScheduleConfiguration;
-import com.arextest.report.model.api.contracts.config.yamlTemplate.ReplayConfig;
+import com.arextest.report.model.api.contracts.config.yamlTemplate.entity.ReplayTemplateConfig;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
@@ -23,15 +23,16 @@ import java.util.Set;
 @Mapper
 public interface YamlReplayConfigMapper {
     YamlReplayConfigMapper INSTANCE = Mappers.getMapper(YamlReplayConfigMapper.class);
+
     @Mappings({
             @Mapping(target = "excludeOperationMap", qualifiedByName = "toCollection")
     })
-    ReplayConfig toYaml(ScheduleConfiguration scheduleConfiguration);
+    ReplayTemplateConfig toYaml(ScheduleConfiguration scheduleConfiguration);
 
     @Mappings({
             @Mapping(target = "excludeOperationMap", qualifiedByName = "toSet")
     })
-    ScheduleConfiguration fromYaml(ReplayConfig replayConfig);
+    ScheduleConfiguration fromYaml(ReplayTemplateConfig replayTemplateConfig);
 
     @Named("toCollection")
     default Map<String, Collection<String>> toCollection(Map<String, Set<String>> excludeOperationMap) {

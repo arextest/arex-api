@@ -1,6 +1,6 @@
 package com.arextest.report.core.business.config.dashboard;
 
-import com.arextest.report.core.business.config.handler.ViewHandler;
+import com.arextest.report.core.business.config.ViewHandler;
 import com.arextest.report.model.api.contracts.config.application.ApplicationConfiguration;
 import com.arextest.report.model.api.contracts.config.application.ApplicationOperationConfiguration;
 import com.arextest.report.model.api.contracts.config.dashboard.AppDashboardView;

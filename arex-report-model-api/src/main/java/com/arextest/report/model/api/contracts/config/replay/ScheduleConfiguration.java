@@ -22,14 +22,17 @@ public class ScheduleConfiguration extends AbstractConfiguration {
      */
     private Map<String, Set<String>> excludeOperationMap;
     /**
-     * 默认回放Case范围
+     * the default range of case to replay
      */
     private Integer offsetDays;
 
     /**
-     * 默认回放环境
+     * default replay environment
      */
     private Set<String> targetEnv;
+    /**
+     * send max qps
+     */
     private Integer sendMaxQps;
 
 }

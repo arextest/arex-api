@@ -1,6 +1,6 @@
 package com.arextest.report.web.api.service.controller.config;
 
-import com.arextest.report.core.business.config.handler.ConfigurableHandler;
+import com.arextest.report.core.business.config.ConfigurableHandler;
 import com.arextest.report.model.api.contracts.config.application.ApplicationServiceConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
