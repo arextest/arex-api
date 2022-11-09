@@ -1,7 +1,7 @@
 package com.arextest.report.model.mapper;
 
 import com.arextest.report.model.api.contracts.config.record.ServiceCollectConfiguration;
-import com.arextest.report.model.api.contracts.config.yamlTemplate.ServiceConfig;
+import com.arextest.report.model.api.contracts.config.yamlTemplate.entity.ServiceTemplateConfig;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
@@ -10,7 +10,7 @@ public interface YamlServiceConfigMapper {
 
     YamlServiceConfigMapper INSTANCE = Mappers.getMapper(YamlServiceConfigMapper.class);
 
-    ServiceConfig toYaml(ServiceCollectConfiguration dao);
+    ServiceTemplateConfig toYaml(ServiceCollectConfiguration dao);
 
-    ServiceCollectConfiguration fromYaml(ServiceConfig dto);
+    ServiceCollectConfiguration fromYaml(ServiceTemplateConfig dto);
 }

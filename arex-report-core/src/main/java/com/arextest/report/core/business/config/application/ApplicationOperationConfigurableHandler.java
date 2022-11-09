@@ -1,6 +1,6 @@
 package com.arextest.report.core.business.config.application;
 
-import com.arextest.report.core.business.config.handler.AbstractConfigurableHandler;
+import com.arextest.report.core.business.config.AbstractConfigurableHandler;
 import com.arextest.report.core.repository.ConfigRepositoryProvider;
 import com.arextest.report.core.repository.mongo.ApplicationOperationConfigurationRepositoryImpl;
 import com.arextest.report.model.api.contracts.config.application.ApplicationOperationConfiguration;

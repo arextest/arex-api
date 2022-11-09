@@ -1,6 +1,6 @@
 package com.arextest.report.core.business.config.record;
 
-import com.arextest.report.core.business.config.handler.AbstractConfigurableHandler;
+import com.arextest.report.core.business.config.AbstractConfigurableHandler;
 import com.arextest.report.core.repository.ConfigRepositoryProvider;
 import com.arextest.report.model.api.contracts.config.record.ServiceCollectConfiguration;
 import lombok.extern.slf4j.Slf4j;
@@ -12,11 +12,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 /**
