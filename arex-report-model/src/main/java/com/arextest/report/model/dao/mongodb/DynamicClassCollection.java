@@ -16,5 +16,9 @@ public class DynamicClassCollection extends ModelBase {
 
     private String fullClassName;
 
+    private String methodName;
+
+    private String parameterTypes;
+
     private int configType;
 }
