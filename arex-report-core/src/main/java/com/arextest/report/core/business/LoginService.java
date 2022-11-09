@@ -2,7 +2,6 @@ package com.arextest.report.core.business;
 
 import com.arextest.report.common.JwtUtil;
 import com.arextest.report.common.LoadResource;
-import com.arextest.report.core.business.util.LoginLogUtils;
 import com.arextest.report.core.business.util.MailUtils;
 import com.arextest.report.core.repository.UserRepository;
 import com.arextest.report.model.api.contracts.login.LoginAsGuestResponseType;
@@ -11,6 +10,7 @@ import com.arextest.report.model.api.contracts.login.UserProfileResponseType;
 import com.arextest.report.model.api.contracts.login.VerifyRequestType;
 import com.arextest.report.model.api.contracts.login.VerifyResponseType;
 import com.arextest.report.model.dto.UserDto;
+import com.arextest.report.model.enums.SendEmailType;
 import com.arextest.report.model.enums.UserStatusType;
 import com.arextest.report.model.mapper.UserMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -38,9 +38,6 @@ public class LoginService {
     @Resource
     private MailUtils mailUtils;
 
-    @Resource
-    private LoginLogUtils loginLogUtils;
-
     public Boolean sendVerifyCodeByEmail(String emailTo) {
         String template = loadResource.getResource(VERIFICATION_CODE_EMAIL_TEMPLATE);
         UserDto user = new UserDto();
@@ -52,7 +49,7 @@ public class LoginService {
             template = template.replace(VERIFICATION_CODE_PLACEHOLDER, user.getVerificationCode());
             success = success & mailUtils.sendEmail(user.getUserName(),
                     SEND_VERIFICATION_CODE_SUBJECT,
-                    template);
+                    template, SendEmailType.LOGIN);
         }
         return success;
     }
@@ -69,7 +66,6 @@ public class LoginService {
             exist = exist & userRepository.saveUser(userDto);
         }
         if (exist) {
-            loginLogUtils.loginLog(request.getUserName());
             responseType.setSuccess(true);
             responseType.setAccessToken(JwtUtil.makeAccessToken(request.getUserName()));
             responseType.setRefreshToken(JwtUtil.makeRefreshToken(request.getUserName()));
@@ -118,9 +114,8 @@ public class LoginService {
         user.setStatus(UserStatusType.GUEST);
         Boolean result = userRepository.saveUser(user);
 
-        loginLogUtils.loginLog(userName);
-
         if (result) {
+            mailUtils.sendEmail(userName, SEND_VERIFICATION_CODE_SUBJECT, StringUtils.EMPTY, SendEmailType.LOGIN_AS_GUEST);
             response.setUserName(userName);
             response.setSuccess(true);
             response.setAccessToken(JwtUtil.makeAccessToken(userName));

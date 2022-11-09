@@ -55,6 +55,7 @@ import com.arextest.report.model.dto.filesystem.UserWorkspaceDto;
 import com.arextest.report.model.enums.FSInfoItem;
 import com.arextest.report.model.enums.InvitationType;
 import com.arextest.report.model.enums.RoleType;
+import com.arextest.report.model.enums.SendEmailType;
 import com.arextest.report.model.mapper.AddressMapper;
 import com.arextest.report.model.mapper.FSCaseMapper;
 import com.arextest.report.model.mapper.FSInterfaceMapper;
@@ -718,7 +719,7 @@ public class FileSystemService {
 
         return mailUtils.sendEmail(invitee,
                 String.format(INVITATION_MAIL_SUBJECT, workspace.getWorkspaceName()),
-                context);
+                context, SendEmailType.INVITATION);
     }
 
     private FSTreeDto addWorkspace(String workspaceName, String userName) {

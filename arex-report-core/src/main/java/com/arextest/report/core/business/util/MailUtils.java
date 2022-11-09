@@ -20,13 +20,18 @@ public class MailUtils {
 
     private static final String CONTENT_TYPE = "text/html; charset=UTF-8";
 
-    public boolean sendEmail(String mailBox, String subject, String htmlMsg) {
+    public boolean sendEmail(String mailBox, String subject, String htmlMsg, int type) {
         if (StringUtils.isEmpty(sendEmailUrl)) {
             sendEmailUrl = arexEmailDomain + "/email/sendEmail";
         }
-        SendMailRequest request = new SendMailRequest(mailBox, subject, htmlMsg, CONTENT_TYPE);
-        ResponseEntity<SendMailResponse> response = HttpUtils.post(sendEmailUrl, request, SendMailResponse.class);
-        return response.getBody().getData().getSuccess();
+        try {
+            SendMailRequest request = new SendMailRequest(mailBox, subject, htmlMsg, CONTENT_TYPE, type);
+            ResponseEntity<SendMailResponse> response = HttpUtils.post(sendEmailUrl, request, SendMailResponse.class);
+            return response.getBody().getData().getSuccess();
+        } catch (Exception e) {
+            LOGGER.error("Failed to send email. type:{}", type);
+            return false;
+        }
     }
 
     @Data
@@ -35,12 +40,14 @@ public class MailUtils {
         private String subject;
         private String body;
         private String contentType;
+        private int type;
 
-        public SendMailRequest(String to, String subject, String body, String contentType) {
+        public SendMailRequest(String to, String subject, String body, String contentType, int type) {
             this.to = to;
             this.subject = subject;
             this.body = body;
             this.contentType = contentType;
+            this.type = type;
         }
     }
 
