@@ -2,7 +2,7 @@ package com.arextest.report.web.api.service.controller.config;
 
 import com.arextest.common.model.response.Response;
 import com.arextest.common.utils.ResponseUtils;
-import com.arextest.report.core.business.config.handler.ConfigurableHandler;
+import com.arextest.report.core.business.config.ConfigurableHandler;
 import com.arextest.report.model.api.contracts.config.application.ApplicationConfiguration;
 import com.arextest.report.model.api.contracts.config.replay.ScheduleConfiguration;
 import lombok.Data;
