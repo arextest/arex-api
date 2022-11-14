@@ -101,7 +101,7 @@
             <build>
                 <resources>
                     <resource>
-                        <directory>arex-storage</directory>
+                        <directory>arex-report</directory>
                         <excludes>
                             <exclude>**/application*.properties</exclude>
                         </excludes>
