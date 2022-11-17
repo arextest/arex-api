@@ -7,7 +7,7 @@
     <groupId>com.arextest</groupId>
     <artifactId>arex-report</artifactId>
     <packaging>pom</packaging>
-    <version>0.2.4</version>
+    <version>0.2.5-SNAPSHOT</version>
     <modules>
         <module>arex-report-web-api-service</module>
         <module>arex-report-common</module>
@@ -19,7 +19,7 @@
     <properties>
         <java.version>1.8</java.version>
         <junit.version>4.12</junit.version>
-        <spring.boot.version>2.3.5.RELEASE</spring.boot.version>
+        <spring.boot.version>2.6.3</spring.boot.version>
         <jmockit.version>1.37</jmockit.version>
         <gson.version>2.8.9</gson.version>
         <lombok.version>1.18.6</lombok.version>
@@ -239,6 +239,14 @@
         </dependencies>
     </dependencyManagement>
 
+    <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
     <repositories>
         <repository>
             <id>jitpack.io</id>
@@ -310,6 +318,9 @@
                         </goals>
                     </execution>
                 </executions>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.sonatype.plugins</groupId>
