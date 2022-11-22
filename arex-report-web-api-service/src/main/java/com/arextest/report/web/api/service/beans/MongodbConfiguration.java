@@ -6,6 +6,7 @@ import com.arextest.report.model.dao.mongodb.ReplayScheduleConfigCollection;
 import com.arextest.report.model.dao.mongodb.ServiceOperationCollection;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.Sort;
@@ -31,7 +32,6 @@ public class MongodbConfiguration {
     private static final String SERVICE_ID = "serviceId";
     private static final String OPERATION_NAME = "operationName";
 
-    @Bean
     public MongoDatabaseFactory mongoDbFactory() {
         try {
             return new SimpleMongoClientDatabaseFactory(mongoUrl);
@@ -42,6 +42,7 @@ public class MongodbConfiguration {
     }
 
     @Bean
+    @ConditionalOnMissingBean
     public MongoTemplate mongoTemplate() {
         DbRefResolver dbRefResolver = new DefaultDbRefResolver(this.mongoDbFactory());
         MappingMongoConverter converter = new MappingMongoConverter(dbRefResolver, new MongoMappingContext());

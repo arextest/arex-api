@@ -9,6 +9,7 @@ import lombok.Data;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
+import java.util.Set;
 
 @Data
 @Document(collection = "FSCase")
@@ -26,4 +27,5 @@ public class FSCaseCollection extends ModelBase {
     private Integer parentNodeType;
     private String recordId;
     private ComparisonMsgDao comparisonMsg;
+    private Set<String> labelIds;
 }

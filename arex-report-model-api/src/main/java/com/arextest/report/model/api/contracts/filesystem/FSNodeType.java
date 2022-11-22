@@ -3,6 +3,7 @@ package com.arextest.report.model.api.contracts.filesystem;
 import lombok.Data;
 
 import java.util.List;
+import java.util.Set;
 
 @Data
 public class FSNodeType {
@@ -10,5 +11,6 @@ public class FSNodeType {
     private Integer nodeType;
     private String infoId;
     private String method;
+    private Set<String> labelIds;
     private List<FSNodeType> children;
 }

@@ -10,5 +10,6 @@ public class FSNode {
     private Integer nodeType;
     private String infoId;
     private String method;  // available for nodeType equal 1
+    private List<String> labelIds;
     private List<FSNode> children;
 }

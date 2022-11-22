@@ -4,6 +4,7 @@ import com.arextest.report.model.dto.KeyValuePairDto;
 import lombok.Data;
 
 import java.util.List;
+import java.util.Set;
 
 @Data
 public class FSCaseDto extends FSItemDto {

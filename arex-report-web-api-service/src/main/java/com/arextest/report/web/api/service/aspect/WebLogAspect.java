@@ -27,44 +27,42 @@ public class WebLogAspect {
     @Resource
     private ObjectMapper mapper;
 
-    
+
     @Before("webLog()")
     public void doBefore(JoinPoint joinPoint) throws Throwable {
-        
+
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         HttpServletRequest request = attributes.getRequest();
-        
-        LOGGER.info("========================================== Start ==========================================");
-        
-        LOGGER.info("URL            : {}", request.getRequestURL().toString());
-        
-        LOGGER.info("HTTP Method    : {}", request.getMethod());
-        
-        LOGGER.info("Class Method   : {}.{}",
-                joinPoint.getSignature().getDeclaringTypeName(),
-                joinPoint.getSignature().getName());
-        
-        LOGGER.info("IP             : {}", request.getRemoteAddr());
-        
-        LOGGER.info("Request Args   : {}", mapper.writeValueAsString(joinPoint.getArgs()));
+        try {
+            LOGGER.info("========================================== Start ==========================================");
+            LOGGER.info("URL            : {}", request.getRequestURL().toString());
+            LOGGER.info("HTTP Method    : {}", request.getMethod());
+            LOGGER.info("Class Method   : {}.{}",
+                    joinPoint.getSignature().getDeclaringTypeName(),
+                    joinPoint.getSignature().getName());
+            LOGGER.info("IP             : {}", request.getRemoteAddr());
+            LOGGER.info("Request Args   : {}", mapper.writeValueAsString(joinPoint.getArgs()));
+        } catch (Exception e) {
+            LOGGER.error("Failed to log info", e);
+        }
     }
 
-    
+
     @After("webLog()")
     public void doAfter() throws Throwable {
         LOGGER.info("=========================================== End ===========================================");
-        
+
         LOGGER.info("");
     }
 
-    
+
     @Around("webLog()")
     public Object doAround(ProceedingJoinPoint proceedingJoinPoint) throws Throwable {
         long startTime = System.currentTimeMillis();
         Object result = proceedingJoinPoint.proceed();
-        
+
         LOGGER.info("Response Args  : {}", new Gson().toJson(result));
-        
+
         LOGGER.info("Time-Consuming : {} ms", System.currentTimeMillis() - startTime);
         return result;
     }

@@ -65,6 +65,7 @@ import com.arextest.report.model.mapper.WorkspaceMapper;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.internal.Base64;
@@ -456,7 +457,6 @@ public class FileSystemService {
                     }
                 }
             }
-
             response.setSuccess(true);
         } catch (Exception e) {
             response.setSuccess(false);
@@ -477,10 +477,21 @@ public class FileSystemService {
         FSCaseDto dto = FSCaseMapper.INSTANCE.dtoFromContract(request);
         try {
             fsCaseRepository.saveCase(dto);
+            // update labels in workspace tree
+            FSTreeDto workspace = fsTreeRepository.queryFSTreeById(request.getWorkspaceId());
+            if (workspace != null) {
+                FSNodeDto node = fileSystemUtils.deepFindByInfoId(workspace.getRoots(), request.getId());
+                if (node != null) {
+                    if (!SetUtils.isEqualSet(node.getLabelIds(), request.getLabelIds())) {
+                        node.setLabelIds(request.getLabelIds());
+                        fsTreeRepository.updateFSTree(workspace);
+                    }
+                }
+            }
+            response.setSuccess(true);
         } catch (Exception e) {
             response.setSuccess(false);
         }
-        response.setSuccess(true);
         return response;
     }
 
@@ -689,7 +700,9 @@ public class FileSystemService {
         String dupInfoId = itemInfo.duplicate(parentId, old.getInfoId());
         dto.setNodeName(nodeName);
         dto.setInfoId(dupInfoId);
+        dto.setMethod(old.getMethod());
         dto.setNodeType(old.getNodeType());
+        dto.setLabelIds(old.getLabelIds());
         if (old.getChildren() != null) {
             dto.setChildren(new ArrayList<>(old.getChildren().size()));
             for (FSNodeDto oldChild : old.getChildren()) {
