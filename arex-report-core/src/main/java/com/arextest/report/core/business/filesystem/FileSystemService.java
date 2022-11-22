@@ -702,6 +702,7 @@ public class FileSystemService {
         dto.setInfoId(dupInfoId);
         dto.setMethod(old.getMethod());
         dto.setNodeType(old.getNodeType());
+        dto.setLabelIds(old.getLabelIds());
         if (old.getChildren() != null) {
             dto.setChildren(new ArrayList<>(old.getChildren().size()));
             for (FSNodeDto oldChild : old.getChildren()) {
