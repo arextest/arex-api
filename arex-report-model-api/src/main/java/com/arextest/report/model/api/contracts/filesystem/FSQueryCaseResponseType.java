@@ -4,6 +4,7 @@ import com.arextest.report.model.api.contracts.common.KeyValuePairType;
 import lombok.Data;
 
 import java.util.List;
+import java.util.Set;
 
 @Data
 public class FSQueryCaseResponseType {
@@ -18,4 +19,5 @@ public class FSQueryCaseResponseType {
     private AddressType testAddress;
     private String recordId;
     private ComparisonMsgType comparisonMsg;
+    private Set<String> labelIds;
 }

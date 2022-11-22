@@ -16,6 +16,7 @@ public class RolePermission {
     public static final Integer VIEW_WORKSPACE = RoleType.VIEWER;
     public static final Integer EDIT_ITEM = RoleType.EDITOR;
     public static final Integer EDIT_ENVIRONMENT = RoleType.EDITOR;
+    public static final Integer EDIT_LABEL = RoleType.EDITOR;
 
     @Resource
     private UserWorkspaceRepository userWorkspaceRepository;

@@ -4,10 +4,12 @@ import com.arextest.report.model.api.contracts.common.KeyValuePairType;
 import lombok.Data;
 
 import java.util.List;
+import java.util.Set;
 
 @Data
 public class FSSaveCaseRequestType {
     private String id;
+    private String workspaceId;
     private AddressType address;
     private String preRequestScript;
     private String testScript;
@@ -16,4 +18,5 @@ public class FSSaveCaseRequestType {
     private List<KeyValuePairType> params;
     private AuthType auth;
     private AddressType testAddress;
+    private Set<String> labelIds;
 }

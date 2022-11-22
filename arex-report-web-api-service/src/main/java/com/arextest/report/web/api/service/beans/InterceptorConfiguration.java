@@ -2,10 +2,18 @@ package com.arextest.report.web.api.service.beans;
 
 import com.arextest.report.web.api.service.interceptor.AuthorizationInterceptor;
 import com.arextest.report.web.api.service.interceptor.RefreshInterceptor;
+import com.google.common.collect.Lists;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 @Configuration
 public class InterceptorConfiguration implements WebMvcConfigurer {
@@ -16,30 +24,52 @@ public class InterceptorConfiguration implements WebMvcConfigurer {
     @Autowired
     AuthorizationInterceptor authorizationInterceptor;
 
+    @Value("${arex.interceptor.patterns}")
+    private String interceptorPatterns;
+
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(refreshInterceptor)
                 .addPathPatterns("/api/login/refresh/**");
 
+        List<String> defaultPatterns = new ArrayList<>(20);
+        // error
+        defaultPatterns.add("/error");
+        // static resource
+        defaultPatterns.add("/js/**");
+        defaultPatterns.add("/css/**");
+        defaultPatterns.add("/images/**");
+        defaultPatterns.add("/lib/**");
+        defaultPatterns.add("/fonts/**");
+        // swagger-ui
+        defaultPatterns.add("/swagger-resources/**");
+        defaultPatterns.add("/webjars/**");
+        defaultPatterns.add("/v3/**");
+        defaultPatterns.add("/swagger-ui/**");
+        defaultPatterns.add("/api/login/verify");
+        defaultPatterns.add("/api/login/getVerificationCode/**");
+        defaultPatterns.add("/api/login/loginAsGuest");
+        defaultPatterns.add("/api/login/refresh/**");
+        // healthCheck
+        defaultPatterns.add("/vi/health");
+        // called by arex-schedule
+        defaultPatterns.add("/api/report/init");
+        defaultPatterns.add("/api/report/pushCompareResults");
+        defaultPatterns.add("/api/report/pushReplayStatus");
+        // exclude configuration services
+        defaultPatterns.add("/api/config/**");
+        // invite to workspace
+        defaultPatterns.add("/api/filesystem/validInvitation");
+
+        // add custom patterns
+        if (StringUtils.isNotBlank(interceptorPatterns)) {
+            String[] patterns = interceptorPatterns.split(",");
+            defaultPatterns.addAll(Arrays.asList(patterns));
+        }
+
         registry.addInterceptor(authorizationInterceptor)
                 .addPathPatterns("/**")
                 // error
-                .excludePathPatterns("/error")
-                // static resource
-                .excludePathPatterns("/js/**", "/css/**", "/images/**", "/lib/**", "/fonts/**")
-                // swagger-ui
-                .excludePathPatterns("/swagger-resources/**", "/webjars/**", "/v3/**", "/swagger-ui/**")
-                .excludePathPatterns("/api/login/verify")
-                .excludePathPatterns("/api/login/getVerificationCode/**")
-                .excludePathPatterns("/api/login/loginAsGuest")
-                .excludePathPatterns("/api/login/refresh/**")
-                // healthCheck
-                .excludePathPatterns("/vi/health")
-                // called by arex-schedule
-                .excludePathPatterns("/api/report/init", "/api/report/pushCompareResults", "/api/report/pushReplayStatus")
-                // exclude configuration services
-                .excludePathPatterns("/api/config/**")
-                // invite to workspace
-                .excludePathPatterns("/api/filesystem/validInvitation");
+                .excludePathPatterns(defaultPatterns);
     }
 }
