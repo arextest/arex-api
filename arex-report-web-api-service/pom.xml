@@ -10,6 +10,9 @@
     <modelVersion>4.0.0</modelVersion>
     <packaging>${packagingType}</packaging>
     <artifactId>arex-platform-web-service</artifactId>
+    <build>
+        <finalName>arex-platform-web-service</finalName>
+    </build>
     <dependencies>
         <dependency>
             <groupId>com.arextest</groupId>
