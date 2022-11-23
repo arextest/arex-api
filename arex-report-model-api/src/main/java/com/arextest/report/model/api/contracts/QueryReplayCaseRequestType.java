@@ -3,6 +3,8 @@ package com.arextest.report.model.api.contracts;
 import com.arextest.report.model.api.PagingRequest;
 import lombok.Data;
 
+import javax.validation.constraints.NotBlank;
+
 
 @Data
 public class QueryReplayCaseRequestType implements PagingRequest {
@@ -10,7 +12,7 @@ public class QueryReplayCaseRequestType implements PagingRequest {
     private Integer pageSize;
     private Boolean needTotal;
 
-    
+    @NotBlank(message = "PlanItemId cannot be empty")
     private String planItemId;
 
     

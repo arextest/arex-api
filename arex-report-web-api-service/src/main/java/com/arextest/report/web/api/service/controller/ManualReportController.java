@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.annotation.Resource;
+import javax.validation.Valid;
 
 @Slf4j
 @Controller
@@ -30,30 +31,19 @@ public class ManualReportController {
 
     @PostMapping("/initManualReport")
     @ResponseBody
-    public Response initManualReport(@RequestBody InitManualReportRequestType request) {
-        if (StringUtils.isEmpty(request.getWorkspaceId())) {
-            return ResponseUtils.errorResponse("workspace is empty", ResponseCode.REQUESTED_PARAMETER_INVALID);
-        }
+    public Response initManualReport(@Valid @RequestBody InitManualReportRequestType request) {
         if (StringUtils.isEmpty(request.getReportName())) {
             request.setReportName("Report" + System.currentTimeMillis());
         }
-        try {
-            InitManualReportResponseType response = manualReportService.initManualReport(request);
-            return ResponseUtils.successResponse(response);
-        } catch (Exception e) {
-            return ResponseUtils.errorResponse(e.getMessage(), ResponseCode.REQUESTED_HANDLE_EXCEPTION);
-        }
+        InitManualReportResponseType response = manualReportService.initManualReport(request);
+        return ResponseUtils.successResponse(response);
     }
 
     @PostMapping("/queryReportCases")
     @ResponseBody
     public Response queryReportCases(@RequestBody QueryReportCasesRequestType request) {
-        try {
-            QueryReportCasesResponseType response = new QueryReportCasesResponseType();
-            response.setReportCases(manualReportService.queryReportCases(request));
-            return ResponseUtils.successResponse(response);
-        } catch (Exception e) {
-            return ResponseUtils.errorResponse(e.getMessage(), ResponseCode.REQUESTED_HANDLE_EXCEPTION);
-        }
+        QueryReportCasesResponseType response = new QueryReportCasesResponseType();
+        response.setReportCases(manualReportService.queryReportCases(request));
+        return ResponseUtils.successResponse(response);
     }
 }

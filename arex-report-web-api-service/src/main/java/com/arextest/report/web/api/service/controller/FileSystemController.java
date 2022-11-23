@@ -56,6 +56,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.annotation.Resource;
+import javax.validation.Valid;
 
 @Slf4j
 @Controller
@@ -72,170 +73,93 @@ public class FileSystemController {
     @PostMapping("/addItem")
     @ResponseBody
     public Response addItem(@RequestHeader(name = Constants.ACCESS_TOKEN) String token,
-            @RequestBody FSAddItemRequestType request) {
+            @Valid @RequestBody FSAddItemRequestType request) {
         if (StringUtils.isNotEmpty(request.getId()) &&
                 !rolePermission.checkPermissionByToken(RolePermission.EDIT_ITEM,
                         token,
                         request.getId())) {
             return ResponseUtils.errorResponse(Constants.NO_PERMISSION, ResponseCode.AUTHENTICATION_FAILED);
         }
-        if (StringUtils.isEmpty(request.getNodeName())) {
-            return ResponseUtils.errorResponse("Node name cannot be empty", ResponseCode.REQUESTED_PARAMETER_INVALID);
-        }
-        if (request.getNodeType() == null) {
-            return ResponseUtils.errorResponse("NodeType cannot be empty", ResponseCode.REQUESTED_PARAMETER_INVALID);
-        }
-        try {
-            FSAddItemResponseType response = fileSystemService.addItem(request);
-            return ResponseUtils.successResponse(response);
-        } catch (Exception e) {
-            return ResponseUtils.errorResponse(e.getMessage(), ResponseCode.REQUESTED_HANDLE_EXCEPTION);
-        }
+        FSAddItemResponseType response = fileSystemService.addItem(request);
+        return ResponseUtils.successResponse(response);
     }
 
     @PostMapping("/removeItem")
     @ResponseBody
     public Response removeItem(@RequestHeader(name = Constants.ACCESS_TOKEN) String token,
-            @RequestBody FSRemoveItemRequestType request) {
+            @Valid @RequestBody FSRemoveItemRequestType request) {
         if (!rolePermission.checkPermissionByToken(RolePermission.EDIT_ITEM, token, request.getId())) {
             return ResponseUtils.errorResponse(Constants.NO_PERMISSION, ResponseCode.AUTHENTICATION_FAILED);
         }
-        if (StringUtils.isEmpty(request.getId())) {
-            return ResponseUtils.errorResponse("id cannot be empty", ResponseCode.REQUESTED_PARAMETER_INVALID);
-        }
-        if (request.getRemoveNodePath() == null || request.getRemoveNodePath().length == 0) {
-            return ResponseUtils.errorResponse("remove node path cannot be empty",
-                    ResponseCode.REQUESTED_PARAMETER_INVALID);
-        }
-        try {
-            FSRemoveItemResponseType response = new FSRemoveItemResponseType();
-            response.setSuccess(fileSystemService.removeItem(request));
-            return ResponseUtils.successResponse(response);
-        } catch (Exception e) {
-            return ResponseUtils.errorResponse(e.getMessage(), ResponseCode.REQUESTED_HANDLE_EXCEPTION);
-        }
+        FSRemoveItemResponseType response = new FSRemoveItemResponseType();
+        response.setSuccess(fileSystemService.removeItem(request));
+        return ResponseUtils.successResponse(response);
     }
 
     @PostMapping("/rename")
     @ResponseBody
     public Response rename(@RequestHeader(name = Constants.ACCESS_TOKEN) String token,
-            @RequestBody FSRenameRequestType request) {
+            @Valid @RequestBody FSRenameRequestType request) {
         if (!rolePermission.checkPermissionByToken(RolePermission.EDIT_ITEM, token, request.getId())) {
             return ResponseUtils.errorResponse(Constants.NO_PERMISSION, ResponseCode.AUTHENTICATION_FAILED);
         }
-        if (StringUtils.isEmpty(request.getId())) {
-            return ResponseUtils.errorResponse("Cannot rename item because workspace id is empty",
-                    ResponseCode.REQUESTED_PARAMETER_INVALID);
-        }
-        if (request.getPath() == null || request.getPath().length == 0) {
-            return ResponseUtils.errorResponse("Old name cannot be empty",
-                    ResponseCode.REQUESTED_PARAMETER_INVALID);
-        }
         FSRenameResponseType response = new FSRenameResponseType();
-        try {
-            Boolean success = fileSystemService.rename(request);
-            response.setSuccess(success);
-            return ResponseUtils.successResponse(response);
-        } catch (Exception e) {
-            return ResponseUtils.errorResponse(e.getMessage(), ResponseCode.REQUESTED_HANDLE_EXCEPTION);
-        }
+        Boolean success = fileSystemService.rename(request);
+        response.setSuccess(success);
+        return ResponseUtils.successResponse(response);
     }
 
     @PostMapping("/duplicate")
     @ResponseBody
     public Response duplicate(@RequestHeader(name = Constants.ACCESS_TOKEN) String token,
-            @RequestBody FSDuplicateRequestType request) {
+            @Valid @RequestBody FSDuplicateRequestType request) {
         if (!rolePermission.checkPermissionByToken(RolePermission.EDIT_ITEM, token, request.getId())) {
             return ResponseUtils.errorResponse(Constants.NO_PERMISSION, ResponseCode.AUTHENTICATION_FAILED);
         }
-        if (StringUtils.isEmpty(request.getId())) {
-            return ResponseUtils.errorResponse("Cannot duplicate item because workspace id is empty",
-                    ResponseCode.REQUESTED_PARAMETER_INVALID);
-        }
-        if (request.getPath() == null || request.getPath().length == 0) {
-            return ResponseUtils.errorResponse("Item path cannot be empty", ResponseCode.REQUESTED_PARAMETER_INVALID);
-        }
-        try {
-            SuccessResponseType response = new SuccessResponseType();
-            response.setSuccess(fileSystemService.duplicate(request));
-            return ResponseUtils.successResponse(response);
-        } catch (Exception e) {
-            return ResponseUtils.errorResponse(e.getMessage(), ResponseCode.REQUESTED_HANDLE_EXCEPTION);
-        }
+        SuccessResponseType response = new SuccessResponseType();
+        response.setSuccess(fileSystemService.duplicate(request));
+        return ResponseUtils.successResponse(response);
     }
 
     @PostMapping("/move")
     @ResponseBody
-    public Response move(@RequestBody FSMoveItemRequestType request) {
-        if (request.getFromNodePath() == null || request.getFromNodePath().length == 0) {
-            return ResponseUtils.errorResponse("source item cannot be empty", ResponseCode.REQUESTED_PARAMETER_INVALID);
-        }
-        try {
-            SuccessResponseType response = new SuccessResponseType();
-            response.setSuccess(fileSystemService.move(request));
-            return ResponseUtils.successResponse(response);
-        } catch (Exception e) {
-            return ResponseUtils.errorResponse(e.getMessage(), ResponseCode.REQUESTED_HANDLE_EXCEPTION);
-        }
+    public Response move(@Valid @RequestBody FSMoveItemRequestType request) {
+        SuccessResponseType response = new SuccessResponseType();
+        response.setSuccess(fileSystemService.move(request));
+        return ResponseUtils.successResponse(response);
     }
 
     @PostMapping("/addWorkspace")
     @ResponseBody
-    public Response addWorkspace(@RequestBody FSAddWorkspaceRequestType request) {
-        if (StringUtils.isEmpty(request.getUserName())) {
-            return ResponseUtils.errorResponse("userName cannot be empty", ResponseCode.REQUESTED_PARAMETER_INVALID);
-        }
-        try {
-            FSAddWorkspaceResponseType response = fileSystemService.addWorkspace(request);
-            return ResponseUtils.successResponse(response);
-        } catch (Exception e) {
-            return ResponseUtils.errorResponse(e.getMessage(), ResponseCode.REQUESTED_HANDLE_EXCEPTION);
-        }
+    public Response addWorkspace(@Valid @RequestBody FSAddWorkspaceRequestType request) {
+        FSAddWorkspaceResponseType response = fileSystemService.addWorkspace(request);
+        return ResponseUtils.successResponse(response);
     }
 
     @PostMapping("/deleteWorkspace")
     @ResponseBody
     public Response deleteWorkspace(@RequestHeader(name = Constants.ACCESS_TOKEN) String token,
-            @RequestBody FSDeleteWorkspaceRequestType request) {
+            @Valid @RequestBody FSDeleteWorkspaceRequestType request) {
         if (!rolePermission.checkPermissionByToken(RolePermission.EDIT_WORKSPACE,
                 token,
                 request.getWorkspaceId())) {
             return ResponseUtils.errorResponse(Constants.NO_PERMISSION, ResponseCode.AUTHENTICATION_FAILED);
         }
-        if (StringUtils.isEmpty(request.getWorkspaceId())) {
-            return ResponseUtils.errorResponse("workspace id cannot be empty",
-                    ResponseCode.REQUESTED_PARAMETER_INVALID);
-        }
-        try {
-            SuccessResponseType response = new SuccessResponseType();
-            response.setSuccess(fileSystemService.deleteWorkspace(request.getWorkspaceId()));
-            return ResponseUtils.successResponse(response);
-        } catch (Exception e) {
-            return ResponseUtils.errorResponse(e.getMessage(), ResponseCode.REQUESTED_HANDLE_EXCEPTION);
-        }
+        SuccessResponseType response = new SuccessResponseType();
+        response.setSuccess(fileSystemService.deleteWorkspace(request.getWorkspaceId()));
+        return ResponseUtils.successResponse(response);
     }
 
     @PostMapping("/renameWorkspace")
     @ResponseBody
     public Response renameWorkspace(@RequestHeader(name = Constants.ACCESS_TOKEN) String token,
-            @RequestBody FSRenameWorkspaceRequestType request) {
+            @Valid @RequestBody FSRenameWorkspaceRequestType request) {
         if (!rolePermission.checkPermissionByToken(RolePermission.EDIT_WORKSPACE, token, request.getId())) {
             return ResponseUtils.errorResponse(Constants.NO_PERMISSION, ResponseCode.AUTHENTICATION_FAILED);
         }
-        if (StringUtils.isEmpty(request.getId())) {
-            return ResponseUtils.errorResponse("workspaceId cannot empty", ResponseCode.REQUESTED_PARAMETER_INVALID);
-        }
-        if (StringUtils.isEmpty(request.getWorkspaceName())) {
-            return ResponseUtils.errorResponse("new workspace name cannot be empty",
-                    ResponseCode.REQUESTED_PARAMETER_INVALID);
-        }
-        try {
-            SuccessResponseType response = new SuccessResponseType();
-            response.setSuccess(fileSystemService.renameWorkspace(request));
-            return ResponseUtils.successResponse(response);
-        } catch (Exception e) {
-            return ResponseUtils.errorResponse(e.getMessage(), ResponseCode.REQUESTED_HANDLE_EXCEPTION);
-        }
+        SuccessResponseType response = new SuccessResponseType();
+        response.setSuccess(fileSystemService.renameWorkspace(request));
+        return ResponseUtils.successResponse(response);
     }
 
     @PostMapping("/queryWorkspaceById")
@@ -245,213 +169,118 @@ public class FileSystemController {
         if (!rolePermission.checkPermissionByToken(RolePermission.VIEW_WORKSPACE, token, request.getId())) {
             return ResponseUtils.errorResponse(Constants.NO_PERMISSION, ResponseCode.AUTHENTICATION_FAILED);
         }
-        try {
-            FSQueryWorkspaceResponseType response = fileSystemService.queryWorkspaceById(request);
-            return ResponseUtils.successResponse(response);
-        } catch (Exception e) {
-            return ResponseUtils.errorResponse(e.getMessage(), ResponseCode.REQUESTED_HANDLE_EXCEPTION);
-        }
+        FSQueryWorkspaceResponseType response = fileSystemService.queryWorkspaceById(request);
+        return ResponseUtils.successResponse(response);
     }
 
     @PostMapping("/queryWorkspacesByUser")
     @ResponseBody
     public Response queryWorkspaces(@RequestBody FSQueryWorkspacesRequestType request) {
-        try {
-            FSQueryWorkspacesResponseType response = fileSystemService.queryWorkspacesByUser(request);
-            return ResponseUtils.successResponse(response);
-        } catch (Exception e) {
-            return ResponseUtils.errorResponse(e.getMessage(), ResponseCode.REQUESTED_HANDLE_EXCEPTION);
-        }
+        FSQueryWorkspacesResponseType response = fileSystemService.queryWorkspacesByUser(request);
+        return ResponseUtils.successResponse(response);
     }
 
     @PostMapping("/queryUsersByWorkspace")
     @ResponseBody
     public Response queryUsersByWorkspace(@RequestBody FSQueryUsersByWorkspaceRequestType request) {
-        try {
-            FSQueryUsersByWorkspaceResponseType response = fileSystemService.queryUsersByWorkspace(request);
-            return ResponseUtils.successResponse(response);
-        } catch (Exception e) {
-            return ResponseUtils.errorResponse(e.getMessage(), ResponseCode.REQUESTED_HANDLE_EXCEPTION);
-        }
+        FSQueryUsersByWorkspaceResponseType response = fileSystemService.queryUsersByWorkspace(request);
+        return ResponseUtils.successResponse(response);
     }
 
     @PostMapping("/saveInterface")
     @ResponseBody
     public Response saveInterface(@RequestBody FSSaveInterfaceRequestType request) {
-        if (StringUtils.isEmpty(request.getId())) {
-            return ResponseUtils.errorResponse("Interface id cannot be empty",
-                    ResponseCode.REQUESTED_PARAMETER_INVALID);
-        }
-        try {
-            FSSaveInterfaceResponseType response = fileSystemService.saveInterface(request);
-            return ResponseUtils.successResponse(response);
-        } catch (Exception e) {
-            return ResponseUtils.errorResponse(e.getMessage(), ResponseCode.REQUESTED_HANDLE_EXCEPTION);
-        }
+        FSSaveInterfaceResponseType response = fileSystemService.saveInterface(request);
+        return ResponseUtils.successResponse(response);
     }
 
     @PostMapping("/queryInterface")
     @ResponseBody
     public Response queryInterface(@RequestBody FSQueryInterfaceRequestType request) {
-        try {
-            FSQueryInterfaceResponseType response = fileSystemService.queryInterface(request);
-            return ResponseUtils.successResponse(response);
-        } catch (Exception e) {
-            return ResponseUtils.errorResponse(e.getMessage(), ResponseCode.REQUESTED_HANDLE_EXCEPTION);
-        }
+        FSQueryInterfaceResponseType response = fileSystemService.queryInterface(request);
+        return ResponseUtils.successResponse(response);
     }
 
     @PostMapping("/saveCase")
     @ResponseBody
     public Response saveCase(@RequestBody FSSaveCaseRequestType request) {
-        if (StringUtils.isEmpty(request.getId())) {
-            return ResponseUtils.errorResponse("Case id cannot be empty",
-                    ResponseCode.REQUESTED_PARAMETER_INVALID);
-        }
-        try {
-            FSSaveCaseResponseType response = fileSystemService.saveCase(request);
-            return ResponseUtils.successResponse(response);
-        } catch (Exception e) {
-            return ResponseUtils.errorResponse(e.getMessage(), ResponseCode.REQUESTED_HANDLE_EXCEPTION);
-        }
+        FSSaveCaseResponseType response = fileSystemService.saveCase(request);
+        return ResponseUtils.successResponse(response);
     }
 
     @PostMapping("/queryCase")
     @ResponseBody
     public Response queryCase(@RequestBody FSQueryCaseRequestType request) {
-        try {
-            FSQueryCaseResponseType response = fileSystemService.queryCase(request);
-            return ResponseUtils.successResponse(response);
-        } catch (Exception e) {
-            return ResponseUtils.errorResponse(e.getMessage(), ResponseCode.REQUESTED_HANDLE_EXCEPTION);
-        }
+        FSQueryCaseResponseType response = fileSystemService.queryCase(request);
+        return ResponseUtils.successResponse(response);
     }
 
     @PostMapping("/inviteToWorkspace")
     @ResponseBody
     public Response inviteToWorkspace(@RequestHeader(name = Constants.ACCESS_TOKEN) String token,
-            @RequestBody InviteToWorkspaceRequestType request) {
+            @Valid @RequestBody InviteToWorkspaceRequestType request) {
         if (!rolePermission.checkPermissionByToken(RolePermission.INVITE_TO_WORKSPACE,
                 token,
                 request.getWorkspaceId())) {
             return ResponseUtils.errorResponse(Constants.NO_PERMISSION, ResponseCode.AUTHENTICATION_FAILED);
         }
-        if (request.getUserNames() == null || request.getUserNames().size() == 0) {
-            return ResponseUtils.errorResponse("UserNames cannot be empty", ResponseCode.REQUESTED_PARAMETER_INVALID);
-        }
-        if (StringUtils.isEmpty(request.getWorkspaceId())) {
-            return ResponseUtils.errorResponse("Workspace Id cannot be empty",
-                    ResponseCode.REQUESTED_PARAMETER_INVALID);
-        }
-        try {
-            InviteToWorkspaceResponseType response = fileSystemService.inviteToWorkspace(request);
-            return ResponseUtils.successResponse(response);
-        } catch (Exception e) {
-            return ResponseUtils.errorResponse(e.getMessage(), ResponseCode.REQUESTED_HANDLE_EXCEPTION);
-        }
+        InviteToWorkspaceResponseType response = fileSystemService.inviteToWorkspace(request);
+        return ResponseUtils.successResponse(response);
     }
 
     @PostMapping("/leaveWorkspace")
     @ResponseBody
     public Response leaveWorkspace(@RequestHeader(name = Constants.ACCESS_TOKEN) String token,
-            @RequestBody LeaveWorkspaceRequestType request) {
+            @Valid @RequestBody LeaveWorkspaceRequestType request) {
         String userName = JwtUtil.getUserName(token);
         if (StringUtils.isEmpty(userName)) {
             return ResponseUtils.errorResponse("Incorrect token. Please login again.",
                     ResponseCode.REQUESTED_PARAMETER_INVALID);
         }
-        if (StringUtils.isEmpty(request.getWorkspaceId())) {
-            return ResponseUtils.errorResponse("WorkspaceId cannot be empty", ResponseCode.REQUESTED_PARAMETER_INVALID);
-        }
-        try {
-            SuccessResponseType response = new SuccessResponseType();
-            response.setSuccess(fileSystemService.leaveWorkspace(request));
-            return ResponseUtils.successResponse(response);
-        } catch (Exception e) {
-            return ResponseUtils.errorResponse(e.getMessage(), ResponseCode.REQUESTED_HANDLE_EXCEPTION);
-        }
+        SuccessResponseType response = new SuccessResponseType();
+        response.setSuccess(fileSystemService.leaveWorkspace(request));
+        return ResponseUtils.successResponse(response);
     }
 
     @PostMapping("/validInvitation")
     @ResponseBody
-    public Response validInvitation(@RequestBody ValidInvitationRequestType request) {
-        if (StringUtils.isEmpty(request.getUserName())) {
-            return ResponseUtils.errorResponse("UserName cannot be empty", ResponseCode.REQUESTED_PARAMETER_INVALID);
-        }
-        if (StringUtils.isEmpty(request.getWorkspaceId())) {
-            return ResponseUtils.errorResponse("WorkspaceId cannot be empty", ResponseCode.REQUESTED_PARAMETER_INVALID);
-        }
-        if (StringUtils.isEmpty(request.getToken())) {
-            return ResponseUtils.errorResponse("Token cannot be empty", ResponseCode.REQUESTED_PARAMETER_INVALID);
-        }
-        try {
-            ValidInvitationResponseType responseType = fileSystemService.validInvitation(request);
-            return ResponseUtils.successResponse(responseType);
-        } catch (Exception e) {
-            return ResponseUtils.errorResponse(e.getMessage(), ResponseCode.REQUESTED_HANDLE_EXCEPTION);
-        }
+    public Response validInvitation(@Valid @RequestBody ValidInvitationRequestType request) {
+        ValidInvitationResponseType responseType = fileSystemService.validInvitation(request);
+        return ResponseUtils.successResponse(responseType);
     }
 
     @PostMapping("/addItemFromRecord")
     @ResponseBody
-    public Response addItemFromRecord(@RequestBody FSAddItemFromRecordRequestType request) {
-        if (StringUtils.isEmpty(request.getRecordId())) {
-            return ResponseUtils.errorResponse("RecordId cannot be empty", ResponseCode.REQUESTED_PARAMETER_INVALID);
+    public Response addItemFromRecord(@Valid @RequestBody FSAddItemFromRecordRequestType request) {
+        Tuple<String, String> result = fileSystemService.addItemFromRecord(request);
+        if (result == null) {
+            return ResponseUtils.errorResponse("Failed to add record case to workspace",
+                    ResponseCode.REQUESTED_HANDLE_EXCEPTION);
         }
-        if (StringUtils.isEmpty(request.getWorkspaceId())) {
-            return ResponseUtils.errorResponse("WorkspaceId cannot be empty", ResponseCode.REQUESTED_PARAMETER_INVALID);
-        }
-        try {
-            Tuple<String, String> result = fileSystemService.addItemFromRecord(request);
-            if (result == null) {
-                return ResponseUtils.errorResponse("Failed to add record case to workspace",
-                        ResponseCode.REQUESTED_HANDLE_EXCEPTION);
-            }
-            FSAddItemFromRecordResponseType response = new FSAddItemFromRecordResponseType();
-            response.setSuccess(true);
-            response.setWorkspaceId(result.x);
-            response.setInfoId(result.y);
-            return ResponseUtils.successResponse(response);
-        } catch (Exception e) {
-            return ResponseUtils.errorResponse(e.getMessage(), ResponseCode.REQUESTED_HANDLE_EXCEPTION);
-        }
+        FSAddItemFromRecordResponseType response = new FSAddItemFromRecordResponseType();
+        response.setSuccess(true);
+        response.setWorkspaceId(result.x);
+        response.setInfoId(result.y);
+        return ResponseUtils.successResponse(response);
     }
 
     @PostMapping("/export")
     @ResponseBody
-    public Response exportItem(@RequestBody FSExportItemRequestType request) {
-        if (StringUtils.isEmpty(request.getWorkspaceId())) {
-            return ResponseUtils.errorResponse("WorkspaceId cannot be empty", ResponseCode.REQUESTED_PARAMETER_INVALID);
+    public Response exportItem(@Valid @RequestBody FSExportItemRequestType request) {
+        FSExportItemResponseType response = new FSExportItemResponseType();
+        Tuple<Boolean, String> result = fileSystemService.exportItem(request);
+        if (!result.x) {
+            return ResponseUtils.errorResponse("Failed to export items", ResponseCode.REQUESTED_HANDLE_EXCEPTION);
         }
-        try {
-            FSExportItemResponseType response = new FSExportItemResponseType();
-            Tuple<Boolean, String> result = fileSystemService.exportItem(request);
-            if (!result.x) {
-                return ResponseUtils.errorResponse("Failed to export items", ResponseCode.REQUESTED_HANDLE_EXCEPTION);
-            }
-            response.setExportString(result.y);
-            return ResponseUtils.successResponse(response);
-        } catch (Exception e) {
-            return ResponseUtils.errorResponse(e.getMessage(), ResponseCode.REQUESTED_HANDLE_EXCEPTION);
-        }
+        response.setExportString(result.y);
+        return ResponseUtils.successResponse(response);
     }
 
     @PostMapping("/import")
     @ResponseBody
-    public Response importItem(@RequestBody FSImportItemRequestType request) {
-        if (StringUtils.isEmpty(request.getWorkspaceId())) {
-            return ResponseUtils.errorResponse("WorkspaceId cannot be empty", ResponseCode.REQUESTED_PARAMETER_INVALID);
-        }
-        if (StringUtils.isEmpty(request.getImportString())) {
-            return ResponseUtils.errorResponse("Import string cannot be empty",
-                    ResponseCode.REQUESTED_PARAMETER_INVALID);
-        }
-        try {
-            SuccessResponseType response = new SuccessResponseType();
-            response.setSuccess(fileSystemService.importItem(request));
-            return ResponseUtils.successResponse(response);
-        } catch (Exception e) {
-            return ResponseUtils.errorResponse(e.getMessage(), ResponseCode.REQUESTED_HANDLE_EXCEPTION);
-        }
+    public Response importItem(@Valid @RequestBody FSImportItemRequestType request) {
+        SuccessResponseType response = new SuccessResponseType();
+        response.setSuccess(fileSystemService.importItem(request));
+        return ResponseUtils.successResponse(response);
     }
 }
