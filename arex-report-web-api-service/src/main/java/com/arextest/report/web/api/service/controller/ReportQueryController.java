@@ -50,6 +50,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.json.JSONException;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -57,6 +58,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 
 
 @Slf4j
@@ -88,18 +90,10 @@ public class ReportQueryController {
 
     @PostMapping("/pushCompareResults")
     @ResponseBody
-    public Response pushCompareResults(@RequestBody PushCompareResultsRequestType request) {
-        if (request.getResults() == null) {
-            return ResponseUtils.errorResponse("results is empty", ResponseCode.REQUESTED_PARAMETER_INVALID);
-        }
-        try {
-            PushCompareResultsResponseType response = new PushCompareResultsResponseType();
-            response.setSuccess(reportService.saveCompareResults(request));
-            return ResponseUtils.successResponse(response);
-        } catch (Exception e) {
-            return ResponseUtils.errorResponse("failed to save compare results",
-                    ResponseCode.REQUESTED_HANDLE_EXCEPTION);
-        }
+    public Response pushCompareResults(@Valid @RequestBody PushCompareResultsRequestType request) {
+        PushCompareResultsResponseType response = new PushCompareResultsResponseType();
+        response.setSuccess(reportService.saveCompareResults(request));
+        return ResponseUtils.successResponse(response);
     }
 
 
@@ -109,30 +103,18 @@ public class ReportQueryController {
         if (request == null) {
             return ResponseUtils.requestBodyEmptyResponse();
         }
-        try {
-            ReportInitialResponseType response = new ReportInitialResponseType();
-            response.setSuccess(replayInfoService.initPlan(request));
-            return ResponseUtils.successResponse(response);
-        } catch (Exception e) {
-            return ResponseUtils.errorResponse("failed to init replay info", ResponseCode.REQUESTED_HANDLE_EXCEPTION);
-        }
+        ReportInitialResponseType response = new ReportInitialResponseType();
+        response.setSuccess(replayInfoService.initPlan(request));
+        return ResponseUtils.successResponse(response);
     }
 
 
     @PostMapping("/pushReplayStatus")
     @ResponseBody
-    public Response changeReplayStatus(@RequestBody ChangeReplayStatusRequestType request) {
-        if (request.getPlanId() == null) {
-            return ResponseUtils.errorResponse("planId is empty", ResponseCode.REQUESTED_PARAMETER_INVALID);
-        }
-        try {
-            ChangeReplayStatusResponseType response = new ChangeReplayStatusResponseType();
-            response.setUpdateSuccess(reportService.changeReportStatus(request));
-            return ResponseUtils.successResponse(response);
-        } catch (Exception e) {
-            LOGGER.error("failed to update replay status, error:{},request:{}", e.toString(), request);
-            return ResponseUtils.exceptionResponse(e.toString());
-        }
+    public Response changeReplayStatus(@Valid @RequestBody ChangeReplayStatusRequestType request) {
+        ChangeReplayStatusResponseType response = new ChangeReplayStatusResponseType();
+        response.setUpdateSuccess(reportService.changeReportStatus(request));
+        return ResponseUtils.successResponse(response);
     }
 
 
@@ -143,13 +125,8 @@ public class ReportQueryController {
             return ResponseUtils.errorResponse("invalid paging parameter",
                     ResponseCode.REQUESTED_PARAMETER_INVALID);
         }
-        try {
-            QueryPlanStatisticsResponseType response = queryPlanStatisticsService.planStatistic(request);
-            return ResponseUtils.successResponse(response);
-        } catch (Exception e) {
-            LOGGER.error("queryPlanStatistics exception, error:{},request:{}", e.toString(), request);
-            return ResponseUtils.exceptionResponse(e.toString());
-        }
+        QueryPlanStatisticsResponseType response = queryPlanStatisticsService.planStatistic(request);
+        return ResponseUtils.successResponse(response);
     }
 
     @PostMapping("/queryPlanItemStatistics")
@@ -158,49 +135,27 @@ public class ReportQueryController {
         if (request == null || (request.getPlanId() == null && request.getPlanItemId() == null)) {
             return ResponseUtils.requestBodyEmptyResponse();
         }
-        try {
-            QueryPlanItemStatisticsResponseType response = queryPlanItemStatisticService.planItemStatistic(request);
-            return ResponseUtils.successResponse(response);
-        } catch (Exception e) {
-            LOGGER.error("planItemStatistics exception, error:{},request:{}", e.toString(), request);
-            return ResponseUtils.exceptionResponse(e.toString());
-        }
+        QueryPlanItemStatisticsResponseType response = queryPlanItemStatisticService.planItemStatistic(request);
+        return ResponseUtils.successResponse(response);
     }
 
     @PostMapping("/queryResponseTypeStatistic")
     @ResponseBody
-    public Response queryResponseTypeStatistic(@RequestBody QueryCategoryStatisticRequestType request) {
-        if (request == null || request.getPlanItemId() == null) {
-            return ResponseUtils.errorResponse("planItemId is empty", ResponseCode.REQUESTED_PARAMETER_INVALID);
-        }
-        try {
-            QueryCategoryStatisticResponseType response =
-                    queryResponseTypeStatisticService.categoryStatistic(request);
-            return ResponseUtils.successResponse(response);
-        } catch (Exception e) {
-            LOGGER.error("responseTypeStatistic exception, error:{},request:{}", e.toString(), request);
-            return ResponseUtils.exceptionResponse(e.toString());
-        }
+    public Response queryResponseTypeStatistic(@Valid @RequestBody QueryCategoryStatisticRequestType request) {
+        QueryCategoryStatisticResponseType response =
+                queryResponseTypeStatisticService.categoryStatistic(request);
+        return ResponseUtils.successResponse(response);
     }
 
     @PostMapping("/queryReplayCase")
     @ResponseBody
-    public Response queryReplayCase(@RequestBody QueryReplayCaseRequestType request) {
+    public Response queryReplayCase(@Valid @RequestBody QueryReplayCaseRequestType request) {
         if (request == null || !request.checkPaging()) {
             return ResponseUtils.errorResponse("invalid paging parameter",
                     ResponseCode.REQUESTED_PARAMETER_INVALID);
         }
-
-        if (request.getPlanItemId() == null) {
-            return ResponseUtils.errorResponse("planItemId is empty", ResponseCode.REQUESTED_PARAMETER_INVALID);
-        }
-        try {
-            QueryReplayCaseResponseType response = queryReplayCaseService.replayCaseStatistic(request);
-            return ResponseUtils.successResponse(response);
-        } catch (Exception e) {
-            LOGGER.error("queryReplayCase exception, error:{},request:{}", e.toString(), request);
-            return ResponseUtils.exceptionResponse(e.toString());
-        }
+        QueryReplayCaseResponseType response = queryReplayCaseService.replayCaseStatistic(request);
+        return ResponseUtils.successResponse(response);
     }
 
     @PostMapping("/queryDiffAggInfo")
@@ -232,58 +187,23 @@ public class ReportQueryController {
 
     @PostMapping("/queryDifferences")
     @ResponseBody
-    public Response queryDifferences(@RequestBody QueryDifferencesRequestType request) {
-        if (request.getPlanItemId() == null) {
-            return ResponseUtils.errorResponse("planItemId is empty", ResponseCode.REQUESTED_PARAMETER_INVALID);
-        }
-        if (request.getCategoryName() == null) {
-            return ResponseUtils.errorResponse("categoryName is empty", ResponseCode.REQUESTED_PARAMETER_INVALID);
-        }
-        if (StringUtils.isEmpty(request.getOperationName())) {
-            return ResponseUtils.errorResponse("operationName is empty",
-                    ResponseCode.REQUESTED_PARAMETER_INVALID);
-        }
-        try {
-            QueryDifferencesResponseType response = diffSceneService.queryDifferences(request);
-            return ResponseUtils.successResponse(response);
-        } catch (Exception e) {
-            LOGGER.error("query difference failed.", e);
-            return ResponseUtils.errorResponse("failed to get differences", ResponseCode.REQUESTED_HANDLE_EXCEPTION);
-        }
+    public Response queryDifferences(@Valid @RequestBody QueryDifferencesRequestType request) {
+        QueryDifferencesResponseType response = diffSceneService.queryDifferences(request);
+        return ResponseUtils.successResponse(response);
     }
 
 
     @PostMapping("/queryScenes")
     @ResponseBody
-    public Response queryScenes(@RequestBody QueryScenesRequestType request) {
-        if (StringUtils.isEmpty(request.getOperationName())) {
-            return ResponseUtils.errorResponse("operationName is empty",
-                    ResponseCode.REQUESTED_PARAMETER_INVALID);
-        }
-        if (request.getPlanItemId() == null) {
-            return ResponseUtils.errorResponse("planItemId is empty", ResponseCode.REQUESTED_PARAMETER_INVALID);
-        }
-        if (request.getCategoryName() == null) {
-            return ResponseUtils.errorResponse("categoryName is empty", ResponseCode.REQUESTED_PARAMETER_INVALID);
-        }
-        try {
-            QueryScenesResponseType response = diffSceneService.queryScenesByPage(request);
-            return ResponseUtils.successResponse(response);
-        } catch (Exception e) {
-            LOGGER.error("failed to get scenes by difference", e);
-            return ResponseUtils.errorResponse("failed to get scenes by difference",
-                    ResponseCode.REQUESTED_HANDLE_EXCEPTION);
-        }
+    public Response queryScenes(@Valid @RequestBody QueryScenesRequestType request) {
+        QueryScenesResponseType response = diffSceneService.queryScenesByPage(request);
+        return ResponseUtils.successResponse(response);
     }
 
 
     @PostMapping("/queryFullLinkMsg")
     @ResponseBody
-    public Response queryFullLinkMsg(@RequestBody QueryFullLinkMsgRequestType request) {
-        if (StringUtils.isEmpty(request.getRecordId())) {
-            return ResponseUtils.errorResponse("id is empty",
-                    ResponseCode.REQUESTED_PARAMETER_INVALID);
-        }
+    public Response queryFullLinkMsg(@Valid @RequestBody QueryFullLinkMsgRequestType request) {
         QueryFullLinkMsgResponseType response = queryReplayMsgService.queryFullLinkMsg(request);
         return ResponseUtils.successResponse(response);
     }
@@ -291,11 +211,7 @@ public class ReportQueryController {
 
     @PostMapping("/queryReplayMsg")
     @ResponseBody
-    public Response queryReplayMsg(@RequestBody QueryReplayMsgRequestType request) {
-        if (StringUtils.isEmpty(request.getId())) {
-            return ResponseUtils.errorResponse("queryReplayMsg id is empty",
-                    ResponseCode.REQUESTED_PARAMETER_INVALID);
-        }
+    public Response queryReplayMsg(@Valid @RequestBody QueryReplayMsgRequestType request) {
         QueryReplayMsgResponseType response = queryReplayMsgService.queryReplayMsg(request);
         return ResponseUtils.successResponse(response);
     }
@@ -303,10 +219,7 @@ public class ReportQueryController {
 
     @PostMapping("/downloadReplayMsg")
     @ResponseBody
-    public void downloadReplayMsg(@RequestBody DownloadReplayMsgRequestType request, HttpServletResponse response) {
-        if (StringUtils.isEmpty(request.getId())) {
-            LOGGER.error("downloadReplayMsg id is empty");
-        }
+    public void downloadReplayMsg(@Valid @RequestBody DownloadReplayMsgRequestType request, HttpServletResponse response) {
         queryReplayMsgService.downloadReplayMsg(request, response);
     }
 
