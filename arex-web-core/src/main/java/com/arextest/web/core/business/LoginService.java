@@ -5,6 +5,8 @@ import com.arextest.web.common.LoadResource;
 import com.arextest.web.core.business.util.MailUtils;
 import com.arextest.web.core.repository.UserRepository;
 import com.arextest.web.model.contract.contracts.login.LoginAsGuestResponseType;
+import com.arextest.web.model.contract.contracts.login.ModifyUserFavoriteAppRequestType;
+import com.arextest.web.model.contract.contracts.login.QueryUserFavoriteAppResponseType;
 import com.arextest.web.model.contract.contracts.login.UpdateUserProfileRequestType;
 import com.arextest.web.model.contract.contracts.login.UserProfileResponseType;
 import com.arextest.web.model.contract.contracts.login.VerifyRequestType;
@@ -124,6 +126,18 @@ public class LoginService {
             response.setSuccess(false);
         }
         return response;
+    }
+
+    public QueryUserFavoriteAppResponseType queryUserFavoriteApp(String userName) {
+        return UserMapper.INSTANCE.queryUserFavoriteAppFromDto(userRepository.queryUserProfile(userName));
+    }
+
+    public Boolean insertUserFavoriteApp(ModifyUserFavoriteAppRequestType request) {
+        return userRepository.insertUserFavoriteApp(request.getUserName(), request.getFavoriteApp());
+    }
+
+    public Boolean removeUserFavoriteApp(ModifyUserFavoriteAppRequestType request) {
+        return userRepository.removeUserFavoriteApp(request.getUserName(), request.getFavoriteApp());
     }
 
     private String generateVerificationCode() {

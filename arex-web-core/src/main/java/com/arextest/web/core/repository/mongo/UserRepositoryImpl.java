@@ -5,6 +5,7 @@ import com.arextest.web.core.repository.mongo.util.MongoHelper;
 import com.arextest.web.model.dao.mongodb.UserCollection;
 import com.arextest.web.model.dto.UserDto;
 import com.arextest.web.model.mapper.UserMapper;
+import com.mongodb.client.result.UpdateResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -22,6 +23,7 @@ public class UserRepositoryImpl implements UserRepository {
     private static final String USER_NAME = "userName";
     private static final String VERIFICATION_CODE = "verificationCode";
     private static final String VERIFICATION_TIME = "verificationTime";
+    private static final String FAVORITE_APPS = "favoriteApps";
 
     @Resource
     private MongoTemplate mongoTemplate;
@@ -37,6 +39,7 @@ public class UserRepositoryImpl implements UserRepository {
                 UserCollection.class);
         return true;
     }
+
     @Override
     public Boolean verify(String userName, String verificationCode) {
         Query query = Query.query(Criteria.where(USER_NAME).is(userName)
@@ -44,6 +47,7 @@ public class UserRepositoryImpl implements UserRepository {
                 .and(VERIFICATION_TIME).gt(System.currentTimeMillis() - 5 * 60 * 1000));
         return mongoTemplate.exists(query, UserCollection.class);
     }
+
     @Override
     public UserDto queryUserProfile(String userName) {
         Query query = Query.query(Criteria.where(USER_NAME).is(userName));
@@ -51,6 +55,7 @@ public class UserRepositoryImpl implements UserRepository {
         UserCollection dao = mongoTemplate.findOne(query, UserCollection.class);
         return UserMapper.INSTANCE.dtoFromDao(dao);
     }
+
     @Override
     public Boolean updateUserProfile(UserDto user) {
         Query query = Query.query(Criteria.where(USER_NAME).is(user.getUserName()));
@@ -67,9 +72,28 @@ public class UserRepositoryImpl implements UserRepository {
             return false;
         }
     }
+
     @Override
     public Boolean existUserName(String userName) {
         Query query = Query.query(Criteria.where(USER_NAME).is(userName));
         return mongoTemplate.exists(query, UserCollection.class);
+    }
+
+    @Override
+    public Boolean insertUserFavoriteApp(String userName, String favoriteApp) {
+        Query query = Query.query(Criteria.where(USER_NAME).is(userName));
+        Update update = MongoHelper.getUpdate();
+        update.addToSet(FAVORITE_APPS, favoriteApp);
+        UpdateResult upsert = mongoTemplate.upsert(query, update, UserCollection.class);
+        return upsert.getModifiedCount() > 0;
+    }
+
+    @Override
+    public Boolean removeUserFavoriteApp(String userName, String favoriteApp) {
+        Query query = Query.query(Criteria.where(USER_NAME).is(userName));
+        Update update = MongoHelper.getUpdate();
+        update.pull(FAVORITE_APPS, favoriteApp);
+        UpdateResult upsert = mongoTemplate.upsert(query, update, UserCollection.class);
+        return upsert.getModifiedCount() > 0;
     }
 }
