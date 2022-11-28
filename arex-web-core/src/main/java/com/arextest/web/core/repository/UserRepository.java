@@ -1,12 +1,21 @@
 package com.arextest.web.core.repository;
 
 
+import com.arextest.web.model.contract.contracts.login.FavoriteApp;
 import com.arextest.web.model.dto.UserDto;
 
 public interface UserRepository extends RepositoryProvider {
     Boolean saveUser(UserDto user);
+
     Boolean verify(String userName, String verificationCode);
+
     UserDto queryUserProfile(String userName);
+
     Boolean updateUserProfile(UserDto user);
+
     Boolean existUserName(String userName);
+
+    Boolean insertUserFavoriteApp(String userName, FavoriteApp favoriteApp);
+
+    Boolean removeUserFavoriteApp(String userName, FavoriteApp favoriteApp);
 }
