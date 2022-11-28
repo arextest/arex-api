@@ -1,6 +1,5 @@
 package com.arextest.web.model.dao.mongodb;
 
-import com.arextest.web.model.contract.contracts.login.FavoriteApp;
 import lombok.Data;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -13,6 +12,6 @@ public class UserCollection extends ModelBase {
     private String verificationCode;
     private Long verificationTime;
     private String profile;
-    private List<FavoriteApp> favoriteApps;
+    private List<String> favoriteApps;
     private Integer status;
 }

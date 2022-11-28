@@ -10,5 +10,5 @@ import java.util.List;
 @Data
 public class QueryUserFavoriteAppResponseType {
     private String userName;
-    private List<FavoriteApp> favoriteApps;
+    private List<String> favoriteApps;
 }

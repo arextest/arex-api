@@ -2,7 +2,6 @@ package com.arextest.web.core.repository.mongo;
 
 import com.arextest.web.core.repository.UserRepository;
 import com.arextest.web.core.repository.mongo.util.MongoHelper;
-import com.arextest.web.model.contract.contracts.login.FavoriteApp;
 import com.arextest.web.model.dao.mongodb.UserCollection;
 import com.arextest.web.model.dto.UserDto;
 import com.arextest.web.model.mapper.UserMapper;
@@ -81,7 +80,7 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public Boolean insertUserFavoriteApp(String userName, FavoriteApp favoriteApp) {
+    public Boolean insertUserFavoriteApp(String userName, String favoriteApp) {
         Query query = Query.query(Criteria.where(USER_NAME).is(userName));
         Update update = MongoHelper.getUpdate();
         update.addToSet(FAVORITE_APPS, favoriteApp);
@@ -90,7 +89,7 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public Boolean removeUserFavoriteApp(String userName, FavoriteApp favoriteApp) {
+    public Boolean removeUserFavoriteApp(String userName, String favoriteApp) {
         Query query = Query.query(Criteria.where(USER_NAME).is(userName));
         Update update = MongoHelper.getUpdate();
         update.pull(FAVORITE_APPS, favoriteApp);

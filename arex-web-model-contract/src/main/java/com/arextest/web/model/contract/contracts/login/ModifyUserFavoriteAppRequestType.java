@@ -12,6 +12,6 @@ import javax.validation.constraints.NotNull;
 public class ModifyUserFavoriteAppRequestType {
     @NotBlank(message = "username cannot be blank")
     private String userName;
-    @NotNull(message = "favoriteApp cannot be null")
-    private FavoriteApp favoriteApp;
+    @NotBlank(message = "favoriteApp cannot be blank")
+    private String favoriteApp;
 }
