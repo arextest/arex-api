@@ -164,7 +164,7 @@ public class FileSystemService {
             if (request.getParentPath() == null || request.getParentPath().length == 0) {
                 FSNodeDto nodeDto = new FSNodeDto();
                 nodeDto.setNodeName(request.getNodeName());
-                infoId = itemInfo.initItem(null, null, dto.getId());
+                infoId = itemInfo.initItem(null, null, dto.getId(), request.getNodeName());
                 nodeDto.setInfoId(infoId);
                 nodeDto.setNodeType(request.getNodeType());
                 if (request.getNodeType() == FSInfoItem.INTERFACE) {
@@ -200,7 +200,10 @@ public class FileSystemService {
                     }
                     FSNodeDto newNodeDto = new FSNodeDto();
                     newNodeDto.setNodeName(request.getNodeName());
-                    infoId = itemInfo.initItem(current.getInfoId(), current.getNodeType(), dto.getId());
+                    infoId = itemInfo.initItem(current.getInfoId(),
+                            current.getNodeType(),
+                            dto.getId(),
+                            request.getNodeName());
                     newNodeDto.setInfoId(infoId);
                     newNodeDto.setNodeType(request.getNodeType());
                     if (request.getNodeType() == FSInfoItem.INTERFACE) {
@@ -265,8 +268,14 @@ public class FileSystemService {
         if (dto == null) {
             return false;
         }
+        ItemInfo itemInfo = itemInfoFactory.getItemInfo(dto.getNodeType());
+        FSItemDto itemDto = itemInfo.queryById(request.getPath()[request.getPath().length - 1]);
+        if (itemInfo == null) {
+            return false;
+        }
+        itemDto.setName(request.getNewName());
+        itemInfo.saveItem(itemDto);
         dto.setNodeName(request.getNewName());
-
         fsTreeRepository.updateFSTree(fsTreeDto);
         return true;
     }
@@ -696,7 +705,7 @@ public class FileSystemService {
     private FSNodeDto duplicateInfo(String parentId, String nodeName, FSNodeDto old) {
         FSNodeDto dto = new FSNodeDto();
         ItemInfo itemInfo = itemInfoFactory.getItemInfo(old.getNodeType());
-        String dupInfoId = itemInfo.duplicate(parentId, old.getInfoId());
+        String dupInfoId = itemInfo.duplicate(parentId, old.getInfoId(), nodeName);
         dto.setNodeName(nodeName);
         dto.setInfoId(dupInfoId);
         dto.setMethod(old.getMethod());

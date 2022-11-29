@@ -33,7 +33,7 @@ public class FSInterfaceRepositoryImpl implements FSInterfaceRepository {
     private MongoTemplate mongoTemplate;
 
     @Override
-    public String initInterface(String parentId, Integer parentNodeType, String workspaceId) {
+    public String initInterface(String parentId, Integer parentNodeType, String workspaceId, String name) {
         FSInterfaceCollection dao = new FSInterfaceCollection();
         MongoHelper.initInsertObject(dao);
         dao.setWorkspaceId(workspaceId);
@@ -42,6 +42,7 @@ public class FSInterfaceRepositoryImpl implements FSInterfaceRepository {
         AddressDao addressDao = new AddressDao();
         addressDao.setMethod(GET_METHOD);
         dao.setAddress(addressDao);
+        dao.setName(name);
         dao = mongoTemplate.insert(dao);
         return dao.getId();
     }

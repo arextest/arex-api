@@ -9,6 +9,7 @@ import java.util.Set;
 @Data
 public class FSQueryCaseResponseType {
     private String id;
+    private String name;
     private AddressType address;
     private String preRequestScript;
     private String testScript;
@@ -20,4 +21,5 @@ public class FSQueryCaseResponseType {
     private String recordId;
     private ComparisonMsgType comparisonMsg;
     private Set<String> labelIds;
+    private String description;
 }

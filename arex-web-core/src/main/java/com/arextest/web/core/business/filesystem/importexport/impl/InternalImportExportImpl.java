@@ -136,7 +136,7 @@ public class InternalImportExportImpl implements ImportExport {
         }
 
         ItemInfo itemInfo = itemInfoFactory.getItemInfo(item.getNodeType());
-        String id = itemInfo.saveItem(parentId, parentNodeType, workspaceId, fsItemDto);
+        String id = itemInfo.saveItem(fsItemDto);
 
         FSNodeDto node = new FSNodeDto();
         node.setInfoId(id);

@@ -16,11 +16,11 @@ public class CaseItemInfo implements ItemInfo {
     private FSCaseRepository fsCaseRepository;
 
     @Override
-    public String initItem(String parentId, Integer parentNodeType, String workspaceId) {
-        return fsCaseRepository.initCase(parentId, parentNodeType, workspaceId);
+    public String initItem(String parentId, Integer parentNodeType, String workspaceId, String name) {
+        return fsCaseRepository.initCase(parentId, parentNodeType, workspaceId, name);
     }
     @Override
-    public String saveItem(String parentId, Integer parentNodeType, String workspaceId, FSItemDto dto) {
+    public String saveItem(FSItemDto dto) {
         FSCaseDto caseDto = fsCaseRepository.saveCase((FSCaseDto) dto);
         return caseDto.getId();
     }
@@ -33,14 +33,19 @@ public class CaseItemInfo implements ItemInfo {
         return null;
     }
     @Override
-    public String duplicate(String parentId, String infoId) {
+    public String duplicate(String parentId, String infoId, String name) {
         FSCaseDto dto = fsCaseRepository.queryCase(infoId);
         dto.setId(null);
         dto.setParentId(parentId);
+        dto.setName(name);
         return fsCaseRepository.duplicate(dto);
     }
     @Override
     public List<FSItemDto> queryByIds(List<String> ids) {
         return fsCaseRepository.queryCases(ids);
+    }
+    @Override
+    public FSItemDto queryById(String id) {
+        return fsCaseRepository.queryCase(id);
     }
 }

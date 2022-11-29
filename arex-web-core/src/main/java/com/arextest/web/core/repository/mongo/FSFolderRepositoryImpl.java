@@ -31,12 +31,13 @@ public class FSFolderRepositoryImpl implements FSFolderRepository {
     private MongoTemplate mongoTemplate;
 
     @Override
-    public String initFolder(String parentId, Integer parentNodeType, String workspaceId) {
+    public String initFolder(String parentId, Integer parentNodeType, String workspaceId, String name) {
         FSFolderCollection dao = new FSFolderCollection();
         MongoHelper.initInsertObject(dao);
         dao.setParentId(parentId);
         dao.setParentNodeType(parentNodeType);
         dao.setWorkspaceId(workspaceId);
+        dao.setName(name);
         dao = mongoTemplate.insert(dao);
         return dao.getId();
     }

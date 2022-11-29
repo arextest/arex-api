@@ -14,6 +14,7 @@ import java.util.Set;
 @Data
 @Document(collection = "FSCase")
 public class FSCaseCollection extends ModelBase {
+    private String name;
     private String workspaceId;
     private AddressDao address;
     private String preRequestScript;
@@ -28,4 +29,5 @@ public class FSCaseCollection extends ModelBase {
     private String recordId;
     private ComparisonMsgDao comparisonMsg;
     private Set<String> labelIds;
+    private String description;
 }

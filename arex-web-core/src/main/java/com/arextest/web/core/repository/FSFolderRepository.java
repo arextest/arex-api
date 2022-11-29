@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Set;
 
 public interface FSFolderRepository extends RepositoryProvider {
-    String initFolder(String parentId, Integer parentNodeType, String workspaceId);
+    String initFolder(String parentId, Integer parentNodeType, String workspaceId, String name);
 
     Boolean removeFolder(String id);
 

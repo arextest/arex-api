@@ -7,6 +7,7 @@ import java.util.Set;
 @Data
 public class FSItemDto {
     private String id;
+    private String name;
     private String workspaceId;
     private String parentId;
     private Integer parentNodeType;
