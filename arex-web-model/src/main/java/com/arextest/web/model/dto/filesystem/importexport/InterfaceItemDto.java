@@ -7,9 +7,11 @@ import com.arextest.web.model.dto.filesystem.BodyDto;
 import lombok.Data;
 
 import java.util.List;
+import java.util.Set;
 
 @Data
 public class InterfaceItemDto implements Item {
+    private String name;
     private String nodeName;
     private Integer nodeType;
     private AddressDto address;
@@ -20,5 +22,6 @@ public class InterfaceItemDto implements Item {
     private List<KeyValuePairDto> params;
     private AuthDto auth;
     private AddressDto testAddress;
+    private Set<String> labelIds;
     private List<Item> items;
 }
