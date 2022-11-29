@@ -5,6 +5,7 @@ import com.arextest.web.core.business.filesystem.ItemInfo;
 import com.arextest.web.core.business.filesystem.ItemInfoFactory;
 import com.arextest.web.core.business.filesystem.importexport.ImportExport;
 import com.arextest.web.core.repository.FSTreeRepository;
+import com.arextest.web.model.contract.contracts.filesystem.FSNodeType;
 import com.arextest.web.model.dto.filesystem.FSCaseDto;
 import com.arextest.web.model.dto.filesystem.FSFolderDto;
 import com.arextest.web.model.dto.filesystem.FSInterfaceDto;
@@ -120,9 +121,11 @@ public class InternalImportExportImpl implements ImportExport {
 
     private FSNodeDto convertToWorkspaceItem(String workspaceId, String parentId, Integer parentNodeType, Item item) {
         FSItemDto fsItemDto = null;
+        String method = null;
         switch (item.getNodeType()) {
             case FSInfoItem.INTERFACE:
                 fsItemDto = FSInterfaceMapper.INSTANCE.fsItemFromIeItemDto((InterfaceItemDto) item);
+                method = ((InterfaceItemDto) item).getAddress().getMethod();
                 break;
             case FSInfoItem.CASE:
                 fsItemDto = FSCaseMapper.INSTANCE.fsItemFromIeItemDto((CaseItemDto) item);
@@ -142,6 +145,8 @@ public class InternalImportExportImpl implements ImportExport {
         node.setInfoId(id);
         node.setNodeName(item.getNodeName());
         node.setNodeType(item.getNodeType());
+        node.setLabelIds(item.getLabelIds());
+        node.setMethod(method);
 
         if (CollectionUtils.isNotEmpty(item.getItems())) {
             node.setChildren(new ArrayList<>(item.getItems().size()));
