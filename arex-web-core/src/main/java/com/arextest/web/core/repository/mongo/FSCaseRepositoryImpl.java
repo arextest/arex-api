@@ -28,12 +28,13 @@ public class FSCaseRepositoryImpl implements FSCaseRepository {
     private MongoTemplate mongoTemplate;
 
     @Override
-    public String initCase(String parentId, Integer parentNodeType, String workspaceId) {
+    public String initCase(String parentId, Integer parentNodeType, String workspaceId, String name) {
         FSCaseCollection dao = new FSCaseCollection();
         MongoHelper.initInsertObject(dao);
         dao.setWorkspaceId(workspaceId);
         dao.setParentId(parentId);
         dao.setParentNodeType(parentNodeType);
+        dao.setName(name);
         dao = mongoTemplate.insert(dao);
         return dao.getId();
     }

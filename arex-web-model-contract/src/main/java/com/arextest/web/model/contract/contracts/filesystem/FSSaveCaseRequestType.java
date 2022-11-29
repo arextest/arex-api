@@ -21,4 +21,5 @@ public class FSSaveCaseRequestType {
     private AuthType auth;
     private AddressType testAddress;
     private Set<String> labelIds;
+    private String description;
 }

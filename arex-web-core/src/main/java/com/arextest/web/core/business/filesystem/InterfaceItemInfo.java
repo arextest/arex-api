@@ -17,11 +17,11 @@ public class InterfaceItemInfo implements ItemInfo {
     private FSInterfaceRepository fsInterfaceRepository;
 
     @Override
-    public String initItem(String parentId, Integer parentNodeType, String workspaceId) {
-        return fsInterfaceRepository.initInterface(parentId, parentNodeType, workspaceId);
+    public String initItem(String parentId, Integer parentNodeType, String workspaceId, String name) {
+        return fsInterfaceRepository.initInterface(parentId, parentNodeType, workspaceId, name);
     }
     @Override
-    public String saveItem(String parentId, Integer parentNodeType, String workspaceId, FSItemDto dto) {
+    public String saveItem(FSItemDto dto) {
         FSInterfaceDto interfaceDto = fsInterfaceRepository.saveInterface((FSInterfaceDto) dto);
         return interfaceDto.getId();
     }
@@ -34,14 +34,19 @@ public class InterfaceItemInfo implements ItemInfo {
         return fsInterfaceRepository.removeInterfaces(infoIds);
     }
     @Override
-    public String duplicate(String parentId, String infoId) {
+    public String duplicate(String parentId, String infoId, String name) {
         FSInterfaceDto dto = fsInterfaceRepository.queryInterface(infoId);
         dto.setId(null);
         dto.setParentId(parentId);
+        dto.setName(name);
         return fsInterfaceRepository.duplicate(dto);
     }
     @Override
     public List<FSItemDto> queryByIds(List<String> ids) {
         return fsInterfaceRepository.queryInterfaces(new HashSet<>(ids));
+    }
+    @Override
+    public FSItemDto queryById(String id) {
+        return fsInterfaceRepository.queryInterface(id);
     }
 }

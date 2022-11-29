@@ -16,11 +16,11 @@ public class FolderItemInfo implements ItemInfo {
     private FSFolderRepository fsFolderRepository;
 
     @Override
-    public String initItem(String parentId, Integer parentNodeType, String workspaceId) {
-        return fsFolderRepository.initFolder(parentId, parentNodeType, workspaceId);
+    public String initItem(String parentId, Integer parentNodeType, String workspaceId, String name) {
+        return fsFolderRepository.initFolder(parentId, parentNodeType, workspaceId, name);
     }
     @Override
-    public String saveItem(String parentId, Integer parentNodeType, String workspaceId, FSItemDto dto) {
+    public String saveItem(FSItemDto dto) {
         FSFolderDto folderDto = fsFolderRepository.saveFolder((FSFolderDto) dto);
         return folderDto.getId();
     }
@@ -34,14 +34,19 @@ public class FolderItemInfo implements ItemInfo {
     }
 
     @Override
-    public String duplicate(String parentId, String infoId) {
+    public String duplicate(String parentId, String infoId, String name) {
         FSFolderDto dto = fsFolderRepository.queryById(infoId);
         dto.setId(null);
         dto.setParentId(parentId);
+        dto.setName(name);
         return fsFolderRepository.duplicate(dto);
     }
     @Override
     public List<FSItemDto> queryByIds(List<String> ids) {
         return fsFolderRepository.queryByIds(ids);
+    }
+    @Override
+    public FSItemDto queryById(String id) {
+        return fsFolderRepository.queryById(id);
     }
 }

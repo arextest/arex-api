@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Set;
 
 public interface FSInterfaceRepository extends RepositoryProvider {
-    String initInterface(String parentId, Integer parentNodeType, String workspaceId);
+    String initInterface(String parentId, Integer parentNodeType, String workspaceId, String name);
 
     Boolean removeInterface(String id);
 

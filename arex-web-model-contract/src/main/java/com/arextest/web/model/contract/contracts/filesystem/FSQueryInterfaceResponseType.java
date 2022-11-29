@@ -8,6 +8,7 @@ import java.util.List;
 @Data
 public class FSQueryInterfaceResponseType {
     private String id;
+    private String name;
     private AddressType address;
     private String preRequestScript;
     private String testScript;
