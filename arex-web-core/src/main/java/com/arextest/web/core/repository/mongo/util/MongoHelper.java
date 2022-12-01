@@ -19,9 +19,10 @@ public class MongoHelper {
     }
 
     public static void appendFullProperties(Update update, Object obj) {
-        for (java.lang.reflect.Field field : obj.getClass().getDeclaredFields()) {
-            field.setAccessible(true);
+        Map<String, Field> allFields = getAllField(obj);
+        for (Field field : allFields.values()) {
             try {
+                field.setAccessible(true);
                 if (field.get(obj) != null) {
                     update.set(field.getName(), field.get(obj));
                 }

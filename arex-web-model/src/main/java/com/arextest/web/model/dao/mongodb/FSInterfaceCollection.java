@@ -8,6 +8,7 @@ import lombok.Data;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
+import java.util.Map;
 
 @Data
 @Document(collection = "FSInterface")
@@ -24,4 +25,5 @@ public class FSInterfaceCollection extends ModelBase {
     private AddressDao testAddress;
     private String parentId;
     private Integer parentNodeType;
+    private Map<String, Object> customTags;
 }

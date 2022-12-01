@@ -5,6 +5,7 @@ import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @Data
@@ -22,4 +23,5 @@ public class FSSaveCaseRequestType {
     private AddressType testAddress;
     private Set<String> labelIds;
     private String description;
+    private Map<String, Object> customTags;
 }

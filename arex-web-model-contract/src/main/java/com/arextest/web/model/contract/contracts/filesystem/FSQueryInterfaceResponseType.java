@@ -4,6 +4,7 @@ import com.arextest.web.model.contract.contracts.common.KeyValuePairType;
 import lombok.Data;
 
 import java.util.List;
+import java.util.Map;
 
 @Data
 public class FSQueryInterfaceResponseType {
@@ -17,4 +18,5 @@ public class FSQueryInterfaceResponseType {
     private List<KeyValuePairType> params;
     private AuthType auth;
     private AddressType testAddress;
+    private Map<String, Object> customTags;
 }

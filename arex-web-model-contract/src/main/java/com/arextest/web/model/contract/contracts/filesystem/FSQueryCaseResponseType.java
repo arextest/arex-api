@@ -4,6 +4,7 @@ import com.arextest.web.model.contract.contracts.common.KeyValuePairType;
 import lombok.Data;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @Data
@@ -22,4 +23,5 @@ public class FSQueryCaseResponseType {
     private ComparisonMsgType comparisonMsg;
     private Set<String> labelIds;
     private String description;
+    private Map<String, Object> customTags;
 }
