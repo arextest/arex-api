@@ -5,6 +5,7 @@ import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
 import java.util.List;
+import java.util.Map;
 
 @Data
 public class FSSaveInterfaceRequestType {
@@ -19,4 +20,5 @@ public class FSSaveInterfaceRequestType {
     private List<KeyValuePairType> params;
     private AuthType auth;
     private AddressType testAddress;
+    private Map<String, Object> customTags;
 }
