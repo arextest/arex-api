@@ -352,10 +352,10 @@
             </build>
         </profile>
         <profile>
-            <id>jar-ctrip</id>
+            <id>jar-local</id>
             <properties>
-                <releases.repo>http://maven.release.ctripcorp.com/nexus/content/repositories/flightrelease</releases.repo>
-                <snapshots.repo>http://maven.release.ctripcorp.com/nexus/content/repositories/flightsnapshot</snapshots.repo>
+                <releases.repo></releases.repo>
+                <snapshots.repo></snapshots.repo>
             </properties>
         </profile>
     </profiles>
