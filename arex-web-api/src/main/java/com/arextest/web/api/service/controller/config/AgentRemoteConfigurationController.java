@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
+import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -96,13 +97,28 @@ public final class AgentRemoteConfigurationController {
 
     private ApplicationConfiguration loadApplicationResult(AgentRemoteConfigurationRequest request) {
         ApplicationConfiguration applicationConfiguration = applicationHandler.useResult(request.getAppId());
+        boolean changed = false;
+        if (StringUtils.isNotBlank(request.getIp())) {
+            if (applicationConfiguration.getIps() == null) {
+                applicationConfiguration.setIps(new HashSet<>());
+            }
+            if (!applicationConfiguration.getIps().contains(request.getIp())) {
+                changed = true;
+                applicationConfiguration.getIps().add(request.getIp());
+            }
+        }
+        if (changed) {
+            applicationHandler.update(applicationConfiguration);
+        }
         return applicationConfiguration;
     }
 
     @Data
     private static final class AgentRemoteConfigurationRequest {
         private String appId;
+        private String ip;
     }
+
 
     @Data
     private static final class AgentRemoteConfigurationResponse {

@@ -6,6 +6,8 @@ import com.arextest.web.model.contract.contracts.config.AbstractConfiguration;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Set;
+
 /**
  * @author jmo
  * @since 2022/1/22
@@ -40,4 +42,9 @@ public class ApplicationConfiguration extends AbstractConfiguration implements A
      * organization_id
      */
     private String organizationId;
+
+    /**
+     * ip set
+     */
+    private Set<String> ips;
 }

@@ -6,6 +6,8 @@ import lombok.NonNull;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.Set;
+
 
 @Data
 @NoArgsConstructor
@@ -41,4 +43,6 @@ public class AppCollection extends ModelBase {
     private String organizationId;
     @NonNull
     private Integer status;
+
+    private Set<String> ips;
 }
