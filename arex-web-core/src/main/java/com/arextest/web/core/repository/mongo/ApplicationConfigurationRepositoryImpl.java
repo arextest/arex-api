@@ -26,7 +26,7 @@ public class ApplicationConfigurationRepositoryImpl implements ConfigRepositoryP
 
     private static final String AGENT_VERSION = "agentVersion";
     private static final String AGENT_EXT_VERSION = "agentExtVersion";
-    private static final String IPS = "ips";
+    private static final String HOSTS = "hosts";
 
     private static final String FEATURES = "features";
 
@@ -57,7 +57,7 @@ public class ApplicationConfigurationRepositoryImpl implements ConfigRepositoryP
         update.set(AGENT_EXT_VERSION, configuration.getAgentExtVersion());
         update.set(STATUS, configuration.getStatus());
         update.set(FEATURES, configuration.getFeatures());
-        update.set(IPS,configuration.getIps());
+        update.set(HOSTS,configuration.getHosts());
         UpdateResult updateResult = mongoTemplate.updateMulti(query, update, AppCollection.class);
         return updateResult.getModifiedCount() > 0;
     }

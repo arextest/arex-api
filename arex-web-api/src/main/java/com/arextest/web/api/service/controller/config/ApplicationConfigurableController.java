@@ -54,19 +54,19 @@ public final class ApplicationConfigurableController extends AbstractConfigurabl
         return ResponseUtils.successResponse(viewList);
     }
 
-    @PostMapping("/removeIps")
+    @PostMapping("/removeHosts")
     @ResponseBody
     public Response removeAgentMachines(@Valid @RequestBody RemoveAgentMachinesRequest request) {
         ApplicationConfiguration app = this.configurableHandler.useResult(request.getAppId());
         RemoveAgentMachinesResponse response = new RemoveAgentMachinesResponse();
-        if (CollectionUtils.isEmpty(app.getIps())) {
+        if (CollectionUtils.isEmpty(app.getHosts())) {
             response.setSuccess(true);
             return ResponseUtils.successResponse(response);
         }
-        if (CollectionUtils.isEmpty(request.getIps())) {
-            app.getIps().clear();
+        if (CollectionUtils.isEmpty(request.getHosts())) {
+            app.getHosts().clear();
         } else {
-            app.getIps().removeAll(request.getIps());
+            app.getHosts().removeAll(request.getHosts());
         }
         response.setSuccess(this.configurableHandler.update(app));
         return ResponseUtils.successResponse(response);
@@ -76,7 +76,7 @@ public final class ApplicationConfigurableController extends AbstractConfigurabl
     private static final class RemoveAgentMachinesRequest {
         @NotNull(message = "AppId cannot be empty")
         private String appId;
-        private Set<String> ips;
+        private Set<String> hosts;
     }
 
 

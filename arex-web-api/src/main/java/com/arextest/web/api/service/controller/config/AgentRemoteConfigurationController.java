@@ -98,13 +98,13 @@ public final class AgentRemoteConfigurationController {
     private ApplicationConfiguration loadApplicationResult(AgentRemoteConfigurationRequest request) {
         ApplicationConfiguration applicationConfiguration = applicationHandler.useResult(request.getAppId());
         boolean changed = false;
-        if (StringUtils.isNotBlank(request.getIp())) {
-            if (applicationConfiguration.getIps() == null) {
-                applicationConfiguration.setIps(new HashSet<>());
+        if (StringUtils.isNotBlank(request.getHost())) {
+            if (applicationConfiguration.getHosts() == null) {
+                applicationConfiguration.setHosts(new HashSet<>());
             }
-            if (!applicationConfiguration.getIps().contains(request.getIp())) {
+            if (!applicationConfiguration.getHosts().contains(request.getHost())) {
                 changed = true;
-                applicationConfiguration.getIps().add(request.getIp());
+                applicationConfiguration.getHosts().add(request.getHost());
             }
         }
         if (changed) {
@@ -116,7 +116,7 @@ public final class AgentRemoteConfigurationController {
     @Data
     private static final class AgentRemoteConfigurationRequest {
         private String appId;
-        private String ip;
+        private String host;
     }
 
 

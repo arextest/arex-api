@@ -46,5 +46,5 @@ public class ApplicationConfiguration extends AbstractConfiguration implements A
     /**
      * ip set
      */
-    private Set<String> ips;
+    private Set<String> hosts;
 }
