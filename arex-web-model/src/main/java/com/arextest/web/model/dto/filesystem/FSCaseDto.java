@@ -8,7 +8,7 @@ import java.util.List;
 @Data
 public class FSCaseDto extends FSItemDto {
     private AddressDto address;
-    private String preRequestScript;
+    private List<ScriptBlockDto> preRequestScripts;
     private String testScript;
     private BodyDto body;
     private List<KeyValuePairDto> headers;

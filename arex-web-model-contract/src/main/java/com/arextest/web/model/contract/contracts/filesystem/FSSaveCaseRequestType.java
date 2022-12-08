@@ -1,6 +1,7 @@
 package com.arextest.web.model.contract.contracts.filesystem;
 
 import com.arextest.web.model.contract.contracts.common.KeyValuePairType;
+import com.arextest.web.model.contract.contracts.common.ScriptBlockType;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
@@ -14,7 +15,7 @@ public class FSSaveCaseRequestType {
     private String id;
     private String workspaceId;
     private AddressType address;
-    private String preRequestScript;
+    private List<ScriptBlockType> preRequestScripts;
     private String testScript;
     private BodyType body;
     private List<KeyValuePairType> headers;

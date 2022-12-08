@@ -4,6 +4,7 @@ import com.arextest.web.model.contract.contracts.common.LogEntity;
 import com.arextest.web.model.dao.mongodb.entity.AuthDao;
 import com.arextest.web.model.dao.mongodb.entity.BodyDao;
 import com.arextest.web.model.dao.mongodb.entity.KeyValuePairDao;
+import com.arextest.web.model.dto.filesystem.ScriptBlockDto;
 import lombok.Data;
 
 import java.util.List;
@@ -11,7 +12,7 @@ import java.util.List;
 @Data
 public class ManualReportCaseDto {
     private String id;
-    private String preRequestScript;
+    private List<ScriptBlockDto> preRequestScripts;
     private String testScript;
     private BodyDao body;
     private List<KeyValuePairDao> headers;
