@@ -5,6 +5,7 @@ import com.arextest.web.common.LoadResource;
 import com.arextest.web.common.Tuple;
 import com.arextest.web.core.business.filesystem.importexport.ImportExport;
 import com.arextest.web.core.business.filesystem.importexport.impl.ImportExportFactory;
+import com.arextest.web.core.business.filesystem.pincase.StorageCase;
 import com.arextest.web.core.business.util.MailUtils;
 import com.arextest.web.core.repository.FSCaseRepository;
 import com.arextest.web.core.repository.FSInterfaceRepository;
@@ -44,6 +45,7 @@ import com.arextest.web.model.contract.contracts.filesystem.LeaveWorkspaceReques
 import com.arextest.web.model.contract.contracts.filesystem.UserType;
 import com.arextest.web.model.contract.contracts.filesystem.ValidInvitationRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.ValidInvitationResponseType;
+import com.arextest.web.model.dto.KeyValuePairDto;
 import com.arextest.web.model.dto.UserDto;
 import com.arextest.web.model.dto.WorkspaceDto;
 import com.arextest.web.model.dto.filesystem.FSCaseDto;
@@ -98,6 +100,7 @@ public class FileSystemService {
     private static final String WORKSPACE_NAME_PLACEHOLDER = "{{workspaceName}}";
     private static final String LINK_PLACEHOLDER = "{{link}}";
     private static final String GET_METHOD = "GET";
+    private static final String AREX_RECORD_ID = "arex-record-id";
 
     @Value("${arex.ui.url}")
     private String arexUiUrl;
@@ -585,8 +588,8 @@ public class FileSystemService {
             return null;
         }
 
-        StorageCase.StorageCaseEntity entity = storageCase.getViewRecord(request.getRecordId());
-        if (entity == null) {
+        FSCaseDto caseDto = storageCase.getViewRecord(request.getRecordId());
+        if (caseDto == null) {
             return null;
         }
 
@@ -616,9 +619,22 @@ public class FileSystemService {
         addCase.setParentPath(path.toArray(new String[path.size()]));
         FSAddItemResponseType addCaseResponse = addItem(addCase);
 
-        FSCaseDto caseDto = storageCase.getCase(path.get(path.size() - 1), addCaseResponse.getInfoId(), entity);
-        fsCaseRepository.saveCase(caseDto);
+        caseDto.setParentId(path.get(path.size() - 1));
+        caseDto.setId(addCaseResponse.getInfoId());
+        String newRecordId = storageCase.getNewRecordId(request.getRecordId());
+        caseDto.setRecordId(newRecordId);
 
+        KeyValuePairDto recordHeader = new KeyValuePairDto();
+        recordHeader.setKey(AREX_RECORD_ID);
+        recordHeader.setValue(newRecordId);
+        recordHeader.setActive(true);
+        caseDto.getHeaders().add(0, recordHeader);
+
+        if (!storageCase.pinnedCase(request.getRecordId(), newRecordId)) {
+            return null;
+        }
+
+        fsCaseRepository.saveCase(caseDto);
         return new Tuple<>(treeDto.getId(), addCaseResponse.getInfoId());
     }
 

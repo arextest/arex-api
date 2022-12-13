@@ -27,10 +27,10 @@
             <groupId>com.arextest</groupId>
             <artifactId>compare-sdk</artifactId>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>org.springframework.data</groupId>-->
-<!--            <artifactId>spring-data-mongodb</artifactId>-->
-<!--        </dependency>-->
+        <dependency>
+            <groupId>com.arextest</groupId>
+            <artifactId>arex-model</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-collections4</artifactId>
