@@ -161,7 +161,7 @@ public class MsgShowService {
         if (msg.startsWith("[")) {
             obj = new JSONArray(msg);
         } else {
-            obj = new JSONArray(msg);
+            obj = new JSONObject(msg);
         }
         return obj;
     }
