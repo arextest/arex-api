@@ -6,6 +6,8 @@ import lombok.NonNull;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.Set;
+
 
 @Data
 @NoArgsConstructor
@@ -25,4 +27,6 @@ public class RecordServiceConfigCollection extends ModelBase {
     private String allowTimeOfDayFrom;
     @NonNull
     private String allowTimeOfDayTo;
+
+    private Set<String> excludeServiceOperationSet;
 }

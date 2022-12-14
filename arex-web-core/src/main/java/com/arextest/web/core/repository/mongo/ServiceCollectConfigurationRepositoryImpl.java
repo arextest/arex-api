@@ -28,6 +28,7 @@ public class ServiceCollectConfigurationRepositoryImpl implements ConfigReposito
     private static final String ALLOW_DAY_OF_WEEKS = "allowDayOfWeeks";
     private static final String ALLOW_TIME_OF_DAY_FROM = "allowTimeOfDayFrom";
     private static final String ALLOW_TIME_OF_DAY_TO = "allowTimeOfDayTo";
+    private static final String EXCLUDE_SERVICE_OPERATION_SET = "excludeServiceOperationSet";
     private static final String TIME_MOCK = "timeMock";
 
     @Autowired
@@ -39,15 +40,21 @@ public class ServiceCollectConfigurationRepositoryImpl implements ConfigReposito
     @Override
     public List<ServiceCollectConfiguration> list() {
         Query query = new Query();
-        List<RecordServiceConfigCollection> recordServiceConfigCollections = mongoTemplate.find(query, RecordServiceConfigCollection.class);
-        return recordServiceConfigCollections.stream().map(RecordServiceConfigMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
+        List<RecordServiceConfigCollection> recordServiceConfigCollections =
+                mongoTemplate.find(query, RecordServiceConfigCollection.class);
+        return recordServiceConfigCollections.stream()
+                .map(RecordServiceConfigMapper.INSTANCE::dtoFromDao)
+                .collect(Collectors.toList());
     }
 
     @Override
     public List<ServiceCollectConfiguration> listBy(String appId) {
         Query query = Query.query(Criteria.where(APP_ID).is(appId));
-        List<RecordServiceConfigCollection> recordServiceConfigCollections = mongoTemplate.find(query, RecordServiceConfigCollection.class);
-        return recordServiceConfigCollections.stream().map(RecordServiceConfigMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
+        List<RecordServiceConfigCollection> recordServiceConfigCollections =
+                mongoTemplate.find(query, RecordServiceConfigCollection.class);
+        return recordServiceConfigCollections.stream()
+                .map(RecordServiceConfigMapper.INSTANCE::dtoFromDao)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -60,6 +67,7 @@ public class ServiceCollectConfigurationRepositoryImpl implements ConfigReposito
         update.set(ALLOW_DAY_OF_WEEKS, configuration.getAllowDayOfWeeks());
         update.set(ALLOW_TIME_OF_DAY_FROM, configuration.getAllowTimeOfDayFrom());
         update.set(ALLOW_TIME_OF_DAY_TO, configuration.getAllowTimeOfDayTo());
+        update.set(EXCLUDE_SERVICE_OPERATION_SET, configuration.getExcludeServiceOperationSet());
         update.set(TIME_MOCK, configuration.isTimeMock());
         UpdateResult updateResult = mongoTemplate.updateMulti(query, update, RecordServiceConfigCollection.class);
         return updateResult.getModifiedCount() > 0;
@@ -74,7 +82,8 @@ public class ServiceCollectConfigurationRepositoryImpl implements ConfigReposito
 
     @Override
     public boolean insert(ServiceCollectConfiguration configuration) {
-        RecordServiceConfigCollection recordServiceConfigCollection = RecordServiceConfigMapper.INSTANCE.daoFromDto(configuration);
+        RecordServiceConfigCollection recordServiceConfigCollection =
+                RecordServiceConfigMapper.INSTANCE.daoFromDto(configuration);
         RecordServiceConfigCollection insert = mongoTemplate.insert(recordServiceConfigCollection);
         return insert.getId() != null;
     }

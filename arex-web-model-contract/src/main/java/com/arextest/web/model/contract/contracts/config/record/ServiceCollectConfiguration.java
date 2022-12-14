@@ -10,6 +10,7 @@ import java.util.Set;
 /**
  * @author jmo
  * @since 2021/12/21
+ * Indicate to RecordServiceConfig datatable
  */
 @Setter
 @Getter
@@ -40,4 +41,6 @@ public class ServiceCollectConfiguration extends AbstractConfiguration {
      * HH:mm example: 23:59
      */
     private String allowTimeOfDayTo;
+
+    private Set<String> excludeServiceOperationSet;
 }

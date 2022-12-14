@@ -3,6 +3,7 @@ package com.arextest.web.api.service.controller.config;
 import com.arextest.common.model.response.Response;
 import com.arextest.common.utils.ResponseUtils;
 import com.arextest.web.core.business.config.ConfigurableHandler;
+import com.arextest.web.core.business.config.replay.ScheduleConfigurableHandler;
 import com.arextest.web.model.contract.contracts.config.application.ApplicationConfiguration;
 import com.arextest.web.model.contract.contracts.config.replay.ScheduleConfiguration;
 import lombok.Data;
@@ -21,7 +22,10 @@ import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * @author jmo
@@ -32,7 +36,7 @@ import java.util.Set;
 public final class ApplicationConfigurableController extends AbstractConfigurableController<ApplicationConfiguration> {
 
     @Resource
-    private ConfigurableHandler<ScheduleConfiguration> scheduleHandler;
+    private ScheduleConfigurableHandler scheduleHandler;
 
     public ApplicationConfigurableController(
             @Autowired ConfigurableHandler<ApplicationConfiguration> configurableHandler) {
@@ -42,13 +46,26 @@ public final class ApplicationConfigurableController extends AbstractConfigurabl
     @GetMapping("/regressionList")
     @ResponseBody
     public Response regressionList() {
-        List<ApplicationConfiguration> source = this.configurableHandler.useResultAsList();
-        List<ApplicationRegressionView> viewList = new ArrayList<>(source.size());
+        Map<String, ApplicationConfiguration> sourceMap = this.configurableHandler.useResultAsList().stream().collect(
+                Collectors.toMap(ApplicationConfiguration::getAppId,
+                        Function.identity(),
+                        (oldValue, newValue) -> newValue));
+        Map<String, ScheduleConfiguration> scheduleMap = scheduleHandler.useResultAsList()
+                .stream()
+                .collect(Collectors.toMap(ScheduleConfiguration::getAppId,
+                        Function.identity(),
+                        (oldValue, newValue) -> newValue));
+
+        List<ApplicationRegressionView> viewList = new ArrayList<>(sourceMap.size());
         ApplicationRegressionView view;
-        for (ApplicationConfiguration application : source) {
+        for (Map.Entry<String, ApplicationConfiguration> application : sourceMap.entrySet()) {
             view = new ApplicationRegressionView();
-            view.setApplication(application);
-            view.setRegressionConfiguration(scheduleHandler.useResult(application.getAppId()));
+            view.setApplication(application.getValue());
+            ScheduleConfiguration configuration = scheduleMap.get(application.getKey());
+            if (configuration == null) {
+                configuration = scheduleHandler.createFromGlobalDefault(application.getKey()).get(0);
+            }
+            view.setRegressionConfiguration(configuration);
             viewList.add(view);
         }
         return ResponseUtils.successResponse(viewList);
