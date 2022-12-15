@@ -15,4 +15,6 @@ public class FSAddItemFromRecordRequestType {
     private String recordId;
     @JsonIgnore
     private String userName;
+    @NotBlank(message = "operationId cannot be empty")
+    private String operationId;
 }

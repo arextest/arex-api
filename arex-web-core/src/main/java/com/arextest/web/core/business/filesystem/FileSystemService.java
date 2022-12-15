@@ -613,6 +613,9 @@ public class FileSystemService {
             path.add(addItemResponse.getInfoId());
         }
 
+        // add the related information about the replay interface to the manual interface
+        addReplayInfoToManual(request.getOperationId(), path);
+
         FSAddItemRequestType addCase = new FSAddItemRequestType();
         addCase.setId(treeDto.getId());
         addCase.setNodeName(request.getNodeName());
@@ -810,6 +813,15 @@ public class FileSystemService {
         userWorkspaceDto.setStatus(InvitationType.INVITED);
         userWorkspaceRepository.update(userWorkspaceDto);
         return dto;
+    }
+
+    private void addReplayInfoToManual(String operationId, List<String> path) {
+        if (CollectionUtils.isNotEmpty(path)) {
+            FSInterfaceDto fsInterfaceDto = new FSInterfaceDto();
+            fsInterfaceDto.setId(path.get(path.size() - 1));
+            fsInterfaceDto.setOperationId(operationId);
+            fsInterfaceRepository.saveInterface(fsInterfaceDto);
+        }
     }
 
     @Data
