@@ -6,16 +6,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class FSCaseDto extends FSItemDto {
-    private AddressDto address;
-    private List<ScriptBlockDto> preRequestScripts;
-    private String testScript;
-    private BodyDto body;
-    private List<KeyValuePairDto> headers;
-    private List<KeyValuePairDto> params;
-    private AuthDto auth;
-    private AddressDto testAddress;
-    private String recordId;
+public class FSCaseDto extends FSInterfaceDto {
     private ComparisonMsgDto comparisonMsg;
     private String description;
 }

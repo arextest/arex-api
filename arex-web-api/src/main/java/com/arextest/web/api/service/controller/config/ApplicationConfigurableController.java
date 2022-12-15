@@ -46,10 +46,7 @@ public final class ApplicationConfigurableController extends AbstractConfigurabl
     @GetMapping("/regressionList")
     @ResponseBody
     public Response regressionList() {
-        Map<String, ApplicationConfiguration> sourceMap = this.configurableHandler.useResultAsList().stream().collect(
-                Collectors.toMap(ApplicationConfiguration::getAppId,
-                        Function.identity(),
-                        (oldValue, newValue) -> newValue));
+        List<ApplicationConfiguration> sourceMap = this.configurableHandler.useResultAsList();
         Map<String, ScheduleConfiguration> scheduleMap = scheduleHandler.useResultAsList()
                 .stream()
                 .collect(Collectors.toMap(ScheduleConfiguration::getAppId,
@@ -58,12 +55,12 @@ public final class ApplicationConfigurableController extends AbstractConfigurabl
 
         List<ApplicationRegressionView> viewList = new ArrayList<>(sourceMap.size());
         ApplicationRegressionView view;
-        for (Map.Entry<String, ApplicationConfiguration> application : sourceMap.entrySet()) {
+        for (ApplicationConfiguration application : sourceMap) {
             view = new ApplicationRegressionView();
-            view.setApplication(application.getValue());
-            ScheduleConfiguration configuration = scheduleMap.get(application.getKey());
+            view.setApplication(application);
+            ScheduleConfiguration configuration = scheduleMap.get(application.getAppId());
             if (configuration == null) {
-                configuration = scheduleHandler.createFromGlobalDefault(application.getKey()).get(0);
+                configuration = scheduleHandler.createFromGlobalDefault(application.getAppId()).get(0);
             }
             view.setRegressionConfiguration(configuration);
             viewList.add(view);

@@ -9,6 +9,7 @@ import com.arextest.web.model.dao.mongodb.AppCollection;
 import com.arextest.web.model.mapper.AppMapper;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -36,6 +37,7 @@ public class ApplicationConfigurationRepositoryImpl implements ConfigRepositoryP
     @Override
     public List<ApplicationConfiguration> list() {
         Query query = new Query();
+        query.with(Sort.by(Sort.Order.desc(DASH_ID)));
         List<AppCollection> appCollections = mongoTemplate.find(query, AppCollection.class);
         return appCollections.stream().map(AppMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
     }
