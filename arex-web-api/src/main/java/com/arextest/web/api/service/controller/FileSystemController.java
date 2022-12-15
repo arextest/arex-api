@@ -20,6 +20,7 @@ import com.arextest.web.model.contract.contracts.filesystem.FSExportItemRequestT
 import com.arextest.web.model.contract.contracts.filesystem.FSExportItemResponseType;
 import com.arextest.web.model.contract.contracts.filesystem.FSImportItemRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.FSMoveItemRequestType;
+import com.arextest.web.model.contract.contracts.filesystem.FSPinMockRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.FSQueryCaseRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.FSQueryCaseResponseType;
 import com.arextest.web.model.contract.contracts.filesystem.FSQueryInterfaceRequestType;
@@ -260,6 +261,14 @@ public class FileSystemController {
         response.setSuccess(true);
         response.setWorkspaceId(result.x);
         response.setInfoId(result.y);
+        return ResponseUtils.successResponse(response);
+    }
+
+    @PostMapping("/pinMock")
+    @ResponseBody
+    public Response pinMock(@Valid @RequestBody FSPinMockRequestType request) {
+        SuccessResponseType response = new SuccessResponseType();
+        response.setSuccess(fileSystemService.pinMock(request));
         return ResponseUtils.successResponse(response);
     }
 

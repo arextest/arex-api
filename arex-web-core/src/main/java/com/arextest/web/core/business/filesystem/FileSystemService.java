@@ -21,6 +21,7 @@ import com.arextest.web.model.contract.contracts.filesystem.FSDuplicateRequestTy
 import com.arextest.web.model.contract.contracts.filesystem.FSExportItemRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.FSImportItemRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.FSMoveItemRequestType;
+import com.arextest.web.model.contract.contracts.filesystem.FSPinMockRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.FSQueryCaseRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.FSQueryCaseResponseType;
 import com.arextest.web.model.contract.contracts.filesystem.FSQueryInterfaceRequestType;
@@ -636,6 +637,38 @@ public class FileSystemService {
 
         fsCaseRepository.saveCase(caseDto);
         return new Tuple<>(treeDto.getId(), addCaseResponse.getInfoId());
+    }
+
+    public boolean pinMock(FSPinMockRequestType request) {
+        if (request.getNodeType() == FSInfoItem.FOLDER) {
+            LOGGER.error("Not support NodeType:{} in pinMock operation", request.getNodeType());
+            return false;
+        }
+        String newRecordId = storageCase.getNewRecordId(request.getRecordId());
+        boolean success = storageCase.pinnedCase(request.getRecordId(), newRecordId);
+        if (!success) {
+            LOGGER.error("Pin Case failed.recordId:{}", request.getRecordId());
+            return false;
+        }
+        ItemInfo itemInfo = itemInfoFactory.getItemInfo(request.getNodeType());
+        if (itemInfo == null) {
+            return false;
+        }
+        FSItemDto itemDto = itemInfo.queryById(request.getInfoId());
+        FSInterfaceDto interfaceDto = (FSInterfaceDto) itemDto;
+        interfaceDto.setRecordId(newRecordId);
+        if (interfaceDto.getHeaders() == null) {
+            interfaceDto.setHeaders(new ArrayList<>());
+        }
+        KeyValuePairDto kvDto = new KeyValuePairDto();
+        kvDto.setKey(AREX_RECORD_ID);
+        kvDto.setValue(newRecordId);
+        kvDto.setActive(true);
+        interfaceDto.getHeaders().add(0, kvDto);
+
+        itemInfo.saveItem(itemDto);
+
+        return true;
     }
 
     public Tuple<Boolean, String> exportItem(FSExportItemRequestType request) {
