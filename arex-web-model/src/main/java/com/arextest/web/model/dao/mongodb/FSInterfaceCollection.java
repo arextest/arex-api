@@ -18,7 +18,7 @@ public class FSInterfaceCollection extends ModelBase {
     private String workspaceId;
     private AddressDao address;
     private List<ScriptBlockDao> preRequestScripts;
-    private String testScript;
+    private List<ScriptBlockDao> testScripts;
     private BodyDao body;
     private List<KeyValuePairDao> headers;
     private List<KeyValuePairDao> params;

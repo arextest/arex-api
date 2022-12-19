@@ -12,7 +12,7 @@ import java.util.List;
 public class ReportCaseType {
     private String id;
     private List<ScriptBlockType> preRequestScripts;
-    private String testScript;
+    private List<ScriptBlockType> testScripts;
     private BodyType body;
     private List<KeyValuePairType> headers;
     private List<KeyValuePairType> params;

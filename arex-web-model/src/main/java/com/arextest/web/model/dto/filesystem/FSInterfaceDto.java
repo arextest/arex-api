@@ -9,7 +9,7 @@ import java.util.List;
 public class FSInterfaceDto extends FSItemDto {
     private AddressDto address;
     private List<ScriptBlockDto> preRequestScripts;
-    private String testScript;
+    private List<ScriptBlockDto> testScripts;
     private BodyDto body;
     private List<KeyValuePairDto> headers;
     private List<KeyValuePairDto> params;
