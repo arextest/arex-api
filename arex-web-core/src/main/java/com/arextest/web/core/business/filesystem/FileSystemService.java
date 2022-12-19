@@ -8,6 +8,7 @@ import com.arextest.web.core.business.filesystem.importexport.impl.ImportExportF
 import com.arextest.web.core.business.filesystem.pincase.StorageCase;
 import com.arextest.web.core.business.util.MailUtils;
 import com.arextest.web.core.repository.FSCaseRepository;
+import com.arextest.web.core.repository.FSFolderRepository;
 import com.arextest.web.core.repository.FSInterfaceRepository;
 import com.arextest.web.core.repository.FSTreeRepository;
 import com.arextest.web.core.repository.UserRepository;
@@ -24,6 +25,8 @@ import com.arextest.web.model.contract.contracts.filesystem.FSMoveItemRequestTyp
 import com.arextest.web.model.contract.contracts.filesystem.FSPinMockRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.FSQueryCaseRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.FSQueryCaseResponseType;
+import com.arextest.web.model.contract.contracts.filesystem.FSQueryFolderRequestType;
+import com.arextest.web.model.contract.contracts.filesystem.FSQueryFolderResponseType;
 import com.arextest.web.model.contract.contracts.filesystem.FSQueryInterfaceRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.FSQueryInterfaceResponseType;
 import com.arextest.web.model.contract.contracts.filesystem.FSQueryUsersByWorkspaceRequestType;
@@ -37,6 +40,8 @@ import com.arextest.web.model.contract.contracts.filesystem.FSRenameRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.FSRenameWorkspaceRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.FSSaveCaseRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.FSSaveCaseResponseType;
+import com.arextest.web.model.contract.contracts.filesystem.FSSaveFolderRequestType;
+import com.arextest.web.model.contract.contracts.filesystem.FSSaveFolderResponseType;
 import com.arextest.web.model.contract.contracts.filesystem.FSSaveInterfaceRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.FSSaveInterfaceResponseType;
 import com.arextest.web.model.contract.contracts.filesystem.FSTreeType;
@@ -50,6 +55,7 @@ import com.arextest.web.model.dto.KeyValuePairDto;
 import com.arextest.web.model.dto.UserDto;
 import com.arextest.web.model.dto.WorkspaceDto;
 import com.arextest.web.model.dto.filesystem.FSCaseDto;
+import com.arextest.web.model.dto.filesystem.FSFolderDto;
 import com.arextest.web.model.dto.filesystem.FSInterfaceDto;
 import com.arextest.web.model.dto.filesystem.FSItemDto;
 import com.arextest.web.model.dto.filesystem.FSNodeDto;
@@ -60,6 +66,7 @@ import com.arextest.web.model.enums.InvitationType;
 import com.arextest.web.model.enums.RoleType;
 import com.arextest.web.model.enums.SendEmailType;
 import com.arextest.web.model.mapper.FSCaseMapper;
+import com.arextest.web.model.mapper.FSFolderMapper;
 import com.arextest.web.model.mapper.FSInterfaceMapper;
 import com.arextest.web.model.mapper.FSTreeMapper;
 import com.arextest.web.model.mapper.UserWorkspaceMapper;
@@ -108,6 +115,9 @@ public class FileSystemService {
 
     @Resource
     private FSTreeRepository fsTreeRepository;
+
+    @Resource
+    private FSFolderRepository fsFolderRepository;
 
     @Resource
     private FSInterfaceRepository fsInterfaceRepository;
@@ -450,6 +460,27 @@ public class FileSystemService {
                 Collectors.toList());
         response.setUsers(users);
         return response;
+    }
+
+    public FSSaveFolderResponseType saveFolder(FSSaveFolderRequestType request) {
+        FSSaveFolderResponseType response = new FSSaveFolderResponseType();
+        FSFolderDto dto = FSFolderMapper.INSTANCE.dtoFromContract(request);
+
+        try {
+            fsFolderRepository.saveFolder(dto);
+            response.setSuccess(true);
+        } catch (Exception e) {
+            response.setSuccess(false);
+        }
+        return response;
+    }
+
+    public FSQueryFolderResponseType queryFolder(FSQueryFolderRequestType request) {
+        FSFolderDto dto = fsFolderRepository.queryById(request.getId());
+        if (dto == null) {
+            return new FSQueryFolderResponseType();
+        }
+        return FSFolderMapper.INSTANCE.contractFromDto(dto);
     }
 
     public FSSaveInterfaceResponseType saveInterface(FSSaveInterfaceRequestType request) {
