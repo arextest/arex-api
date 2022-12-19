@@ -44,5 +44,5 @@ public class AppCollection extends ModelBase {
     @NonNull
     private Integer status;
 
-    private Set<String> ips;
+    private Set<String> hosts;
 }

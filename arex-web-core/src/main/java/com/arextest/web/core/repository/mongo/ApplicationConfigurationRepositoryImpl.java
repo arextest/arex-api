@@ -9,6 +9,7 @@ import com.arextest.web.model.dao.mongodb.AppCollection;
 import com.arextest.web.model.mapper.AppMapper;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -26,7 +27,7 @@ public class ApplicationConfigurationRepositoryImpl implements ConfigRepositoryP
 
     private static final String AGENT_VERSION = "agentVersion";
     private static final String AGENT_EXT_VERSION = "agentExtVersion";
-    private static final String IPS = "ips";
+    private static final String HOSTS = "hosts";
 
     private static final String FEATURES = "features";
 
@@ -36,6 +37,7 @@ public class ApplicationConfigurationRepositoryImpl implements ConfigRepositoryP
     @Override
     public List<ApplicationConfiguration> list() {
         Query query = new Query();
+        query.with(Sort.by(Sort.Order.desc(DASH_ID)));
         List<AppCollection> appCollections = mongoTemplate.find(query, AppCollection.class);
         return appCollections.stream().map(AppMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
     }
@@ -57,7 +59,7 @@ public class ApplicationConfigurationRepositoryImpl implements ConfigRepositoryP
         update.set(AGENT_EXT_VERSION, configuration.getAgentExtVersion());
         update.set(STATUS, configuration.getStatus());
         update.set(FEATURES, configuration.getFeatures());
-        update.set(IPS,configuration.getIps());
+        update.set(HOSTS,configuration.getHosts());
         UpdateResult updateResult = mongoTemplate.updateMulti(query, update, AppCollection.class);
         return updateResult.getModifiedCount() > 0;
     }

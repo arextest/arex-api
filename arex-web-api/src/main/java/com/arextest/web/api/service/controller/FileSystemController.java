@@ -20,8 +20,11 @@ import com.arextest.web.model.contract.contracts.filesystem.FSExportItemRequestT
 import com.arextest.web.model.contract.contracts.filesystem.FSExportItemResponseType;
 import com.arextest.web.model.contract.contracts.filesystem.FSImportItemRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.FSMoveItemRequestType;
+import com.arextest.web.model.contract.contracts.filesystem.FSPinMockRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.FSQueryCaseRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.FSQueryCaseResponseType;
+import com.arextest.web.model.contract.contracts.filesystem.FSQueryFolderRequestType;
+import com.arextest.web.model.contract.contracts.filesystem.FSQueryFolderResponseType;
 import com.arextest.web.model.contract.contracts.filesystem.FSQueryInterfaceRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.FSQueryInterfaceResponseType;
 import com.arextest.web.model.contract.contracts.filesystem.FSQueryUsersByWorkspaceRequestType;
@@ -37,6 +40,8 @@ import com.arextest.web.model.contract.contracts.filesystem.FSRenameResponseType
 import com.arextest.web.model.contract.contracts.filesystem.FSRenameWorkspaceRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.FSSaveCaseRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.FSSaveCaseResponseType;
+import com.arextest.web.model.contract.contracts.filesystem.FSSaveFolderRequestType;
+import com.arextest.web.model.contract.contracts.filesystem.FSSaveFolderResponseType;
 import com.arextest.web.model.contract.contracts.filesystem.FSSaveInterfaceRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.FSSaveInterfaceResponseType;
 import com.arextest.web.model.contract.contracts.filesystem.InviteToWorkspaceRequestType;
@@ -72,7 +77,7 @@ public class FileSystemController {
     @PostMapping("/addItem")
     @ResponseBody
     public Response addItem(@RequestHeader(name = Constants.ACCESS_TOKEN) String token,
-            @Valid @RequestBody FSAddItemRequestType request) {
+                            @Valid @RequestBody FSAddItemRequestType request) {
         if (StringUtils.isNotEmpty(request.getId()) &&
                 !rolePermission.checkPermissionByToken(RolePermission.EDIT_ITEM,
                         token,
@@ -86,7 +91,7 @@ public class FileSystemController {
     @PostMapping("/removeItem")
     @ResponseBody
     public Response removeItem(@RequestHeader(name = Constants.ACCESS_TOKEN) String token,
-            @Valid @RequestBody FSRemoveItemRequestType request) {
+                               @Valid @RequestBody FSRemoveItemRequestType request) {
         if (!rolePermission.checkPermissionByToken(RolePermission.EDIT_ITEM, token, request.getId())) {
             return ResponseUtils.errorResponse(Constants.NO_PERMISSION, ResponseCode.AUTHENTICATION_FAILED);
         }
@@ -98,7 +103,7 @@ public class FileSystemController {
     @PostMapping("/rename")
     @ResponseBody
     public Response rename(@RequestHeader(name = Constants.ACCESS_TOKEN) String token,
-            @Valid @RequestBody FSRenameRequestType request) {
+                           @Valid @RequestBody FSRenameRequestType request) {
         if (!rolePermission.checkPermissionByToken(RolePermission.EDIT_ITEM, token, request.getId())) {
             return ResponseUtils.errorResponse(Constants.NO_PERMISSION, ResponseCode.AUTHENTICATION_FAILED);
         }
@@ -111,7 +116,7 @@ public class FileSystemController {
     @PostMapping("/duplicate")
     @ResponseBody
     public Response duplicate(@RequestHeader(name = Constants.ACCESS_TOKEN) String token,
-            @Valid @RequestBody FSDuplicateRequestType request) {
+                              @Valid @RequestBody FSDuplicateRequestType request) {
         if (!rolePermission.checkPermissionByToken(RolePermission.EDIT_ITEM, token, request.getId())) {
             return ResponseUtils.errorResponse(Constants.NO_PERMISSION, ResponseCode.AUTHENTICATION_FAILED);
         }
@@ -138,7 +143,7 @@ public class FileSystemController {
     @PostMapping("/deleteWorkspace")
     @ResponseBody
     public Response deleteWorkspace(@RequestHeader(name = Constants.ACCESS_TOKEN) String token,
-            @Valid @RequestBody FSDeleteWorkspaceRequestType request) {
+                                    @Valid @RequestBody FSDeleteWorkspaceRequestType request) {
         if (!rolePermission.checkPermissionByToken(RolePermission.EDIT_WORKSPACE,
                 token,
                 request.getWorkspaceId())) {
@@ -152,7 +157,7 @@ public class FileSystemController {
     @PostMapping("/renameWorkspace")
     @ResponseBody
     public Response renameWorkspace(@RequestHeader(name = Constants.ACCESS_TOKEN) String token,
-            @Valid @RequestBody FSRenameWorkspaceRequestType request) {
+                                    @Valid @RequestBody FSRenameWorkspaceRequestType request) {
         if (!rolePermission.checkPermissionByToken(RolePermission.EDIT_WORKSPACE, token, request.getId())) {
             return ResponseUtils.errorResponse(Constants.NO_PERMISSION, ResponseCode.AUTHENTICATION_FAILED);
         }
@@ -164,7 +169,7 @@ public class FileSystemController {
     @PostMapping("/queryWorkspaceById")
     @ResponseBody
     public Response queryWorkspaceById(@RequestHeader(name = Constants.ACCESS_TOKEN) String token,
-            @RequestBody FSQueryWorkspaceRequestType request) {
+                                       @RequestBody FSQueryWorkspaceRequestType request) {
         if (!rolePermission.checkPermissionByToken(RolePermission.VIEW_WORKSPACE, token, request.getId())) {
             return ResponseUtils.errorResponse(Constants.NO_PERMISSION, ResponseCode.AUTHENTICATION_FAILED);
         }
@@ -183,6 +188,20 @@ public class FileSystemController {
     @ResponseBody
     public Response queryUsersByWorkspace(@RequestBody FSQueryUsersByWorkspaceRequestType request) {
         FSQueryUsersByWorkspaceResponseType response = fileSystemService.queryUsersByWorkspace(request);
+        return ResponseUtils.successResponse(response);
+    }
+
+    @PostMapping("/saveFolder")
+    @ResponseBody
+    public Response saveFolder(@RequestBody FSSaveFolderRequestType request) {
+        FSSaveFolderResponseType response = fileSystemService.saveFolder(request);
+        return ResponseUtils.successResponse(response);
+    }
+
+    @PostMapping("/queryFolder")
+    @ResponseBody
+    public Response queryFolder(@RequestBody FSQueryFolderRequestType request) {
+        FSQueryFolderResponseType response = fileSystemService.queryFolder(request);
         return ResponseUtils.successResponse(response);
     }
 
@@ -217,7 +236,7 @@ public class FileSystemController {
     @PostMapping("/inviteToWorkspace")
     @ResponseBody
     public Response inviteToWorkspace(@RequestHeader(name = Constants.ACCESS_TOKEN) String token,
-            @Valid @RequestBody InviteToWorkspaceRequestType request) {
+                                      @Valid @RequestBody InviteToWorkspaceRequestType request) {
         if (!rolePermission.checkPermissionByToken(RolePermission.INVITE_TO_WORKSPACE,
                 token,
                 request.getWorkspaceId())) {
@@ -230,7 +249,7 @@ public class FileSystemController {
     @PostMapping("/leaveWorkspace")
     @ResponseBody
     public Response leaveWorkspace(@RequestHeader(name = Constants.ACCESS_TOKEN) String token,
-            @Valid @RequestBody LeaveWorkspaceRequestType request) {
+                                   @Valid @RequestBody LeaveWorkspaceRequestType request) {
         String userName = JwtUtil.getUserName(token);
         if (StringUtils.isEmpty(userName)) {
             return ResponseUtils.errorResponse("Incorrect token. Please login again.",
@@ -260,6 +279,14 @@ public class FileSystemController {
         response.setSuccess(true);
         response.setWorkspaceId(result.x);
         response.setInfoId(result.y);
+        return ResponseUtils.successResponse(response);
+    }
+
+    @PostMapping("/pinMock")
+    @ResponseBody
+    public Response pinMock(@Valid @RequestBody FSPinMockRequestType request) {
+        SuccessResponseType response = new SuccessResponseType();
+        response.setSuccess(fileSystemService.pinMock(request));
         return ResponseUtils.successResponse(response);
     }
 

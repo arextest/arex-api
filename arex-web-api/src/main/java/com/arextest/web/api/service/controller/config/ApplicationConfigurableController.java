@@ -3,6 +3,7 @@ package com.arextest.web.api.service.controller.config;
 import com.arextest.common.model.response.Response;
 import com.arextest.common.utils.ResponseUtils;
 import com.arextest.web.core.business.config.ConfigurableHandler;
+import com.arextest.web.core.business.config.replay.ScheduleConfigurableHandler;
 import com.arextest.web.model.contract.contracts.config.application.ApplicationConfiguration;
 import com.arextest.web.model.contract.contracts.config.replay.ScheduleConfiguration;
 import lombok.Data;
@@ -21,7 +22,10 @@ import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * @author jmo
@@ -32,7 +36,7 @@ import java.util.Set;
 public final class ApplicationConfigurableController extends AbstractConfigurableController<ApplicationConfiguration> {
 
     @Resource
-    private ConfigurableHandler<ScheduleConfiguration> scheduleHandler;
+    private ScheduleConfigurableHandler scheduleHandler;
 
     public ApplicationConfigurableController(
             @Autowired ConfigurableHandler<ApplicationConfiguration> configurableHandler) {
@@ -42,31 +46,41 @@ public final class ApplicationConfigurableController extends AbstractConfigurabl
     @GetMapping("/regressionList")
     @ResponseBody
     public Response regressionList() {
-        List<ApplicationConfiguration> source = this.configurableHandler.useResultAsList();
-        List<ApplicationRegressionView> viewList = new ArrayList<>(source.size());
+        List<ApplicationConfiguration> sourceMap = this.configurableHandler.useResultAsList();
+        Map<String, ScheduleConfiguration> scheduleMap = scheduleHandler.useResultAsList()
+                .stream()
+                .collect(Collectors.toMap(ScheduleConfiguration::getAppId,
+                        Function.identity(),
+                        (oldValue, newValue) -> newValue));
+
+        List<ApplicationRegressionView> viewList = new ArrayList<>(sourceMap.size());
         ApplicationRegressionView view;
-        for (ApplicationConfiguration application : source) {
+        for (ApplicationConfiguration application : sourceMap) {
             view = new ApplicationRegressionView();
             view.setApplication(application);
-            view.setRegressionConfiguration(scheduleHandler.useResult(application.getAppId()));
+            ScheduleConfiguration configuration = scheduleMap.get(application.getAppId());
+            if (configuration == null) {
+                configuration = scheduleHandler.createFromGlobalDefault(application.getAppId()).get(0);
+            }
+            view.setRegressionConfiguration(configuration);
             viewList.add(view);
         }
         return ResponseUtils.successResponse(viewList);
     }
 
-    @PostMapping("/removeIps")
+    @PostMapping("/removeHosts")
     @ResponseBody
     public Response removeAgentMachines(@Valid @RequestBody RemoveAgentMachinesRequest request) {
         ApplicationConfiguration app = this.configurableHandler.useResult(request.getAppId());
         RemoveAgentMachinesResponse response = new RemoveAgentMachinesResponse();
-        if (CollectionUtils.isEmpty(app.getIps())) {
+        if (CollectionUtils.isEmpty(app.getHosts())) {
             response.setSuccess(true);
             return ResponseUtils.successResponse(response);
         }
-        if (CollectionUtils.isEmpty(request.getIps())) {
-            app.getIps().clear();
+        if (CollectionUtils.isEmpty(request.getHosts())) {
+            app.getHosts().clear();
         } else {
-            app.getIps().removeAll(request.getIps());
+            app.getHosts().removeAll(request.getHosts());
         }
         response.setSuccess(this.configurableHandler.update(app));
         return ResponseUtils.successResponse(response);
@@ -76,7 +90,7 @@ public final class ApplicationConfigurableController extends AbstractConfigurabl
     private static final class RemoveAgentMachinesRequest {
         @NotNull(message = "AppId cannot be empty")
         private String appId;
-        private Set<String> ips;
+        private Set<String> hosts;
     }
 
 

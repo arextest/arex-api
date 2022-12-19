@@ -5,8 +5,10 @@ import com.arextest.web.common.LoadResource;
 import com.arextest.web.common.Tuple;
 import com.arextest.web.core.business.filesystem.importexport.ImportExport;
 import com.arextest.web.core.business.filesystem.importexport.impl.ImportExportFactory;
+import com.arextest.web.core.business.filesystem.pincase.StorageCase;
 import com.arextest.web.core.business.util.MailUtils;
 import com.arextest.web.core.repository.FSCaseRepository;
+import com.arextest.web.core.repository.FSFolderRepository;
 import com.arextest.web.core.repository.FSInterfaceRepository;
 import com.arextest.web.core.repository.FSTreeRepository;
 import com.arextest.web.core.repository.UserRepository;
@@ -20,8 +22,11 @@ import com.arextest.web.model.contract.contracts.filesystem.FSDuplicateRequestTy
 import com.arextest.web.model.contract.contracts.filesystem.FSExportItemRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.FSImportItemRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.FSMoveItemRequestType;
+import com.arextest.web.model.contract.contracts.filesystem.FSPinMockRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.FSQueryCaseRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.FSQueryCaseResponseType;
+import com.arextest.web.model.contract.contracts.filesystem.FSQueryFolderRequestType;
+import com.arextest.web.model.contract.contracts.filesystem.FSQueryFolderResponseType;
 import com.arextest.web.model.contract.contracts.filesystem.FSQueryInterfaceRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.FSQueryInterfaceResponseType;
 import com.arextest.web.model.contract.contracts.filesystem.FSQueryUsersByWorkspaceRequestType;
@@ -35,6 +40,8 @@ import com.arextest.web.model.contract.contracts.filesystem.FSRenameRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.FSRenameWorkspaceRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.FSSaveCaseRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.FSSaveCaseResponseType;
+import com.arextest.web.model.contract.contracts.filesystem.FSSaveFolderRequestType;
+import com.arextest.web.model.contract.contracts.filesystem.FSSaveFolderResponseType;
 import com.arextest.web.model.contract.contracts.filesystem.FSSaveInterfaceRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.FSSaveInterfaceResponseType;
 import com.arextest.web.model.contract.contracts.filesystem.FSTreeType;
@@ -44,9 +51,11 @@ import com.arextest.web.model.contract.contracts.filesystem.LeaveWorkspaceReques
 import com.arextest.web.model.contract.contracts.filesystem.UserType;
 import com.arextest.web.model.contract.contracts.filesystem.ValidInvitationRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.ValidInvitationResponseType;
+import com.arextest.web.model.dto.KeyValuePairDto;
 import com.arextest.web.model.dto.UserDto;
 import com.arextest.web.model.dto.WorkspaceDto;
 import com.arextest.web.model.dto.filesystem.FSCaseDto;
+import com.arextest.web.model.dto.filesystem.FSFolderDto;
 import com.arextest.web.model.dto.filesystem.FSInterfaceDto;
 import com.arextest.web.model.dto.filesystem.FSItemDto;
 import com.arextest.web.model.dto.filesystem.FSNodeDto;
@@ -57,6 +66,7 @@ import com.arextest.web.model.enums.InvitationType;
 import com.arextest.web.model.enums.RoleType;
 import com.arextest.web.model.enums.SendEmailType;
 import com.arextest.web.model.mapper.FSCaseMapper;
+import com.arextest.web.model.mapper.FSFolderMapper;
 import com.arextest.web.model.mapper.FSInterfaceMapper;
 import com.arextest.web.model.mapper.FSTreeMapper;
 import com.arextest.web.model.mapper.UserWorkspaceMapper;
@@ -98,12 +108,16 @@ public class FileSystemService {
     private static final String WORKSPACE_NAME_PLACEHOLDER = "{{workspaceName}}";
     private static final String LINK_PLACEHOLDER = "{{link}}";
     private static final String GET_METHOD = "GET";
+    private static final String AREX_RECORD_ID = "arex-record-id";
 
     @Value("${arex.ui.url}")
     private String arexUiUrl;
 
     @Resource
     private FSTreeRepository fsTreeRepository;
+
+    @Resource
+    private FSFolderRepository fsFolderRepository;
 
     @Resource
     private FSInterfaceRepository fsInterfaceRepository;
@@ -448,6 +462,27 @@ public class FileSystemService {
         return response;
     }
 
+    public FSSaveFolderResponseType saveFolder(FSSaveFolderRequestType request) {
+        FSSaveFolderResponseType response = new FSSaveFolderResponseType();
+        FSFolderDto dto = FSFolderMapper.INSTANCE.dtoFromContract(request);
+
+        try {
+            fsFolderRepository.saveFolder(dto);
+            response.setSuccess(true);
+        } catch (Exception e) {
+            response.setSuccess(false);
+        }
+        return response;
+    }
+
+    public FSQueryFolderResponseType queryFolder(FSQueryFolderRequestType request) {
+        FSFolderDto dto = fsFolderRepository.queryById(request.getId());
+        if (dto == null) {
+            return new FSQueryFolderResponseType();
+        }
+        return FSFolderMapper.INSTANCE.contractFromDto(dto);
+    }
+
     public FSSaveInterfaceResponseType saveInterface(FSSaveInterfaceRequestType request) {
         FSSaveInterfaceResponseType response = new FSSaveInterfaceResponseType();
         FSInterfaceDto dto = FSInterfaceMapper.INSTANCE.dtoFromContract(request);
@@ -585,8 +620,8 @@ public class FileSystemService {
             return null;
         }
 
-        StorageCase.StorageCaseEntity entity = storageCase.getViewRecord(request.getRecordId());
-        if (entity == null) {
+        FSCaseDto caseDto = storageCase.getViewRecord(request.getRecordId());
+        if (caseDto == null) {
             return null;
         }
 
@@ -609,6 +644,9 @@ public class FileSystemService {
             path.add(addItemResponse.getInfoId());
         }
 
+        // add the related information about the replay interface to the manual interface
+        addReplayInfoToManual(request.getOperationId(), path);
+
         FSAddItemRequestType addCase = new FSAddItemRequestType();
         addCase.setId(treeDto.getId());
         addCase.setNodeName(request.getNodeName());
@@ -616,10 +654,55 @@ public class FileSystemService {
         addCase.setParentPath(path.toArray(new String[path.size()]));
         FSAddItemResponseType addCaseResponse = addItem(addCase);
 
-        FSCaseDto caseDto = storageCase.getCase(path.get(path.size() - 1), addCaseResponse.getInfoId(), entity);
-        fsCaseRepository.saveCase(caseDto);
+        caseDto.setParentId(path.get(path.size() - 1));
+        caseDto.setId(addCaseResponse.getInfoId());
+        String newRecordId = storageCase.getNewRecordId(request.getRecordId());
+        caseDto.setRecordId(newRecordId);
 
+        KeyValuePairDto recordHeader = new KeyValuePairDto();
+        recordHeader.setKey(AREX_RECORD_ID);
+        recordHeader.setValue(newRecordId);
+        recordHeader.setActive(true);
+        caseDto.getHeaders().add(0, recordHeader);
+
+        if (!storageCase.pinnedCase(request.getRecordId(), newRecordId)) {
+            return null;
+        }
+
+        fsCaseRepository.saveCase(caseDto);
         return new Tuple<>(treeDto.getId(), addCaseResponse.getInfoId());
+    }
+
+    public boolean pinMock(FSPinMockRequestType request) {
+        if (request.getNodeType() == FSInfoItem.FOLDER) {
+            LOGGER.error("Not support NodeType:{} in pinMock operation", request.getNodeType());
+            return false;
+        }
+        String newRecordId = storageCase.getNewRecordId(request.getRecordId());
+        boolean success = storageCase.pinnedCase(request.getRecordId(), newRecordId);
+        if (!success) {
+            LOGGER.error("Pin Case failed.recordId:{}", request.getRecordId());
+            return false;
+        }
+        ItemInfo itemInfo = itemInfoFactory.getItemInfo(request.getNodeType());
+        if (itemInfo == null) {
+            return false;
+        }
+        FSItemDto itemDto = itemInfo.queryById(request.getInfoId());
+        FSInterfaceDto interfaceDto = (FSInterfaceDto) itemDto;
+        interfaceDto.setRecordId(newRecordId);
+        if (interfaceDto.getHeaders() == null) {
+            interfaceDto.setHeaders(new ArrayList<>());
+        }
+        KeyValuePairDto kvDto = new KeyValuePairDto();
+        kvDto.setKey(AREX_RECORD_ID);
+        kvDto.setValue(newRecordId);
+        kvDto.setActive(true);
+        interfaceDto.getHeaders().add(0, kvDto);
+
+        itemInfo.saveItem(itemDto);
+
+        return true;
     }
 
     public Tuple<Boolean, String> exportItem(FSExportItemRequestType request) {
@@ -761,6 +844,15 @@ public class FileSystemService {
         userWorkspaceDto.setStatus(InvitationType.INVITED);
         userWorkspaceRepository.update(userWorkspaceDto);
         return dto;
+    }
+
+    private void addReplayInfoToManual(String operationId, List<String> path) {
+        if (CollectionUtils.isNotEmpty(path)) {
+            FSInterfaceDto fsInterfaceDto = new FSInterfaceDto();
+            fsInterfaceDto.setId(path.get(path.size() - 1));
+            fsInterfaceDto.setOperationId(operationId);
+            fsInterfaceRepository.saveInterface(fsInterfaceDto);
+        }
     }
 
     @Data

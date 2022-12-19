@@ -13,7 +13,7 @@ public class ApplicationOperationConfiguration extends AbstractConfiguration imp
     private String appId;
     private String serviceId;
     private String operationName;
-    private int operationType;
+    private String operationType;
     private String operationResponse;
     private Integer recordedCaseCount;
 }

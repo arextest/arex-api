@@ -19,7 +19,7 @@ public class ServiceOperationCollection extends ModelBase {
     // operation response used to convert to schema
     private String operationResponse;
 
-    private int operationType;
+    private String operationType;
     @NonNull
     private Integer recordedCaseCount;
     @NonNull

@@ -42,6 +42,7 @@
         <javax.mail-api.version>1.6.2</javax.mail-api.version>
         <commons-email.version>1.5</commons-email.version>
         <jwt.version>3.10.3</jwt.version>
+        <arex-storage.version>1.0.1</arex-storage.version>
     </properties>
 
     <name>${project.groupId}:${project.artifactId}</name>
@@ -113,6 +114,12 @@
                 <groupId>com.arextest</groupId>
                 <artifactId>compare-sdk</artifactId>
                 <version>${compare-sdk.version}</version>
+            </dependency>
+            <!--arex storage-->
+            <dependency>
+                <groupId>com.arextest</groupId>
+                <artifactId>arex-model</artifactId>
+                <version>${arex-storage.version}</version>
             </dependency>
             <!--spring-boot-->
             <dependency>

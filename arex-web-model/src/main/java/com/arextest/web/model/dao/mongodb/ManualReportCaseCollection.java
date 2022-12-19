@@ -3,6 +3,7 @@ package com.arextest.web.model.dao.mongodb;
 import com.arextest.web.model.dao.mongodb.entity.AuthDao;
 import com.arextest.web.model.dao.mongodb.entity.BodyDao;
 import com.arextest.web.model.dao.mongodb.entity.KeyValuePairDao;
+import com.arextest.web.model.dao.mongodb.entity.ScriptBlockDao;
 import lombok.Data;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -11,8 +12,8 @@ import java.util.List;
 @Data
 @Document(collection = "ManualReportCase")
 public class ManualReportCaseCollection extends ModelBase {
-    private String preRequestScript;
-    private String testScript;
+    private List<ScriptBlockDao> preRequestScripts;
+    private List<ScriptBlockDao> testScripts;
     private BodyDao body;
     private List<KeyValuePairDao> headers;
     private List<KeyValuePairDao> params;

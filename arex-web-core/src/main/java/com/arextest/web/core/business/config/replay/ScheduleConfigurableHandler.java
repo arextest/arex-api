@@ -17,7 +17,7 @@ import java.util.List;
  * @since 2022/1/22
  */
 @Component
-final class ScheduleConfigurableHandler extends AbstractConfigurableHandler<ScheduleConfiguration> {
+public final class ScheduleConfigurableHandler extends AbstractConfigurableHandler<ScheduleConfiguration> {
     @Resource
     private ScheduleConfiguration globalScheduleConfiguration;
 
@@ -35,7 +35,7 @@ final class ScheduleConfigurableHandler extends AbstractConfigurableHandler<Sche
     }
 
     @Override
-    protected List<ScheduleConfiguration> createFromGlobalDefault(String appId) {
+    public List<ScheduleConfiguration> createFromGlobalDefault(String appId) {
         ScheduleConfiguration scheduleConfiguration = new ScheduleConfiguration();
         scheduleConfiguration.setAppId(appId);
         scheduleConfiguration.setOffsetDays(globalScheduleConfiguration.getOffsetDays());

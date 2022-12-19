@@ -1,20 +1,20 @@
 package com.arextest.web.model.contract.contracts.filesystem;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
 
+/**
+ * @author b_yu
+ * @since 2022/12/15
+ */
 @Data
-public class FSAddItemFromRecordRequestType {
+public class FSPinMockRequestType {
     @NotBlank(message = "WorkspaceId cannot be empty")
     private String workspaceId;
-    private String[] parentPath;
-    private String nodeName;
+    @NotBlank(message = "Item InfoId cannot be empty")
+    private String infoId;
+    private int nodeType;
     @NotBlank(message = "RecordId cannot be empty")
     private String recordId;
-    @JsonIgnore
-    private String userName;
-    @NotBlank(message = "operationId cannot be empty")
-    private String operationId;
 }
