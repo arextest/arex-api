@@ -16,7 +16,7 @@ public class FSSaveCaseRequestType {
     private String workspaceId;
     private AddressType address;
     private List<ScriptBlockType> preRequestScripts;
-    private String testScript;
+    private List<ScriptBlockType> testScripts;
     private BodyType body;
     private List<KeyValuePairType> headers;
     private List<KeyValuePairType> params;

@@ -1,5 +1,7 @@
 package com.arextest.web.model.mapper;
 
+import com.arextest.web.model.contract.contracts.filesystem.FSQueryFolderResponseType;
+import com.arextest.web.model.contract.contracts.filesystem.FSSaveFolderRequestType;
 import com.arextest.web.model.dao.mongodb.FSFolderCollection;
 import com.arextest.web.model.dto.filesystem.FSFolderDto;
 import com.arextest.web.model.dto.filesystem.importexport.FolderItemDto;
@@ -9,6 +11,10 @@ import org.mapstruct.factory.Mappers;
 @Mapper
 public interface FSFolderMapper {
     FSFolderMapper INSTANCE = Mappers.getMapper(FSFolderMapper.class);
+
+    FSFolderDto dtoFromContract(FSSaveFolderRequestType contract);
+
+    FSQueryFolderResponseType contractFromDto(FSFolderDto dto);
 
     FSFolderDto dtoFromDao(FSFolderCollection dao);
 

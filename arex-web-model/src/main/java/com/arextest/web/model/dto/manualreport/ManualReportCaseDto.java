@@ -13,7 +13,7 @@ import java.util.List;
 public class ManualReportCaseDto {
     private String id;
     private List<ScriptBlockDto> preRequestScripts;
-    private String testScript;
+    private List<ScriptBlockDto> testScripts;
     private BodyDao body;
     private List<KeyValuePairDao> headers;
     private List<KeyValuePairDao> params;
