@@ -30,7 +30,7 @@ public class ServletMockerConversionImpl implements MockerConversion {
     private static final String AND = "&";
     private static final String EQUAL = "=";
     private static final String HTTP_METHOD = "HttpMethod";
-    private static final String SERVLET_PATH = "ServletPath";
+    private static final String REQUEST_PATH = "RequestPath";
     private static final String PREFIX_URL = "http://{{}}";
     private static final String SERVLET = "Servlet";
 
@@ -54,7 +54,7 @@ public class ServletMockerConversionImpl implements MockerConversion {
             AddressDto addressDto = new AddressDto();
             String method = targetRequest.getAttribute(HTTP_METHOD).toString();
             addressDto.setMethod(method);
-            addressDto.setEndpoint(PREFIX_URL + targetRequest.getAttribute(SERVLET_PATH).toString());
+            addressDto.setEndpoint(PREFIX_URL + targetRequest.getAttribute(REQUEST_PATH).toString());
             caseDto.setAddress(addressDto);
 
             Map<String, String> headers = (Map<String, String>) targetRequest.getAttribute("Headers");

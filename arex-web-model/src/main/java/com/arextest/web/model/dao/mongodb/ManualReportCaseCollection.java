@@ -13,7 +13,7 @@ import java.util.List;
 @Document(collection = "ManualReportCase")
 public class ManualReportCaseCollection extends ModelBase {
     private List<ScriptBlockDao> preRequestScripts;
-    private String testScript;
+    private List<ScriptBlockDao> testScripts;
     private BodyDao body;
     private List<KeyValuePairDao> headers;
     private List<KeyValuePairDao> params;

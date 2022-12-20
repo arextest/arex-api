@@ -17,7 +17,7 @@ public class InterfaceItemDto implements Item {
     private Integer nodeType;
     private AddressDto address;
     private List<ScriptBlockDto> preRequestScripts;
-    private String testScript;
+    private List<ScriptBlockDto> testScripts;
     private BodyDto body;
     private List<KeyValuePairDto> headers;
     private List<KeyValuePairDto> params;
