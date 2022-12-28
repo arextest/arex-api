@@ -33,4 +33,16 @@ public abstract class AbstractComparisonDetailsConfiguration extends AbstractCon
     private int expirationType;
     private Date expirationDate;
 
+    /**
+     * the source of the configuration.
+     * 0 = from arex record
+     * 1 = from collections
+     */
+    private int compareConfigType;
+
+    /**
+     * This value is valid only when {compareConfigType} = 1
+     */
+    private String fsInterfaceId;
+
 }

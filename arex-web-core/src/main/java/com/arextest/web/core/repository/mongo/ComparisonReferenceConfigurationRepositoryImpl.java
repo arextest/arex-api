@@ -5,11 +5,14 @@ import com.arextest.web.core.repository.ConfigRepositoryField;
 import com.arextest.web.core.repository.ConfigRepositoryProvider;
 import com.arextest.web.core.repository.mongo.util.MongoHelper;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonReferenceConfiguration;
+import com.arextest.web.model.dao.mongodb.ConfigComparisonListSortCollection;
 import com.arextest.web.model.dao.mongodb.ConfigComparisonReferenceCollection;
+import com.arextest.web.model.mapper.ConfigComparisonListSortMapper;
 import com.arextest.web.model.mapper.ConfigComparisonReferenceMapper;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -35,6 +38,8 @@ public class ComparisonReferenceConfigurationRepositoryImpl implements
     private static final String FK_PATH = "fkPath";
     private static final String EXPIRATION_TYPE = "expirationType";
     private static final String EXPIRATION_DATE = "expirationDate";
+    private static final String FS_INTERFACE_ID = "fsInterfaceId";
+
 
 
     @Autowired
@@ -56,6 +61,22 @@ public class ComparisonReferenceConfigurationRepositoryImpl implements
         Query query = Query.query(Criteria.where(APP_ID).is(appId).and(OPERATION_ID).is(operationId));
         List<ConfigComparisonReferenceCollection> configComparisonReferenceCollections = mongoTemplate.find(query, ConfigComparisonReferenceCollection.class);
         return configComparisonReferenceCollections.stream().map(ConfigComparisonReferenceMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<ComparisonReferenceConfiguration> queryByInterfaceIdAndOperationId(String interfaceId,
+            String operationId) {
+        Query query = new Query();
+        if (StringUtils.isNotBlank(operationId)) {
+            query.addCriteria(new Criteria().orOperator(Criteria.where(FS_INTERFACE_ID).is(interfaceId),
+                    Criteria.where(OPERATION_ID).is(operationId)));
+        } else {
+            query.addCriteria(Criteria.where(FS_INTERFACE_ID).is(interfaceId));
+        }
+        List<ConfigComparisonReferenceCollection> configComparisonReferenceCollections =
+                mongoTemplate.find(query, ConfigComparisonReferenceCollection.class);
+        return configComparisonReferenceCollections.stream()
+                .map(ConfigComparisonReferenceMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
     }
 
     @Override

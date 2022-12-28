@@ -36,4 +36,16 @@ public class ComparisonListSortController extends AbstractConfigurableController
         }
         return ResponseUtils.successResponse(this.comparisonListSortConfigurableHandler.useResultAsList(appId, operationId));
     }
+
+    @RequestMapping("/queryByInterfaceIdAndOperationId")
+    @ResponseBody
+    public final Response queryByInterfaceIdAndOperationId(@RequestParam String interfaceId,
+            @RequestParam(required = false) String operationId) {
+        if (StringUtils.isEmpty(interfaceId)) {
+            return InvalidResponse.REQUESTED_INTERFACE_ID_IS_EMPTY;
+        }
+        return ResponseUtils.successResponse(this.comparisonListSortConfigurableHandler.queryByOperationIdAndInterfaceId(
+                interfaceId,
+                operationId));
+    }
 }

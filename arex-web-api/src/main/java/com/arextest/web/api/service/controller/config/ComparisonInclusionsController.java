@@ -34,4 +34,16 @@ public class ComparisonInclusionsController extends AbstractConfigurableControll
         }
         return ResponseUtils.successResponse(this.comparisonInclusionsConfigurableHandler.useResultAsList(appId, operationId));
     }
+
+    @RequestMapping("/queryByInterfaceIdAndOperationId")
+    @ResponseBody
+    public final Response queryByInterfaceIdAndOperationId(@RequestParam String interfaceId,
+            @RequestParam(required = false) String operationId) {
+        if (StringUtils.isEmpty(interfaceId)) {
+            return InvalidResponse.REQUESTED_INTERFACE_ID_IS_EMPTY;
+        }
+        return ResponseUtils.successResponse(this.comparisonInclusionsConfigurableHandler.queryByOperationIdAndInterfaceId(
+                interfaceId,
+                operationId));
+    }
 }

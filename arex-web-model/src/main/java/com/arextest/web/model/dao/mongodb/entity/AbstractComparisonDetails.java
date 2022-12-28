@@ -22,4 +22,8 @@ public abstract class AbstractComparisonDetails extends ModelBase {
     private int expirationType;
     @NonNull
     private Date expirationDate;
+
+    private int compareConfigType;
+
+    private String fsInterfaceId;
 }

@@ -5,11 +5,14 @@ import com.arextest.web.core.repository.ConfigRepositoryField;
 import com.arextest.web.core.repository.ConfigRepositoryProvider;
 import com.arextest.web.core.repository.mongo.util.MongoHelper;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonInclusionsConfiguration;
+import com.arextest.web.model.dao.mongodb.ConfigComparisonExclusionsCollection;
 import com.arextest.web.model.dao.mongodb.ConfigComparisonInclusionsCollection;
+import com.arextest.web.model.mapper.ConfigComparisonExclusionsMapper;
 import com.arextest.web.model.mapper.ConfigComparisonInclusionsMapper;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -31,6 +34,8 @@ public class ComparisonInclusionsConfigurationRepositoryImpl implements
     private static final String INCLUSIONS = "inclusions";
     private static final String EXPIRATION_TYPE = "expirationType";
     private static final String EXPIRATION_DATE = "expirationDate";
+    private static final String FS_INTERFACE_ID = "fsInterfaceId";
+
 
 
     @Autowired
@@ -54,6 +59,21 @@ public class ComparisonInclusionsConfigurationRepositoryImpl implements
         return configComparisonInclusionsCollections.stream().map(ConfigComparisonInclusionsMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
     }
 
+    @Override
+    public List<ComparisonInclusionsConfiguration> queryByInterfaceIdAndOperationId(String interfaceId,
+            String operationId) {
+        Query query = new Query();
+        if (StringUtils.isNotBlank(operationId)) {
+            query.addCriteria(new Criteria().orOperator(Criteria.where(FS_INTERFACE_ID).is(interfaceId),
+                    Criteria.where(OPERATION_ID).is(operationId)));
+        } else {
+            query.addCriteria(Criteria.where(FS_INTERFACE_ID).is(interfaceId));
+        }
+        List<ConfigComparisonInclusionsCollection> comparisonInclusionsConfigurations =
+                mongoTemplate.find(query, ConfigComparisonInclusionsCollection.class);
+        return comparisonInclusionsConfigurations.stream()
+                .map(ConfigComparisonInclusionsMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
+    }
     @Override
     public boolean update(ComparisonInclusionsConfiguration configuration) {
         Query query = Query.query(Criteria.where(DASH_ID).is(configuration.getId()));

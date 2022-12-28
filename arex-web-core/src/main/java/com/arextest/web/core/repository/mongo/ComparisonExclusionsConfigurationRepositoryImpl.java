@@ -10,6 +10,7 @@ import com.arextest.web.model.mapper.ConfigComparisonExclusionsMapper;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -34,6 +35,7 @@ public class ComparisonExclusionsConfigurationRepositoryImpl implements
     private static final String EXCLUSIONS = "exclusions";
     private static final String EXPIRATION_TYPE = "expirationType";
     private static final String EXPIRATION_DATE = "expirationDate";
+    private static final String FS_INTERFACE_ID = "fsInterfaceId";
 
 
     @Autowired
@@ -47,15 +49,37 @@ public class ComparisonExclusionsConfigurationRepositoryImpl implements
     @Override
     public List<ComparisonExclusionsConfiguration> listBy(String appId) {
         Query query = Query.query(Criteria.where(APP_ID).is(appId));
-        List<ConfigComparisonExclusionsCollection> configComparisonExclusionsCollections = mongoTemplate.find(query, ConfigComparisonExclusionsCollection.class);
-        return configComparisonExclusionsCollections.stream().map(ConfigComparisonExclusionsMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
+        List<ConfigComparisonExclusionsCollection> configComparisonExclusionsCollections =
+                mongoTemplate.find(query, ConfigComparisonExclusionsCollection.class);
+        return configComparisonExclusionsCollections.stream()
+                .map(ConfigComparisonExclusionsMapper.INSTANCE::dtoFromDao)
+                .collect(Collectors.toList());
     }
 
     @Override
     public List<ComparisonExclusionsConfiguration> listBy(String appId, String operationId) {
         Query query = Query.query(Criteria.where(APP_ID).is(appId).and(OPERATION_ID).is(operationId));
-        List<ConfigComparisonExclusionsCollection> configComparisonExclusionsCollections = mongoTemplate.find(query, ConfigComparisonExclusionsCollection.class);
-        return configComparisonExclusionsCollections.stream().map(ConfigComparisonExclusionsMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
+        List<ConfigComparisonExclusionsCollection> configComparisonExclusionsCollections =
+                mongoTemplate.find(query, ConfigComparisonExclusionsCollection.class);
+        return configComparisonExclusionsCollections.stream()
+                .map(ConfigComparisonExclusionsMapper.INSTANCE::dtoFromDao)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<ComparisonExclusionsConfiguration> queryByInterfaceIdAndOperationId(String interfaceId,
+            String operationId) {
+        Query query = new Query();
+        if (StringUtils.isNotBlank(operationId)) {
+            query.addCriteria(new Criteria().orOperator(Criteria.where(FS_INTERFACE_ID).is(interfaceId),
+                    Criteria.where(OPERATION_ID).is(operationId)));
+        } else {
+            query.addCriteria(Criteria.where(FS_INTERFACE_ID).is(interfaceId));
+        }
+        List<ConfigComparisonExclusionsCollection> configComparisonExclusionsCollections =
+                mongoTemplate.find(query, ConfigComparisonExclusionsCollection.class);
+        return configComparisonExclusionsCollections.stream()
+                .map(ConfigComparisonExclusionsMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
     }
 
     @Override
@@ -63,7 +87,8 @@ public class ComparisonExclusionsConfigurationRepositoryImpl implements
         Query query = Query.query(Criteria.where(DASH_ID).is(configuration.getId()));
         Update update = MongoHelper.getConfigUpdate();
         MongoHelper.appendSpecifiedProperties(update, configuration, EXCLUSIONS, EXPIRATION_TYPE, EXPIRATION_DATE);
-        UpdateResult updateResult = mongoTemplate.updateMulti(query, update, ConfigComparisonExclusionsCollection.class);
+        UpdateResult updateResult =
+                mongoTemplate.updateMulti(query, update, ConfigComparisonExclusionsCollection.class);
         return updateResult.getModifiedCount() > 0;
     }
 
@@ -76,7 +101,8 @@ public class ComparisonExclusionsConfigurationRepositoryImpl implements
 
     @Override
     public boolean insert(ComparisonExclusionsConfiguration configuration) {
-        ConfigComparisonExclusionsCollection configComparisonExclusionsCollection = ConfigComparisonExclusionsMapper.INSTANCE.daoFromDto(configuration);
+        ConfigComparisonExclusionsCollection configComparisonExclusionsCollection =
+                ConfigComparisonExclusionsMapper.INSTANCE.daoFromDto(configuration);
         ConfigComparisonExclusionsCollection insert = mongoTemplate.insert(configComparisonExclusionsCollection);
         if (insert.getId() != null) {
             configuration.setId(insert.getId());
@@ -92,7 +118,8 @@ public class ComparisonExclusionsConfigurationRepositoryImpl implements
         List<ConfigComparisonExclusionsCollection> comparisonExclusionsConfigurations = configurationList.stream()
                 .map(ConfigComparisonExclusionsMapper.INSTANCE::daoFromDto)
                 .collect(Collectors.toList());
-        Collection<ConfigComparisonExclusionsCollection> insertAll = mongoTemplate.insertAll(comparisonExclusionsConfigurations);
+        Collection<ConfigComparisonExclusionsCollection> insertAll =
+                mongoTemplate.insertAll(comparisonExclusionsConfigurations);
         return CollectionUtils.isNotEmpty(insertAll);
     }
 
