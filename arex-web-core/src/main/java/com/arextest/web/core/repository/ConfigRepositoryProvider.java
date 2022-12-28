@@ -23,6 +23,10 @@ public interface ConfigRepositoryProvider<T> {
         return null;
     }
 
+    default List<T> queryByInterfaceIdAndOperationId(String interfaceId,String operationId){
+        return null;
+    }
+
     default boolean insertList(List<T> configurationList) {
         if (CollectionUtils.isEmpty(configurationList)) {
             return false;

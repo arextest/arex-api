@@ -17,7 +17,8 @@ import java.util.stream.Collectors;
  * @author jmo
  * @since 2022/1/22
  */
-public abstract class AbstractComparisonConfigurableHandler<T extends AbstractComparisonDetailsConfiguration> extends AbstractConfigurableHandler<T> {
+public abstract class AbstractComparisonConfigurableHandler<T extends AbstractComparisonDetailsConfiguration>
+        extends AbstractConfigurableHandler<T> {
 
     protected AbstractComparisonConfigurableHandler(ConfigRepositoryProvider<T> repositoryProvider) {
         super(repositoryProvider);
@@ -34,6 +35,14 @@ public abstract class AbstractComparisonConfigurableHandler<T extends AbstractCo
 
     public List<T> useResultAsList(String appId, String operationId) {
         List<T> comparisonDetails = repositoryProvider.listBy(appId, operationId);
+        if (CollectionUtils.isNotEmpty(comparisonDetails)) {
+            comparisonDetails.removeIf(this::removeDetailsExpired);
+        }
+        return comparisonDetails;
+    }
+
+    public List<T> queryByOperationIdAndInterfaceId(String interfaceId, String operationId) {
+        List<T> comparisonDetails = repositoryProvider.queryByInterfaceIdAndOperationId(interfaceId, operationId);
         if (CollectionUtils.isNotEmpty(comparisonDetails)) {
             comparisonDetails.removeIf(this::removeDetailsExpired);
         }
