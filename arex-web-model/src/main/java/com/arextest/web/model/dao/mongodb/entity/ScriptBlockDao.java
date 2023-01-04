@@ -8,7 +8,7 @@ import lombok.Data;
  */
 @Data
 public class ScriptBlockDao {
-    private int type;
+    private String type;
     private String icon;
     private String label;
     private String value;

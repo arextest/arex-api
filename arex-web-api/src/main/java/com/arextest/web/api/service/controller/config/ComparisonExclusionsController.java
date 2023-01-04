@@ -28,10 +28,24 @@ public class ComparisonExclusionsController extends AbstractConfigurableControll
 
     @RequestMapping("/useResultAsList")
     @ResponseBody
-    public final Response useResultList(@RequestParam String appId, @RequestParam(required = false) String operationId) {
+    public final Response useResultList(@RequestParam String appId,
+            @RequestParam(required = false) String operationId) {
         if (StringUtils.isEmpty(appId)) {
             return InvalidResponse.REQUESTED_APP_ID_IS_EMPTY;
         }
-        return ResponseUtils.successResponse(this.comparisonExclusionsConfigurableHandler.useResultAsList(appId, operationId));
+        return ResponseUtils.successResponse(this.comparisonExclusionsConfigurableHandler.useResultAsList(appId,
+                operationId));
+    }
+
+    @RequestMapping("/queryByInterfaceIdAndOperationId")
+    @ResponseBody
+    public final Response queryByInterfaceIdAndOperationId(@RequestParam String interfaceId,
+            @RequestParam(required = false) String operationId) {
+        if (StringUtils.isEmpty(interfaceId)) {
+            return InvalidResponse.REQUESTED_INTERFACE_ID_IS_EMPTY;
+        }
+        return ResponseUtils.successResponse(this.comparisonExclusionsConfigurableHandler.queryByOperationIdAndInterfaceId(
+                interfaceId,
+                operationId));
     }
 }
