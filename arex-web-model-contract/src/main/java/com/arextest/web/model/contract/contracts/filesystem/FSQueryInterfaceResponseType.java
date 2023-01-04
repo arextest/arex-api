@@ -20,4 +20,5 @@ public class FSQueryInterfaceResponseType {
     private AuthType auth;
     private AddressType testAddress;
     private Map<String, Object> customTags;
+    private String operationId;
 }

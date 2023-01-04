@@ -22,4 +22,5 @@ public class FSSaveInterfaceRequestType {
     private AuthType auth;
     private AddressType testAddress;
     private Map<String, Object> customTags;
+    private String operationId;
 }
