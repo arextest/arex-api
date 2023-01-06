@@ -36,6 +36,7 @@ public class CompareController {
     }
 
     // Aggregate comparison of multiple cases
+    @Deprecated
     @PostMapping("/aggCompare")
     @ResponseBody
     public Response aggCompare(@RequestBody AggCompareRequestType request) {

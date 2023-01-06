@@ -1,5 +1,6 @@
 package com.arextest.web.core.business.compare;
 
+import com.arextest.diff.model.CompareOptions;
 import com.arextest.diff.model.CompareResult;
 import com.arextest.diff.sdk.CompareSDK;
 import com.arextest.web.core.business.ManualReportService;
@@ -7,11 +8,12 @@ import com.arextest.web.core.business.util.ListUtils;
 import com.arextest.web.core.repository.FSCaseRepository;
 import com.arextest.web.model.contract.contracts.common.LogEntity;
 import com.arextest.web.model.contract.contracts.common.NodeEntity;
+import com.arextest.web.model.contract.contracts.compare.CaseCompareResponseType;
 import com.arextest.web.model.contract.contracts.compare.DiffDetail;
 import com.arextest.web.model.contract.contracts.compare.ExceptionMsg;
 import com.arextest.web.model.contract.contracts.compare.MsgCombination;
-import com.arextest.web.model.contract.contracts.compare.CaseCompareResponseType;
 import com.arextest.web.model.contract.contracts.compare.QuickCompareResponseType;
+import com.arextest.web.model.contract.contracts.config.replay.ReplayConfiguration;
 import com.arextest.web.model.dto.filesystem.ComparisonMsgDto;
 import com.arextest.web.model.dto.filesystem.FSCaseDto;
 import com.arextest.web.model.dto.manualreport.SaveManualReportCaseDto;
@@ -44,7 +46,15 @@ public class CompareService {
 
     public QuickCompareResponseType quickCompare(MsgCombination msgCombination) {
         QuickCompareResponseType quickCompareResponseType = new QuickCompareResponseType();
-        CompareResult compareResult = compareSDK.compare(msgCombination.getBaseMsg(), msgCombination.getTestMsg());
+        ReplayConfiguration.ReplayComparisonConfig comparisonConfig = msgCombination.getComparisonConfig();
+        CompareOptions compareOptions = new CompareOptions();
+        if (comparisonConfig != null) {
+            compareOptions.putExclusions(comparisonConfig.getExclusionList());
+            compareOptions.putInclusions(comparisonConfig.getInclusionList());
+            compareOptions.putListSortConfig(comparisonConfig.getListSortMap());
+            compareOptions.putReferenceConfig(comparisonConfig.getReferenceMap());
+        }
+        CompareResult compareResult = compareSDK.compare(msgCombination.getBaseMsg(), msgCombination.getTestMsg(), compareOptions);
         quickCompareResponseType.setDiffResultCode(compareResult.getCode());
         quickCompareResponseType.setBaseMsg(compareResult.getProcessedBaseMsg());
         quickCompareResponseType.setTestMsg(compareResult.getProcessedTestMsg());
@@ -94,7 +104,19 @@ public class CompareService {
 
     public CaseCompareResponseType caseCompare(MsgCombination msgCombination) {
         CaseCompareResponseType caseCompareResponseType = new CaseCompareResponseType();
-        CompareResult compareResult = compareSDK.compare(msgCombination.getBaseMsg(), msgCombination.getTestMsg());
+        ReplayConfiguration.ReplayComparisonConfig comparisonConfig = msgCombination.getComparisonConfig();
+        CompareOptions compareOptions = new CompareOptions();
+        if (comparisonConfig != null) {
+            compareOptions.putExclusions(comparisonConfig.getExclusionList());
+            compareOptions.putInclusions(comparisonConfig.getInclusionList());
+            compareOptions.putListSortConfig(comparisonConfig.getListSortMap());
+            compareOptions.putReferenceConfig(comparisonConfig.getReferenceMap());
+        }
+
+        CompareResult compareResult = compareSDK.compare(
+                msgCombination.getBaseMsg(),
+                msgCombination.getTestMsg(),
+                compareOptions);
         caseCompareResponseType.setDiffResultCode(compareResult.getCode());
 
         FSCaseDto fsCaseDto = new FSCaseDto();
@@ -104,7 +126,8 @@ public class CompareService {
         comparisonMsgDto.setBaseMsg(compareResult.getProcessedBaseMsg());
         comparisonMsgDto.setTestMsg(compareResult.getProcessedTestMsg());
         if (compareResult.getLogs() != null) {
-            List<LogEntity> logs = compareResult.getLogs().stream().map(LogEntityMapper.INSTANCE::fromLogEntity).collect(Collectors.toList());
+            List<LogEntity> logs = compareResult.getLogs().stream()
+                    .map(LogEntityMapper.INSTANCE::fromLogEntity).collect(Collectors.toList());
             List<DiffDetail> diffDetails = getDiffDetails(logs);
             comparisonMsgDto.setDiffDetails(diffDetails);
         }
@@ -121,7 +144,8 @@ public class CompareService {
                 .collect(Collectors.groupingBy(item -> {
                     int leftSize = item.getPathPair().getLeftUnmatchedPath().size();
                     int rightSize = item.getPathPair().getRightUnmatchedPath().size();
-                    List<NodeEntity> path = leftSize > rightSize ? item.getPathPair().getLeftUnmatchedPath() : item.getPathPair().getRightUnmatchedPath();
+                    List<NodeEntity> path = leftSize > rightSize ? item.getPathPair().getLeftUnmatchedPath()
+                            : item.getPathPair().getRightUnmatchedPath();
                     return ListUtils.convertPathToFuzzyPath(path);
                 }, Collectors.groupingBy(item -> item.getPathPair().getUnmatchedType())));
 
