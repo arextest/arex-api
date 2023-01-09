@@ -28,4 +28,5 @@ public class FSInterfaceCollection extends ModelBase {
     private Integer parentNodeType;
     private Map<String, Object> customTags;
     private String operationId;
+    private String operationResponse;
 }

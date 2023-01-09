@@ -14,7 +14,6 @@ import java.util.Date;
 @Setter
 public abstract class AbstractComparisonDetails extends ModelBase {
 
-    @NonNull
     private String appId;
 
     private String operationId;

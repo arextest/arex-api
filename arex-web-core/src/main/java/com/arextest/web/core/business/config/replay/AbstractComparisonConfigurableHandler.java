@@ -59,9 +59,6 @@ public abstract class AbstractComparisonConfigurableHandler<T extends AbstractCo
 
     @Override
     public boolean insert(T comparisonDetail) {
-        if (StringUtils.isEmpty(comparisonDetail.getAppId())) {
-            return false;
-        }
 
         if (comparisonDetail.getExpirationDate() == null) {
             comparisonDetail.setExpirationDate(new Date());

@@ -23,4 +23,5 @@ public class FSSaveInterfaceRequestType {
     private AddressType testAddress;
     private Map<String, Object> customTags;
     private String operationId;
+    private String operationResponse;
 }
