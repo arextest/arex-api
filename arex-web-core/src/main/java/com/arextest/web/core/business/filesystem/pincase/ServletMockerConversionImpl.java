@@ -6,16 +6,11 @@ import com.arextest.web.model.dto.KeyValuePairDto;
 import com.arextest.web.model.dto.filesystem.AddressDto;
 import com.arextest.web.model.dto.filesystem.BodyDto;
 import com.arextest.web.model.dto.filesystem.FSCaseDto;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpMethod;
-import org.springframework.stereotype.Component;
 
-import javax.swing.text.html.parser.Entity;
-import java.security.Key;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -38,6 +33,7 @@ public class ServletMockerConversionImpl implements MockerConversion {
     public String getCategoryName() {
         return SERVLET;
     }
+
     @Override
     public FSCaseDto mockerConvertToFsCase(AREXMocker mocker) {
         if (mocker == null) {

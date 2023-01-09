@@ -1,36 +1,23 @@
 package com.arextest.web.core.business.filesystem.pincase;
 
-import cn.hutool.json.JSONUtil;
-import com.arextest.common.utils.SerializationUtils;
 import com.arextest.model.mock.AREXMocker;
 import com.arextest.model.mock.MockCategoryType;
 import com.arextest.model.replay.ViewRecordResponseType;
 import com.arextest.web.common.HttpUtils;
-import com.arextest.web.model.dto.KeyValuePairDto;
-import com.arextest.web.model.dto.filesystem.AddressDto;
-import com.arextest.web.model.dto.filesystem.BodyDto;
 import com.arextest.web.model.dto.filesystem.FSCaseDto;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Data;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Random;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Component
