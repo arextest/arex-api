@@ -47,7 +47,11 @@ public class LabelRepositoryImpl implements LabelRepository {
     }
     @Override
     public List<LabelDto> queryLabelsByWorkspaceId(String workspaceId) {
-        Query query = Query.query(Criteria.where(WORKSPACE_ID).is(workspaceId));
+        Query query = new Query();
+        query.addCriteria(new Criteria().orOperator(
+                Criteria.where(WORKSPACE_ID).is(workspaceId),
+                Criteria.where(WORKSPACE_ID).isNull()
+        ));
         List<LabelCollection> daos = mongoTemplate.find(query, LabelCollection.class);
         return daos.stream().map(LabelMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
     }
