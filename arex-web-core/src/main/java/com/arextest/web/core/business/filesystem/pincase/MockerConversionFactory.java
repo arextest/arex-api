@@ -1,7 +1,6 @@
 package com.arextest.web.core.business.filesystem.pincase;
 
 import org.springframework.stereotype.Component;
-import sun.misc.Cache;
 
 import java.util.Map;
 import java.util.ServiceLoader;
