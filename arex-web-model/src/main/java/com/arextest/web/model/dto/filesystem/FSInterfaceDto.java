@@ -17,4 +17,5 @@ public class FSInterfaceDto extends FSItemDto {
     private AddressDto testAddress;
     private String recordId;
     private String operationId;
+    private String operationResponse;
 }
