@@ -9,7 +9,7 @@ import java.util.List;
  * Created by rchen9 on 2023/1/9.
  */
 @Data
-public class FSInterfaceBaseDto extends FSItemDto {
+public class FSInterfaceAndCaseBaseDto extends FSItemDto {
     private AddressDto address;
     private List<ScriptBlockDto> preRequestScripts;
     private List<ScriptBlockDto> testScripts;
@@ -18,4 +18,5 @@ public class FSInterfaceBaseDto extends FSItemDto {
     private List<KeyValuePairDto> params;
     private AuthDto auth;
     private AddressDto testAddress;
+    private String recordId;
 }
