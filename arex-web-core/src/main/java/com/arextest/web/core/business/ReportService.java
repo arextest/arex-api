@@ -1,6 +1,6 @@
 package com.arextest.web.core.business;
 
-import com.arextest.web.core.business.config.replay.planfinish.PlanFinishedService;
+import com.arextest.web.core.business.listener.planfinish.PlanFinishedService;
 import com.arextest.web.core.repository.ReplayCompareResultRepository;
 import com.arextest.web.core.repository.ReportPlanItemStatisticRepository;
 import com.arextest.web.core.repository.ReportPlanStatisticRepository;
@@ -63,9 +63,7 @@ public class ReportService {
                         item.getTotalCaseCount());
             }
         }
-        if (request.getStatus() != null && request.getStatus().equals(ReplayStatusType.FINISHED)) {
-            planFinishedService.onPlanFinishEvent(planDto.getAppId(), request.getPlanId());
-        }
+        planFinishedService.onPlanFinishEvent(planDto.getAppId(), request.getPlanId(), request.getStatus());
         return true;
     }
 }

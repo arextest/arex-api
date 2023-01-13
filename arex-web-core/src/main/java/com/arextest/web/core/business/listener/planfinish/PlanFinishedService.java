@@ -1,4 +1,4 @@
-package com.arextest.web.core.business.config.replay.planfinish;
+package com.arextest.web.core.business.listener.planfinish;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Component;
@@ -22,12 +22,12 @@ public class PlanFinishedService {
         }
     }
 
-    public void onPlanFinishEvent(String appId, String planId) {
+    public void onPlanFinishEvent(String appId, String planId, Integer status) {
         if (CollectionUtils.isEmpty(this.planFinishedLinsteners)) {
             return;
         }
         for (PlanFinishedLinstener planFinishListener : this.planFinishedLinsteners) {
-            planFinishListener.planFinishedAction(appId, planId);
+            planFinishListener.planFinishedAction(appId, planId, status);
         }
     }
 }
