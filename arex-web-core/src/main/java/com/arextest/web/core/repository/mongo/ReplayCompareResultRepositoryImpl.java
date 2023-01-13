@@ -4,6 +4,7 @@ import com.arextest.web.core.repository.ReplayCompareResultRepository;
 import com.arextest.web.model.dao.mongodb.ReplayCompareResultCollection;
 import com.arextest.web.model.dto.CompareResultDto;
 import com.arextest.web.model.mapper.CompareResultMapper;
+import com.mongodb.client.result.DeleteResult;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -145,6 +146,13 @@ public class ReplayCompareResultRepositoryImpl implements ReplayCompareResultRep
         query.addCriteria(Criteria.where(RECORD_ID).is(recordId).and(PLAN_ITEM_ID).is(planItemId));
         List<ReplayCompareResultCollection> daos = mongoTemplate.find(query, ReplayCompareResultCollection.class);
         return daos.stream().map(CompareResultMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
+    }
+
+    @Override
+    public boolean deleteCompareResultsByPlanId(String planId) {
+        Query query = Query.query(Criteria.where(PLAN_ID).is(planId));
+        DeleteResult deleteResult = mongoTemplate.remove(query, ReplayCompareResultCollection.class);
+        return deleteResult.getDeletedCount() > 0;
     }
 
 

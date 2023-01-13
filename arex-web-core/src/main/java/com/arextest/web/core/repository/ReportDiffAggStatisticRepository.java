@@ -16,4 +16,6 @@ public interface ReportDiffAggStatisticRepository extends RepositoryProvider {
             String categoryName,
             String operationName,
             String diffName);
+
+    boolean deleteDiffAggByPlanId(String planId);
 }

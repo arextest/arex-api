@@ -45,11 +45,15 @@ import com.arextest.web.model.contract.contracts.QueryScenesResponseType;
 import com.arextest.web.model.contract.contracts.QuerySchemaForConfigRequestType;
 import com.arextest.web.model.contract.contracts.ReportInitialRequestType;
 import com.arextest.web.model.contract.contracts.ReportInitialResponseType;
+import com.arextest.web.model.contract.contracts.SuccessResponseType;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONException;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -218,7 +222,8 @@ public class ReportQueryController {
 
     @PostMapping("/downloadReplayMsg")
     @ResponseBody
-    public void downloadReplayMsg(@Valid @RequestBody DownloadReplayMsgRequestType request, HttpServletResponse response) {
+    public void downloadReplayMsg(@Valid @RequestBody DownloadReplayMsgRequestType request,
+            HttpServletResponse response) {
         queryReplayMsgService.downloadReplayMsg(request, response);
     }
 
@@ -241,6 +246,14 @@ public class ReportQueryController {
         if (StringUtils.isNotEmpty(request.getMsg())) {
             response = schemaInferService.schemaInferForConfig(request);
         }
+        return ResponseUtils.successResponse(response);
+    }
+
+    @GetMapping("/delete/{planId}")
+    @ResponseBody
+    public Response deleteReport(@PathVariable String planId) {
+        SuccessResponseType response = new SuccessResponseType();
+        response.setSuccess(reportService.deleteReport(planId));
         return ResponseUtils.successResponse(response);
     }
 }
