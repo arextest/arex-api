@@ -6,6 +6,7 @@ import com.arextest.web.model.dao.mongodb.ReportPlanItemStatisticCollection;
 import com.arextest.web.model.dto.PlanItemDto;
 import com.arextest.web.model.enums.ReplayStatusType;
 import com.arextest.web.model.mapper.PlanItemMapper;
+import com.mongodb.client.result.DeleteResult;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -181,6 +182,13 @@ public class ReportPlanItemStatisticRepositoryImpl implements ReportPlanItemStat
                         FindAndModifyOptions.options().returnNew(true).upsert(true),
                         ReportPlanItemStatisticCollection.class);
         return PlanItemMapper.INSTANCE.dtoFromDao(planItem);
+    }
+
+    @Override
+    public boolean deletePlanItemsByPlanId(String planId) {
+        Query query = Query.query(Criteria.where(PLAN_ID).is(planId));
+        DeleteResult deleteResult = mongoTemplate.remove(query, ReportPlanItemStatisticCollection.class);
+        return deleteResult.getDeletedCount() > 0;
     }
 
 }

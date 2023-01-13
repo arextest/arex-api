@@ -2,6 +2,7 @@ package com.arextest.web.core.business;
 
 import com.arextest.web.core.business.listener.planfinish.PlanFinishedService;
 import com.arextest.web.core.repository.ReplayCompareResultRepository;
+import com.arextest.web.core.repository.ReportDiffAggStatisticRepository;
 import com.arextest.web.core.repository.ReportPlanItemStatisticRepository;
 import com.arextest.web.core.repository.ReportPlanStatisticRepository;
 import com.arextest.web.model.contract.contracts.ChangeReplayStatusRequestType;
@@ -27,20 +28,22 @@ public class ReportService {
     @Resource
     private ReportPlanItemStatisticRepository planItemStatisticRepository;
     @Resource
+    private ReportDiffAggStatisticRepository reportDiffAggStatisticRepository;
+    @Resource
     private StatisticService statisticService;
     @Resource
     private SceneService sceneService;
     @Resource
     private PlanFinishedService planFinishedService;
 
-    
+
     public boolean saveCompareResults(PushCompareResultsRequestType request) {
         List<CompareResultDto> results = new ArrayList<>(request.getResults().size());
         for (CompareResult cr : request.getResults()) {
             results.add(CompareResultMapper.INSTANCE.dtoFromContract(cr));
         }
 
-        
+
         boolean success = replayCompareResultRepository.saveResults(results);
         if (!success) {
             return false;
@@ -52,7 +55,7 @@ public class ReportService {
         return true;
     }
 
-    
+
     public boolean changeReportStatus(ChangeReplayStatusRequestType request) {
         ReportPlanStatisticDto planDto = planStatisticRepository.changePlanStatus(request.getPlanId(),
                 request.getStatus(), request.getTotalCaseCount());
@@ -65,5 +68,12 @@ public class ReportService {
         }
         planFinishedService.onPlanFinishEvent(planDto.getAppId(), request.getPlanId(), request.getStatus());
         return true;
+    }
+
+    public boolean deleteReport(String planId) {
+        planItemStatisticRepository.deletePlanItemsByPlanId(planId);
+        reportDiffAggStatisticRepository.deleteDiffAggByPlanId(planId);
+        replayCompareResultRepository.deleteCompareResultsByPlanId(planId);
+        return planStatisticRepository.deletePlan(planId);
     }
 }

@@ -32,4 +32,6 @@ public interface ReportPlanStatisticRepository extends RepositoryProvider {
             String timeDate, String orderField, boolean desc);
 
     ReportPlanStatisticDto changePlanStatus(String planId, Integer status, Integer totalCaseCount);
+
+    boolean deletePlan(String planId);
 }

@@ -9,6 +9,7 @@ import com.arextest.web.model.dto.DifferenceDto;
 import com.arextest.web.model.dto.SceneDetailDto;
 import com.arextest.web.model.dto.SceneDto;
 import com.arextest.web.model.mapper.DiffAggMapper;
+import com.mongodb.client.result.DeleteResult;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
@@ -44,7 +45,7 @@ public class ReportDiffAggStatisticRepositoryImpl implements ReportDiffAggStatis
     @Resource
     private MongoTemplate mongoTemplate;
 
-    
+
     @Override
     public DiffAggDto updateDiffScenes(DiffAggDto dto) {
         if (dto == null) {
@@ -96,7 +97,7 @@ public class ReportDiffAggStatisticRepositoryImpl implements ReportDiffAggStatis
         return DiffAggMapper.INSTANCE.dtoFromDao(dao);
     }
 
-    
+
     @Override
     public List<DifferenceDto> queryDifferences(String planItemId, String categoryName, String operationName) {
         List<DifferenceDto> differenceDtos = new ArrayList<>();
@@ -123,7 +124,7 @@ public class ReportDiffAggStatisticRepositoryImpl implements ReportDiffAggStatis
             if (diffCaseCounts != null && diffCaseCounts.containsKey(k)) {
                 dto.setCaseCount(diffCaseCounts.get(k));
             } else {
-                
+
                 LOGGER.error("case count should not be zero");
                 dto.setCaseCount(0);
             }
@@ -133,7 +134,7 @@ public class ReportDiffAggStatisticRepositoryImpl implements ReportDiffAggStatis
         return differenceDtos;
     }
 
-    
+
     @Override
     public List<SceneDto> queryScenesByDifference(String planItemId,
             String categoryName,
@@ -162,5 +163,12 @@ public class ReportDiffAggStatisticRepositoryImpl implements ReportDiffAggStatis
             scenes.add(sceneDto);
         });
         return scenes;
+    }
+
+    @Override
+    public boolean deleteDiffAggByPlanId(String planId) {
+        Query query = Query.query(Criteria.where(PLAN_ID).is(planId));
+        DeleteResult deleteResult = mongoTemplate.remove(query, ReportDiffAggStatisticCollection.class);
+        return deleteResult.getDeletedCount() > 0;
     }
 }

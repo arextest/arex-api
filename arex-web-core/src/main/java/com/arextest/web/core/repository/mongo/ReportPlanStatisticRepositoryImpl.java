@@ -8,6 +8,7 @@ import com.arextest.web.model.dto.LatestDailySuccessPlanIdDto;
 import com.arextest.web.model.dto.ReportPlanStatisticDto;
 import com.arextest.web.model.mapper.PlanMapper;
 import com.mongodb.BasicDBObject;
+import com.mongodb.client.result.DeleteResult;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.MutablePair;
@@ -321,6 +322,13 @@ public class ReportPlanStatisticRepositoryImpl implements ReportPlanStatisticRep
                         FindAndModifyOptions.options().returnNew(true).upsert(true),
                         ReportPlanStatisticCollection.class);
         return PlanMapper.INSTANCE.dtoFromDao(plan);
+    }
+
+    @Override
+    public boolean deletePlan(String planId) {
+        Query query = Query.query(Criteria.where(PLAN_ID).is(planId));
+        DeleteResult deleteResult = mongoTemplate.remove(query, ReportPlanStatisticCollection.class);
+        return deleteResult.getDeletedCount() > 0;
     }
 
     private Query fillFilterConditions(QueryPlanStatisticsRequestType request) {
