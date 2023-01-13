@@ -1,5 +1,6 @@
 package com.arextest.web.core.business;
 
+import com.arextest.web.core.business.listener.planfinish.PlanFinishedService;
 import com.arextest.web.core.repository.ReplayCompareResultRepository;
 import com.arextest.web.core.repository.ReportPlanItemStatisticRepository;
 import com.arextest.web.core.repository.ReportPlanStatisticRepository;
@@ -8,6 +9,7 @@ import com.arextest.web.model.contract.contracts.PushCompareResultsRequestType;
 import com.arextest.web.model.contract.contracts.common.CompareResult;
 import com.arextest.web.model.dto.CompareResultDto;
 import com.arextest.web.model.dto.ReportPlanStatisticDto;
+import com.arextest.web.model.enums.ReplayStatusType;
 import com.arextest.web.model.mapper.CompareResultMapper;
 import org.springframework.stereotype.Component;
 
@@ -28,6 +30,8 @@ public class ReportService {
     private StatisticService statisticService;
     @Resource
     private SceneService sceneService;
+    @Resource
+    private PlanFinishedService planFinishedService;
 
     
     public boolean saveCompareResults(PushCompareResultsRequestType request) {
@@ -59,6 +63,7 @@ public class ReportService {
                         item.getTotalCaseCount());
             }
         }
+        planFinishedService.onPlanFinishEvent(planDto.getAppId(), request.getPlanId(), request.getStatus());
         return true;
     }
 }
