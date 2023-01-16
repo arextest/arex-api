@@ -539,7 +539,7 @@ public class FileSystemService {
     }
 
     public FSQueryCaseResponseType queryCase(FSQueryCaseRequestType request) {
-        FSCaseDto dto = fsCaseRepository.queryCase(request.getId());
+        FSCaseDto dto = fsCaseRepository.queryCase(request.getId(), request.isGetCompareMsg());
         if (dto == null) {
             return new FSQueryCaseResponseType();
         }

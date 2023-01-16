@@ -11,7 +11,5 @@ import java.util.List;
 @Data
 public class ComparisonMsgType {
     private int diffResultCode;
-    private String baseMsg;
-    private String testMsg;
     private List<DiffDetail> diffDetails;
 }

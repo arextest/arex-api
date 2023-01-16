@@ -24,6 +24,8 @@ import java.util.stream.Collectors;
 @Component
 public class FSCaseRepositoryImpl implements FSCaseRepository {
 
+    private static final String COMPARISON_MSG = "comparisonMsg";
+
     @Resource
     private MongoTemplate mongoTemplate;
 
@@ -90,8 +92,12 @@ public class FSCaseRepositoryImpl implements FSCaseRepository {
 
 
     @Override
-    public FSCaseDto queryCase(String id) {
-        FSCaseCollection dao = mongoTemplate.findById(new ObjectId(id), FSCaseCollection.class);
+    public FSCaseDto queryCase(String id, boolean getCompareMsg) {
+        Query query = Query.query(Criteria.where(DASH_ID).is(id));
+        if (!getCompareMsg) {
+            query.fields().exclude(COMPARISON_MSG);
+        }
+        FSCaseCollection dao = mongoTemplate.findOne(query, FSCaseCollection.class);
         if (dao == null) {
             return null;
         }
@@ -99,9 +105,12 @@ public class FSCaseRepositoryImpl implements FSCaseRepository {
     }
 
     @Override
-    public List<FSItemDto> queryCases(List<String> ids) {
+    public List<FSItemDto> queryCases(List<String> ids, boolean getCompareMsg) {
         List<ObjectId> objectIds = ids.stream().map(id -> new ObjectId(id)).collect(Collectors.toList());
         Query query = Query.query(Criteria.where(DASH_ID).in(objectIds));
+        if (!getCompareMsg) {
+            query.fields().exclude(COMPARISON_MSG);
+        }
         List<FSCaseCollection> daos = mongoTemplate.find(query, FSCaseCollection.class);
         return daos.stream().map(FSCaseMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
     }

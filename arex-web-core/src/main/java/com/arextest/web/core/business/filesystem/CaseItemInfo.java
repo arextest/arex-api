@@ -34,7 +34,7 @@ public class CaseItemInfo implements ItemInfo {
     }
     @Override
     public String duplicate(String parentId, String infoId, String name) {
-        FSCaseDto dto = fsCaseRepository.queryCase(infoId);
+        FSCaseDto dto = fsCaseRepository.queryCase(infoId, false);
         dto.setId(null);
         dto.setParentId(parentId);
         dto.setName(name);
@@ -42,10 +42,10 @@ public class CaseItemInfo implements ItemInfo {
     }
     @Override
     public List<FSItemDto> queryByIds(List<String> ids) {
-        return fsCaseRepository.queryCases(ids);
+        return fsCaseRepository.queryCases(ids, false);
     }
     @Override
     public FSItemDto queryById(String id) {
-        return fsCaseRepository.queryCase(id);
+        return fsCaseRepository.queryCase(id, false);
     }
 }

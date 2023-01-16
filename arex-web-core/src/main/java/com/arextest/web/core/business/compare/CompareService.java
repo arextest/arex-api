@@ -103,6 +103,7 @@ public class CompareService {
 
 
     public CaseCompareResponseType caseCompare(MsgCombination msgCombination) {
+        long start = System.currentTimeMillis();
         CaseCompareResponseType caseCompareResponseType = new CaseCompareResponseType();
         ReplayConfiguration.ReplayComparisonConfig comparisonConfig = msgCombination.getComparisonConfig();
         CompareOptions compareOptions = new CompareOptions();
@@ -118,6 +119,8 @@ public class CompareService {
                 msgCombination.getTestMsg(),
                 compareOptions);
         caseCompareResponseType.setDiffResultCode(compareResult.getCode());
+        caseCompareResponseType.setErrCount(compareResult.getLogs() != null ?
+                compareResult.getLogs().size() : 0);
 
         FSCaseDto fsCaseDto = new FSCaseDto();
         fsCaseDto.setId(msgCombination.getCaseId());
@@ -133,6 +136,7 @@ public class CompareService {
         }
         fsCaseDto.setComparisonMsg(comparisonMsgDto);
         fsCaseRepository.updateCase(fsCaseDto);
+        caseCompareResponseType.setCostTime(System.currentTimeMillis() - start);
 
         return caseCompareResponseType;
     }

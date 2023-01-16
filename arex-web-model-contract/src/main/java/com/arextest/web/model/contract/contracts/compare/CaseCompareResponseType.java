@@ -8,4 +8,6 @@ import lombok.Data;
 @Data
 public class CaseCompareResponseType {
     private int diffResultCode;
+    private long costTime;
+    private int errCount;
 }
