@@ -5,4 +5,5 @@ import lombok.Data;
 @Data
 public class FSQueryCaseRequestType {
     private String id;
+    private boolean getCompareMsg;
 }

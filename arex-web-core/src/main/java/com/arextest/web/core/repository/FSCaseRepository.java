@@ -18,9 +18,9 @@ public interface FSCaseRepository extends RepositoryProvider {
 
     boolean updateCase(FSCaseDto dto);
 
-    FSCaseDto queryCase(String id);
+    FSCaseDto queryCase(String id, boolean getCompareMsg);
 
-    List<FSItemDto> queryCases(List<String> ids);
+    List<FSItemDto> queryCases(List<String> ids, boolean getCompareMsg);
 
     String duplicate(FSCaseDto dto);
 }

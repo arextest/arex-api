@@ -50,7 +50,7 @@ public class ManualReportService {
         InitManualReportResponseType response = new InitManualReportResponseType();
         response.setInterfaces(new ArrayList<>());
 
-        List<FSItemDto> cases = fsCaseRepository.queryCases(request.getCaseIds());
+        List<FSItemDto> cases = fsCaseRepository.queryCases(request.getCaseIds(), false);
         Map<String, List<FSCaseDto>> caseMap =
                 cases.stream().map(c -> (FSCaseDto) c).collect(Collectors.groupingBy(FSCaseDto::getParentId));
         Set<String> interfaceIds = caseMap.keySet();
