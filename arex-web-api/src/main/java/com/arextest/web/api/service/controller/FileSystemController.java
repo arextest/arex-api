@@ -8,6 +8,7 @@ import com.arextest.web.common.Tuple;
 import com.arextest.web.core.business.filesystem.FileSystemService;
 import com.arextest.web.core.business.filesystem.RolePermission;
 import com.arextest.web.model.contract.contracts.SuccessResponseType;
+import com.arextest.web.model.contract.contracts.filesystem.ChangeRoleRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.FSAddItemFromRecordRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.FSAddItemFromRecordResponseType;
 import com.arextest.web.model.contract.contracts.filesystem.FSAddItemRequestType;
@@ -47,6 +48,7 @@ import com.arextest.web.model.contract.contracts.filesystem.FSSaveInterfaceRespo
 import com.arextest.web.model.contract.contracts.filesystem.InviteToWorkspaceRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.InviteToWorkspaceResponseType;
 import com.arextest.web.model.contract.contracts.filesystem.LeaveWorkspaceRequestType;
+import com.arextest.web.model.contract.contracts.filesystem.RemoveUserFromWorkspaceType;
 import com.arextest.web.model.contract.contracts.filesystem.ValidInvitationRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.ValidInvitationResponseType;
 import lombok.extern.slf4j.Slf4j;
@@ -58,6 +60,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.yaml.snakeyaml.scanner.Constant;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
@@ -77,7 +80,7 @@ public class FileSystemController {
     @PostMapping("/addItem")
     @ResponseBody
     public Response addItem(@RequestHeader(name = Constants.ACCESS_TOKEN) String token,
-                            @Valid @RequestBody FSAddItemRequestType request) {
+            @Valid @RequestBody FSAddItemRequestType request) {
         if (StringUtils.isNotEmpty(request.getId()) &&
                 !rolePermission.checkPermissionByToken(RolePermission.EDIT_ITEM,
                         token,
@@ -91,7 +94,7 @@ public class FileSystemController {
     @PostMapping("/removeItem")
     @ResponseBody
     public Response removeItem(@RequestHeader(name = Constants.ACCESS_TOKEN) String token,
-                               @Valid @RequestBody FSRemoveItemRequestType request) {
+            @Valid @RequestBody FSRemoveItemRequestType request) {
         if (!rolePermission.checkPermissionByToken(RolePermission.EDIT_ITEM, token, request.getId())) {
             return ResponseUtils.errorResponse(Constants.NO_PERMISSION, ResponseCode.AUTHENTICATION_FAILED);
         }
@@ -103,7 +106,7 @@ public class FileSystemController {
     @PostMapping("/rename")
     @ResponseBody
     public Response rename(@RequestHeader(name = Constants.ACCESS_TOKEN) String token,
-                           @Valid @RequestBody FSRenameRequestType request) {
+            @Valid @RequestBody FSRenameRequestType request) {
         if (!rolePermission.checkPermissionByToken(RolePermission.EDIT_ITEM, token, request.getId())) {
             return ResponseUtils.errorResponse(Constants.NO_PERMISSION, ResponseCode.AUTHENTICATION_FAILED);
         }
@@ -116,7 +119,7 @@ public class FileSystemController {
     @PostMapping("/duplicate")
     @ResponseBody
     public Response duplicate(@RequestHeader(name = Constants.ACCESS_TOKEN) String token,
-                              @Valid @RequestBody FSDuplicateRequestType request) {
+            @Valid @RequestBody FSDuplicateRequestType request) {
         if (!rolePermission.checkPermissionByToken(RolePermission.EDIT_ITEM, token, request.getId())) {
             return ResponseUtils.errorResponse(Constants.NO_PERMISSION, ResponseCode.AUTHENTICATION_FAILED);
         }
@@ -143,7 +146,7 @@ public class FileSystemController {
     @PostMapping("/deleteWorkspace")
     @ResponseBody
     public Response deleteWorkspace(@RequestHeader(name = Constants.ACCESS_TOKEN) String token,
-                                    @Valid @RequestBody FSDeleteWorkspaceRequestType request) {
+            @Valid @RequestBody FSDeleteWorkspaceRequestType request) {
         if (!rolePermission.checkPermissionByToken(RolePermission.EDIT_WORKSPACE,
                 token,
                 request.getWorkspaceId())) {
@@ -157,7 +160,7 @@ public class FileSystemController {
     @PostMapping("/renameWorkspace")
     @ResponseBody
     public Response renameWorkspace(@RequestHeader(name = Constants.ACCESS_TOKEN) String token,
-                                    @Valid @RequestBody FSRenameWorkspaceRequestType request) {
+            @Valid @RequestBody FSRenameWorkspaceRequestType request) {
         if (!rolePermission.checkPermissionByToken(RolePermission.EDIT_WORKSPACE, token, request.getId())) {
             return ResponseUtils.errorResponse(Constants.NO_PERMISSION, ResponseCode.AUTHENTICATION_FAILED);
         }
@@ -169,7 +172,7 @@ public class FileSystemController {
     @PostMapping("/queryWorkspaceById")
     @ResponseBody
     public Response queryWorkspaceById(@RequestHeader(name = Constants.ACCESS_TOKEN) String token,
-                                       @RequestBody FSQueryWorkspaceRequestType request) {
+            @RequestBody FSQueryWorkspaceRequestType request) {
         if (!rolePermission.checkPermissionByToken(RolePermission.VIEW_WORKSPACE, token, request.getId())) {
             return ResponseUtils.errorResponse(Constants.NO_PERMISSION, ResponseCode.AUTHENTICATION_FAILED);
         }
@@ -236,7 +239,7 @@ public class FileSystemController {
     @PostMapping("/inviteToWorkspace")
     @ResponseBody
     public Response inviteToWorkspace(@RequestHeader(name = Constants.ACCESS_TOKEN) String token,
-                                      @Valid @RequestBody InviteToWorkspaceRequestType request) {
+            @Valid @RequestBody InviteToWorkspaceRequestType request) {
         if (!rolePermission.checkPermissionByToken(RolePermission.INVITE_TO_WORKSPACE,
                 token,
                 request.getWorkspaceId())) {
@@ -246,17 +249,45 @@ public class FileSystemController {
         return ResponseUtils.successResponse(response);
     }
 
+    @PostMapping("/removeUserFromWorkspace")
+    @ResponseBody
+    public Response removeUserFromWorkspace(@RequestHeader(name = Constants.ACCESS_TOKEN) String token,
+            @Valid @RequestBody RemoveUserFromWorkspaceType request) {
+        if (!rolePermission.checkPermissionByToken(RolePermission.EDIT_WORKSPACE,
+                token,
+                request.getWorkspaceId())) {
+            return ResponseUtils.errorResponse(Constants.NO_PERMISSION, ResponseCode.AUTHENTICATION_FAILED);
+        }
+        SuccessResponseType response = new SuccessResponseType();
+        response.setSuccess(fileSystemService.leaveWorkspace(request.getUserName(), request.getWorkspaceId()));
+        return ResponseUtils.successResponse(response);
+    }
+
+    @PostMapping("/changeRole")
+    @ResponseBody
+    public Response changeRole(@RequestHeader(name = Constants.ACCESS_TOKEN) String token,
+            @Valid @RequestBody ChangeRoleRequestType request) {
+        if (!rolePermission.checkPermissionByToken(RolePermission.EDIT_WORKSPACE,
+                token,
+                request.getWorkspaceId())) {
+            return ResponseUtils.errorResponse(Constants.NO_PERMISSION, ResponseCode.AUTHENTICATION_FAILED);
+        }
+        SuccessResponseType response = new SuccessResponseType();
+        response.setSuccess(fileSystemService.changeRole(request));
+        return ResponseUtils.successResponse(response);
+    }
+
     @PostMapping("/leaveWorkspace")
     @ResponseBody
     public Response leaveWorkspace(@RequestHeader(name = Constants.ACCESS_TOKEN) String token,
-                                   @Valid @RequestBody LeaveWorkspaceRequestType request) {
+            @Valid @RequestBody LeaveWorkspaceRequestType request) {
         String userName = JwtUtil.getUserName(token);
         if (StringUtils.isEmpty(userName)) {
             return ResponseUtils.errorResponse("Incorrect token. Please login again.",
                     ResponseCode.REQUESTED_PARAMETER_INVALID);
         }
         SuccessResponseType response = new SuccessResponseType();
-        response.setSuccess(fileSystemService.leaveWorkspace(request));
+        response.setSuccess(fileSystemService.leaveWorkspace(userName, request.getWorkspaceId()));
         return ResponseUtils.successResponse(response);
     }
 
