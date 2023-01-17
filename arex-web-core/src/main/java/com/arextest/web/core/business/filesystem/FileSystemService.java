@@ -13,6 +13,7 @@ import com.arextest.web.core.repository.FSInterfaceRepository;
 import com.arextest.web.core.repository.FSTreeRepository;
 import com.arextest.web.core.repository.UserRepository;
 import com.arextest.web.core.repository.UserWorkspaceRepository;
+import com.arextest.web.model.contract.contracts.filesystem.ChangeRoleRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.FSAddItemFromRecordRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.FSAddItemRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.FSAddItemResponseType;
@@ -592,8 +593,18 @@ public class FileSystemService {
         return response;
     }
 
-    public Boolean leaveWorkspace(LeaveWorkspaceRequestType request) {
-        return userWorkspaceRepository.remove(request.getUserName(), request.getWorkspaceId());
+    public boolean leaveWorkspace(String userName, String workspaceId) {
+        return userWorkspaceRepository.remove(userName, workspaceId);
+    }
+
+    public boolean changeRole(ChangeRoleRequestType request) {
+        UserWorkspaceDto dto = UserWorkspaceMapper.INSTANCE.dtoFromContract(request);
+        try {
+            userWorkspaceRepository.update(dto);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     public ValidInvitationResponseType validInvitation(ValidInvitationRequestType request) {
