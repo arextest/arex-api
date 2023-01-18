@@ -1,7 +1,9 @@
 package com.arextest.web.core.business.filesystem;
 
 import com.arextest.web.common.Tuple;
+import com.arextest.web.model.dto.filesystem.FSItemDto;
 import com.arextest.web.model.dto.filesystem.FSNodeDto;
+import com.arextest.web.model.dto.filesystem.FSTreeDto;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayDeque;
@@ -76,5 +78,9 @@ public class FileSystemUtils {
             }
         }
         return null;
+    }
+
+    public void traceLog(int traceType, String userName, FSNodeDto node, List<FSItemDto> items) {
+
     }
 }

@@ -57,6 +57,7 @@ import com.arextest.web.model.dto.UserDto;
 import com.arextest.web.model.dto.WorkspaceDto;
 import com.arextest.web.model.dto.filesystem.FSCaseDto;
 import com.arextest.web.model.dto.filesystem.FSFolderDto;
+import com.arextest.web.model.dto.filesystem.FSInterfaceAndCaseBaseDto;
 import com.arextest.web.model.dto.filesystem.FSInterfaceDto;
 import com.arextest.web.model.dto.filesystem.FSItemDto;
 import com.arextest.web.model.dto.filesystem.FSNodeDto;
@@ -700,7 +701,7 @@ public class FileSystemService {
             return false;
         }
         FSItemDto itemDto = itemInfo.queryById(request.getInfoId());
-        FSInterfaceDto interfaceDto = (FSInterfaceDto) itemDto;
+        FSInterfaceAndCaseBaseDto interfaceDto = (FSInterfaceAndCaseBaseDto) itemDto;
         interfaceDto.setRecordId(newRecordId);
         if (interfaceDto.getHeaders() == null) {
             interfaceDto.setHeaders(new ArrayList<>());
