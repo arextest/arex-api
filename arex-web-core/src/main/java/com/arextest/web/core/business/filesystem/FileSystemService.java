@@ -344,14 +344,12 @@ public class FileSystemService {
             Integer toIndex = request.getToIndex() == null ? 0 : request.getToIndex();
             if (toParent == null) {
                 treeDto.getRoots().add(toIndex, current.y);
-                // 将parentId设为空
                 updateParentId(current.y, "");
             } else {
                 if (toParent.getChildren() == null) {
                     toParent.setChildren(new ArrayList<>());
                 }
                 toParent.getChildren().add(toIndex, current.y);
-                // 将parentId设置为to的最后一个
                 updateParentId(current.y, request.getToParentPath()[request.getToParentPath().length - 1]);
             }
             if (fromParent == null && toParent == null) {
