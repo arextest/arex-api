@@ -48,7 +48,6 @@ import com.arextest.web.model.contract.contracts.filesystem.FSSaveInterfaceRespo
 import com.arextest.web.model.contract.contracts.filesystem.FSTreeType;
 import com.arextest.web.model.contract.contracts.filesystem.InviteToWorkspaceRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.InviteToWorkspaceResponseType;
-import com.arextest.web.model.contract.contracts.filesystem.LeaveWorkspaceRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.UserType;
 import com.arextest.web.model.contract.contracts.filesystem.ValidInvitationRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.ValidInvitationResponseType;
@@ -345,11 +344,13 @@ public class FileSystemService {
             Integer toIndex = request.getToIndex() == null ? 0 : request.getToIndex();
             if (toParent == null) {
                 treeDto.getRoots().add(toIndex, current.y);
+                updateParentId(current.y, "");
             } else {
                 if (toParent.getChildren() == null) {
                     toParent.setChildren(new ArrayList<>());
                 }
                 toParent.getChildren().add(toIndex, current.y);
+                updateParentId(current.y, request.getToParentPath()[request.getToParentPath().length - 1]);
             }
             if (fromParent == null && toParent == null) {
                 if (request.getToIndex() < current.x) {
@@ -814,6 +815,18 @@ public class FileSystemService {
             }
         }
         return dto;
+    }
+
+    private void updateParentId(FSNodeDto fsNodeDto, String parentId) {
+        if (fsNodeDto == null) {
+            return;
+        }
+        ItemInfo itemInfo = itemInfoFactory.getItemInfo(fsNodeDto.getNodeType());
+        FSItemDto fsItemDto = itemInfo.queryById(fsNodeDto.getInfoId());
+        if (fsItemDto != null) {
+            fsItemDto.setParentId(parentId);
+            itemInfo.saveItem(fsItemDto);
+        }
     }
 
     private Boolean sendInviteEmail(String invitor, String invitee, String workspaceId, String token) {
