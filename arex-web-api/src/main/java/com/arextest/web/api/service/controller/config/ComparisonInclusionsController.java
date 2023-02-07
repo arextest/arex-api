@@ -7,8 +7,6 @@ import com.arextest.web.core.business.config.ConfigurableHandler;
 import com.arextest.web.core.business.config.replay.ComparisonInclusionsConfigurableHandler;
 import com.arextest.web.core.business.filesystem.FileSystemService;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonInclusionsConfiguration;
-import com.arextest.web.model.contract.contracts.filesystem.FSQueryInterfaceRequestType;
-import com.arextest.web.model.contract.contracts.filesystem.FSQueryInterfaceResponseType;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -57,21 +55,12 @@ public class ComparisonInclusionsController extends AbstractConfigurableControll
 
     @RequestMapping("/queryByInterfaceId")
     @ResponseBody
-    public final Response queryByInterfaceIdAndOperationId(@RequestParam String interfaceId) {
+    public final Response queryByInterfaceId(@RequestParam String interfaceId) {
         if (StringUtils.isEmpty(interfaceId)) {
             return InvalidResponse.REQUESTED_INTERFACE_ID_IS_EMPTY;
         }
-
-        // get operationId
-        FSQueryInterfaceRequestType fsQueryInterfaceRequestType = new FSQueryInterfaceRequestType();
-        fsQueryInterfaceRequestType.setId(interfaceId);
-        FSQueryInterfaceResponseType fsQueryInterfaceResponseType =
-                fileSystemService.queryInterface(fsQueryInterfaceRequestType);
-        String operationId = fsQueryInterfaceResponseType.getOperationId();
-
         return ResponseUtils.successResponse(
-                this.comparisonInclusionsConfigurableHandler.queryByOperationIdAndInterfaceId(
-                        interfaceId, operationId));
+                this.comparisonInclusionsConfigurableHandler.queryByInterfaceId(interfaceId));
     }
 
 }
