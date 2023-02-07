@@ -6,12 +6,16 @@ import com.arextest.web.core.business.config.replay.ComparisonExclusionsConfigur
 import com.arextest.web.core.business.config.replay.ComparisonInclusionsConfigurableHandler;
 import com.arextest.web.core.business.config.replay.ComparisonListSortConfigurableHandler;
 import com.arextest.web.core.business.config.replay.ComparisonReferenceConfigurableHandler;
+import com.arextest.web.core.business.filesystem.FileSystemService;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonExclusionsConfiguration;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonInclusionsConfiguration;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonListSortConfiguration;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonReferenceConfiguration;
 import com.arextest.web.model.contract.contracts.config.replay.ReplayConfiguration;
+import com.arextest.web.model.contract.contracts.filesystem.FSQueryInterfaceRequestType;
+import com.arextest.web.model.contract.contracts.filesystem.FSQueryInterfaceResponseType;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -34,6 +38,9 @@ import java.util.Set;
 public class ComparisonSummaryController {
 
     @Resource
+    FileSystemService fileSystemService;
+
+    @Resource
     ComparisonExclusionsConfigurableHandler comparisonExclusionsConfigurableHandler;
     @Resource
     ComparisonInclusionsConfigurableHandler comparisonInclusionsConfigurableHandler;
@@ -42,7 +49,7 @@ public class ComparisonSummaryController {
     @Resource
     ComparisonListSortConfigurableHandler comparisonListSortConfigurableHandler;
 
-
+    @Deprecated
     @RequestMapping("/queryByInterfaceIdAndOperationId")
     @ResponseBody
     public Response queryByInterfaceIdAndOperationId(@RequestParam String interfaceId,
@@ -50,6 +57,28 @@ public class ComparisonSummaryController {
 
         ReplayConfiguration.ReplayComparisonConfig replayComparisonConfig =
                 new ReplayConfiguration.ReplayComparisonConfig();
+        getComparisonExclusionsConfiguration(interfaceId, operationId, replayComparisonConfig);
+        getComparisonInclusionsConfiguration(interfaceId, operationId, replayComparisonConfig);
+        getComparisonReferenceConfiguration(interfaceId, operationId, replayComparisonConfig);
+        getComparisonListSortConfiguration(interfaceId, operationId, replayComparisonConfig);
+        return ResponseUtils.successResponse(replayComparisonConfig);
+    }
+
+    @RequestMapping("/queryByInterfaceId")
+    @ResponseBody
+    public final Response queryByInterfaceIdAndOperationId(@RequestParam String interfaceId) {
+        if (StringUtils.isEmpty(interfaceId)) {
+            return InvalidResponse.REQUESTED_INTERFACE_ID_IS_EMPTY;
+        }
+        ReplayConfiguration.ReplayComparisonConfig replayComparisonConfig =
+                new ReplayConfiguration.ReplayComparisonConfig();
+
+        // get operationId
+        FSQueryInterfaceRequestType fsQueryInterfaceRequestType = new FSQueryInterfaceRequestType();
+        fsQueryInterfaceRequestType.setId(interfaceId);
+        FSQueryInterfaceResponseType fsQueryInterfaceResponseType = fileSystemService.queryInterface(fsQueryInterfaceRequestType);
+        String operationId = fsQueryInterfaceResponseType.getOperationId();
+
         getComparisonExclusionsConfiguration(interfaceId, operationId, replayComparisonConfig);
         getComparisonInclusionsConfiguration(interfaceId, operationId, replayComparisonConfig);
         getComparisonReferenceConfiguration(interfaceId, operationId, replayComparisonConfig);

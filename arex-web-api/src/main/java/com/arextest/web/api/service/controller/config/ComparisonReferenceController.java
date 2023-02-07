@@ -2,9 +2,12 @@ package com.arextest.web.api.service.controller.config;
 
 import com.arextest.common.model.response.Response;
 import com.arextest.common.utils.ResponseUtils;
-import com.arextest.web.core.business.config.replay.ComparisonReferenceConfigurableHandler;
 import com.arextest.web.core.business.config.ConfigurableHandler;
+import com.arextest.web.core.business.config.replay.ComparisonReferenceConfigurableHandler;
+import com.arextest.web.core.business.filesystem.FileSystemService;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonReferenceConfiguration;
+import com.arextest.web.model.contract.contracts.filesystem.FSQueryInterfaceRequestType;
+import com.arextest.web.model.contract.contracts.filesystem.FSQueryInterfaceResponseType;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -25,6 +28,9 @@ public class ComparisonReferenceController extends AbstractConfigurableControlle
     }
 
     @Resource
+    FileSystemService fileSystemService;
+
+    @Resource
     ComparisonReferenceConfigurableHandler comparisonReferenceConfigurableHandler;
 
     @RequestMapping("/useResultAsList")
@@ -33,18 +39,41 @@ public class ComparisonReferenceController extends AbstractConfigurableControlle
         if (StringUtils.isEmpty(appId)) {
             return InvalidResponse.REQUESTED_APP_ID_IS_EMPTY;
         }
-        return ResponseUtils.successResponse(this.comparisonReferenceConfigurableHandler.useResultAsList(appId, operationId));
+        return ResponseUtils.successResponse(
+                this.comparisonReferenceConfigurableHandler.useResultAsList(appId, operationId));
     }
 
+    @Deprecated
     @RequestMapping("/queryByInterfaceIdAndOperationId")
     @ResponseBody
     public final Response queryByInterfaceIdAndOperationId(@RequestParam String interfaceId,
-            @RequestParam(required = false) String operationId) {
+                                                           @RequestParam(required = false) String operationId) {
         if (StringUtils.isEmpty(interfaceId)) {
             return InvalidResponse.REQUESTED_INTERFACE_ID_IS_EMPTY;
         }
-        return ResponseUtils.successResponse(this.comparisonReferenceConfigurableHandler.queryByOperationIdAndInterfaceId(
-                interfaceId,
-                operationId));
+        return ResponseUtils.successResponse(
+                this.comparisonReferenceConfigurableHandler.queryByOperationIdAndInterfaceId(
+                        interfaceId, operationId));
     }
+
+
+    @RequestMapping("/queryByInterfaceId")
+    @ResponseBody
+    public final Response queryByInterfaceIdAndOperationId(@RequestParam String interfaceId) {
+        if (StringUtils.isEmpty(interfaceId)) {
+            return InvalidResponse.REQUESTED_INTERFACE_ID_IS_EMPTY;
+        }
+
+        // get operationId
+        FSQueryInterfaceRequestType fsQueryInterfaceRequestType = new FSQueryInterfaceRequestType();
+        fsQueryInterfaceRequestType.setId(interfaceId);
+        FSQueryInterfaceResponseType fsQueryInterfaceResponseType =
+                fileSystemService.queryInterface(fsQueryInterfaceRequestType);
+        String operationId = fsQueryInterfaceResponseType.getOperationId();
+
+        return ResponseUtils.successResponse(
+                this.comparisonReferenceConfigurableHandler.queryByOperationIdAndInterfaceId(
+                        interfaceId, operationId));
+    }
+
 }
