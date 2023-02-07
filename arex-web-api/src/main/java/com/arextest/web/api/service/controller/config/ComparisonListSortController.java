@@ -2,8 +2,9 @@ package com.arextest.web.api.service.controller.config;
 
 import com.arextest.common.model.response.Response;
 import com.arextest.common.utils.ResponseUtils;
-import com.arextest.web.core.business.config.replay.ComparisonListSortConfigurableHandler;
 import com.arextest.web.core.business.config.ConfigurableHandler;
+import com.arextest.web.core.business.config.replay.ComparisonListSortConfigurableHandler;
+import com.arextest.web.core.business.filesystem.FileSystemService;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonListSortConfiguration;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +27,9 @@ public class ComparisonListSortController extends AbstractConfigurableController
     }
 
     @Resource
+    FileSystemService fileSystemService;
+
+    @Resource
     ComparisonListSortConfigurableHandler comparisonListSortConfigurableHandler;
 
     @RequestMapping("/useResultAsList")
@@ -34,18 +38,31 @@ public class ComparisonListSortController extends AbstractConfigurableController
         if (StringUtils.isEmpty(appId)) {
             return InvalidResponse.REQUESTED_APP_ID_IS_EMPTY;
         }
-        return ResponseUtils.successResponse(this.comparisonListSortConfigurableHandler.useResultAsList(appId, operationId));
+        return ResponseUtils.successResponse(
+                this.comparisonListSortConfigurableHandler.useResultAsList(appId, operationId));
     }
 
+    @Deprecated
     @RequestMapping("/queryByInterfaceIdAndOperationId")
     @ResponseBody
     public final Response queryByInterfaceIdAndOperationId(@RequestParam String interfaceId,
-            @RequestParam(required = false) String operationId) {
+                                                           @RequestParam(required = false) String operationId) {
         if (StringUtils.isEmpty(interfaceId)) {
             return InvalidResponse.REQUESTED_INTERFACE_ID_IS_EMPTY;
         }
-        return ResponseUtils.successResponse(this.comparisonListSortConfigurableHandler.queryByOperationIdAndInterfaceId(
-                interfaceId,
-                operationId));
+        return ResponseUtils.successResponse(
+                this.comparisonListSortConfigurableHandler.queryByOperationIdAndInterfaceId(
+                        interfaceId, operationId));
+    }
+
+    @RequestMapping("/queryByInterfaceId")
+    @ResponseBody
+    public final Response queryByInterfaceId(@RequestParam String interfaceId) {
+        if (StringUtils.isEmpty(interfaceId)) {
+            return InvalidResponse.REQUESTED_INTERFACE_ID_IS_EMPTY;
+        }
+
+        return ResponseUtils.successResponse(
+                this.comparisonListSortConfigurableHandler.queryByInterfaceId(interfaceId));
     }
 }

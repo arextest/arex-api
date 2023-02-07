@@ -49,6 +49,8 @@ public abstract class AbstractComparisonConfigurableHandler<T extends AbstractCo
         return comparisonDetails;
     }
 
+    public abstract List<T> queryByInterfaceId(String interfaceId);
+
     private boolean removeDetailsExpired(T comparisonDetails) {
         int expirationType = comparisonDetails.getExpirationType();
         if (expirationType == ExpirationType.ABSOLUTE_TIME_EXPIRED.getCodeValue()) {
