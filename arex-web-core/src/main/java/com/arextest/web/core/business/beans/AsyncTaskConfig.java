@@ -25,4 +25,32 @@ public class AsyncTaskConfig {
         executor.setThreadNamePrefix("compare-task-executor-");
         return executor;
     }
+
+    @Bean("recovery-items-executor")
+    public ThreadPoolTaskExecutor recoveryItemsExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(2);
+        executor.setMaxPoolSize(8);
+        executor.setKeepAliveSeconds(60);
+        executor.setQueueCapacity(1000);
+        executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
+        executor.setWaitForTasksToCompleteOnShutdown(true);
+        executor.setAllowCoreThreadTimeOut(true);
+        executor.setThreadNamePrefix("recovery-items-executor-");
+        return executor;
+    }
+
+    @Bean("sending-mail-executor")
+    public ThreadPoolTaskExecutor sendingMailExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(1);
+        executor.setMaxPoolSize(4);
+        executor.setKeepAliveSeconds(60);
+        executor.setQueueCapacity(1000);
+        executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
+        executor.setWaitForTasksToCompleteOnShutdown(true);
+        executor.setAllowCoreThreadTimeOut(true);
+        executor.setThreadNamePrefix("sending-mail-executor-");
+        return executor;
+    }
 }

@@ -17,6 +17,7 @@ import com.arextest.web.model.enums.UserStatusType;
 import com.arextest.web.model.mapper.UserMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -115,17 +116,23 @@ public class LoginService {
         user.setUserName(userName);
         user.setStatus(UserStatusType.GUEST);
         Boolean result = userRepository.saveUser(user);
-
         if (result) {
-            mailUtils.sendEmail(userName, SEND_VERIFICATION_CODE_SUBJECT, StringUtils.EMPTY, SendEmailType.LOGIN_AS_GUEST);
             response.setUserName(userName);
             response.setSuccess(true);
             response.setAccessToken(JwtUtil.makeAccessToken(userName));
             response.setRefreshToken(JwtUtil.makeRefreshToken(userName));
+
+            sendMailAsGuest(userName);
         } else {
             response.setSuccess(false);
         }
+
         return response;
+    }
+
+    @Async("sending-mail-executor")
+    public void sendMailAsGuest(String userName) {
+        mailUtils.sendEmail(userName, SEND_VERIFICATION_CODE_SUBJECT, StringUtils.EMPTY, SendEmailType.LOGIN_AS_GUEST);
     }
 
     public QueryUserFavoriteAppResponseType queryUserFavoriteApp(String userName) {
@@ -158,4 +165,6 @@ public class LoginService {
         }
         return guestName.toString();
     }
+
+
 }

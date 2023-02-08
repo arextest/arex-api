@@ -6,10 +6,13 @@ import com.arextest.web.common.Tuple;
 import com.arextest.web.core.business.filesystem.importexport.ImportExport;
 import com.arextest.web.core.business.filesystem.importexport.impl.ImportExportFactory;
 import com.arextest.web.core.business.filesystem.pincase.StorageCase;
+import com.arextest.web.core.business.filesystem.recovery.RecoveryFactory;
+import com.arextest.web.core.business.filesystem.recovery.RecoveryService;
 import com.arextest.web.core.business.util.MailUtils;
 import com.arextest.web.core.repository.FSCaseRepository;
 import com.arextest.web.core.repository.FSFolderRepository;
 import com.arextest.web.core.repository.FSInterfaceRepository;
+import com.arextest.web.core.repository.FSTraceLogRepository;
 import com.arextest.web.core.repository.FSTreeRepository;
 import com.arextest.web.core.repository.UserRepository;
 import com.arextest.web.core.repository.UserWorkspaceRepository;
@@ -48,6 +51,7 @@ import com.arextest.web.model.contract.contracts.filesystem.FSSaveInterfaceRespo
 import com.arextest.web.model.contract.contracts.filesystem.FSTreeType;
 import com.arextest.web.model.contract.contracts.filesystem.InviteToWorkspaceRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.InviteToWorkspaceResponseType;
+import com.arextest.web.model.contract.contracts.filesystem.RecoverItemInfoRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.UserType;
 import com.arextest.web.model.contract.contracts.filesystem.ValidInvitationRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.ValidInvitationResponseType;
@@ -60,6 +64,7 @@ import com.arextest.web.model.dto.filesystem.FSInterfaceAndCaseBaseDto;
 import com.arextest.web.model.dto.filesystem.FSInterfaceDto;
 import com.arextest.web.model.dto.filesystem.FSItemDto;
 import com.arextest.web.model.dto.filesystem.FSNodeDto;
+import com.arextest.web.model.dto.filesystem.FSTraceLogDto;
 import com.arextest.web.model.dto.filesystem.FSTreeDto;
 import com.arextest.web.model.dto.filesystem.UserWorkspaceDto;
 import com.arextest.web.model.enums.FSInfoItem;
@@ -133,6 +138,9 @@ public class FileSystemService {
     private UserRepository userRepository;
 
     @Resource
+    private FSTraceLogRepository fsTraceLogRepository;
+
+    @Resource
     private ItemInfoFactory itemInfoFactory;
 
     @Resource
@@ -149,6 +157,12 @@ public class FileSystemService {
 
     @Resource
     private FileSystemUtils fileSystemUtils;
+
+    @Resource
+    private FSTraceLogUtils fsTraceLogUtils;
+
+    @Resource
+    private RecoveryFactory recoveryFactory;
 
 
     public FSAddItemResponseType addItem(FSAddItemRequestType request) {
@@ -243,7 +257,7 @@ public class FileSystemService {
         return response;
     }
 
-    public Boolean removeItem(FSRemoveItemRequestType request) {
+    public Boolean removeItem(FSRemoveItemRequestType request, String userName) {
         FSTreeDto treeDto = fsTreeRepository.queryFSTreeById(request.getId());
         if (treeDto == null) {
             return false;
@@ -253,6 +267,7 @@ public class FileSystemService {
             return false;
         }
 
+        String parentId = null;
         String[] nodes = request.getRemoveNodePath();
         for (int i = 0; i < nodes.length - 1; i++) {
 
@@ -263,10 +278,11 @@ public class FileSystemService {
                 return false;
             }
             current = find.getChildren();
+            parentId = find.getInfoId();
         }
 
         FSNodeDto needRemove = fileSystemUtils.findByInfoId(current, nodes[nodes.length - 1]);
-        removeItems(needRemove);
+        removeItems(needRemove, userName, parentId, request.getId());
         current.remove(needRemove);
         fsTreeRepository.updateFSTree(treeDto);
         return true;
@@ -465,12 +481,13 @@ public class FileSystemService {
         return response;
     }
 
-    public FSSaveFolderResponseType saveFolder(FSSaveFolderRequestType request) {
+    public FSSaveFolderResponseType saveFolder(FSSaveFolderRequestType request, String userName) {
         FSSaveFolderResponseType response = new FSSaveFolderResponseType();
         FSFolderDto dto = FSFolderMapper.INSTANCE.dtoFromContract(request);
 
         try {
-            fsFolderRepository.saveFolder(dto);
+            dto = fsFolderRepository.saveFolder(dto);
+            fsTraceLogUtils.logUpdateItem(userName, dto);
             response.setSuccess(true);
         } catch (Exception e) {
             response.setSuccess(false);
@@ -486,11 +503,12 @@ public class FileSystemService {
         return FSFolderMapper.INSTANCE.contractFromDto(dto);
     }
 
-    public FSSaveInterfaceResponseType saveInterface(FSSaveInterfaceRequestType request) {
+    public FSSaveInterfaceResponseType saveInterface(FSSaveInterfaceRequestType request, String userName) {
         FSSaveInterfaceResponseType response = new FSSaveInterfaceResponseType();
         FSInterfaceDto dto = FSInterfaceMapper.INSTANCE.dtoFromContract(request);
         try {
-            fsInterfaceRepository.saveInterface(dto);
+            dto = fsInterfaceRepository.saveInterface(dto);
+            fsTraceLogUtils.logUpdateItem(userName, dto);
             // update method in workspace tree
             FSTreeDto workspace = fsTreeRepository.queryFSTreeById(request.getWorkspaceId());
             if (workspace != null) {
@@ -518,11 +536,12 @@ public class FileSystemService {
         return FSInterfaceMapper.INSTANCE.contractFromDto(dto);
     }
 
-    public FSSaveCaseResponseType saveCase(FSSaveCaseRequestType request) {
+    public FSSaveCaseResponseType saveCase(FSSaveCaseRequestType request, String userName) {
         FSSaveCaseResponseType response = new FSSaveCaseResponseType();
         FSCaseDto dto = FSCaseMapper.INSTANCE.dtoFromContract(request);
         try {
-            fsCaseRepository.saveCase(dto);
+            dto = fsCaseRepository.saveCase(dto);
+            fsTraceLogUtils.logUpdateItem(userName, dto);
             // update labels in workspace tree
             FSTreeDto workspace = fsTreeRepository.queryFSTreeById(request.getWorkspaceId());
             if (workspace != null) {
@@ -718,6 +737,12 @@ public class FileSystemService {
         return true;
     }
 
+    public boolean recovery(RecoverItemInfoRequestType request) {
+        FSTraceLogDto traceLogDto = fsTraceLogRepository.queryTraceLog(request.getRecoveryId());
+        RecoveryService recoveryService = recoveryFactory.getRecoveryService(traceLogDto.getTraceType());
+        return recoveryService.recovery(traceLogDto);
+    }
+
     public Tuple<Boolean, String> exportItem(FSExportItemRequestType request) {
         FSTreeDto treeDto = fsTreeRepository.queryFSTreeById(request.getWorkspaceId());
         List<FSNodeDto> nodes;
@@ -781,21 +806,41 @@ public class FileSystemService {
         return result;
     }
 
-    private void removeItems(FSNodeDto fsNodeDto) {
+    private Map<Integer, Set<String>> removeItems(FSNodeDto fsNodeDto,
+            String userName,
+            String parentId,
+            String workspaceId) {
         if (fsNodeDto == null) {
-            return;
+            return null;
         }
         Queue<FSNodeDto> queue = new ArrayDeque<>();
         queue.add(fsNodeDto);
+        Map<Integer, Set<String>> itemInfoIds = new HashMap<>();
 
         while (!queue.isEmpty()) {
             FSNodeDto dto = queue.poll();
-            ItemInfo itemInfo = itemInfoFactory.getItemInfo(dto.getNodeType());
-            itemInfo.removeItem(dto.getInfoId());
             if (dto.getChildren() != null && dto.getChildren().size() > 0) {
                 queue.addAll(dto.getChildren());
             }
+            if (!itemInfoIds.containsKey(dto.getNodeType())) {
+                itemInfoIds.put(dto.getNodeType(), new HashSet<>());
+            }
+            itemInfoIds.get(dto.getNodeType()).add(dto.getInfoId());
         }
+        List<FSItemDto> items = new ArrayList<>();
+        for (Map.Entry<Integer, Set<String>> ids : itemInfoIds.entrySet()) {
+            ItemInfo itemInfo = itemInfoFactory.getItemInfo(ids.getKey());
+            items.addAll(itemInfo.queryByIds(new ArrayList<>(ids.getValue())));
+            itemInfo.removeItems(ids.getValue());
+        }
+
+        fsTraceLogUtils.logDeleteItem(userName,
+                workspaceId,
+                fsNodeDto.getInfoId(),
+                parentId,
+                items,
+                fsNodeDto);
+        return itemInfoIds;
     }
 
     private FSNodeDto duplicateInfo(String parentId, String nodeName, FSNodeDto old) {

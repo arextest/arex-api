@@ -13,5 +13,4 @@ public class FSRemoveItemRequestType {
     @NotNull(message = "Remove node path cannot be empty")
     @Size(min = 1, message = "Remove path size must be greater than 0")
     private String[] removeNodePath;
-    private String userName;
 }
