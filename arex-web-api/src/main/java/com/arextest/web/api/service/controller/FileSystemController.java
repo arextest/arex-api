@@ -48,6 +48,7 @@ import com.arextest.web.model.contract.contracts.filesystem.FSSaveInterfaceRespo
 import com.arextest.web.model.contract.contracts.filesystem.InviteToWorkspaceRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.InviteToWorkspaceResponseType;
 import com.arextest.web.model.contract.contracts.filesystem.LeaveWorkspaceRequestType;
+import com.arextest.web.model.contract.contracts.filesystem.RecoverItemInfoRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.RemoveUserFromWorkspaceType;
 import com.arextest.web.model.contract.contracts.filesystem.ValidInvitationRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.ValidInvitationResponseType;
@@ -60,7 +61,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.yaml.snakeyaml.scanner.Constant;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
@@ -98,8 +98,9 @@ public class FileSystemController {
         if (!rolePermission.checkPermissionByToken(RolePermission.EDIT_ITEM, token, request.getId())) {
             return ResponseUtils.errorResponse(Constants.NO_PERMISSION, ResponseCode.AUTHENTICATION_FAILED);
         }
+        String userName = JwtUtil.getUserName(token);
         FSRemoveItemResponseType response = new FSRemoveItemResponseType();
-        response.setSuccess(fileSystemService.removeItem(request));
+        response.setSuccess(fileSystemService.removeItem(request, userName));
         return ResponseUtils.successResponse(response);
     }
 
@@ -196,8 +197,10 @@ public class FileSystemController {
 
     @PostMapping("/saveFolder")
     @ResponseBody
-    public Response saveFolder(@RequestBody FSSaveFolderRequestType request) {
-        FSSaveFolderResponseType response = fileSystemService.saveFolder(request);
+    public Response saveFolder(@RequestHeader(name = Constants.ACCESS_TOKEN) String token,
+            @RequestBody FSSaveFolderRequestType request) {
+        String userName = JwtUtil.getUserName(token);
+        FSSaveFolderResponseType response = fileSystemService.saveFolder(request, userName);
         return ResponseUtils.successResponse(response);
     }
 
@@ -210,8 +213,10 @@ public class FileSystemController {
 
     @PostMapping("/saveInterface")
     @ResponseBody
-    public Response saveInterface(@RequestBody FSSaveInterfaceRequestType request) {
-        FSSaveInterfaceResponseType response = fileSystemService.saveInterface(request);
+    public Response saveInterface(@RequestHeader(name = Constants.ACCESS_TOKEN) String token,
+            @RequestBody FSSaveInterfaceRequestType request) {
+        String userName = JwtUtil.getUserName(token);
+        FSSaveInterfaceResponseType response = fileSystemService.saveInterface(request, userName);
         return ResponseUtils.successResponse(response);
     }
 
@@ -224,8 +229,10 @@ public class FileSystemController {
 
     @PostMapping("/saveCase")
     @ResponseBody
-    public Response saveCase(@RequestBody FSSaveCaseRequestType request) {
-        FSSaveCaseResponseType response = fileSystemService.saveCase(request);
+    public Response saveCase(@RequestHeader(name = Constants.ACCESS_TOKEN) String token,
+            @RequestBody FSSaveCaseRequestType request) {
+        String userName = JwtUtil.getUserName(token);
+        FSSaveCaseResponseType response = fileSystemService.saveCase(request, userName);
         return ResponseUtils.successResponse(response);
     }
 
@@ -246,6 +253,14 @@ public class FileSystemController {
             return ResponseUtils.errorResponse(Constants.NO_PERMISSION, ResponseCode.AUTHENTICATION_FAILED);
         }
         InviteToWorkspaceResponseType response = fileSystemService.inviteToWorkspace(request);
+        return ResponseUtils.successResponse(response);
+    }
+
+    @PostMapping("/recoverItemInfo")
+    @ResponseBody
+    public Response recoverItemInfo(@Valid @RequestBody RecoverItemInfoRequestType request) {
+        SuccessResponseType response = new SuccessResponseType();
+        response.setSuccess(fileSystemService.recovery(request));
         return ResponseUtils.successResponse(response);
     }
 

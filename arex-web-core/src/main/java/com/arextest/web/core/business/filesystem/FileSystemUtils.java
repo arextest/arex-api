@@ -1,11 +1,15 @@
 package com.arextest.web.core.business.filesystem;
 
 import com.arextest.web.common.Tuple;
+import com.arextest.web.core.repository.FSTraceLogRepository;
 import com.arextest.web.model.dto.filesystem.FSItemDto;
 import com.arextest.web.model.dto.filesystem.FSNodeDto;
+import com.arextest.web.model.dto.filesystem.FSTraceLogDto;
 import com.arextest.web.model.dto.filesystem.FSTreeDto;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Resource;
 import java.util.ArrayDeque;
 import java.util.List;
 import java.util.Objects;
@@ -17,6 +21,7 @@ import java.util.Queue;
  */
 @Component
 public class FileSystemUtils {
+
     public FSNodeDto findByPath(List<FSNodeDto> list, String[] pathArr) {
         Tuple<Integer, FSNodeDto> result = findByPathWithIndex(list, pathArr);
         if (result == null) {
@@ -78,9 +83,5 @@ public class FileSystemUtils {
             }
         }
         return null;
-    }
-
-    public void traceLog(int traceType, String userName, FSNodeDto node, List<FSItemDto> items) {
-
     }
 }

@@ -58,10 +58,6 @@
             <artifactId>json</artifactId>
         </dependency>
         <dependency>
-            <groupId>cn.hutool</groupId>
-            <artifactId>hutool-all</artifactId>
-        </dependency>
-        <dependency>
             <groupId>com.github.saasquatch</groupId>
             <artifactId>json-schema-inferrer</artifactId>
         </dependency>
