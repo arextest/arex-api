@@ -18,7 +18,7 @@ import javax.servlet.http.HttpServletRequest;
 @Component
 @Aspect
 public class WebLogAspect {
-    @Pointcut("execution(* com.arextest.report.web.api.service.controller.*.*(..)) " +
+    @Pointcut("execution(* com.arextest.web.api.service.controller.*.*(..)) " +
             "&& !execution(* com.arextest.web.api.service.controller.CheckHealthController.*(..))" +
             "&& !execution(* com.arextest.web.api.service.controller.ReportQueryController.downloadReplayMsg(..))")
     public void webLog() {
