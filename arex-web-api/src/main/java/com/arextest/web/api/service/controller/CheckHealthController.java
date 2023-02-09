@@ -19,6 +19,7 @@ public class CheckHealthController {
     @GetMapping("/health")
     @ResponseBody
     public Response checkHealth() {
+        LOGGER.error("mongo log test");
         return ResponseUtils.successResponse(true);
     }
 }
