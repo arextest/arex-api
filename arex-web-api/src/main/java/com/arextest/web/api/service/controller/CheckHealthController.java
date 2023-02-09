@@ -19,6 +19,7 @@ public class CheckHealthController {
     @GetMapping("/health")
     @ResponseBody
     public Response checkHealth() {
+        LOGGER.error("aaa",new Exception("bbb"));
         return ResponseUtils.successResponse(true);
     }
 }
