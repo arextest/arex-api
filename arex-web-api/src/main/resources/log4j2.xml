@@ -15,11 +15,20 @@
                 <TimeBasedTriggeringPolicy/>
             </Policies>
         </RollingFile>
+        <NoSql name="Mongo4">
+            <MongoDb4 capped="true" collectionSize="104857600"
+                      connection="mongodb://arex:iLoveArex@10.5.153.1:27017/arex_storage_db.logs"
+                      disabled="true"
+            />
+        </NoSql>
     </Appenders>
 
     <Loggers>
         <Root level="info">
             <AppenderRef ref="RollingFile"/>
         </Root>
+        <Logger name="com.arextest" level="DEBUG">
+            <AppenderRef ref="Mongo4"/>
+        </Logger>
     </Loggers>
 </Configuration>

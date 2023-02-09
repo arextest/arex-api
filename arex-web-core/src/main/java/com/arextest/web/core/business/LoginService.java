@@ -2,6 +2,7 @@ package com.arextest.web.core.business;
 
 import com.arextest.web.common.JwtUtil;
 import com.arextest.web.common.LoadResource;
+import com.arextest.web.core.business.beans.AsyncOperations;
 import com.arextest.web.core.business.util.MailUtils;
 import com.arextest.web.core.repository.UserRepository;
 import com.arextest.web.model.contract.contracts.login.LoginAsGuestResponseType;
@@ -40,6 +41,9 @@ public class LoginService {
 
     @Resource
     private MailUtils mailUtils;
+
+    @Resource
+    private AsyncOperations asyncOperations;
 
     public Boolean sendVerifyCodeByEmail(String emailTo) {
         String template = loadResource.getResource(VERIFICATION_CODE_EMAIL_TEMPLATE);
@@ -122,17 +126,12 @@ public class LoginService {
             response.setAccessToken(JwtUtil.makeAccessToken(userName));
             response.setRefreshToken(JwtUtil.makeRefreshToken(userName));
 
-            sendMailAsGuest(userName);
+            asyncOperations.sendMailAsGuest(userName,SEND_VERIFICATION_CODE_SUBJECT);
         } else {
             response.setSuccess(false);
         }
 
         return response;
-    }
-
-    @Async("sending-mail-executor")
-    public void sendMailAsGuest(String userName) {
-        mailUtils.sendEmail(userName, SEND_VERIFICATION_CODE_SUBJECT, StringUtils.EMPTY, SendEmailType.LOGIN_AS_GUEST);
     }
 
     public QueryUserFavoriteAppResponseType queryUserFavoriteApp(String userName) {
