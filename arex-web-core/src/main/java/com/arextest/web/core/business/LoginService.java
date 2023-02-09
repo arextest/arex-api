@@ -126,7 +126,7 @@ public class LoginService {
             response.setAccessToken(JwtUtil.makeAccessToken(userName));
             response.setRefreshToken(JwtUtil.makeRefreshToken(userName));
 
-            asyncOperations.sendMailAsGuest(userName,SEND_VERIFICATION_CODE_SUBJECT);
+            // asyncOperations.sendMailAsGuest(userName,SEND_VERIFICATION_CODE_SUBJECT);
         } else {
             response.setSuccess(false);
         }

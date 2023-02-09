@@ -1,6 +1,7 @@
 package com.arextest.web.api.service.beans;
 
 import com.arextest.web.model.dao.mongodb.AppCollection;
+import com.arextest.web.model.dao.mongodb.LogsCollection;
 import com.arextest.web.model.dao.mongodb.RecordServiceConfigCollection;
 import com.arextest.web.model.dao.mongodb.ReplayScheduleConfigCollection;
 import com.arextest.web.model.dao.mongodb.ServiceOperationCollection;
@@ -20,6 +21,8 @@ import org.springframework.data.mongodb.core.convert.MappingMongoConverter;
 import org.springframework.data.mongodb.core.index.Index;
 import org.springframework.data.mongodb.core.mapping.MongoMappingContext;
 
+import java.util.concurrent.TimeUnit;
+
 
 @Slf4j
 @Configuration
@@ -31,6 +34,7 @@ public class MongodbConfiguration {
     private static final String APP_ID = "appId";
     private static final String SERVICE_ID = "serviceId";
     private static final String OPERATION_NAME = "operationName";
+    private static final String MILLIS = "millis";
 
     public MongoDatabaseFactory mongoDbFactory() {
         try {
@@ -63,5 +67,7 @@ public class MongodbConfiguration {
                         .on(SERVICE_ID, Sort.Direction.ASC)
                         .on(OPERATION_NAME, Sort.Direction.ASC)
                         .unique());
+        mongoTemplate.indexOps(LogsCollection.class)
+                .ensureIndex(new Index(MILLIS, Sort.Direction.DESC).expire(1, TimeUnit.MINUTES));
     }
 }
