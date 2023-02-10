@@ -128,24 +128,24 @@ public final class MongoDb4Provider implements NoSqlProvider<MongoDb4Connection>
 
     private MongoDb4Provider(final String connectionStringSource, final boolean isCapped,
             final Integer collectionSize) {
-        LOGGER.debug("Creating ConnectionString {}...", connectionStringSource);
+        // LOGGER.debug("Creating ConnectionString {}...", connectionStringSource);
         this.connectionString = new ConnectionString(connectionStringSource);
-        LOGGER.debug("Created ConnectionString {}", connectionString);
-        LOGGER.debug("Creating MongoClientSettings...");
+        // LOGGER.debug("Created ConnectionString {}", connectionString);
+        // LOGGER.debug("Creating MongoClientSettings...");
         // @formatter:off
         final MongoClientSettings settings = MongoClientSettings.builder()
                 .applyConnectionString(this.connectionString)
                 .codecRegistry(CODEC_REGISTRIES)
                 .build();
         // @formatter:on
-        LOGGER.debug("Created MongoClientSettings {}", settings);
-        LOGGER.debug("Creating MongoClient {}...", settings);
+        // LOGGER.debug("Created MongoClientSettings {}", settings);
+        // LOGGER.debug("Creating MongoClient {}...", settings);
         this.mongoClient = MongoClients.create(settings);
-        LOGGER.debug("Created MongoClient {}", mongoClient);
+        // LOGGER.debug("Created MongoClient {}", mongoClient);
         String databaseName = this.connectionString.getDatabase();
-        LOGGER.debug("Getting MongoDatabase {}...", databaseName);
+        // LOGGER.debug("Getting MongoDatabase {}...", databaseName);
         this.mongoDatabase = this.mongoClient.getDatabase(databaseName);
-        LOGGER.debug("Got MongoDatabase {}", mongoDatabase);
+        // LOGGER.debug("Got MongoDatabase {}", mongoDatabase);
         this.isCapped = isCapped;
         this.collectionSize = collectionSize;
     }

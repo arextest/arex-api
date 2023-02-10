@@ -1,5 +1,6 @@
 package com.arextest.web.api.service.beans;
 
+import com.arextest.web.common.LogUtils;
 import com.arextest.web.model.dao.mongodb.AppCollection;
 import com.arextest.web.model.dao.mongodb.LogsCollection;
 import com.arextest.web.model.dao.mongodb.RecordServiceConfigCollection;
@@ -34,13 +35,13 @@ public class MongodbConfiguration {
     private static final String APP_ID = "appId";
     private static final String SERVICE_ID = "serviceId";
     private static final String OPERATION_NAME = "operationName";
-    private static final String MILLIS = "millis";
+    private static final String DATE = "date";
 
     public MongoDatabaseFactory mongoDbFactory() {
         try {
             return new SimpleMongoClientDatabaseFactory(mongoUrl);
         } catch (Exception e) {
-            LOGGER.error("cannot connect mongodb", e);
+            LogUtils.error(LOGGER, "cannot connect mongodb", e);
         }
         return null;
     }
@@ -68,6 +69,6 @@ public class MongodbConfiguration {
                         .on(OPERATION_NAME, Sort.Direction.ASC)
                         .unique());
         mongoTemplate.indexOps(LogsCollection.class)
-                .ensureIndex(new Index(MILLIS, Sort.Direction.DESC).expire(1, TimeUnit.MINUTES));
+                .ensureIndex(new Index(DATE, Sort.Direction.DESC).expire(10, TimeUnit.DAYS));
     }
 }

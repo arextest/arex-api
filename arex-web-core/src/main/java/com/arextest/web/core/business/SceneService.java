@@ -1,5 +1,6 @@
 package com.arextest.web.core.business;
 
+import com.arextest.web.common.LogUtils;
 import com.arextest.web.core.repository.ReportDiffAggStatisticRepository;
 import com.arextest.web.model.contract.contracts.common.LogEntity;
 import com.arextest.web.model.contract.contracts.common.LogTag;
@@ -209,7 +210,7 @@ public class SceneService {
             result.clear();
 
             sw.stop();
-            LOGGER.info(sw.toString());
+            LogUtils.info(LOGGER, sw.toString());
         }
     }
 

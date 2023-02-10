@@ -1,5 +1,6 @@
 package com.arextest.web.core.business;
 
+import com.arextest.web.common.LogUtils;
 import com.arextest.web.core.repository.ReplayCompareResultRepository;
 import com.arextest.web.model.contract.contracts.DownloadReplayMsgRequestType;
 import com.arextest.web.model.contract.contracts.QueryFullLinkMsgRequestType;
@@ -84,7 +85,7 @@ public class QueryReplayMsgService {
                 out.write(buffer, 0, len);
             }
         } catch (IOException e) {
-            LOGGER.error("downloadReplayMsg", e);
+            LogUtils.error(LOGGER, "downloadReplayMsg", e);
         } finally {
             try {
                 if (out != null) {
@@ -94,7 +95,7 @@ public class QueryReplayMsgService {
                     in.close();
                 }
             } catch (IOException e) {
-                LOGGER.error("downloadReplayMsg", e);
+                LogUtils.error(LOGGER, "downloadReplayMsg", e);
             }
         }
     }

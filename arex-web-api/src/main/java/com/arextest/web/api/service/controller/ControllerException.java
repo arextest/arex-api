@@ -3,6 +3,7 @@ package com.arextest.web.api.service.controller;
 import com.arextest.common.model.response.Response;
 import com.arextest.common.model.response.ResponseCode;
 import com.arextest.common.utils.ResponseUtils;
+import com.arextest.web.common.LogUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -28,7 +29,7 @@ public class ControllerException {
 
     @ExceptionHandler(Throwable.class)
     public Response handleDefaultException(Throwable e) {
-        LOGGER.error("Unhandled exception", e);
+        LogUtils.error(LOGGER, "Unhandled exception", e);
         return ResponseUtils.errorResponse(e.getMessage(), ResponseCode.REQUESTED_HANDLE_EXCEPTION);
     }
 }

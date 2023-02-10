@@ -2,6 +2,7 @@ package com.arextest.web.api.service.controller.config;
 
 import com.arextest.common.model.response.Response;
 import com.arextest.common.utils.ResponseUtils;
+import com.arextest.web.common.LogUtils;
 import com.arextest.web.core.business.config.application.ApplicationServiceConfigurableHandler;
 import com.arextest.web.core.business.config.ConfigurableHandler;
 import com.arextest.web.model.contract.contracts.common.enums.StatusType;
@@ -59,10 +60,10 @@ public final class AgentRemoteConfigurationController {
         if (StringUtils.isEmpty(appId)) {
             return InvalidResponse.REQUESTED_APP_ID_IS_EMPTY;
         }
-        LOGGER.info("from appId: {} , load config", request.appId);
+        LogUtils.info(LOGGER, "from appId: {} , load config", request.appId);
         ApplicationConfiguration applicationConfiguration = this.loadApplicationResult(request);
         if (applicationConfiguration == null) {
-            LOGGER.info("from appId: {} load config resource not found", request.appId);
+            LogUtils.info(LOGGER, "from appId: {} load config resource not found", request.appId);
             return ResponseUtils.resourceNotFoundResponse();
         }
         ServiceCollectConfiguration serviceCollectConfiguration = serviceCollectHandler.useResult(appId);
@@ -90,7 +91,7 @@ public final class AgentRemoteConfigurationController {
             try {
                 applicationServiceHandler.createOrUpdate(request.getAppId());
             } catch (Throwable e) {
-                LOGGER.error("update application service error:{}", e.getMessage(), e);
+                LogUtils.error(LOGGER, "update application service error:{}", e.getMessage(), e);
             }
         }
     }

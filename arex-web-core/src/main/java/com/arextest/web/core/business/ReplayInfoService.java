@@ -1,5 +1,6 @@
 package com.arextest.web.core.business;
 
+import com.arextest.web.common.LogUtils;
 import com.arextest.web.core.repository.mongo.ReportPlanItemStatisticRepositoryImpl;
 import com.arextest.web.core.repository.mongo.ReportPlanStatisticRepositoryImpl;
 import com.arextest.web.model.contract.contracts.ReportInitialRequestType;
@@ -48,7 +49,7 @@ public class ReplayInfoService {
                 });
             }
         } catch (Exception e) {
-            LOGGER.error("updateReplayBaseInfo", e);
+            LogUtils.error(LOGGER, "updateReplayBaseInfo", e);
             return false;
         }
         return true;

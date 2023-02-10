@@ -1,5 +1,6 @@
 package com.arextest.web.core.business.filesystem;
 
+import com.arextest.web.common.LogUtils;
 import com.arextest.web.core.repository.FSTraceLogRepository;
 import com.arextest.web.model.dto.filesystem.FSItemDto;
 import com.arextest.web.model.dto.filesystem.FSNodeDto;
@@ -72,7 +73,7 @@ public class FSTraceLogUtils {
         traceLogDto.setItems(items);
 
         if (!fsTraceLogRepository.saveTraceLog(traceLogDto)) {
-            LOGGER.error("Failed to log trace");
+            LogUtils.error(LOGGER, "Failed to log trace");
         }
     }
 }

@@ -28,7 +28,7 @@ public class LoadResource {
             }
             return sb.toString();
         } catch (Exception e) {
-            LOGGER.error(String.format("Failed to get resource. resourceName:%s", resourceName), e);
+            LogUtils.error(LOGGER, String.format("Failed to get resource. resourceName:%s", resourceName), e);
         }
         return null;
     }

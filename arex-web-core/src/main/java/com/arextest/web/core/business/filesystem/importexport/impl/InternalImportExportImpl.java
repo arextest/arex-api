@@ -1,5 +1,6 @@
 package com.arextest.web.core.business.filesystem.importexport.impl;
 
+import com.arextest.web.common.LogUtils;
 import com.arextest.web.core.business.filesystem.FileSystemUtils;
 import com.arextest.web.core.business.filesystem.ItemInfo;
 import com.arextest.web.core.business.filesystem.ItemInfoFactory;
@@ -63,7 +64,7 @@ public class InternalImportExportImpl implements ImportExport {
         try {
             collection = objectMapper.readValue(importString, ItemCollectionDto.class);
         } catch (JsonProcessingException e) {
-            LOGGER.error("Failed to import items", e);
+            LogUtils.error(LOGGER, "Failed to import items", e);
         }
 
         if (collection == null) {
@@ -114,7 +115,7 @@ public class InternalImportExportImpl implements ImportExport {
         try {
             return objectMapper.writeValueAsString(collectionDto);
         } catch (JsonProcessingException e) {
-            LOGGER.error("Failed to export items", e);
+            LogUtils.error(LOGGER, "Failed to export items", e);
         }
         return StringUtils.EMPTY;
     }
@@ -134,7 +135,7 @@ public class InternalImportExportImpl implements ImportExport {
                 fsItemDto = FSFolderMapper.INSTANCE.fsItemFromIeItemDto((FolderItemDto) item);
                 break;
             default:
-                LOGGER.error("Unexpected NodeType:{}", item.getNodeType());
+                LogUtils.error(LOGGER, "Unexpected NodeType:{}", item.getNodeType());
                 return null;
         }
 
@@ -176,7 +177,7 @@ public class InternalImportExportImpl implements ImportExport {
                 item = FSFolderMapper.INSTANCE.ieItemFromFsItemDto((FSFolderDto) fsItemDto);
                 break;
             default:
-                LOGGER.error("Unexpected NodeType:{}", node.getNodeType());
+                LogUtils.error(LOGGER, "Unexpected NodeType:{}", node.getNodeType());
                 return null;
         }
         item.setNodeType(node.getNodeType());

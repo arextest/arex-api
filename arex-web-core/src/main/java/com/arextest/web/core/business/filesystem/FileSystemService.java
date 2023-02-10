@@ -2,6 +2,7 @@ package com.arextest.web.core.business.filesystem;
 
 import com.arextest.web.common.JwtUtil;
 import com.arextest.web.common.LoadResource;
+import com.arextest.web.common.LogUtils;
 import com.arextest.web.common.Tuple;
 import com.arextest.web.core.business.filesystem.importexport.ImportExport;
 import com.arextest.web.core.business.filesystem.importexport.impl.ImportExportFactory;
@@ -251,7 +252,7 @@ public class FileSystemService {
             response.setSuccess(true);
 
         } catch (Exception e) {
-            LOGGER.error("failed to add item to filesystem", e);
+            LogUtils.error(LOGGER, "failed to add item to filesystem", e);
             response.setSuccess(false);
         }
         return response;
@@ -335,7 +336,7 @@ public class FileSystemService {
             fsTreeRepository.updateFSTree(treeDto);
             return true;
         } catch (Exception e) {
-            LOGGER.error("failed to duplicate item", e);
+            LogUtils.error(LOGGER, "failed to duplicate item", e);
             return false;
         }
     }
@@ -391,7 +392,7 @@ public class FileSystemService {
             fsTreeRepository.updateFSTree(treeDto);
             return true;
         } catch (Exception e) {
-            LOGGER.error("failed to move item", e);
+            LogUtils.error(LOGGER, "failed to move item", e);
             return false;
         }
     }
@@ -404,7 +405,7 @@ public class FileSystemService {
             fsTreeRepository.updateFSTree(treeDto);
             return true;
         } catch (Exception e) {
-            LOGGER.error("failed to rename workspace", e);
+            LogUtils.error(LOGGER, "failed to rename workspace", e);
             return false;
         }
     }
@@ -529,6 +530,7 @@ public class FileSystemService {
     }
 
     public FSQueryInterfaceResponseType queryInterface(FSQueryInterfaceRequestType request) {
+        int i = 1 / 0;
         FSInterfaceDto dto = fsInterfaceRepository.queryInterface(request.getId());
         if (dto == null) {
             return new FSQueryInterfaceResponseType();
@@ -707,13 +709,13 @@ public class FileSystemService {
 
     public boolean pinMock(FSPinMockRequestType request) {
         if (request.getNodeType() == FSInfoItem.FOLDER) {
-            LOGGER.error("Not support NodeType:{} in pinMock operation", request.getNodeType());
+            LogUtils.error(LOGGER, "Not support NodeType:{} in pinMock operation", request.getNodeType());
             return false;
         }
         String newRecordId = storageCase.getNewRecordId(request.getRecordId());
         boolean success = storageCase.pinnedCase(request.getRecordId(), newRecordId);
         if (!success) {
-            LOGGER.error("Pin Case failed.recordId:{}", request.getRecordId());
+            LogUtils.error(LOGGER, "Pin Case failed.recordId:{}", request.getRecordId());
             return false;
         }
         ItemInfo itemInfo = itemInfoFactory.getItemInfo(request.getNodeType());

@@ -1,20 +1,16 @@
-package com.arextest.web.model.dao.mongodb;
+package com.arextest.web.model.contract.contracts.common;
 
 import lombok.Data;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
 import java.util.Map;
 
 /**
  * @author b_yu
- * @since 2023/2/9
+ * @since 2023/2/10
  */
 @Data
-@Document(collection = "logs")
-public class LogsCollection {
-    @Id
+public class LogsType {
     private String id;
     private String level;
     private String loggerName;
@@ -24,12 +20,12 @@ public class LogsCollection {
     private int threadPriority;
     private long millis;
     private Map<String, String> contextMap;
-    private Unit source;
-    private Thrown thrown;
+    private UnitType source;
+    private ThrownType thrown;
 
 
     @Data
-    public static final class Unit {
+    public static final class UnitType {
         private String className;
         private String methodName;
         private String fileName;
@@ -38,9 +34,9 @@ public class LogsCollection {
 
 
     @Data
-    public static final class Thrown {
+    public static class ThrownType {
         private String type;
         private String message;
-        private List<Unit> stackTrace;
+        private List<UnitType> stackTrace;
     }
 }

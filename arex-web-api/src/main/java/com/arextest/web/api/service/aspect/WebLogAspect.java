@@ -1,9 +1,8 @@
 package com.arextest.web.api.service.aspect;
 
+import com.arextest.web.common.LogUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
-import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.*;
 import org.springframework.stereotype.Component;
@@ -12,6 +11,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.text.MessageFormat;
 
 
 @Slf4j
@@ -24,46 +24,35 @@ public class WebLogAspect {
     public void webLog() {
     }
 
+
+
     @Resource
     private ObjectMapper mapper;
 
 
-    @Before("webLog()")
-    public void doBefore(JoinPoint joinPoint) throws Throwable {
-
+    @Around("webLog()")
+    public Object doAround(ProceedingJoinPoint joinPoint) throws Throwable {
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         HttpServletRequest request = attributes.getRequest();
-        try {
-            LOGGER.info("========================================== Start ==========================================");
-            LOGGER.info("URL            : {}", request.getRequestURL().toString());
-            LOGGER.info("HTTP Method    : {}", request.getMethod());
-            LOGGER.info("Class Method   : {}.{}",
-                    joinPoint.getSignature().getDeclaringTypeName(),
-                    joinPoint.getSignature().getName());
-            LOGGER.info("IP             : {}", request.getRemoteAddr());
-            LOGGER.info("Request Args   : {}", mapper.writeValueAsString(joinPoint.getArgs()));
-        } catch (Exception e) {
-            LOGGER.error("Failed to log info", e);
-        }
-    }
 
-
-    @After("webLog()")
-    public void doAfter() throws Throwable {
-        LOGGER.info("=========================================== End ===========================================");
-
-        LOGGER.info("");
-    }
-
-
-    @Around("webLog()")
-    public Object doAround(ProceedingJoinPoint proceedingJoinPoint) throws Throwable {
         long startTime = System.currentTimeMillis();
-        Object result = proceedingJoinPoint.proceed();
 
-        LOGGER.info("Response Args  : {}", new Gson().toJson(result));
+        StringBuilder sb = new StringBuilder();
+        sb.append("========================================== Start ==========================================\r\n");
+        sb.append("URL            : ").append(request.getRequestURL().toString()).append("\r\n");
+        sb.append("HTTP Method    : ").append(request.getMethod()).append("\r\n");
+        sb.append(MessageFormat.format("Class Method   : {0}.{1}\r\n",
+                joinPoint.getSignature().getDeclaringTypeName(),
+                joinPoint.getSignature().getName()));
+        sb.append(MessageFormat.format("IP             : {0}\r\n", request.getRemoteAddr()));
+        sb.append(MessageFormat.format("Request Args   : {0}\r\n", mapper.writeValueAsString(joinPoint.getArgs())));
 
-        LOGGER.info("Time-Consuming : {} ms", System.currentTimeMillis() - startTime);
+        Object result = joinPoint.proceed();
+
+        sb.append(MessageFormat.format("Response Args  : {0}\r\n", mapper.writeValueAsString(result)));
+        sb.append(MessageFormat.format("Time-Consuming : {0} ms\r\n", System.currentTimeMillis() - startTime));
+        sb.append("=========================================== End ===========================================");
+        LogUtils.info(LOGGER, sb.toString());
         return result;
     }
 

@@ -1,5 +1,6 @@
 package com.arextest.web.core.repository.mongo;
 
+import com.arextest.web.common.LogUtils;
 import com.arextest.web.core.repository.ReplayCompareResultRepository;
 import com.arextest.web.model.dao.mongodb.ReplayCompareResultCollection;
 import com.arextest.web.model.dto.CompareResultDto;
@@ -54,7 +55,7 @@ public class ReplayCompareResultRepositoryImpl implements ReplayCompareResultRep
             }
             return true;
         } catch (Exception e) {
-            LOGGER.error("failed to insert compare results", e);
+            LogUtils.error(LOGGER, "failed to insert compare results", e);
         }
         return false;
     }

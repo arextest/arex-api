@@ -1,6 +1,7 @@
 package com.arextest.web.core.repository.mongo;
 
 
+import com.arextest.web.common.LogUtils;
 import com.arextest.web.core.repository.FSFolderRepository;
 import com.arextest.web.core.repository.mongo.util.MongoHelper;
 import com.arextest.web.model.dao.mongodb.FSFolderCollection;
@@ -48,7 +49,7 @@ public class FSFolderRepositoryImpl implements FSFolderRepository {
             mongoTemplate.findAndRemove(query, FSFolderCollection.class);
             return true;
         } catch (Exception e) {
-            LOGGER.error("failed to remove folder.", e);
+            LogUtils.error(LOGGER, "failed to remove folder.", e);
             return false;
         }
 

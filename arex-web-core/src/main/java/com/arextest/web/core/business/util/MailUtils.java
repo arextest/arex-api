@@ -2,6 +2,7 @@ package com.arextest.web.core.business.util;
 
 
 import com.arextest.web.common.HttpUtils;
+import com.arextest.web.common.LogUtils;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -29,7 +30,7 @@ public class MailUtils {
             ResponseEntity<SendMailResponse> response = HttpUtils.post(sendEmailUrl, request, SendMailResponse.class);
             return response.getBody().getData().getSuccess();
         } catch (Exception e) {
-            LOGGER.error("Failed to send email. type:{}", type);
+            LogUtils.error(LOGGER, "Failed to send email. type:{}", type);
             return false;
         }
     }

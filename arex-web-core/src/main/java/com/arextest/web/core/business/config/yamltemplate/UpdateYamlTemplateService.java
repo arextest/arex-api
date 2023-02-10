@@ -2,6 +2,7 @@ package com.arextest.web.core.business.config.yamltemplate;
 
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
+import com.arextest.web.common.LogUtils;
 import com.arextest.web.core.business.config.record.DynamicClassConfigurableHandler;
 import com.arextest.web.core.business.config.ConfigurableHandler;
 import com.arextest.web.model.contract.contracts.config.yamlTemplate.PushYamlTemplateRequestType;
@@ -55,21 +56,22 @@ public class UpdateYamlTemplateService {
         PushYamlTemplateResponseType response = new PushYamlTemplateResponseType();
         response.setSuccess(true);
         YamlTemplate preTemplate = queryYamlTemplateService.getConfigTemplate(request.getAppId());
-        LOGGER.info("pushConfigTemplate.preTemplate:", JSONUtil.toJsonStr(preTemplate));
+        LogUtils.info(LOGGER, "pushConfigTemplate.preTemplate:{}", JSONUtil.toJsonStr(preTemplate));
         Yaml yaml = new Yaml();
         YamlTemplate templateObj = null;
         try {
             Map load = (Map) yaml.load(configTemplate);
             templateObj = JSONUtil.toBean(new JSONObject(load), YamlTemplate.class);
         } catch (Exception e) {
-            LOGGER.error("UpdateYamlTemplateService.pushConfigTemplate", e);
+            LogUtils.error(LOGGER, "UpdateYamlTemplateService.pushConfigTemplate", e);
         }
 
         if (templateObj == null) {
             response.setSuccess(false);
         } else {
             if (!updateServiceCollection(templateObj, appId) || !updateDynamicClassCollection(templateObj, appId)
-                    || !updateSchedule(templateObj, appId) || !comparisonConfigService.updateComparison(templateObj, appId)) {
+                    || !updateSchedule(templateObj, appId) || !comparisonConfigService.updateComparison(templateObj,
+                    appId)) {
                 updateServiceCollection(preTemplate, appId);
                 updateDynamicClassCollection(preTemplate, appId);
                 updateSchedule(preTemplate, appId);
@@ -83,7 +85,8 @@ public class UpdateYamlTemplateService {
 
     private boolean updateServiceCollection(YamlTemplate templateObj, String appId) {
         ServiceTemplateConfig serviceTemplateConfig = templateObj.getRecordTemplateConfig().getServiceTemplateConfig();
-        ServiceCollectConfiguration serviceCollectConfiguration = YamlServiceConfigMapper.INSTANCE.fromYaml(serviceTemplateConfig);
+        ServiceCollectConfiguration serviceCollectConfiguration =
+                YamlServiceConfigMapper.INSTANCE.fromYaml(serviceTemplateConfig);
         serviceCollectConfiguration.setAppId(appId);
 
         return serviceCollectConfigurableHandler.update(serviceCollectConfiguration);
@@ -93,7 +96,8 @@ public class UpdateYamlTemplateService {
         boolean result = true;
 
         List<DynamicClassConfiguration> updateEntity = null;
-        if (templateObj.getRecordTemplateConfig() == null || templateObj.getRecordTemplateConfig().getDynamicClassTemplateConfigs() == null) {
+        if (templateObj.getRecordTemplateConfig() == null
+                || templateObj.getRecordTemplateConfig().getDynamicClassTemplateConfigs() == null) {
             updateEntity = new ArrayList<>();
         } else {
             updateEntity = templateObj.getRecordTemplateConfig().getDynamicClassTemplateConfigs().stream()
@@ -113,7 +117,9 @@ public class UpdateYamlTemplateService {
     private boolean updateSchedule(YamlTemplate templateObj, String appId) {
 
         ScheduleConfiguration scheduleConfiguration = YamlReplayConfigMapper.INSTANCE.fromYaml(
-                templateObj.getReplayTemplateConfig() == null ? new ReplayTemplateConfig() : templateObj.getReplayTemplateConfig());
+                templateObj.getReplayTemplateConfig() == null ?
+                        new ReplayTemplateConfig() :
+                        templateObj.getReplayTemplateConfig());
         scheduleConfiguration.setAppId(appId);
         if (scheduleConfiguration.getSendMaxQps() == null) {
             scheduleConfiguration.setSendMaxQps(20);
