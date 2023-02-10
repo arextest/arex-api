@@ -1,5 +1,6 @@
 package com.arextest.web.core.repository.mongo;
 
+import com.arextest.web.common.LogUtils;
 import com.arextest.web.core.repository.UserRepository;
 import com.arextest.web.core.repository.mongo.util.MongoHelper;
 import com.arextest.web.model.dao.mongodb.UserCollection;
@@ -68,7 +69,7 @@ public class UserRepositoryImpl implements UserRepository {
                     UserCollection.class);
             return true;
         } catch (Exception e) {
-            LOGGER.error("failed to update user profile.", e);
+            LogUtils.error(LOGGER, "failed to update user profile.", e);
             return false;
         }
     }

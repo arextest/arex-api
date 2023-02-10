@@ -1,5 +1,6 @@
 package com.arextest.web.core.business;
 
+import com.arextest.web.common.LogUtils;
 import com.arextest.web.core.repository.ReportPlanItemStatisticRepository;
 import com.arextest.web.core.repository.ReportPlanStatisticRepository;
 import com.arextest.web.model.dto.CompareResultDto;
@@ -25,19 +26,19 @@ public class StatisticService {
     @Resource
     private ReportPlanStatisticRepository planStatisticRepository;
 
-    
+
     private static Map<String, PlanItemDto> planItemMap = new HashMap<>();
 
-    
+
     private static Map<String, ReportPlanStatisticDto> planMap = new HashMap<>();
 
-    
+
     public void statisticPlanItems(List<CompareResultDto> results) {
         // 100000 records costs 32ms
         synchronized (planItemMap) {
             for (CompareResultDto r : results) {
                 statisticCase(planItemMap, r, StatisticType.CASE_COUNT);
-                if (r.getDiffResultCode() == DiffResultCode.COMPARED_WITHOUT_DIFFERENCE){
+                if (r.getDiffResultCode() == DiffResultCode.COMPARED_WITHOUT_DIFFERENCE) {
                     continue;
                 }
                 if (r.getDiffResultCode() == DiffResultCode.COMPARED_WITH_DIFFERENCE) {
@@ -90,7 +91,7 @@ public class StatisticService {
                 inc(item.getFailCases(), result.getRecordId());
                 break;
             default:
-                LOGGER.error(String.format("unhandled StatisticType:%s", type.toString()));
+                LogUtils.error(LOGGER, String.format("unhandled StatisticType:%s", type.toString()));
         }
 
     }
@@ -104,15 +105,15 @@ public class StatisticService {
     }
 
     private enum StatisticType {
-        
+
         CASE_COUNT,
-        
+
         FAILED,
-        
+
         ERROR;
     }
 
-    
+
     public void report() {
         if (planItemMap == null) {
             return;
@@ -130,7 +131,7 @@ public class StatisticService {
             planItemMap.clear();
 
             sw.stop();
-            LOGGER.info(sw.toString());
+            LogUtils.info(LOGGER, sw.toString());
         }
     }
 }

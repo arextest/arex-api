@@ -1,5 +1,6 @@
 package com.arextest.web.core.repository.mongo;
 
+import com.arextest.web.common.LogUtils;
 import com.arextest.web.core.repository.ReportDiffAggStatisticRepository;
 import com.arextest.web.core.repository.mongo.util.MongoHelper;
 import com.arextest.web.model.dao.mongodb.ReportDiffAggStatisticCollection;
@@ -125,7 +126,7 @@ public class ReportDiffAggStatisticRepositoryImpl implements ReportDiffAggStatis
                 dto.setCaseCount(diffCaseCounts.get(k));
             } else {
 
-                LOGGER.error("case count should not be zero");
+                LogUtils.error(LOGGER, "case count should not be zero");
                 dto.setCaseCount(0);
             }
             differenceDtos.add(dto);

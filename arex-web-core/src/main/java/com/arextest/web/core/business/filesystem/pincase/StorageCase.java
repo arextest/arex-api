@@ -4,6 +4,7 @@ import com.arextest.model.mock.AREXMocker;
 import com.arextest.model.mock.MockCategoryType;
 import com.arextest.model.replay.ViewRecordResponseType;
 import com.arextest.web.common.HttpUtils;
+import com.arextest.web.common.LogUtils;
 import com.arextest.web.model.dto.filesystem.FSCaseDto;
 import lombok.Data;
 import lombok.SneakyThrows;
@@ -83,7 +84,7 @@ public class StorageCase {
             }
             return true;
         } catch (Exception e) {
-            LOGGER.error("Failed to pinned case.", e);
+            LogUtils.error(LOGGER, "Failed to pinned case.", e);
             return false;
         }
     }

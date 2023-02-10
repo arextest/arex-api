@@ -1,5 +1,6 @@
 package com.arextest.web.core.repository.mongo;
 
+import com.arextest.web.common.LogUtils;
 import com.arextest.web.core.repository.LabelRepository;
 import com.arextest.web.model.dao.mongodb.LabelCollection;
 import com.arextest.web.model.dto.LabelDto;
@@ -35,7 +36,7 @@ public class LabelRepositoryImpl implements LabelRepository {
             mongoTemplate.save(dao);
             return true;
         } catch (Exception e) {
-            LOGGER.error("Failed to save label.", e);
+            LogUtils.error(LOGGER, "Failed to save label.", e);
             return false;
         }
     }

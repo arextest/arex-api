@@ -25,7 +25,7 @@ public class HttpUtils {
     }
 
     public static <T, R> ResponseEntity<T> post(String url, R request, Class<T> responseClazz, String contentType,
-                                                Map<String, String> headers, Integer timeout) {
+            Map<String, String> headers, Integer timeout) {
         return call(url, request, responseClazz, HttpMethod.POST, contentType, headers, timeout);
     }
 
@@ -35,13 +35,13 @@ public class HttpUtils {
     }
 
     public static <T> ResponseEntity<T> get(String url, Class<T> responseClazz, String contentType,
-                                            Map<String, String> headers, Integer timeout) {
+            Map<String, String> headers, Integer timeout) {
         return call(url, null, responseClazz, HttpMethod.GET, contentType, headers, timeout);
     }
 
-    
+
     public static <T, R> ResponseEntity<T> call(String url, R request, Class<T> responseClazz, HttpMethod httpMethod,
-                                                String contentType, Map<String, String> headers, Integer timeout) {
+            String contentType, Map<String, String> headers, Integer timeout) {
         ResponseEntity<T> responseEntity = new ResponseEntity<>(HttpStatus.OK);
         if (Strings.isBlank(url)) {
             return responseEntity;
@@ -49,7 +49,8 @@ public class HttpUtils {
         try {
             RestTemplate restTemplate = new RestTemplate();
             if (timeout != null && timeout > 0) {
-                HttpComponentsClientHttpRequestFactory httpRequestFactory = new HttpComponentsClientHttpRequestFactory();
+                HttpComponentsClientHttpRequestFactory httpRequestFactory =
+                        new HttpComponentsClientHttpRequestFactory();
                 httpRequestFactory.setReadTimeout(timeout);
                 restTemplate = new RestTemplate(httpRequestFactory);
             }
@@ -66,7 +67,7 @@ public class HttpUtils {
 
             responseEntity = restTemplate.exchange(url, httpMethod, requestEntity, responseClazz);
         } catch (Exception e) {
-            LOGGER.error(String.format("[HttpUtils error] url:%1$s, request:%2$s, exception:%3$s",
+            LogUtils.error(LOGGER, String.format("[HttpUtils error] url:%1$s, request:%2$s, exception:%3$s",
                     url, new Gson().toJson(request), e.toString()));
             responseEntity = new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
         }

@@ -1,6 +1,7 @@
 package com.arextest.web.core.repository.mongo;
 
 
+import com.arextest.web.common.LogUtils;
 import com.arextest.web.core.repository.ConfigRepositoryField;
 import com.arextest.web.core.repository.ConfigRepositoryProvider;
 import com.arextest.web.core.repository.mongo.util.MongoHelper;
@@ -69,7 +70,9 @@ public class ScheduleConfigurationRepositoryImpl implements ConfigRepositoryProv
                 update.set(EXCLUSION_OPERATION_MAP,
                         objectMapper.writeValueAsString(configuration.getExcludeOperationMap()));
             } catch (JsonProcessingException e) {
-                LOGGER.error("ScheduleConfigurationRepositoryImpl.update: serialize excludeOperationMap failed ", e);
+                LogUtils.error(LOGGER,
+                        "ScheduleConfigurationRepositoryImpl.update: serialize excludeOperationMap failed ",
+                        e);
             }
         }
         UpdateResult updateResult = mongoTemplate.updateMulti(query, update, ReplayScheduleConfigCollection.class);

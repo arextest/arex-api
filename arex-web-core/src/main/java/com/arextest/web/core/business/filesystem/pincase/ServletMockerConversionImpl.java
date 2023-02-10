@@ -2,6 +2,7 @@ package com.arextest.web.core.business.filesystem.pincase;
 
 import com.arextest.model.mock.AREXMocker;
 import com.arextest.model.mock.Mocker;
+import com.arextest.web.common.LogUtils;
 import com.arextest.web.model.dto.KeyValuePairDto;
 import com.arextest.web.model.dto.filesystem.AddressDto;
 import com.arextest.web.model.dto.filesystem.BodyDto;
@@ -91,7 +92,7 @@ public class ServletMockerConversionImpl implements MockerConversion {
 
             return caseDto;
         } catch (Exception e) {
-            LOGGER.error("Failed to convert AREXMocker to FSCaseDto", e);
+            LogUtils.error(LOGGER, "Failed to convert AREXMocker to FSCaseDto", e);
             return null;
         }
     }

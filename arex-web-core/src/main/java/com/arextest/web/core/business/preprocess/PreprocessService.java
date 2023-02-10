@@ -1,6 +1,7 @@
 package com.arextest.web.core.business.preprocess;
 
 import com.arextest.common.utils.CompressionUtils;
+import com.arextest.web.common.LogUtils;
 import com.arextest.web.core.repository.MessagePreprocessRepository;
 import com.arextest.web.core.repository.PreprocessConfigRepository;
 import com.arextest.web.core.repository.ServletMockerRepository;
@@ -42,7 +43,7 @@ public class PreprocessService {
     private LoadingCache schemaCache;
 
     public void updateServletSchema() {
-        LOGGER.info("starting update servlet schema");
+        LogUtils.info(LOGGER, "starting update servlet schema");
         PreprocessConfigDto preprocessConfigDto = preprocessConfigRepository.queryConfig(SERVLET_MOCKER);
         String index = StringUtils.EMPTY;
         if (preprocessConfigDto != null && StringUtils.isNotEmpty(preprocessConfigDto.getIndex())) {
@@ -67,8 +68,8 @@ public class PreprocessService {
                         String requestJson = new String(Base64.getDecoder().decode(request));
                         updateSchema(key, requestJson);
                     } catch (Exception e) {
-                        LOGGER.error(String.format("failed to preprocess request. Key:%s, Id:%s", key, dto.getId()),
-                                e);
+                        LogUtils.error(LOGGER,
+                                String.format("failed to preprocess request. Key:%s, Id:%s", key, dto.getId()), e);
                     }
                 }
                 if (StringUtils.isNotEmpty(dto.getResponse())) {
@@ -77,14 +78,14 @@ public class PreprocessService {
                         String response = CompressionUtils.useZstdDecompress(dto.getResponse());
                         updateSchema(key, response);
                     } catch (Exception e) {
-                        LOGGER.error(String.format("failed to preprocess response. Key:%s, Id:%s", key, dto.getId()),
-                                e);
+                        LogUtils.error(LOGGER,
+                                String.format("failed to preprocess response. Key:%s, Id:%s", key, dto.getId()), e);
                     }
                 }
             }
-            LOGGER.info(String.format("preprocess %d records", dtos.size()));
+            LogUtils.info(LOGGER, String.format("preprocess %d records", dtos.size()));
         } while (!stop);
-        LOGGER.info("finish updating servlet schema");
+        LogUtils.info(LOGGER, "finish updating servlet schema");
     }
 
     public Boolean updateSchema(String key, String message) throws JSONException {

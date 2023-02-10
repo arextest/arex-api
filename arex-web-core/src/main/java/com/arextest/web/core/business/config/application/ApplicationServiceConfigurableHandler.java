@@ -1,5 +1,6 @@
 package com.arextest.web.core.business.config.application;
 
+import com.arextest.web.common.LogUtils;
 import com.arextest.web.core.business.config.AbstractConfigurableHandler;
 import com.arextest.web.core.repository.ConfigRepositoryProvider;
 import com.arextest.web.model.contract.contracts.common.enums.StatusType;
@@ -24,24 +25,26 @@ import java.util.List;
  */
 @Slf4j
 @Component
-public final class ApplicationServiceConfigurableHandler extends AbstractConfigurableHandler<ApplicationServiceConfiguration> {
+public final class ApplicationServiceConfigurableHandler
+        extends AbstractConfigurableHandler<ApplicationServiceConfiguration> {
     @Resource
     private ApplicationServiceDescriptionProvider applicationServiceProvider;
     @Resource
     private AbstractConfigurableHandler<ApplicationOperationConfiguration> operationConfigurableHandler;
 
-    protected ApplicationServiceConfigurableHandler(@Autowired ConfigRepositoryProvider<ApplicationServiceConfiguration> repositoryProvider) {
+    protected ApplicationServiceConfigurableHandler(
+            @Autowired ConfigRepositoryProvider<ApplicationServiceConfiguration> repositoryProvider) {
         super(repositoryProvider);
     }
 
     public void createOrUpdate(String appId) {
         if (this.repositoryProvider.count(appId) != 0) {
-            LOGGER.info("skip create serviceList when exists by appId:{}", appId);
+            LogUtils.info(LOGGER, "skip create serviceList when exists by appId:{}", appId);
             return;
         }
         List<? extends ServiceDescription> originServiceList = applicationServiceProvider.get(appId);
         if (CollectionUtils.isEmpty(originServiceList)) {
-            LOGGER.info("skip empty originServiceList from appId:{}", appId);
+            LogUtils.info(LOGGER, "skip empty originServiceList from appId:{}", appId);
             return;
         }
         this.create(originServiceList);
@@ -60,7 +63,7 @@ public final class ApplicationServiceConfigurableHandler extends AbstractConfigu
             if (super.insert(serviceConfiguration) && CollectionUtils.isNotEmpty(sourceOperationList)) {
                 this.buildOperationList(serviceConfiguration, sourceOperationList);
                 operationConfigurableHandler.insertList(serviceConfiguration.getOperationList());
-                LOGGER.info("add {} service's operations size:{}", originService.getServiceName(),
+                LogUtils.info(LOGGER, "add {} service's operations size:{}", originService.getServiceName(),
                         sourceOperationList.size());
             }
         }
@@ -78,7 +81,7 @@ public final class ApplicationServiceConfigurableHandler extends AbstractConfigu
     }
 
     private void buildOperationList(ApplicationServiceConfiguration service,
-                                    List<? extends OperationDescription> source) {
+            List<? extends OperationDescription> source) {
         List<ApplicationOperationConfiguration> operationList = new ArrayList<>(source.size());
         ApplicationOperationConfiguration operationConfiguration;
         String operationName;

@@ -56,6 +56,8 @@ public class InterceptorConfiguration implements WebMvcConfigurer {
         defaultPatterns.add("/api/report/pushReplayStatus");
         // exclude configuration services
         defaultPatterns.add("/api/config/**");
+        // exclude logs services
+        defaultPatterns.add("/api/logs/**");
         // invite to workspace
         defaultPatterns.add("/api/filesystem/validInvitation");
 

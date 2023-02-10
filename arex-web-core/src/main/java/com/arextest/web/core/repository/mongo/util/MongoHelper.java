@@ -1,5 +1,6 @@
 package com.arextest.web.core.repository.mongo.util;
 
+import com.arextest.web.common.LogUtils;
 import com.arextest.web.core.repository.RepositoryProvider;
 import com.arextest.web.model.dao.mongodb.ModelBase;
 import lombok.extern.slf4j.Slf4j;
@@ -27,9 +28,10 @@ public class MongoHelper {
                     update.set(field.getName(), field.get(obj));
                 }
             } catch (IllegalAccessException e) {
-                LOGGER.error(String.format("Class:[%s]. failed to get field %s",
-                        obj.getClass().getName(),
-                        field.getName()), e);
+                LogUtils.error(LOGGER,
+                        String.format("Class:[%s]. failed to get field %s",
+                                obj.getClass().getName(),
+                                field.getName()), e);
             }
         }
     }

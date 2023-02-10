@@ -1,5 +1,6 @@
 package com.arextest.web.core.business;
 
+import com.arextest.web.common.LogUtils;
 import com.arextest.web.core.repository.EnvironmentRepository;
 import com.arextest.web.model.contract.contracts.environment.DuplicateEnvironmentRequestType;
 import com.arextest.web.model.contract.contracts.environment.EnvironmentType;
@@ -33,7 +34,7 @@ public class EnvironmentService {
             }
             return true;
         } catch (Exception e) {
-            LOGGER.error("failed to save environment", e);
+            LogUtils.error(LOGGER, "failed to save environment", e);
         }
         return false;
     }

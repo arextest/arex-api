@@ -1,5 +1,6 @@
 package com.arextest.web.core.business;
 
+import com.arextest.web.common.LogUtils;
 import com.arextest.web.core.repository.ReplayCompareResultRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -65,7 +66,7 @@ public class SchemaInferService {
                 response.setSchema(mapper.writeValueAsString(schemaByPath));
             }
         } catch (Exception e) {
-            LOGGER.warn("schemaInfer", e);
+            LogUtils.warn(LOGGER, "schemaInfer", e);
         }
         return response;
     }
@@ -82,7 +83,7 @@ public class SchemaInferService {
             }
             response.setSchema(mapper.writeValueAsString(jsonSchema));
         } catch (Exception e) {
-            LOGGER.warn("schemaInferForConfig", e);
+            LogUtils.warn(LOGGER, "schemaInferForConfig", e);
         }
         return response;
     }
