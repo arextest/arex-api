@@ -18,8 +18,8 @@ import org.springframework.data.mongodb.core.mapping.MongoMappingContext;
 @Configuration
 public class MongodbConfiguration {
 
-    @Value("${arex.report.mongo.uri}")
-    private String mongoUrl;
+    //@Value("${arex.report.mongo.uri}")
+    private String mongoUrl = "mongodb://arex:iLoveArex@10.5.153.1:27017/arex_storage_db";
 
     @Bean
     public MongoDatabaseFactory mongoDbFactory() {
