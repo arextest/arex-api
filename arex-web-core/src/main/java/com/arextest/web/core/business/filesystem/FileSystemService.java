@@ -530,7 +530,6 @@ public class FileSystemService {
     }
 
     public FSQueryInterfaceResponseType queryInterface(FSQueryInterfaceRequestType request) {
-        int i = 1 / 0;
         FSInterfaceDto dto = fsInterfaceRepository.queryInterface(request.getId());
         if (dto == null) {
             return new FSQueryInterfaceResponseType();
