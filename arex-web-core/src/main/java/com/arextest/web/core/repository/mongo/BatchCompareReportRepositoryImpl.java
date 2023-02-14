@@ -86,6 +86,15 @@ public class BatchCompareReportRepositoryImpl implements BatchCompareReportRepos
         return this.covertToBatchCompareInterfaceProcess(aggregate.getMappedResults());
     }
 
+    @Override
+    public BatchCompareReportCaseDto findById(String planId, String interfaceId, String caseId) {
+        Query query = Query.query(Criteria.where(PLAN_ID).is(planId)
+                .and(INTERFACE_ID).is(interfaceId)
+                .and(CASE_ID).is(caseId));
+        BatchCompareReportCaseCollection dao = mongoTemplate.findOne(query, BatchCompareReportCaseCollection.class);
+        return BatchCompareReportCaseMapper.INSTANCE.dtoFromDao(dao);
+    }
+
     private List<BatchCompareInterfaceProcess> covertToBatchCompareInterfaceProcess(List<BasicDBObject> mappedResults) {
         List<BatchCompareInterfaceProcess> result = new ArrayList<>();
         if (CollectionUtils.isEmpty(mappedResults)) {

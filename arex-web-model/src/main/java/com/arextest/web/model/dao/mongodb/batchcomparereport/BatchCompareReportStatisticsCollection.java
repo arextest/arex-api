@@ -18,7 +18,8 @@ public class BatchCompareReportStatisticsCollection extends ModelBase {
     private String fuzzyPath;
     private int errorCount;
 
-    // 卡片示例
+    // card example
+    private String caseId;
     private String logId;
     private LogEntity logEntity;
 }

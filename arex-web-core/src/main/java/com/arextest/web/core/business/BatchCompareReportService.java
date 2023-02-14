@@ -7,10 +7,14 @@ import com.arextest.web.core.repository.BatchCompareReportRepository;
 import com.arextest.web.core.repository.BatchCompareReportResultRepository;
 import com.arextest.web.core.repository.BatchCompareReportStatisticsRepository;
 import com.arextest.web.model.contract.contracts.batchcomparereport.BatchCompareInterfaceProcess;
+import com.arextest.web.model.contract.contracts.batchcomparereport.BatchCompareMoreItem;
 import com.arextest.web.model.contract.contracts.batchcomparereport.BatchCompareReportRequestType;
 import com.arextest.web.model.contract.contracts.batchcomparereport.BatchCompareSummaryItem;
+import com.arextest.web.model.contract.contracts.batchcomparereport.QueryBatchCompareCaseMsgWithDiffResponseType;
 import com.arextest.web.model.contract.contracts.batchcomparereport.QueryBatchCompareProgressRequestType;
 import com.arextest.web.model.contract.contracts.batchcomparereport.QueryBatchCompareSummaryRequestType;
+import com.arextest.web.model.contract.contracts.batchcomparereport.QueryMoreDiffInSameCardRequestType;
+import com.arextest.web.model.contract.contracts.batchcomparereport.QueryMoreDiffInSameCardResponseType;
 import com.arextest.web.model.contract.contracts.batchcomparereport.UpdateBatchCompareCaseRequestType;
 import com.arextest.web.model.contract.contracts.common.BatchCompareCaseStatusType;
 import com.arextest.web.model.contract.contracts.common.LogEntity;
@@ -20,17 +24,20 @@ import com.arextest.web.model.dto.batchcomparereport.BatchCompareReportResultDto
 import com.arextest.web.model.dto.batchcomparereport.BatchCompareReportStatisticsDto;
 import com.arextest.web.model.enums.DiffResultCode;
 import com.arextest.web.model.mapper.BatchCompareReportCaseMapper;
+import com.arextest.web.model.mapper.BatchCompareReportResultMapper;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.MutablePair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -51,6 +58,9 @@ public class BatchCompareReportService {
     BatchCompareReportStatisticsRepository batchCompareReportStatisticsRepository;
     @Autowired
     BatchCompareReportResultRepository batchCompareReportResultRepository;
+
+    @Autowired
+    MsgShowService msgShowService;
 
     public boolean initBatchCompareReport(BatchCompareReportRequestType request) {
 
@@ -107,7 +117,7 @@ public class BatchCompareReportService {
                     List<LogEntity> logs = compareResult.getLogs().stream()
                             .map(LogEntityMapper.INSTANCE::fromLogEntity).collect(Collectors.toList());
                     List<DiffDetail> diffDetails = compareService.getDiffDetails(logs);
-                    // 更新错误表和统计表
+                    // update BatchCompareReportResult and BatchCompareReportStatistics
                     this.updateBatchCompareReportStatistics(planId, interfaceId, caseId, diffDetails);
                 }
             }
@@ -131,6 +141,55 @@ public class BatchCompareReportService {
         return batchCompareReportStatisticsRepository.queryBatchCompareSummary(planId, interfaceId);
     }
 
+    public QueryBatchCompareCaseMsgWithDiffResponseType queryBatchCompareCaseMsgWithDiff(String logId) {
+        QueryBatchCompareCaseMsgWithDiffResponseType response =
+                new QueryBatchCompareCaseMsgWithDiffResponseType();
+        BatchCompareReportResultDto batchCompareReportResultDto = batchCompareReportResultRepository.findById(logId);
+        if (batchCompareReportResultDto == null) {
+            return null;
+        }
+        String planId = batchCompareReportResultDto.getPlanId();
+        String interfaceId = batchCompareReportResultDto.getInterfaceId();
+        String caseId = batchCompareReportResultDto.getCaseId();
+        LogEntity logEntity = batchCompareReportResultDto.getLogEntity();
+        BatchCompareReportCaseDto batchCompareReportCaseDto =
+                batchCompareReportRepository.findById(planId, interfaceId, caseId);
+        if (batchCompareReportCaseDto == null) {
+            return null;
+        }
+        String processedBaseMsg = batchCompareReportCaseDto.getProcessedBaseMsg();
+        String processedTestMsg = batchCompareReportCaseDto.getProcessedTestMsg();
+        if (processedBaseMsg != null && processedTestMsg != null) {
+            MutablePair<Object, Object> objectObjectMutablePair =
+                    msgShowService.produceNewObjectFromOriginal(
+                            processedBaseMsg,
+                            processedTestMsg,
+                            Collections.singletonList(logEntity));
+            processedBaseMsg = objectObjectMutablePair.getLeft().toString();
+            processedTestMsg = objectObjectMutablePair.getRight().toString();
+        }
+        response.setBaseMsg(processedBaseMsg);
+        response.setTestMsg(processedTestMsg);
+        response.setLogEntity(logEntity);
+        return response;
+    }
+
+    public QueryMoreDiffInSameCardResponseType queryMoreDiffInSameCard(QueryMoreDiffInSameCardRequestType request) {
+        QueryMoreDiffInSameCardResponseType response = new QueryMoreDiffInSameCardResponseType();
+        BatchCompareReportResultDto dtos =
+                BatchCompareReportResultMapper.INSTANCE.dtoFromRequest(request);
+        long total = batchCompareReportResultRepository.countAll(dtos);
+        List<BatchCompareReportResultDto> batchCompareReportResultDtos =
+                batchCompareReportResultRepository.queryAllByPage(dtos, request.getPage(), request.getPageSize());
+        List<BatchCompareMoreItem> diffs = batchCompareReportResultDtos
+                .stream()
+                .map(BatchCompareReportResultMapper.INSTANCE::itemFromDto)
+                .collect(Collectors.toList());
+        response.setTotal(total);
+        response.setDiffs(diffs);
+        return response;
+    }
+
 
     private void updateBatchCompareReportStatistics(String planId, String interfaceId, String caseId,
                                                     List<DiffDetail> diffDetails) {
@@ -152,6 +211,7 @@ public class BatchCompareReportService {
             dto.setErrorCount(batchCompareCardInfo.getErrorCount());
             dto.setLogEntity(batchCompareCardInfo.getLogEntity());
             dto.setLogId(logId);
+            dto.setCaseId(caseId);
             batchCompareReportStatisticsRepository.updateBatchCompareReportStatistics(dto);
         }
     }

@@ -15,7 +15,8 @@ public class BatchCompareReportStatisticsDto extends BaseDto {
     private String fuzzyPath;
 
     private int errorCount;
-    // private List<IndexInCaseDto> indexInCaseList;
+
+    private String caseId;
     private String logId;
     private LogEntity logEntity;
 }

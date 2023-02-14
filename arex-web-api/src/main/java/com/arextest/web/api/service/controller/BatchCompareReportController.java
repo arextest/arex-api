@@ -7,10 +7,13 @@ import com.arextest.web.model.contract.contracts.batchcomparereport.BatchCompare
 import com.arextest.web.model.contract.contracts.batchcomparereport.BatchCompareReportRequestType;
 import com.arextest.web.model.contract.contracts.batchcomparereport.BatchCompareSummaryItem;
 import com.arextest.web.model.contract.contracts.batchcomparereport.QueryBatchCompareCaseMsgWithDiffRequestType;
+import com.arextest.web.model.contract.contracts.batchcomparereport.QueryBatchCompareCaseMsgWithDiffResponseType;
 import com.arextest.web.model.contract.contracts.batchcomparereport.QueryBatchCompareProgressRequestType;
 import com.arextest.web.model.contract.contracts.batchcomparereport.QueryBatchCompareProgressResponseType;
 import com.arextest.web.model.contract.contracts.batchcomparereport.QueryBatchCompareSummaryRequestType;
 import com.arextest.web.model.contract.contracts.batchcomparereport.QueryBatchCompareSummaryResponseType;
+import com.arextest.web.model.contract.contracts.batchcomparereport.QueryMoreDiffInSameCardRequestType;
+import com.arextest.web.model.contract.contracts.batchcomparereport.QueryMoreDiffInSameCardResponseType;
 import com.arextest.web.model.contract.contracts.batchcomparereport.UpdateBatchCompareCaseRequestType;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,9 +76,17 @@ public class BatchCompareReportController {
     @PostMapping("/queryBatchCompareCaseMsgWithDiff")
     @ResponseBody
     public Response queryBatchCompareCaseMsgWithDiff(@Valid @RequestBody QueryBatchCompareCaseMsgWithDiffRequestType request) {
-
-        return null;
+        QueryBatchCompareCaseMsgWithDiffResponseType response =
+                batchCompareReportService.queryBatchCompareCaseMsgWithDiff(request.getLogId());
+        return ResponseUtils.successResponse(response);
     }
 
+    @PostMapping("/queryMoreDiffInSameCard")
+    @ResponseBody
+    public Response queryMoreDiffInSameCard(@Valid @RequestBody QueryMoreDiffInSameCardRequestType request) {
+        QueryMoreDiffInSameCardResponseType response =
+                batchCompareReportService.queryMoreDiffInSameCard(request);
+        return ResponseUtils.successResponse(response);
+    }
 
 }

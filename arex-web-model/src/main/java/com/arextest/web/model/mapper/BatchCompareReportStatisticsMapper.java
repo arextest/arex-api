@@ -3,8 +3,6 @@ package com.arextest.web.model.mapper;
 import com.arextest.web.model.contract.contracts.batchcomparereport.BatchCompareSummaryItem;
 import com.arextest.web.model.dao.mongodb.batchcomparereport.BatchCompareReportStatisticsCollection;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.Mappings;
 import org.mapstruct.factory.Mappers;
 
 /**
@@ -15,8 +13,5 @@ public interface BatchCompareReportStatisticsMapper {
 
     BatchCompareReportStatisticsMapper INSTANCE = Mappers.getMapper(BatchCompareReportStatisticsMapper.class);
 
-    @Mappings({
-            @Mapping(target = "logId", source = "id")
-    })
     BatchCompareSummaryItem itemFromDao(BatchCompareReportStatisticsCollection dao);
 }

@@ -14,4 +14,6 @@ public interface BatchCompareReportRepository {
     boolean updateBatchCompareCase(BatchCompareReportCaseDto batchCompareReportCaseDto);
 
     List<BatchCompareInterfaceProcess> queryBatchCompareProgress(String planId);
+
+    BatchCompareReportCaseDto findById(String planId, String interfaceId, String caseId);
 }

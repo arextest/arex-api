@@ -30,6 +30,7 @@ public class BatchCompareReportStatisticsRepositoryImpl implements BatchCompareR
     private static final String ERROR_COUNT = "errorCount";
     private static final String LOG_ID = "logId";
     private static final String LOG_ENTITY = "logEntity";
+    private static final String CASE_ID = "caseId";
 
     @Autowired
     MongoTemplate mongoTemplate;
@@ -41,6 +42,7 @@ public class BatchCompareReportStatisticsRepositoryImpl implements BatchCompareR
         }
 
         Update update = MongoHelper.getUpdate();
+        update.setOnInsert(CASE_ID, dto.getCaseId());
         update.setOnInsert(LOG_ID, dto.getLogId());
         update.setOnInsert(LOG_ENTITY, dto.getLogEntity());
         update.setOnInsert(DATA_CHANGE_CREATE_TIME, System.currentTimeMillis());
