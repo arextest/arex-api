@@ -5,7 +5,6 @@ import com.arextest.common.model.response.Response;
 import com.arextest.common.utils.ResponseUtils;
 import com.arextest.web.core.business.config.ConfigurableHandler;
 import com.arextest.web.core.business.config.replay.ComparisonInclusionsConfigurableHandler;
-import com.arextest.web.core.business.filesystem.FileSystemService;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonInclusionsConfiguration;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,9 +22,6 @@ public class ComparisonInclusionsController extends AbstractConfigurableControll
             @Autowired ConfigurableHandler<ComparisonInclusionsConfiguration> configurableHandler) {
         super(configurableHandler);
     }
-
-    @Resource
-    FileSystemService fileSystemService;
 
     @Resource
     ComparisonInclusionsConfigurableHandler comparisonInclusionsConfigurableHandler;

@@ -33,14 +33,16 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 /**
@@ -61,6 +63,9 @@ public class BatchCompareReportService {
 
     @Autowired
     MsgShowService msgShowService;
+
+    @Resource(name = "compare-task-executor")
+    ThreadPoolTaskExecutor executor;
 
     public boolean initBatchCompareReport(BatchCompareReportRequestType request) {
 
@@ -85,12 +90,10 @@ public class BatchCompareReportService {
         BatchCompareReportCaseDto dto = BatchCompareReportCaseMapper.INSTANCE.dtoFromRequest(request);
         dto.setStatus(BatchCompareCaseStatusType.WAIT_COMPARE);
         batchCompareReportRepository.updateBatchCompareCase(dto);
-        this.batchCompareAndAgg(request);
+        CompletableFuture.runAsync(() -> this.batchCompareAndAgg(request), executor);
         return true;
     }
 
-
-    @Async("compare-task-executor")
     public void batchCompareAndAgg(UpdateBatchCompareCaseRequestType request) {
         String planId = request.getPlanId();
         String interfaceId = request.getInterfaceId();
