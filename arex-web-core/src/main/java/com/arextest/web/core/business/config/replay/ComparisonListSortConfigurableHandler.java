@@ -1,9 +1,12 @@
 package com.arextest.web.core.business.config.replay;
 
+import com.arextest.web.core.business.config.application.ApplicationOperationConfigurableHandler;
 import com.arextest.web.core.repository.ConfigRepositoryProvider;
 import com.arextest.web.core.repository.FSInterfaceRepository;
+import com.arextest.web.model.contract.contracts.config.application.ApplicationOperationConfiguration;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonListSortConfiguration;
 import com.arextest.web.model.dto.filesystem.FSInterfaceDto;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -23,6 +26,9 @@ public class ComparisonListSortConfigurableHandler extends AbstractComparisonCon
     @Resource
     FSInterfaceRepository fsInterfaceRepository;
 
+    @Resource
+    ApplicationOperationConfigurableHandler applicationOperationConfigurableHandler;
+
     @Override
     public List<ComparisonListSortConfiguration> queryByInterfaceId(String interfaceId) {
 
@@ -30,6 +36,17 @@ public class ComparisonListSortConfigurableHandler extends AbstractComparisonCon
         FSInterfaceDto fsInterfaceDto = fsInterfaceRepository.queryInterface(interfaceId);
         String operationId = fsInterfaceDto == null ? null : fsInterfaceDto.getOperationId();
 
-        return queryByOperationIdAndInterfaceId(interfaceId, operationId);
+        List<ComparisonListSortConfiguration> result =
+                this.queryByOperationIdAndInterfaceId(interfaceId, operationId);
+        if (StringUtils.isNotEmpty(operationId)) {
+            ApplicationOperationConfiguration applicationOperationConfiguration =
+                    applicationOperationConfigurableHandler.useResultById(operationId);
+            if (applicationOperationConfiguration != null) {
+                List<ComparisonListSortConfiguration> globalConfig =
+                        this.useResultAsList(applicationOperationConfiguration.getAppId(), null);
+                result.addAll(globalConfig);
+            }
+        }
+        return result;
     }
 }
