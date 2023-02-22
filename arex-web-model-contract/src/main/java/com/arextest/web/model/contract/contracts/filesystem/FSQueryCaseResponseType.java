@@ -24,5 +24,7 @@ public class FSQueryCaseResponseType {
     private ComparisonMsgType comparisonMsg;
     private Set<String> labelIds;
     private String description;
+    private Boolean inherited;
+    private List<ScriptBlockType> parentPreRequestScripts;
     private Map<String, Object> customTags;
 }
