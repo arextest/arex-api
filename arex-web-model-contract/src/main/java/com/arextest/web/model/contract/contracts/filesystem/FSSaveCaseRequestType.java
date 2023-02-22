@@ -24,5 +24,6 @@ public class FSSaveCaseRequestType {
     private AddressType testAddress;
     private Set<String> labelIds;
     private String description;
+    private Boolean inherited;
     private Map<String, Object> customTags;
 }

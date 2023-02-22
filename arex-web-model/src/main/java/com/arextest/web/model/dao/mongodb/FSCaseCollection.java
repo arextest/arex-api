@@ -13,4 +13,5 @@ public class FSCaseCollection extends FSInterfaceCollection {
     private ComparisonMsgDao comparisonMsg;
     private Set<String> labelIds;
     private String description;
+    private Boolean inherited;
 }
