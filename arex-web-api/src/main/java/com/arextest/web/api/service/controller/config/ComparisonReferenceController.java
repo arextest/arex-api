@@ -4,7 +4,6 @@ import com.arextest.common.model.response.Response;
 import com.arextest.common.utils.ResponseUtils;
 import com.arextest.web.core.business.config.ConfigurableHandler;
 import com.arextest.web.core.business.config.replay.ComparisonReferenceConfigurableHandler;
-import com.arextest.web.core.business.filesystem.FileSystemService;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonReferenceConfiguration;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,9 +23,6 @@ public class ComparisonReferenceController extends AbstractConfigurableControlle
     protected ComparisonReferenceController(@Autowired ConfigurableHandler<ComparisonReferenceConfiguration> configurableHandler) {
         super(configurableHandler);
     }
-
-    @Resource
-    FileSystemService fileSystemService;
 
     @Resource
     ComparisonReferenceConfigurableHandler comparisonReferenceConfigurableHandler;

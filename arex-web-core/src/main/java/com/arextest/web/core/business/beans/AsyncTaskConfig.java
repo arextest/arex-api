@@ -15,8 +15,8 @@ public class AsyncTaskConfig {
     @Bean("compare-task-executor")
     public ThreadPoolTaskExecutor compareTaskExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(10);
-        executor.setMaxPoolSize(30);
+        executor.setCorePoolSize(2);
+        executor.setMaxPoolSize(8);
         executor.setKeepAliveSeconds(30);
         executor.setQueueCapacity(1000);
         executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
