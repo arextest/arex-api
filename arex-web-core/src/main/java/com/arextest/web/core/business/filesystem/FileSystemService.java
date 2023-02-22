@@ -568,6 +568,13 @@ public class FileSystemService {
         }
 
         FSQueryCaseResponseType response = FSCaseMapper.INSTANCE.contractFromDto(dto);
+        String parentId = dto.getParentId();
+        FSInterfaceDto fsInterfaceDto = fsInterfaceRepository.queryInterface(parentId);
+        if (fsInterfaceDto != null){
+            FSQueryInterfaceResponseType fsQueryInterfaceResponseType =
+                    FSInterfaceMapper.INSTANCE.contractFromDto(fsInterfaceDto);
+            response.setParentPreRequestScripts(fsQueryInterfaceResponseType.getPreRequestScripts());
+        }
         return response;
     }
 
