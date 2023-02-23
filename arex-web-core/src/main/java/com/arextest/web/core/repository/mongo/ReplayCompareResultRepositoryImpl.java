@@ -156,6 +156,12 @@ public class ReplayCompareResultRepositoryImpl implements ReplayCompareResultRep
         return deleteResult.getDeletedCount() > 0;
     }
 
+    @Override
+    public int queryCompareResultCountByPlanId(String planId) {
+        Query query = Query.query(Criteria.where(PLAN_ID).is(planId));
+        return mongoTemplate.findDistinct(query, RECORD_ID, ReplayCompareResultCollection.class, String.class).size();
+    }
+
 
     private Query fillFilterConditions(String planId, String planItemId, String categoryName, Integer resultType,
             String keyWord) {

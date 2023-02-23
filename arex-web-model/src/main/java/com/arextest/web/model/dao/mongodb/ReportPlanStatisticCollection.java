@@ -41,7 +41,7 @@ public class ReportPlanStatisticCollection extends ModelBase{
     private Long caseStartTime;
     private Long caseEndTime;
     
-    // private Integer totalCaseCount;
+    private Integer totalCaseCount;
     // private Integer errorCaseCount;
     // private Integer successCaseCount;
     // private Integer failCaseCount;

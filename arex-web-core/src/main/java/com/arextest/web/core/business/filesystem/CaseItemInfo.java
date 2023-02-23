@@ -30,7 +30,7 @@ public class CaseItemInfo implements ItemInfo {
     }
     @Override
     public Boolean removeItems(Set<String> infoIds) {
-        return null;
+        return fsCaseRepository.removeCases(infoIds);
     }
     @Override
     public String duplicate(String parentId, String infoId, String name) {

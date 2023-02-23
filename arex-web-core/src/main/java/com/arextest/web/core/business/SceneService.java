@@ -13,9 +13,11 @@ import com.arextest.web.model.dto.SceneDetailDto;
 import com.arextest.web.model.enums.DiffResultCode;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StopWatch;
 
@@ -29,6 +31,10 @@ import java.util.Objects;
 @Slf4j
 @Component
 public class SceneService {
+
+    private static final String LEFT_MISSING_SUFFIX = "@L";
+    private static final String BASE_MISSING = "%baseMissing%";
+    private static final String TEST_MISSING = "%testMissing%";
 
     @Resource
     private ReportDiffAggStatisticRepository reportDiffAggStatisticRepository;
@@ -105,24 +111,34 @@ public class SceneService {
              *          string: last node name of path
              */
 
-            for (int i = 0; i < compareResultDto.getLogs().size(); i++) {
-                LogEntity log = compareResultDto.getLogs().get(i);
-                Pair<List<NodeEntity>, String> pathNodeNamePair = getPath(log.getPathPair());
-                if (pathNodeNamePair == null) {
-                    continue;
+            if (isBaseOrTestMissing(compareResultDto)) {
+                LogEntity log = compareResultDto.getLogs().get(0);
+                if (log.getBaseValue() == null && log.getTestValue() != null) {
+                    setBaseTestMissingScene(caseMap, BASE_MISSING);
                 }
-                String pathStr = getPathStr(pathNodeNamePair.getLeft());
-                String fuzzyPathStr = getFuzzyPathStr(pathNodeNamePair.getLeft());
-                if (!caseMap.containsKey(fuzzyPathStr)) {
-                    caseMap.put(fuzzyPathStr, new HashMap<>());
+                if (log.getBaseValue() != null && log.getTestValue() == null) {
+                    setBaseTestMissingScene(caseMap, TEST_MISSING);
                 }
-                Map<String, List<Pair<Integer, String>>> scene = caseMap.get(fuzzyPathStr);
-                if (!scene.containsKey(pathStr)) {
-                    scene.put(pathStr, new ArrayList<>());
-                }
-                List<Pair<Integer, String>> logIndexes = scene.get(pathStr);
+            } else {
+                for (int i = 0; i < compareResultDto.getLogs().size(); i++) {
+                    LogEntity log = compareResultDto.getLogs().get(i);
+                    Pair<List<NodeEntity>, String> pathNodeNamePair = getPath(log.getPathPair());
+                    if (pathNodeNamePair == null) {
+                        continue;
+                    }
+                    String pathStr = getPathStr(pathNodeNamePair.getLeft());
+                    String fuzzyPathStr = getFuzzyPathStr(pathNodeNamePair.getLeft());
+                    if (!caseMap.containsKey(fuzzyPathStr)) {
+                        caseMap.put(fuzzyPathStr, new HashMap<>());
+                    }
+                    Map<String, List<Pair<Integer, String>>> scene = caseMap.get(fuzzyPathStr);
+                    if (!scene.containsKey(pathStr)) {
+                        scene.put(pathStr, new ArrayList<>());
+                    }
+                    List<Pair<Integer, String>> logIndexes = scene.get(pathStr);
 
-                logIndexes.add(new MutablePair<>(i, pathNodeNamePair.getRight()));
+                    logIndexes.add(new MutablePair<>(i, pathNodeNamePair.getRight()));
+                }
             }
         } else if (compareResultDto.getDiffResultCode() == DiffResultCode.COMPARED_INTERNAL_EXCEPTION) {
             /**
@@ -187,6 +203,30 @@ public class SceneService {
                 }
             }
         }
+    }
+
+    private boolean isBaseOrTestMissing(CompareResultDto dto) {
+        if (dto.getLogs().size() > 1) {
+            return false;
+        }
+        LogEntity log = dto.getLogs().get(0);
+        if (CollectionUtils.isNotEmpty(log.getPathPair().getLeftUnmatchedPath())
+                || CollectionUtils.isNotEmpty(log.getPathPair().getRightUnmatchedPath())) {
+            return false;
+        }
+        if (log.getBaseValue() != null && log.getTestValue() != null) {
+            return false;
+        }
+        return true;
+    }
+
+    private void setBaseTestMissingScene(Map<String, Map<String, List<Pair<Integer, String>>>> caseMap,
+            String baseMissing) {
+        caseMap.put(baseMissing, new HashMap<>());
+        Map<String, List<Pair<Integer, String>>> sceneMap = caseMap.get(baseMissing);
+        sceneMap.put(baseMissing, new ArrayList<>());
+        List<Pair<Integer, String>> scene = sceneMap.get(baseMissing);
+        scene.add(new MutablePair<>(0, baseMissing));
     }
 
     /**
@@ -303,9 +343,15 @@ public class SceneService {
             return new MutablePair<>(entity.getLeftUnmatchedPath(), StringUtils.EMPTY);
         }
         if (entity.getUnmatchedType() == UnmatchedType.LEFT_MISSING) {
-            return new MutablePair<>(entity.getLeftUnmatchedPath(), StringUtils.EMPTY);
+            String nodeName = Strings.EMPTY;
+            if (!StringUtils.isEmpty(entity.getRightUnmatchedPath()
+                    .get(entity.getRightUnmatchedPath().size() - 1)
+                    .getNodeName())) {
+                nodeName = entity.getRightUnmatchedPath().get(entity.getRightUnmatchedPath().size() - 1).getNodeName();
+            }
+            return new MutablePair<>(entity.getLeftUnmatchedPath(), nodeName + LEFT_MISSING_SUFFIX);
         } else {
-            String nodeName = "";
+            String nodeName = Strings.EMPTY;
             if (!StringUtils.isEmpty(entity.getLeftUnmatchedPath()
                     .get(entity.getLeftUnmatchedPath().size() - 1)
                     .getNodeName())) {
@@ -323,12 +369,13 @@ public class SceneService {
 
         UnmatchedPairEntity entity = new UnmatchedPairEntity();
         List<NodeEntity> left = new ArrayList<>();
-        left.add(new NodeEntity(null, 6));
-        left.add(new NodeEntity("test", 0));
-        left.add(new NodeEntity(null, 3));
-        left.add(new NodeEntity("Subject", 0));
+        // left.add(new NodeEntity(null, 6));
+        // left.add(new NodeEntity("test", 0));
+        // left.add(new NodeEntity(null, 3));
+        // left.add(new NodeEntity("Subject", 0));
         entity.setLeftUnmatchedPath(left);
         entity.setUnmatchedType(UnmatchedType.UNMATCHED);
+        log.setBaseValue("aaa");
         log.setPathPair(entity);
         log.setLogTag(new LogTag());
         logs.add(log);
