@@ -1,5 +1,6 @@
 package com.arextest.web.core.business;
 
+import com.arextest.web.common.LogUtils;
 import com.arextest.web.core.business.listener.planfinish.PlanFinishedService;
 import com.arextest.web.core.repository.ReplayCompareResultRepository;
 import com.arextest.web.core.repository.ReportDiffAggStatisticRepository;
@@ -8,17 +9,20 @@ import com.arextest.web.core.repository.ReportPlanStatisticRepository;
 import com.arextest.web.model.contract.contracts.ChangeReplayStatusRequestType;
 import com.arextest.web.model.contract.contracts.PushCompareResultsRequestType;
 import com.arextest.web.model.contract.contracts.common.CompareResult;
+import com.arextest.web.model.contract.contracts.common.enums.StatusType;
 import com.arextest.web.model.dto.CompareResultDto;
 import com.arextest.web.model.dto.ReportPlanStatisticDto;
 import com.arextest.web.model.enums.ReplayStatusType;
 import com.arextest.web.model.mapper.CompareResultMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
-
+@Slf4j
 @Component
 public class ReportService {
     @Resource
@@ -57,6 +61,27 @@ public class ReportService {
 
 
     public boolean changeReportStatus(ChangeReplayStatusRequestType request) {
+        if (request.getStatus() == ReplayStatusType.FINISHED) {
+            ReportPlanStatisticDto plan = planStatisticRepository.findByPlanId(request.getPlanId());
+            int retryTimes = 3;
+            boolean match = false;
+            for (int i = 0; i < retryTimes; i++) {
+                int count = replayCompareResultRepository.queryCompareResultCountByPlanId(request.getPlanId());
+                if (!Objects.equals(count, plan.getTotalCaseCount())) {
+                    try {
+                        Thread.sleep(6000);
+                    } catch (InterruptedException e) {
+                        LogUtils.error(LOGGER, e.getMessage(), e);
+                    }
+                } else {
+                    match = true;
+                    break;
+                }
+            }
+            if (!match) {
+                LogUtils.error(LOGGER, "The number of received cases does not match the declaration.");
+            }
+        }
         ReportPlanStatisticDto planDto = planStatisticRepository.changePlanStatus(request.getPlanId(),
                 request.getStatus(), request.getTotalCaseCount());
         if (request.getItems() != null) {
