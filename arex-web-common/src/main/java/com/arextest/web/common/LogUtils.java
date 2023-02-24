@@ -1,10 +1,12 @@
 package com.arextest.web.common;
 
+import lombok.SneakyThrows;
 import org.apache.commons.collections4.MapUtils;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
 import org.springframework.stereotype.Component;
 
+import java.net.InetAddress;
 import java.util.Map;
 
 /**
@@ -15,12 +17,15 @@ import java.util.Map;
 public class LogUtils {
     private static final String APP_TYPE = "app-type";
     private static final String AREX_WEB_API = "arex-web-api";
+    private static final String IP = "ip";
     private LogUtils() {
 
     }
 
+    @SneakyThrows
     public static void init() {
         MDC.put(APP_TYPE, AREX_WEB_API);
+        MDC.put(IP, InetAddress.getLocalHost().getHostAddress());
     }
 
     public static void clear() {
