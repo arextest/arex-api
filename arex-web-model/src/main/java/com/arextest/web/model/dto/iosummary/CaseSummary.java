@@ -1,13 +1,14 @@
-package com.arextest.report.core.business.iosummary;
+package com.arextest.web.model.dto.iosummary;
 
 import cn.hutool.core.collection.CollectionUtil;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
-@Getter
-@Setter
+@Data
+@NoArgsConstructor
 public class CaseSummary {
     static final int OFFSET_BASIS = 0x811C9DC5; //2166136261
     static final int FNV_PRIME = 16777619;
@@ -59,7 +60,7 @@ public class CaseSummary {
         return Math.abs(key);
     }
 
-    static class Builder {
+    public static class Builder {
         private String recordId;
         private String replayId;
         private String planId;

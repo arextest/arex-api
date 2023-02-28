@@ -1,24 +1,24 @@
-package com.arextest.report.core.business.iosummary;
+package com.arextest.web.model.dto.iosummary;
 
 import cn.hutool.core.collection.CollectionUtil;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Getter
-@Setter
+@Data
+@NoArgsConstructor
 public class SceneInfo {
     public static Builder builder() {
         return new Builder();
     }
 
-    private final int code;
-    private final int count;
-    private final List<SubSceneInfo> subScenes;
+    private int code;
+    private int count;
+    private List<SubSceneInfo> subScenes;
 
     SceneInfo(int code, int count, List<SubSceneInfo> subScenes) {
         this.code = code;
@@ -26,7 +26,7 @@ public class SceneInfo {
         this.subScenes = subScenes;
     }
 
-    static class Builder {
+    public static class Builder {
         private int code;
         private int count;
         private Map<Long, SubSceneInfo> subSceneMap;
@@ -44,8 +44,8 @@ public class SceneInfo {
                 }
 
                 subSceneMap.computeIfAbsent(summary.groupKey(), k ->
-                                new SubSceneInfo(summary.getRecordId(), summary.getReplayId(),
-                                        summary.getCode(), summary.getDiffs()))
+                        new SubSceneInfo(summary.getRecordId(), summary.getReplayId(),
+                                summary.getCode(), summary.getDiffs()))
                         .increment();
             }
 

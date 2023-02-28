@@ -1,15 +1,23 @@
-package com.arextest.report.core.business.iosummary;
+package com.arextest.web.core.business.iosummary;
 
 import cn.hutool.core.collection.CollectionUtil;
-import com.arextest.report.model.api.contracts.common.LogEntity;
-import com.arextest.report.model.dto.CompareResultDto;
-import com.arextest.report.model.enums.DiffResultCode;
+import com.arextest.web.core.repository.CaseSummaryRepository;
+import com.arextest.web.model.contract.contracts.common.LogEntity;
+import com.arextest.web.model.dto.CompareResultDto;
+import com.arextest.web.model.dto.iosummary.CaseSummary;
+import com.arextest.web.model.dto.iosummary.UnmatchedCategory;
+import com.arextest.web.model.enums.DiffResultCode;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 @Component
 public class SummaryService {
+
+    @Autowired
+    CaseSummaryRepository caseSummaryRepository;
+
     /**
      * 分析比对结果
      * todo: 根因分析后续看情况是否需要支持
@@ -28,8 +36,7 @@ public class SummaryService {
                 .recordId(compareResultDto.getRecordId())
                 .rePlayId(compareResultDto.getReplayId())
                 .build();
-
-        // todo: save to mongo
+        caseSummaryRepository.save(summary);
     }
 
     private CaseSummary.Builder analysis0(CaseSummary.Builder builder, CompareResultDto compareResultDto) {
@@ -48,8 +55,7 @@ public class SummaryService {
             case DiffResultCode.COMPARED_INTERNAL_EXCEPTION:
             case DiffResultCode.SEND_FAILED_NOT_COMPARE:
                 return UnmatchedCategory.UNKNOWN;
-            default:
-            {
+            default: {
                 List<LogEntity> entities = compareResult.getLogs();
                 if (entities == null || entities.size() == 0) {
                     return UnmatchedCategory.UNKNOWN;

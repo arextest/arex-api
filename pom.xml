@@ -274,6 +274,7 @@
                 <configuration>
                     <source>8</source>
                     <target>8</target>
+                        <compilerArgument>-Xlint:deprecation</compilerArgument>
                 </configuration>
             </plugin>
             <plugin>

@@ -1,6 +1,7 @@
-package com.arextest.report.core.repository;
+package com.arextest.web.core.repository;
 
-import com.arextest.report.core.business.iosummary.CaseSummary;
+
+import com.arextest.web.model.dto.iosummary.CaseSummary;
 
 import java.util.List;
 

@@ -1,4 +1,4 @@
-package com.arextest.report.core.business.iosummary;
+package com.arextest.web.model.dto.iosummary;
 
 import lombok.Getter;
 

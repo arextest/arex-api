@@ -1,6 +1,8 @@
 package com.arextest.web.core.business;
 
 import com.arextest.web.common.LogUtils;
+import com.arextest.web.core.business.iosummary.SceneReportService;
+import com.arextest.web.core.business.iosummary.SummaryService;
 import com.arextest.web.core.business.listener.planfinish.PlanFinishedService;
 import com.arextest.web.core.repository.ReplayCompareResultRepository;
 import com.arextest.web.core.repository.ReportDiffAggStatisticRepository;
@@ -9,7 +11,6 @@ import com.arextest.web.core.repository.ReportPlanStatisticRepository;
 import com.arextest.web.model.contract.contracts.ChangeReplayStatusRequestType;
 import com.arextest.web.model.contract.contracts.PushCompareResultsRequestType;
 import com.arextest.web.model.contract.contracts.common.CompareResult;
-import com.arextest.web.model.contract.contracts.common.enums.StatusType;
 import com.arextest.web.model.dto.CompareResultDto;
 import com.arextest.web.model.dto.ReportPlanStatisticDto;
 import com.arextest.web.model.enums.ReplayStatusType;
@@ -39,7 +40,10 @@ public class ReportService {
     private SceneService sceneService;
     @Resource
     private PlanFinishedService planFinishedService;
-
+    @Resource
+    private SummaryService summaryService;
+    @Resource
+    private SceneReportService sceneReportService;
 
     public boolean saveCompareResults(PushCompareResultsRequestType request) {
         List<CompareResultDto> results = new ArrayList<>(request.getResults().size());
@@ -52,6 +56,8 @@ public class ReportService {
         if (!success) {
             return false;
         }
+        // save caseSummary to db
+        summaryService.analysis(results);
 
         statisticService.statisticPlanItems(results);
 
@@ -86,6 +92,7 @@ public class ReportService {
                 request.getStatus(), request.getTotalCaseCount());
         if (request.getItems() != null) {
             for (ChangeReplayStatusRequestType.ReplayItem item : request.getItems()) {
+                sceneReportService.report(item.getPlanItemId());
                 planItemStatisticRepository.changePlanItemStatus(item.getPlanItemId(),
                         item.getStatus(),
                         item.getTotalCaseCount());
