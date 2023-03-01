@@ -1,5 +1,6 @@
 package com.arextest.web.core.business;
 
+import com.arextest.common.utils.CompressionUtils;
 import com.arextest.diff.model.CompareResult;
 import com.arextest.web.core.business.compare.CompareService;
 import com.arextest.web.core.business.compare.LogEntityMapper;
@@ -108,12 +109,14 @@ public class BatchCompareReportService {
                 dto.setStatus(BatchCompareCaseStatusType.EXCEPTION);
                 dto.setExceptionMsg(request.getExceptionMsg());
             } else {
+                String baseMsg = CompressionUtils.useZstdDecompress(request.getBaseMsg());
+                String testMsg = CompressionUtils.useZstdDecompress(request.getTestMsg());
                 CompareResult compareResult = compareService.batchCompare(
-                        request.getBaseMsg(), request.getTestMsg(), request.getComparisonConfig());
+                        baseMsg, testMsg, request.getComparisonConfig());
                 int code = compareResult.getCode();
                 dto.setStatus(convertDiffResultCode(code));
-                dto.setProcessedBaseMsg(compareResult.getProcessedBaseMsg());
-                dto.setProcessedTestMsg(compareResult.getProcessedTestMsg());
+                dto.setProcessedBaseMsg(CompressionUtils.useZstdCompress(compareResult.getProcessedBaseMsg()));
+                dto.setProcessedTestMsg(CompressionUtils.useZstdCompress(compareResult.getProcessedTestMsg()));
                 if (code == DiffResultCode.COMPARED_INTERNAL_EXCEPTION) {
                     dto.setExceptionMsg(compareResult.getMessage());
                 } else if (code == DiffResultCode.COMPARED_WITH_DIFFERENCE) {
@@ -160,8 +163,10 @@ public class BatchCompareReportService {
         if (batchCompareReportCaseDto == null) {
             return null;
         }
-        String processedBaseMsg = batchCompareReportCaseDto.getProcessedBaseMsg();
-        String processedTestMsg = batchCompareReportCaseDto.getProcessedTestMsg();
+        String processedBaseMsg = CompressionUtils.useZstdDecompress(
+                batchCompareReportCaseDto.getProcessedBaseMsg());
+        String processedTestMsg = CompressionUtils.useZstdDecompress(
+                batchCompareReportCaseDto.getProcessedTestMsg());
         if (processedBaseMsg != null && processedTestMsg != null) {
             MutablePair<Object, Object> objectObjectMutablePair =
                     msgShowService.produceNewObjectFromOriginal(
