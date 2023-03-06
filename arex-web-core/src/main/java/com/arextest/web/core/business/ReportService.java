@@ -92,7 +92,7 @@ public class ReportService {
                 request.getStatus(), request.getTotalCaseCount());
         if (request.getItems() != null) {
             for (ChangeReplayStatusRequestType.ReplayItem item : request.getItems()) {
-                if (Objects.equals(request.getStatus(), ReplayStatusType.FINISHED)) {
+                if (Objects.equals(item.getStatus(), ReplayStatusType.FINISHED)) {
                     sceneReportService.report(item.getPlanItemId());
                 }
                 planItemStatisticRepository.changePlanItemStatus(item.getPlanItemId(),

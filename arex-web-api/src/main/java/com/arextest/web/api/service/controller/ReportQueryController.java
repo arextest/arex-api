@@ -3,7 +3,6 @@ package com.arextest.web.api.service.controller;
 import com.arextest.common.model.response.Response;
 import com.arextest.common.model.response.ResponseCode;
 import com.arextest.common.utils.ResponseUtils;
-import com.arextest.diff.utils.JacksonHelperUtil;
 import com.arextest.web.common.LogUtils;
 import com.arextest.web.core.business.DiffSceneService;
 import com.arextest.web.core.business.MsgShowService;
@@ -48,7 +47,6 @@ import com.arextest.web.model.contract.contracts.QuerySchemaForConfigRequestType
 import com.arextest.web.model.contract.contracts.ReportInitialRequestType;
 import com.arextest.web.model.contract.contracts.ReportInitialResponseType;
 import com.arextest.web.model.contract.contracts.SuccessResponseType;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONException;
@@ -64,7 +62,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
-import java.util.Collections;
 
 
 @Slf4j
@@ -118,11 +115,6 @@ public class ReportQueryController {
     @PostMapping("/pushReplayStatus")
     @ResponseBody
     public Response changeReplayStatus(@Valid @RequestBody ChangeReplayStatusRequestType request) {
-        try {
-            LogUtils.info(LOGGER, "pushReplayStatus");
-            LogUtils.info(LOGGER, Collections.singletonMap("method", "changeReplayStatus"), JacksonHelperUtil.objectMapper.writeValueAsString(request));
-        } catch (JsonProcessingException e) {
-        }
         ChangeReplayStatusResponseType response = new ChangeReplayStatusResponseType();
         response.setUpdateSuccess(reportService.changeReportStatus(request));
         return ResponseUtils.successResponse(response);
