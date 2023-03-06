@@ -9,5 +9,5 @@ public interface CaseSummaryRepository extends RepositoryProvider {
 
     boolean save(CaseSummary summary);
 
-    List<CaseSummary> query(String planItemId);
+    List<CaseSummary> query(String planId, String planItemId);
 }

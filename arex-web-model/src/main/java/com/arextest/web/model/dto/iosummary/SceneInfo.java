@@ -18,21 +18,37 @@ public class SceneInfo {
 
     private int code;
     private int count;
+    private String planId;
+    private String planItmId;
     private List<SubSceneInfo> subScenes;
 
-    SceneInfo(int code, int count, List<SubSceneInfo> subScenes) {
+    SceneInfo(int code, int count, String planId, String planItmId, List<SubSceneInfo> subScenes) {
         this.code = code;
         this.count = count;
+        this.planId = planId;
+        this.planItmId = planItmId;
         this.subScenes = subScenes;
     }
 
     public static class Builder {
         private int code;
         private int count;
+        private String planId;
+        private String planItmId;
         private Map<Long, SubSceneInfo> subSceneMap;
 
         public Builder code(int code) {
             this.code = code;
+            return this;
+        }
+
+        public Builder planId(String planId) {
+            this.planId = planId;
+            return this;
+        }
+
+        public Builder planItemId(String planItemId) {
+            this.planItmId = planItemId;
             return this;
         }
 
@@ -53,7 +69,7 @@ public class SceneInfo {
         }
 
         public SceneInfo build() {
-            return new SceneInfo(code, count,
+            return new SceneInfo(code, count, planId, planItmId,
                     subSceneMap == null ? null : new ArrayList<>(subSceneMap.values()));
         }
     }

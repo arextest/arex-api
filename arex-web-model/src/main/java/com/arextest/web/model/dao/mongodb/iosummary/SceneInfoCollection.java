@@ -16,5 +16,7 @@ import java.util.List;
 public class SceneInfoCollection {
     private int code;
     private int count;
+    private String planId;
+    private String planItmId;
     private List<SubSceneInfo> subScenes;
 }

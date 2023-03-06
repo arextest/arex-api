@@ -27,8 +27,8 @@ public class SceneReportService {
     /**
      * 差异类型场景分组
      */
-    public void report(String planItemId) {
-        List<CaseSummary> data = caseSummaryRepository.query(planItemId);
+    public void report(String planId, String planItemId) {
+        List<CaseSummary> data = caseSummaryRepository.query(planId, planItemId);
         if (CollectionUtil.isEmpty(data)) {
             return;
         }
@@ -47,7 +47,9 @@ public class SceneReportService {
         // group性能不佳，自己分组
         for (CaseSummary summary : caseSummaries) {
             main.computeIfAbsent(summary.getCode(), k -> SceneInfo.builder()
-                    .code(summary.getCode()))
+                    .code(summary.getCode())
+                    .planId(summary.getPlanId())
+                    .planItemId(summary.getPlanItemId()))
                     .summary(summary);
         }
         return main.values();

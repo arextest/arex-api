@@ -19,6 +19,8 @@ import java.util.stream.Collectors;
 @Component
 public class CaseSummaryRepositoryImpl implements CaseSummaryRepository {
 
+    private static final String PLAN_ID = "planId";
+
     private static final String PLAN_ITEM_ID = "planItemId";
 
     @Autowired
@@ -32,8 +34,9 @@ public class CaseSummaryRepositoryImpl implements CaseSummaryRepository {
     }
 
     @Override
-    public List<CaseSummary> query(String planItemId) {
-        Query query = Query.query(Criteria.where(PLAN_ITEM_ID).is(planItemId));
+    public List<CaseSummary> query(String planId, String planItemId) {
+        Query query = Query.query(Criteria.where(PLAN_ID).is(planId)
+                .and(PLAN_ITEM_ID).is(planItemId));
         List<CaseSummaryCollection> caseSummaryCollections = mongoTemplate.find(query, CaseSummaryCollection.class);
         return caseSummaryCollections
                 .stream()
