@@ -119,6 +119,7 @@ public class ReportQueryController {
     @ResponseBody
     public Response changeReplayStatus(@Valid @RequestBody ChangeReplayStatusRequestType request) {
         try {
+            LogUtils.info(LOGGER, "pushReplayStatus");
             LogUtils.info(LOGGER, Collections.singletonMap("method", "changeReplayStatus"), JacksonHelperUtil.objectMapper.writeValueAsString(request));
         } catch (JsonProcessingException e) {
         }
