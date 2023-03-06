@@ -43,6 +43,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -68,10 +69,10 @@ public class BatchCompareReportService {
     @Resource(name = "compare-task-executor")
     ThreadPoolTaskExecutor executor;
 
-    public boolean initBatchCompareReport(BatchCompareReportRequestType request) {
+    public InitBatchCompareReportResult initBatchCompareReport(BatchCompareReportRequestType request) {
 
         List<BatchCompareReportCaseDto> batchCompareReportCaseDtoList = new ArrayList<>();
-        String planId = request.getPlanId();
+        String planId = UUID.randomUUID().toString();
         long createTime = System.currentTimeMillis();
         List<BatchCompareReportRequestType.BatchCompareCase> batchCompareCaseList = request.getBatchCompareCaseList();
         for (BatchCompareReportRequestType.BatchCompareCase batchCompareCase : batchCompareCaseList) {
@@ -84,7 +85,8 @@ public class BatchCompareReportService {
             batchCompareReportCaseDto.setDataChangeCreateTime(createTime);
             batchCompareReportCaseDtoList.add(batchCompareReportCaseDto);
         }
-        return batchCompareReportRepository.insertAll(batchCompareReportCaseDtoList);
+        return batchCompareReportRepository.insertAll(batchCompareReportCaseDtoList) ?
+                new InitBatchCompareReportResult(planId) : null;
     }
 
     public boolean updateBatchCompareCase(UpdateBatchCompareCaseRequestType request) {
@@ -289,6 +291,13 @@ public class BatchCompareReportService {
         private String fuzzyPath;
         private int errorCount;
         private LogEntity logEntity;
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    private class InitBatchCompareReportResult {
+        private String planId;
     }
 
 }
