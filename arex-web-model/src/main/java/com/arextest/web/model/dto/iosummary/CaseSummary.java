@@ -34,6 +34,26 @@ public class CaseSummary {
         this.diffs = diffs;
     }
 
+    public long categoryKey() {
+        if (CollectionUtil.isEmpty(diffs)) {
+            return 0;
+        }
+
+        long key = OFFSET_BASIS;
+        for (DiffDetail detail : diffs) {
+            key = (key ^ detail.code) * FNV_PRIME;
+            for (byte c : detail.categoryName.getBytes()) {
+                key = (key ^ c) * FNV_PRIME;
+            }
+        }
+        key += key << 13;
+        key ^= key >> 7;
+        key += key << 3;
+        key ^= key >> 17;
+        key += key << 5;
+        return Math.abs(key);
+    }
+
     public long groupKey() {
         if (CollectionUtil.isEmpty(diffs)) {
             return 0;

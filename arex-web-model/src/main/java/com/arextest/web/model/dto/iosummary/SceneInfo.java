@@ -19,14 +19,14 @@ public class SceneInfo {
     private int code;
     private int count;
     private String planId;
-    private String planItmId;
+    private String planItemId;
     private List<SubSceneInfo> subScenes;
 
-    SceneInfo(int code, int count, String planId, String planItmId, List<SubSceneInfo> subScenes) {
+    SceneInfo(int code, int count, String planId, String planItemId, List<SubSceneInfo> subScenes) {
         this.code = code;
         this.count = count;
         this.planId = planId;
-        this.planItmId = planItmId;
+        this.planItemId = planItemId;
         this.subScenes = subScenes;
     }
 

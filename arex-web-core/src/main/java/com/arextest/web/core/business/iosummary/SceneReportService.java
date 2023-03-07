@@ -43,10 +43,10 @@ public class SceneReportService {
      * 根据Code分组主场景
      */
     private Collection<SceneInfo.Builder> groupMainScene(List<CaseSummary> caseSummaries) {
-        Map<Integer, SceneInfo.Builder> main = new HashMap<>();
+        Map<Long, SceneInfo.Builder> main = new HashMap<>();
         // group性能不佳，自己分组
         for (CaseSummary summary : caseSummaries) {
-            main.computeIfAbsent(summary.getCode(), k -> SceneInfo.builder()
+            main.computeIfAbsent(summary.categoryKey(), k -> SceneInfo.builder()
                     .code(summary.getCode())
                     .planId(summary.getPlanId())
                     .planItemId(summary.getPlanItemId()))

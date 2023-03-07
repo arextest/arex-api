@@ -17,6 +17,6 @@ public class SceneInfoCollection {
     private int code;
     private int count;
     private String planId;
-    private String planItmId;
+    private String planItemId;
     private List<SubSceneInfo> subScenes;
 }
