@@ -63,10 +63,19 @@ public class SummaryService {
                     return UnmatchedCategory.VALUE_DIFF;
                 }
 
-                LogEntity entity = entities.get(0);
-                if (entity.getBaseValue() == null) {
+                // LogEntity entity = entities.get(0);
+                // if (CollectionUtils.isEmpty(entity.getPathPair().getLeftUnmatchedPath())
+                //         && CollectionUtils.isEmpty(entity.getPathPair().getRightUnmatchedPath())) {
+                //     if()
+                // }
+                // if (entity.getBaseValue() == null) {
+                //     return UnmatchedCategory.LEFT_MISSING;
+                // } else if (entity.getTestValue() == null) {
+                //     return UnmatchedCategory.RIGHT_MISSING;
+                // }
+                if (compareResult.getBaseMsg() == null) {
                     return UnmatchedCategory.LEFT_MISSING;
-                } else if (entity.getTestValue() == null) {
+                } else if (compareResult.getTestMsg() == null) {
                     return UnmatchedCategory.RIGHT_MISSING;
                 }
                 return UnmatchedCategory.VALUE_DIFF;

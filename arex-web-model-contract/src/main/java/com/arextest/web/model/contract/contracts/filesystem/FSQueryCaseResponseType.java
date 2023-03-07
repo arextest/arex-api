@@ -12,6 +12,7 @@ import java.util.Set;
 public class FSQueryCaseResponseType {
     private String id;
     private String name;
+    private String workspaceId;
     private AddressType address;
     private List<ScriptBlockType> preRequestScripts;
     private List<ScriptBlockType> testScripts;
