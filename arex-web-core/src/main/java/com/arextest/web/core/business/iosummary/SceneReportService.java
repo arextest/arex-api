@@ -3,8 +3,10 @@ package com.arextest.web.core.business.iosummary;
 import cn.hutool.core.collection.CollectionUtil;
 import com.arextest.web.core.repository.CaseSummaryRepository;
 import com.arextest.web.core.repository.SceneInfoRepository;
+import com.arextest.web.model.contract.contracts.QuerySceneInfoResponseType;
 import com.arextest.web.model.dto.iosummary.CaseSummary;
 import com.arextest.web.model.dto.iosummary.SceneInfo;
+import com.arextest.web.model.mapper.SceneInfoMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -37,6 +39,17 @@ public class SceneReportService {
                 .sorted(Comparator.comparingInt(SceneInfo::getCode))
                 .collect(Collectors.toList());
         sceneInfoRepository.save(sceneInfos);
+    }
+
+    public QuerySceneInfoResponseType querySceneInfo(String planId, String planItemId) {
+        QuerySceneInfoResponseType response = new QuerySceneInfoResponseType();
+        List<SceneInfo> sceneInfos = sceneInfoRepository.querySceneInfo(planId, planItemId);
+        List<QuerySceneInfoResponseType.SceneInfoType> sceneInfoTypes =
+                sceneInfos.stream()
+                        .map(SceneInfoMapper.INSTANCE::contractFromDto)
+                        .collect(Collectors.toList());
+        response.setSceneInfos(sceneInfoTypes);
+        return response;
     }
 
     /**

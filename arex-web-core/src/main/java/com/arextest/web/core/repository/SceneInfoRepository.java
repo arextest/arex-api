@@ -9,4 +9,6 @@ import java.util.List;
  */
 public interface SceneInfoRepository extends RepositoryProvider {
     boolean save(List<SceneInfo> sceneInfos);
+
+    List<SceneInfo> querySceneInfo(String planId, String planItemId);
 }

@@ -1,5 +1,6 @@
 package com.arextest.web.model.mapper;
 
+import com.arextest.web.model.contract.contracts.QuerySceneInfoResponseType;
 import com.arextest.web.model.dao.mongodb.iosummary.SceneInfoCollection;
 import com.arextest.web.model.dto.iosummary.SceneInfo;
 import org.mapstruct.Mapper;
@@ -15,4 +16,6 @@ public interface SceneInfoMapper {
     SceneInfoCollection daoFromDto(SceneInfo dto);
 
     SceneInfo dtoFromDao(SceneInfoCollection dao);
+
+    QuerySceneInfoResponseType.SceneInfoType contractFromDto(SceneInfo dto);
 }

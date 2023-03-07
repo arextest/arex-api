@@ -7,6 +7,8 @@ import com.arextest.web.model.mapper.SceneInfoMapper;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;
@@ -19,6 +21,11 @@ import java.util.stream.Collectors;
 @Component
 public class SceneInfoRepositoryImpl implements SceneInfoRepository {
 
+    private static final String PLAN_ID = "planId";
+
+    private static final String PLAN_ITEM_ID = "planItemId";
+
+    private static final String CODE = "code";
     @Autowired
     MongoTemplate mongoTemplate;
 
@@ -28,7 +35,20 @@ public class SceneInfoRepositoryImpl implements SceneInfoRepository {
                 sceneInfos.stream()
                         .map(SceneInfoMapper.INSTANCE::daoFromDto)
                         .collect(Collectors.toList());
-        Collection<SceneInfoCollection> insertAll = mongoTemplate.insertAll(sceneInfoCollections);
+        Collection<SceneInfoCollection> insertAll =
+                mongoTemplate.insertAll(sceneInfoCollections);
         return CollectionUtils.isNotEmpty(insertAll);
+    }
+
+    @Override
+    public List<SceneInfo> querySceneInfo(String planId, String planItemId) {
+        Query query = Query.query(Criteria.where(PLAN_ID).is(planId)
+                .and(PLAN_ITEM_ID).is(planItemId)
+                .and(CODE).ne(0));
+        List<SceneInfoCollection> sceneInfoCollections =
+                mongoTemplate.find(query, SceneInfoCollection.class);
+        return sceneInfoCollections.stream()
+                .map(SceneInfoMapper.INSTANCE::dtoFromDao)
+                .collect(Collectors.toList());
     }
 }

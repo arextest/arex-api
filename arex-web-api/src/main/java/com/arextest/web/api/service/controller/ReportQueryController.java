@@ -14,6 +14,7 @@ import com.arextest.web.core.business.QueryResponseTypeStatisticService;
 import com.arextest.web.core.business.ReplayInfoService;
 import com.arextest.web.core.business.ReportService;
 import com.arextest.web.core.business.SchemaInferService;
+import com.arextest.web.core.business.iosummary.SceneReportService;
 import com.arextest.web.model.contract.contracts.ChangeReplayStatusRequestType;
 import com.arextest.web.model.contract.contracts.ChangeReplayStatusResponseType;
 import com.arextest.web.model.contract.contracts.DownloadReplayMsgRequestType;
@@ -41,6 +42,7 @@ import com.arextest.web.model.contract.contracts.QueryReplayCaseRequestType;
 import com.arextest.web.model.contract.contracts.QueryReplayCaseResponseType;
 import com.arextest.web.model.contract.contracts.QueryReplayMsgRequestType;
 import com.arextest.web.model.contract.contracts.QueryReplayMsgResponseType;
+import com.arextest.web.model.contract.contracts.QuerySceneInfoResponseType;
 import com.arextest.web.model.contract.contracts.QueryScenesRequestType;
 import com.arextest.web.model.contract.contracts.QueryScenesResponseType;
 import com.arextest.web.model.contract.contracts.QuerySchemaForConfigRequestType;
@@ -89,6 +91,8 @@ public class ReportQueryController {
     private QueryReplayMsgService queryReplayMsgService;
     @Resource
     private SchemaInferService schemaInferService;
+    @Resource
+    private SceneReportService sceneReportService;
 
 
     @PostMapping("/pushCompareResults")
@@ -254,6 +258,13 @@ public class ReportQueryController {
     public Response deleteReport(@PathVariable String planId) {
         SuccessResponseType response = new SuccessResponseType();
         response.setSuccess(reportService.deleteReport(planId));
+        return ResponseUtils.successResponse(response);
+    }
+
+    @GetMapping("/querySceneInfo/{planId}/{planItemId}")
+    @ResponseBody
+    public Response querySceneInfo(@PathVariable String planId, @PathVariable String planItemId) {
+        QuerySceneInfoResponseType response = sceneReportService.querySceneInfo(planId, planItemId);
         return ResponseUtils.successResponse(response);
     }
 }
