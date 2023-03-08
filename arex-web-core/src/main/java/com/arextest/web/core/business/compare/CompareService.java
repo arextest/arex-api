@@ -16,7 +16,6 @@ import com.arextest.web.model.contract.contracts.compare.ExceptionMsg;
 import com.arextest.web.model.contract.contracts.compare.MsgCombination;
 import com.arextest.web.model.contract.contracts.compare.QuickCompareResponseType;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonSummaryConfiguration;
-import com.arextest.web.model.contract.contracts.config.replay.ReplayConfiguration;
 import com.arextest.web.model.dto.filesystem.ComparisonMsgDto;
 import com.arextest.web.model.dto.filesystem.FSCaseDto;
 import com.arextest.web.model.dto.manualreport.SaveManualReportCaseDto;
@@ -52,7 +51,7 @@ public class CompareService {
 
     public QuickCompareResponseType quickCompare(MsgCombination msgCombination) {
         QuickCompareResponseType quickCompareResponseType = new QuickCompareResponseType();
-        ReplayConfiguration.ReplayComparisonConfig comparisonConfig = msgCombination.getComparisonConfig();
+        ComparisonSummaryConfiguration comparisonConfig = msgCombination.getComparisonConfig();
         CompareOptions compareOptions = new CompareOptions();
         if (comparisonConfig != null) {
             compareOptions.putExclusions(comparisonConfig.getExclusionList());
@@ -123,7 +122,7 @@ public class CompareService {
     public CaseCompareResponseType caseCompare(MsgCombination msgCombination) {
         long start = System.currentTimeMillis();
         CaseCompareResponseType caseCompareResponseType = new CaseCompareResponseType();
-        ReplayConfiguration.ReplayComparisonConfig comparisonConfig = msgCombination.getComparisonConfig();
+        ComparisonSummaryConfiguration comparisonConfig = msgCombination.getComparisonConfig();
         CompareOptions compareOptions = new CompareOptions();
         if (comparisonConfig != null) {
             compareOptions.putExclusions(comparisonConfig.getExclusionList());
@@ -215,8 +214,6 @@ public class CompareService {
     //     }
     //     batchCompareReportRepository.updateBatchCompareCase(dto);
     // }
-
-
 
 
     private void aggBatchCompareResult(CompareResult compareResult) {

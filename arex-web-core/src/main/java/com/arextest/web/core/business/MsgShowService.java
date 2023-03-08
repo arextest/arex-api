@@ -16,11 +16,23 @@ import org.apache.commons.lang3.tuple.MutablePair;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 @Component
@@ -35,6 +47,9 @@ public class MsgShowService {
             UnmatchedType.UNMATCHED,
             UnmatchedType.RIGHT_MISSING,
             UnmatchedType.LEFT_MISSING));
+
+    @Resource(name = "message-clip-executor")
+    ThreadPoolTaskExecutor executor;
 
     public QueryMsgWithDiffResponseType queryMsgWithDiff(QueryMsgWithDiffRequestType request) throws JSONException {
         QueryMsgWithDiffResponseType response = new QueryMsgWithDiffResponseType();
@@ -107,23 +122,41 @@ public class MsgShowService {
 
     public MutablePair<Object, Object> produceNewObjectFromOriginal(String baseMsg, String testMsg, List<LogEntity> sceneLogs) throws JSONException {
 
-        Object baseObj = null;
-        Object testObj = null;
-        Object constructedBaseObj = null;
-        Object constructedTestObj = null;
+        List<CompletableFuture<Object>> parseTaskList =
+                Stream.of(baseMsg, testMsg, baseMsg, testMsg)
+                        .map(item -> CompletableFuture.supplyAsync(() -> {
+                            try {
+                                return objectParse(item);
+                            } catch (JSONException e) {
+                                return null;
+                            }
+                        }, executor))
+                        .collect(Collectors.toList());
+        CompletableFuture<List<Object>> listCompletableFuture =
+                CompletableFuture.allOf(parseTaskList.toArray(new CompletableFuture[0]))
+                        .thenApply(v -> parseTaskList.stream().map(parseTask -> {
+                            try {
+                                return parseTask.get();
+                            } catch (Exception e) {
+                                return null;
+                            }
+                        }).collect(Collectors.toList()));
+        List<Object> objectList = listCompletableFuture.join();
+        Object baseObj = objectList.get(0);
+        Object testObj = objectList.get(1);
+        Object constructedBaseObj = objectList.get(2);
+        Object constructedTestObj = objectList.get(3);
 
-        try {
-            baseObj = objectParse(baseMsg);
-            testObj = objectParse(testMsg);
-            constructedBaseObj = objectParse(baseMsg);
-            constructedTestObj = objectParse(testMsg);
-        } catch (JSONException e) {
+        if (baseObj == null || testObj == null) {
             return new MutablePair<>(baseMsg, testMsg);
         }
 
 
-        cropJSONArray(constructedBaseObj);
-        cropJSONArray(constructedTestObj);
+        CompletableFuture.allOf(
+                Stream.of(constructedBaseObj, constructedTestObj)
+                        .map(item -> CompletableFuture.runAsync(
+                                () -> cropJSONArray(item), executor)).toArray(CompletableFuture[]::new))
+                .join();
 
 
         ArrayOrder baseArrayOrder = new ArrayOrder();
