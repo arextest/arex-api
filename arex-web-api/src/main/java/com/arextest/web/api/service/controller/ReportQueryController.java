@@ -24,10 +24,13 @@ import com.arextest.web.model.contract.contracts.QueryCategoryStatisticRequestTy
 import com.arextest.web.model.contract.contracts.QueryCategoryStatisticResponseType;
 import com.arextest.web.model.contract.contracts.QueryDiffAggInfoRequestType;
 import com.arextest.web.model.contract.contracts.QueryDiffAggInfoResponseType;
+import com.arextest.web.model.contract.contracts.QueryDiffMsgWithCategoryRequestType;
+import com.arextest.web.model.contract.contracts.QueryDiffMsgWithCategoryResponseType;
 import com.arextest.web.model.contract.contracts.QueryDifferencesRequestType;
 import com.arextest.web.model.contract.contracts.QueryDifferencesResponseType;
 import com.arextest.web.model.contract.contracts.QueryFullLinkMsgRequestType;
 import com.arextest.web.model.contract.contracts.QueryFullLinkMsgResponseType;
+import com.arextest.web.model.contract.contracts.QueryFullLinkSummaryResponseType;
 import com.arextest.web.model.contract.contracts.QueryMsgSchemaRequestType;
 import com.arextest.web.model.contract.contracts.QueryMsgSchemaResponseType;
 import com.arextest.web.model.contract.contracts.QueryMsgShowByCaseRequestType;
@@ -267,4 +270,25 @@ public class ReportQueryController {
         QuerySceneInfoResponseType response = sceneReportService.querySceneInfo(planId, planItemId);
         return ResponseUtils.successResponse(response);
     }
+
+    @GetMapping("/queryFullLinkSummary/{recordId}/{replayId}")
+    @ResponseBody
+    public Response queryFullLinkSummary(@PathVariable String recordId, @PathVariable String replayId) {
+        QueryFullLinkSummaryResponseType response =
+                queryReplayMsgService.queryFullLinkSummary(recordId, replayId);
+        return ResponseUtils.successResponse(response);
+    }
+
+
+    @PostMapping("/queryFullLinkMsgWithCategory")
+    @ResponseBody
+    public Response queryFullLinkMsgWithCategory(@RequestBody QueryDiffMsgWithCategoryRequestType request) {
+        QueryDiffMsgWithCategoryResponseType response = queryReplayMsgService.queryFullLinkMsgWithCategory(
+                request.getRecordId(),
+                request.getReplayId(),
+                request.getCategoryName()
+        );
+        return ResponseUtils.successResponse(response);
+    }
+
 }

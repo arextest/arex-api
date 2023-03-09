@@ -2,9 +2,13 @@ package com.arextest.web.core.business;
 
 import com.arextest.web.common.LogUtils;
 import com.arextest.web.core.repository.ReplayCompareResultRepository;
+import com.arextest.web.model.contract.contracts.DiffMsgWithCategoryDetail;
 import com.arextest.web.model.contract.contracts.DownloadReplayMsgRequestType;
+import com.arextest.web.model.contract.contracts.FullLinkSummaryDetail;
+import com.arextest.web.model.contract.contracts.QueryDiffMsgWithCategoryResponseType;
 import com.arextest.web.model.contract.contracts.QueryFullLinkMsgRequestType;
 import com.arextest.web.model.contract.contracts.QueryFullLinkMsgResponseType;
+import com.arextest.web.model.contract.contracts.QueryFullLinkSummaryResponseType;
 import com.arextest.web.model.contract.contracts.QueryReplayMsgRequestType;
 import com.arextest.web.model.contract.contracts.QueryReplayMsgResponseType;
 import com.arextest.web.model.contract.contracts.common.CompareResult;
@@ -30,13 +34,13 @@ import java.util.stream.Collectors;
 public class QueryReplayMsgService {
 
     @Resource
-    private ReplayCompareResultRepository repository;
+    private ReplayCompareResultRepository replayCompareResultRepository;
 
     private static final int BIG_MESSAGE_THRESHOLD = 5 * 1024 * 1024;
 
     public QueryReplayMsgResponseType queryReplayMsg(QueryReplayMsgRequestType request) {
         QueryReplayMsgResponseType response = new QueryReplayMsgResponseType();
-        CompareResultDto dto = repository.queryCompareResultsByObjectId(request.getId());
+        CompareResultDto dto = replayCompareResultRepository.queryCompareResultsByObjectId(request.getId());
         if (dto == null) {
             return response;
         }
@@ -62,7 +66,7 @@ public class QueryReplayMsgService {
     }
 
     public void downloadReplayMsg(DownloadReplayMsgRequestType request, HttpServletResponse response) {
-        CompareResultDto dto = repository.queryCompareResultsByObjectId(request.getId());
+        CompareResultDto dto = replayCompareResultRepository.queryCompareResultsByObjectId(request.getId());
         String fileName = null;
         String msg = null;
         if (request.isBaseMsgDownload()) {
@@ -103,7 +107,7 @@ public class QueryReplayMsgService {
     public QueryFullLinkMsgResponseType queryFullLinkMsg(QueryFullLinkMsgRequestType request) {
         QueryFullLinkMsgResponseType response = new QueryFullLinkMsgResponseType();
         List<CompareResultDto> dtos =
-                repository.queryCompareResultsByRecordId(request.getPlanItemId(), request.getRecordId());
+                replayCompareResultRepository.queryCompareResultsByRecordId(request.getPlanItemId(), request.getRecordId());
         if (dtos == null) {
             return response;
         }
@@ -111,6 +115,22 @@ public class QueryReplayMsgService {
                 .map(CompareResultMapper.INSTANCE::contractFromDtoLogsLimitDisplay)
                 .collect(Collectors.toList());
         response.setCompareResults(compareResults);
+        return response;
+    }
+
+    public QueryFullLinkSummaryResponseType queryFullLinkSummary(String recordId, String replayId) {
+        QueryFullLinkSummaryResponseType response = new QueryFullLinkSummaryResponseType();
+        List<FullLinkSummaryDetail> fullLinkSummaryDetails =
+                replayCompareResultRepository.queryFullLinkSummary(recordId, replayId);
+        response.setDetails(fullLinkSummaryDetails);
+        return response;
+    }
+
+    public QueryDiffMsgWithCategoryResponseType queryFullLinkMsgWithCategory(String recordId, String replayId, String categoryName) {
+        QueryDiffMsgWithCategoryResponseType response = new QueryDiffMsgWithCategoryResponseType();
+        List<DiffMsgWithCategoryDetail> diffMsgWithCategoryDetails =
+                replayCompareResultRepository.queryFullLinkMsgWithCategory(recordId, replayId, categoryName);
+        response.setDetailList(diffMsgWithCategoryDetails);
         return response;
     }
 

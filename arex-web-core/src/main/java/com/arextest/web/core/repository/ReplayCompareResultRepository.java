@@ -1,5 +1,7 @@
 package com.arextest.web.core.repository;
 
+import com.arextest.web.model.contract.contracts.DiffMsgWithCategoryDetail;
+import com.arextest.web.model.contract.contracts.FullLinkSummaryDetail;
 import com.arextest.web.model.dto.CompareResultDto;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -22,6 +24,10 @@ public interface ReplayCompareResultRepository extends RepositoryProvider {
     CompareResultDto queryCompareResultsByObjectId(String objectId);
 
     List<CompareResultDto> queryCompareResultsByRecordId(String planItemId, String recordId);
+
+    List<FullLinkSummaryDetail> queryFullLinkSummary(String recordId, String replayId);
+
+    List<DiffMsgWithCategoryDetail> queryFullLinkMsgWithCategory(String recordId, String replayId, String category);
 
     boolean deleteCompareResultsByPlanId(String planId);
 
