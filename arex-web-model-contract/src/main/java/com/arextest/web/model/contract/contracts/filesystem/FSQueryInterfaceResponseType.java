@@ -19,6 +19,7 @@ public class FSQueryInterfaceResponseType {
     private List<KeyValuePairType> params;
     private AuthType auth;
     private AddressType testAddress;
+    private String description;
     private Map<String, Object> customTags;
     private String operationId;
     private String operationResponse;

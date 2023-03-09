@@ -18,5 +18,6 @@ public class FSInterfaceAndCaseBaseDto extends FSItemDto {
     private List<KeyValuePairDto> params;
     private AuthDto auth;
     private AddressDto testAddress;
+    private String description;
     private String recordId;
 }
