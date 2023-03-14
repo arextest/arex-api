@@ -2,6 +2,7 @@ package com.arextest.web.core.business;
 
 import com.arextest.web.common.LogUtils;
 import com.arextest.web.core.repository.ReplayCompareResultRepository;
+import com.arextest.web.core.repository.mongo.ApplicationOperationConfigurationRepositoryImpl;
 import com.arextest.web.model.contract.contracts.CompareResultDetail;
 import com.arextest.web.model.contract.contracts.DownloadReplayMsgRequestType;
 import com.arextest.web.model.contract.contracts.FullLinkInfoItem;
@@ -16,10 +17,12 @@ import com.arextest.web.model.contract.contracts.QueryReplayMsgRequestType;
 import com.arextest.web.model.contract.contracts.QueryReplayMsgResponseType;
 import com.arextest.web.model.contract.contracts.common.CompareResult;
 import com.arextest.web.model.contract.contracts.common.LogEntity;
+import com.arextest.web.model.contract.contracts.config.application.ApplicationOperationConfiguration;
 import com.arextest.web.model.dto.CompareResultDto;
 import com.arextest.web.model.enums.DiffResultCode;
 import com.arextest.web.model.mapper.CompareResultMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -40,6 +43,8 @@ public class QueryReplayMsgService {
 
     @Resource
     private ReplayCompareResultRepository replayCompareResultRepository;
+    @Resource
+    private ApplicationOperationConfigurationRepositoryImpl applicationOperationConfigurationRepository;
 
     private static final int BIG_MESSAGE_THRESHOLD = 5 * 1024 * 1024;
 
@@ -127,16 +132,38 @@ public class QueryReplayMsgService {
         QueryFullLinkInfoResponseType response = new QueryFullLinkInfoResponseType();
         List<CompareResultDto> dtos =
                 replayCompareResultRepository.queryCompareResultsByRecordIdAndReplayId(recordId, replayId);
-        List<FullLinkInfoItem> itemList = new ArrayList<>();
-        dtos.forEach(item -> {
-            FullLinkInfoItem fullLinkInfoItem = new FullLinkInfoItem();
-            fullLinkInfoItem.setId(item.getId());
-            fullLinkInfoItem.setCategoryName(item.getCategoryName());
-            fullLinkInfoItem.setOperationName(item.getOperationName());
-            fullLinkInfoItem.setCode(computeItemStatus(item));
-            itemList.add(fullLinkInfoItem);
-        });
-        response.setInfoItemList(itemList);
+
+        if (CollectionUtils.isNotEmpty(dtos)) {
+            // judge entrance type by operationId
+            String entranceCategoryName = "";
+            CompareResultDto compareResultDto = dtos.get(0);
+            String operationId = compareResultDto.getOperationId();
+            ApplicationOperationConfiguration applicationOperationConfiguration =
+                    applicationOperationConfigurationRepository.listByOperationId(operationId);
+            if (applicationOperationConfiguration != null) {
+                entranceCategoryName = applicationOperationConfiguration.getOperationType();
+            }
+
+            FullLinkInfoItem entrance = new FullLinkInfoItem();
+            List<FullLinkInfoItem> itemList = new ArrayList<>();
+            for (CompareResultDto dto : dtos) {
+                if (Objects.equals(dto.getCategoryName(), entranceCategoryName)) {
+                    entrance.setId(dto.getId());
+                    entrance.setCategoryName(dto.getCategoryName());
+                    entrance.setOperationName(dto.getOperationName());
+                    entrance.setCode(computeItemStatus(dto));
+                } else {
+                    FullLinkInfoItem fullLinkInfoItem = new FullLinkInfoItem();
+                    fullLinkInfoItem.setId(dto.getId());
+                    fullLinkInfoItem.setCategoryName(dto.getCategoryName());
+                    fullLinkInfoItem.setOperationName(dto.getOperationName());
+                    fullLinkInfoItem.setCode(computeItemStatus(dto));
+                    itemList.add(fullLinkInfoItem);
+                }
+            }
+            response.setEntrance(entrance);
+            response.setInfoItemList(itemList);
+        }
         return response;
     }
 

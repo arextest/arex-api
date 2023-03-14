@@ -9,5 +9,6 @@ import java.util.List;
  */
 @Data
 public class QueryFullLinkInfoResponseType {
+    FullLinkInfoItem entrance;
     List<FullLinkInfoItem> infoItemList;
 }
