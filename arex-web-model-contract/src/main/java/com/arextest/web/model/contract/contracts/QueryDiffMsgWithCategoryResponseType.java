@@ -10,6 +10,6 @@ import java.util.List;
 @Data
 public class QueryDiffMsgWithCategoryResponseType {
 
-    List<DiffMsgWithCategoryDetail> detailList;
+    List<CompareResultDetail> detailList;
 
 }

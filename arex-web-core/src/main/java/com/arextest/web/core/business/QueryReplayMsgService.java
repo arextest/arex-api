@@ -2,16 +2,20 @@ package com.arextest.web.core.business;
 
 import com.arextest.web.common.LogUtils;
 import com.arextest.web.core.repository.ReplayCompareResultRepository;
-import com.arextest.web.model.contract.contracts.DiffMsgWithCategoryDetail;
+import com.arextest.web.model.contract.contracts.CompareResultDetail;
 import com.arextest.web.model.contract.contracts.DownloadReplayMsgRequestType;
+import com.arextest.web.model.contract.contracts.FullLinkInfoItem;
 import com.arextest.web.model.contract.contracts.FullLinkSummaryDetail;
+import com.arextest.web.model.contract.contracts.QueryDiffMsgByIdResponseType;
 import com.arextest.web.model.contract.contracts.QueryDiffMsgWithCategoryResponseType;
+import com.arextest.web.model.contract.contracts.QueryFullLinkInfoResponseType;
 import com.arextest.web.model.contract.contracts.QueryFullLinkMsgRequestType;
 import com.arextest.web.model.contract.contracts.QueryFullLinkMsgResponseType;
 import com.arextest.web.model.contract.contracts.QueryFullLinkSummaryResponseType;
 import com.arextest.web.model.contract.contracts.QueryReplayMsgRequestType;
 import com.arextest.web.model.contract.contracts.QueryReplayMsgResponseType;
 import com.arextest.web.model.contract.contracts.common.CompareResult;
+import com.arextest.web.model.contract.contracts.common.LogEntity;
 import com.arextest.web.model.dto.CompareResultDto;
 import com.arextest.web.model.enums.DiffResultCode;
 import com.arextest.web.model.mapper.CompareResultMapper;
@@ -24,6 +28,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -118,6 +123,31 @@ public class QueryReplayMsgService {
         return response;
     }
 
+    public QueryFullLinkInfoResponseType queryFullLinkInfo(String recordId, String replayId) {
+        QueryFullLinkInfoResponseType response = new QueryFullLinkInfoResponseType();
+        List<CompareResultDto> dtos =
+                replayCompareResultRepository.queryCompareResultsByRecordIdAndReplayId(recordId, replayId);
+        List<FullLinkInfoItem> itemList = new ArrayList<>();
+        dtos.forEach(item -> {
+            FullLinkInfoItem fullLinkInfoItem = new FullLinkInfoItem();
+            fullLinkInfoItem.setId(item.getId());
+            fullLinkInfoItem.setCategoryName(item.getCategoryName());
+            fullLinkInfoItem.setOperationName(item.getOperationName());
+            fullLinkInfoItem.setCode(computeItemStatus(item));
+            itemList.add(fullLinkInfoItem);
+        });
+        response.setQueryFullLinkInfoItemList(itemList);
+        return response;
+    }
+
+    public QueryDiffMsgByIdResponseType queryDiffMsgById(String id) {
+        QueryDiffMsgByIdResponseType response = new QueryDiffMsgByIdResponseType();
+        CompareResultDto compareResultDto = replayCompareResultRepository.queryCompareResultsByObjectId(id);
+        CompareResultDetail compareResultDetail = CompareResultMapper.INSTANCE.detailFromDto(compareResultDto);
+        response.setCompareResultDetail(compareResultDetail);
+        return response;
+    }
+
     public QueryFullLinkSummaryResponseType queryFullLinkSummary(String recordId, String replayId) {
         QueryFullLinkSummaryResponseType response = new QueryFullLinkSummaryResponseType();
         List<FullLinkSummaryDetail> fullLinkSummaryDetails =
@@ -128,10 +158,35 @@ public class QueryReplayMsgService {
 
     public QueryDiffMsgWithCategoryResponseType queryFullLinkMsgWithCategory(String recordId, String replayId, String categoryName) {
         QueryDiffMsgWithCategoryResponseType response = new QueryDiffMsgWithCategoryResponseType();
-        List<DiffMsgWithCategoryDetail> diffMsgWithCategoryDetails =
+        List<CompareResultDetail> compareResultDetails =
                 replayCompareResultRepository.queryFullLinkMsgWithCategory(recordId, replayId, categoryName);
-        response.setDetailList(diffMsgWithCategoryDetails);
+        response.setDetailList(compareResultDetails);
         return response;
+    }
+
+    private int computeItemStatus(CompareResultDto compareResult) {
+        switch (compareResult.getDiffResultCode()) {
+            case DiffResultCode.COMPARED_INTERNAL_EXCEPTION:
+            case DiffResultCode.SEND_FAILED_NOT_COMPARE:
+                return FullLinkInfoItem.ItemStatus.EXCEPTION;
+            case DiffResultCode.COMPARED_WITHOUT_DIFFERENCE:
+                return FullLinkInfoItem.ItemStatus.SUCCESS;
+            default: {
+                List<LogEntity> entities = compareResult.getLogs();
+                if (entities == null || entities.size() == 0) {
+                    return FullLinkInfoItem.ItemStatus.EXCEPTION;
+                } else if (entities.size() > 1) {
+                    return FullLinkInfoItem.ItemStatus.VALUE_DIFF;
+                }
+
+                if (compareResult.getBaseMsg() == null) {
+                    return FullLinkInfoItem.ItemStatus.LEFT_CALL_MISSING;
+                } else if (compareResult.getTestMsg() == null) {
+                    return FullLinkInfoItem.ItemStatus.RIGHT_CALL_MISSING;
+                }
+                return FullLinkInfoItem.ItemStatus.VALUE_DIFF;
+            }
+        }
     }
 
 }

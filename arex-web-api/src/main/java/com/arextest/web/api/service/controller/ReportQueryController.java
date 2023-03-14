@@ -24,10 +24,12 @@ import com.arextest.web.model.contract.contracts.QueryCategoryStatisticRequestTy
 import com.arextest.web.model.contract.contracts.QueryCategoryStatisticResponseType;
 import com.arextest.web.model.contract.contracts.QueryDiffAggInfoRequestType;
 import com.arextest.web.model.contract.contracts.QueryDiffAggInfoResponseType;
+import com.arextest.web.model.contract.contracts.QueryDiffMsgByIdResponseType;
 import com.arextest.web.model.contract.contracts.QueryDiffMsgWithCategoryRequestType;
 import com.arextest.web.model.contract.contracts.QueryDiffMsgWithCategoryResponseType;
 import com.arextest.web.model.contract.contracts.QueryDifferencesRequestType;
 import com.arextest.web.model.contract.contracts.QueryDifferencesResponseType;
+import com.arextest.web.model.contract.contracts.QueryFullLinkInfoResponseType;
 import com.arextest.web.model.contract.contracts.QueryFullLinkMsgRequestType;
 import com.arextest.web.model.contract.contracts.QueryFullLinkMsgResponseType;
 import com.arextest.web.model.contract.contracts.QueryFullLinkSummaryResponseType;
@@ -271,6 +273,23 @@ public class ReportQueryController {
         return ResponseUtils.successResponse(response);
     }
 
+
+    @GetMapping("/queryFullLinkInfo/{recordId}/{replayId}")
+    @ResponseBody
+    public Response queryFullLinkInfo(@PathVariable String recordId, @PathVariable String replayId) {
+        QueryFullLinkInfoResponseType response =
+                queryReplayMsgService.queryFullLinkInfo(recordId, replayId);
+        return ResponseUtils.successResponse(response);
+    }
+
+    @GetMapping("/queryDiffMsgById/{id}")
+    @ResponseBody
+    public Response queryDiffMsgById(@PathVariable String id) {
+        QueryDiffMsgByIdResponseType response = queryReplayMsgService.queryDiffMsgById(id);
+        return ResponseUtils.successResponse(response);
+    }
+
+    @Deprecated
     @GetMapping("/queryFullLinkSummary/{recordId}/{replayId}")
     @ResponseBody
     public Response queryFullLinkSummary(@PathVariable String recordId, @PathVariable String replayId) {
@@ -279,7 +298,7 @@ public class ReportQueryController {
         return ResponseUtils.successResponse(response);
     }
 
-
+    @Deprecated
     @PostMapping("/queryFullLinkMsgWithCategory")
     @ResponseBody
     public Response queryFullLinkMsgWithCategory(@RequestBody QueryDiffMsgWithCategoryRequestType request) {

@@ -6,8 +6,9 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class DiffMsgWithCategoryDetail {
+public class CompareResultDetail {
     private String id;
+    private String categoryName;
     private String operationName;
     private int diffResultCode;
 

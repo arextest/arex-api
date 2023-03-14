@@ -2,7 +2,7 @@ package com.arextest.web.core.repository.mongo;
 
 import com.arextest.web.common.LogUtils;
 import com.arextest.web.core.repository.ReplayCompareResultRepository;
-import com.arextest.web.model.contract.contracts.DiffMsgWithCategoryDetail;
+import com.arextest.web.model.contract.contracts.CompareResultDetail;
 import com.arextest.web.model.contract.contracts.FullLinkSummaryDetail;
 import com.arextest.web.model.dao.mongodb.ReplayCompareResultCollection;
 import com.arextest.web.model.dto.CompareResultDto;
@@ -163,6 +163,15 @@ public class ReplayCompareResultRepositoryImpl implements ReplayCompareResultRep
     }
 
     @Override
+    public List<CompareResultDto> queryCompareResultsByRecordIdAndReplayId(String recordId, String replayId) {
+        Query query = new Query();
+        query.addCriteria(Criteria.where(RECORD_ID).is(recordId).and(REPLAY_ID).is(replayId));
+        List<ReplayCompareResultCollection> daos = mongoTemplate.find(query, ReplayCompareResultCollection.class);
+        return daos.stream().map(CompareResultMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
+    }
+
+
+    @Override
     public List<FullLinkSummaryDetail> queryFullLinkSummary(String recordId, String replayId) {
         List<AggregationOperation> operations = new ArrayList<>();
 
@@ -188,7 +197,7 @@ public class ReplayCompareResultRepositoryImpl implements ReplayCompareResultRep
     }
 
     @Override
-    public List<DiffMsgWithCategoryDetail> queryFullLinkMsgWithCategory(String recordId, String replayId, String category) {
+    public List<CompareResultDetail> queryFullLinkMsgWithCategory(String recordId, String replayId, String category) {
         Query query = new Query();
         query.addCriteria(
                 Criteria.where(RECORD_ID).is(recordId)
