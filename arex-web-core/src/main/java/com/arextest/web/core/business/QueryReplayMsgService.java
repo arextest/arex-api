@@ -136,7 +136,7 @@ public class QueryReplayMsgService {
             fullLinkInfoItem.setCode(computeItemStatus(item));
             itemList.add(fullLinkInfoItem);
         });
-        response.setQueryFullLinkInfoItemList(itemList);
+        response.setInfoItemList(itemList);
         return response;
     }
 
