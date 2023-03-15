@@ -1,5 +1,6 @@
 package com.arextest.web.core.business.compare;
 
+import com.arextest.common.utils.CompressionUtils;
 import com.arextest.diff.model.CompareOptions;
 import com.arextest.diff.model.CompareResult;
 import com.arextest.diff.sdk.CompareSDK;
@@ -72,6 +73,19 @@ public class CompareService {
             quickCompareResponseType.setDiffDetails(getDiffDetails(logs));
         }
         return quickCompareResponseType;
+    }
+
+    public QuickCompareResponseType quickCompareCompressMsg(MsgCombination msgCombination) {
+        msgCombination.setBaseMsg(
+                CompressionUtils.useZstdDecompress(msgCombination.getBaseMsg())
+        );
+        msgCombination.setTestMsg(
+                CompressionUtils.useZstdDecompress(msgCombination.getTestMsg())
+        );
+        QuickCompareResponseType response = quickCompare(msgCombination);
+        response.setBaseMsg(CompressionUtils.useZstdCompress(response.getBaseMsg()));
+        response.setTestMsg(CompressionUtils.useZstdCompress(response.getTestMsg()));
+        return response;
     }
 
     @Async("compare-task-executor")
@@ -160,7 +174,6 @@ public class CompareService {
 
 
     public CompareResult batchCompare(String baseMsg, String testMsg, ComparisonSummaryConfiguration comparisonConfig) {
-        // ComparisonSummaryConfiguration comparisonConfig = request.getComparisonConfig();
         CompareOptions compareOptions = new CompareOptions();
         if (comparisonConfig != null) {
             compareOptions.putExclusions(comparisonConfig.getExclusionList());
@@ -174,46 +187,6 @@ public class CompareService {
                 compareOptions);
         return compareResult;
     }
-
-    // @Async("compare-task-executor")
-    // public void batchCompare(UpdateBatchCompareCaseRequestType request) {
-    //     BatchCompareReportCaseDto dto = new BatchCompareReportCaseDto();
-    //     dto.setPlanId(request.getPlanId());
-    //     dto.setCaseId(request.getCaseId());
-    //     try {
-    //         if (StringUtils.isNotEmpty(request.getExceptionMsg())) {
-    //             dto.setStatus(BatchCompareCaseStatusType.EXCEPTION);
-    //             dto.setExceptionMsg(request.getExceptionMsg());
-    //         } else {
-    //
-    //             ComparisonSummaryConfiguration comparisonConfig = request.getComparisonConfig();
-    //             CompareOptions compareOptions = new CompareOptions();
-    //             if (comparisonConfig != null) {
-    //                 compareOptions.putExclusions(comparisonConfig.getExclusionList());
-    //                 compareOptions.putInclusions(comparisonConfig.getInclusionList());
-    //                 compareOptions.putListSortConfig(comparisonConfig.getListSortMap());
-    //                 compareOptions.putReferenceConfig(comparisonConfig.getReferenceMap());
-    //             }
-    //             CompareResult compareResult = compareSDK.compare(
-    //                     request.getBaseMsg(),
-    //                     request.getTestMsg(),
-    //                     compareOptions);
-    //             dto.setStatus(convertDiffResultCode(compareResult.getCode()));
-    //             dto.setExceptionMsg(compareResult.getMessage());
-    //             if (compareResult.getCode() == DiffResultCode.COMPARED_WITH_DIFFERENCE) {
-    //                 dto.setProcessedBaseMsg(compareResult.getProcessedBaseMsg());
-    //                 dto.setProcessedTestMsg(compareResult.getProcessedTestMsg());
-    //
-    //             }
-    //         }
-    //     } catch (Throwable throwable) {
-    //         dto.setStatus(BatchCompareCaseStatusType.EXCEPTION);
-    //         dto.setExceptionMsg(throwable.getMessage());
-    //         LOGGER.error(String.format("batchCompare exception. planId:%s, caseId:%s", request.getPlanId(),
-    //                 request.getCaseId()), throwable);
-    //     }
-    //     batchCompareReportRepository.updateBatchCompareCase(dto);
-    // }
 
 
     private void aggBatchCompareResult(CompareResult compareResult) {

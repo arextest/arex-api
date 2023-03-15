@@ -31,7 +31,7 @@ public class CompareController {
     @PostMapping("/quickCompare")
     @ResponseBody
     public Response quickCompare(@RequestBody QuickCompareRequestType request) {
-        QuickCompareResponseType response = compareService.quickCompare(request.getMsgCombination());
+        QuickCompareResponseType response = compareService.quickCompareCompressMsg(request.getMsgCombination());
         return ResponseUtils.successResponse(response);
     }
 
