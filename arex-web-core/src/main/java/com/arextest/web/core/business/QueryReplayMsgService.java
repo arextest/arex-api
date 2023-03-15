@@ -6,13 +6,10 @@ import com.arextest.web.core.repository.mongo.ApplicationOperationConfigurationR
 import com.arextest.web.model.contract.contracts.CompareResultDetail;
 import com.arextest.web.model.contract.contracts.DownloadReplayMsgRequestType;
 import com.arextest.web.model.contract.contracts.FullLinkInfoItem;
-import com.arextest.web.model.contract.contracts.FullLinkSummaryDetail;
 import com.arextest.web.model.contract.contracts.QueryDiffMsgByIdResponseType;
-import com.arextest.web.model.contract.contracts.QueryDiffMsgWithCategoryResponseType;
 import com.arextest.web.model.contract.contracts.QueryFullLinkInfoResponseType;
 import com.arextest.web.model.contract.contracts.QueryFullLinkMsgRequestType;
 import com.arextest.web.model.contract.contracts.QueryFullLinkMsgResponseType;
-import com.arextest.web.model.contract.contracts.QueryFullLinkSummaryResponseType;
 import com.arextest.web.model.contract.contracts.QueryReplayMsgRequestType;
 import com.arextest.web.model.contract.contracts.QueryReplayMsgResponseType;
 import com.arextest.web.model.contract.contracts.common.CompareResult;
@@ -172,22 +169,6 @@ public class QueryReplayMsgService {
         CompareResultDto compareResultDto = replayCompareResultRepository.queryCompareResultsByObjectId(id);
         CompareResultDetail compareResultDetail = CompareResultMapper.INSTANCE.detailFromDto(compareResultDto);
         response.setCompareResultDetail(compareResultDetail);
-        return response;
-    }
-
-    public QueryFullLinkSummaryResponseType queryFullLinkSummary(String recordId, String replayId) {
-        QueryFullLinkSummaryResponseType response = new QueryFullLinkSummaryResponseType();
-        List<FullLinkSummaryDetail> fullLinkSummaryDetails =
-                replayCompareResultRepository.queryFullLinkSummary(recordId, replayId);
-        response.setDetails(fullLinkSummaryDetails);
-        return response;
-    }
-
-    public QueryDiffMsgWithCategoryResponseType queryFullLinkMsgWithCategory(String recordId, String replayId, String categoryName) {
-        QueryDiffMsgWithCategoryResponseType response = new QueryDiffMsgWithCategoryResponseType();
-        List<CompareResultDetail> compareResultDetails =
-                replayCompareResultRepository.queryFullLinkMsgWithCategory(recordId, replayId, categoryName);
-        response.setDetailList(compareResultDetails);
         return response;
     }
 

@@ -19,8 +19,7 @@ public class SummaryService {
     CaseSummaryRepository caseSummaryRepository;
 
     /**
-     * 分析比对结果
-     * todo: 根因分析后续看情况是否需要支持
+     * analyze the compared results
      */
     public void analysis(List<CompareResultDto> compareResults) {
         if (CollectionUtil.isEmpty(compareResults)) {
@@ -62,17 +61,6 @@ public class SummaryService {
                 } else if (entities.size() > 1) {
                     return UnmatchedCategory.VALUE_DIFF;
                 }
-
-                // LogEntity entity = entities.get(0);
-                // if (CollectionUtils.isEmpty(entity.getPathPair().getLeftUnmatchedPath())
-                //         && CollectionUtils.isEmpty(entity.getPathPair().getRightUnmatchedPath())) {
-                //     if()
-                // }
-                // if (entity.getBaseValue() == null) {
-                //     return UnmatchedCategory.LEFT_MISSING;
-                // } else if (entity.getTestValue() == null) {
-                //     return UnmatchedCategory.RIGHT_MISSING;
-                // }
                 if (compareResult.getBaseMsg() == null) {
                     return UnmatchedCategory.LEFT_MISSING;
                 } else if (compareResult.getTestMsg() == null) {

@@ -53,13 +53,6 @@ public interface CompareResultMapper {
     CompareResultDetail detailFromDto(CompareResultDto dto);
 
     @Mappings({
-            @Mapping(target = "baseMsg", qualifiedByName = "decompressMsg"),
-            @Mapping(target = "testMsg", qualifiedByName = "decompressMsg")
-    })
-    CompareResultDetail detailFromDao(ReplayCompareResultCollection dao);
-
-
-    @Mappings({
             @Mapping(target = "logs", expression = "java(dto.getDiffResultCode() == 2 ? dto.getLogs() : null)"),
     })
     CompareResult contractFromDtoLogsLimitDisplay(CompareResultDto dto);

@@ -27,7 +27,7 @@ public class SceneReportService {
     SceneInfoRepository sceneInfoRepository;
 
     /**
-     * 差异类型场景分组
+     * difference Type Scene Grouping
      */
     public void report(String planId, String planItemId) {
         List<CaseSummary> data = caseSummaryRepository.query(planId, planItemId);
@@ -53,11 +53,10 @@ public class SceneReportService {
     }
 
     /**
-     * 根据Code分组主场景
+     * Group main scenes according to Code
      */
     private Collection<SceneInfo.Builder> groupMainScene(List<CaseSummary> caseSummaries) {
         Map<Long, SceneInfo.Builder> main = new HashMap<>();
-        // group性能不佳，自己分组
         for (CaseSummary summary : caseSummaries) {
             main.computeIfAbsent(summary.categoryKey(), k -> SceneInfo.builder()
                     .code(summary.getCode())

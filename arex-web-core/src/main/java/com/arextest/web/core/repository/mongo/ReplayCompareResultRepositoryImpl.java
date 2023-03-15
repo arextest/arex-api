@@ -2,36 +2,24 @@ package com.arextest.web.core.repository.mongo;
 
 import com.arextest.web.common.LogUtils;
 import com.arextest.web.core.repository.ReplayCompareResultRepository;
-import com.arextest.web.model.contract.contracts.CompareResultDetail;
-import com.arextest.web.model.contract.contracts.FullLinkSummaryDetail;
 import com.arextest.web.model.dao.mongodb.ReplayCompareResultCollection;
 import com.arextest.web.model.dto.CompareResultDto;
 import com.arextest.web.model.mapper.CompareResultMapper;
-import com.mongodb.BasicDBObject;
 import com.mongodb.client.result.DeleteResult;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.aggregation.Aggregation;
-import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
-import org.springframework.data.mongodb.core.aggregation.AggregationResults;
-import org.springframework.data.mongodb.core.aggregation.GroupOperation;
-import org.springframework.data.mongodb.core.aggregation.MatchOperation;
-import org.springframework.data.mongodb.core.aggregation.ProjectionOperation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 
@@ -170,47 +158,6 @@ public class ReplayCompareResultRepositoryImpl implements ReplayCompareResultRep
         return daos.stream().map(CompareResultMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
     }
 
-
-    @Override
-    public List<FullLinkSummaryDetail> queryFullLinkSummary(String recordId, String replayId) {
-        List<AggregationOperation> operations = new ArrayList<>();
-
-        MatchOperation matchOperation = Aggregation.match(
-                Criteria.where(RECORD_ID).is(recordId)
-                        .and(REPLAY_ID).is(replayId)
-        );
-        operations.add(matchOperation);
-
-        GroupOperation groupOperation = Aggregation.group(CATEGORY_NAME, DIFF_RESULT_CODE)
-                .first(CATEGORY_NAME).as(CATEGORY_NAME)
-                .first(DIFF_RESULT_CODE).as(DIFF_RESULT_CODE)
-                .count().as(COUNT);
-        operations.add(groupOperation);
-
-        ProjectionOperation projectionOperation =
-                Aggregation.project(CATEGORY_NAME, DIFF_RESULT_CODE, COUNT);
-        operations.add(projectionOperation);
-        AggregationResults<BasicDBObject> aggregate = mongoTemplate.aggregate(Aggregation.newAggregation(operations),
-                ReplayCompareResultCollection.class, BasicDBObject.class);
-
-        return this.convertToFullLinkSummaryDetail(aggregate.getMappedResults());
-    }
-
-    @Override
-    public List<CompareResultDetail> queryFullLinkMsgWithCategory(String recordId, String replayId, String category) {
-        Query query = new Query();
-        query.addCriteria(
-                Criteria.where(RECORD_ID).is(recordId)
-                        .and(REPLAY_ID).is(replayId)
-                        .and(CATEGORY_NAME).is(category)
-        );
-        List<ReplayCompareResultCollection> daos = mongoTemplate.find(query, ReplayCompareResultCollection.class);
-
-        return daos.stream()
-                .map(CompareResultMapper.INSTANCE::detailFromDao)
-                .collect(Collectors.toList());
-    }
-
     @Override
     public boolean deleteCompareResultsByPlanId(String planId) {
         Query query = Query.query(Criteria.where(PLAN_ID).is(planId));
@@ -245,32 +192,5 @@ public class ReplayCompareResultRepositoryImpl implements ReplayCompareResultRep
                     Criteria.where(RECORD_ID).regex(".*?" + keyWord + ".*")));
         }
         return query;
-    }
-
-    private List<FullLinkSummaryDetail> convertToFullLinkSummaryDetail(List<BasicDBObject> mappedResults) {
-        if (CollectionUtils.isEmpty(mappedResults)) {
-            return Collections.emptyList();
-        }
-        List<FullLinkSummaryDetail> result = new ArrayList<>();
-        Map<String, List<BasicDBObject>> categoryMap = mappedResults.stream()
-                .collect(Collectors.groupingBy(item -> item.getString(CATEGORY_NAME)));
-        for (Map.Entry<String, List<BasicDBObject>> entry : categoryMap.entrySet()) {
-            FullLinkSummaryDetail fullLinkSummaryDetail = new FullLinkSummaryDetail();
-            fullLinkSummaryDetail.setCategoryName(entry.getKey());
-
-            List<FullLinkSummaryDetail.FullLinkSummaryDetailInfo> detailInfos =
-                    new ArrayList<>();
-            List<BasicDBObject> value = entry.getValue();
-            value.forEach(item -> {
-                FullLinkSummaryDetail.FullLinkSummaryDetailInfo detailInfo =
-                        new FullLinkSummaryDetail.FullLinkSummaryDetailInfo();
-                detailInfo.setCode(item.getInt(DIFF_RESULT_CODE));
-                detailInfo.setCount(item.getInt(COUNT));
-                detailInfos.add(detailInfo);
-            });
-            fullLinkSummaryDetail.setDetailInfoList(detailInfos);
-            result.add(fullLinkSummaryDetail);
-        }
-        return result;
     }
 }
