@@ -1,6 +1,6 @@
 package com.arextest.web.model.contract.contracts.compare;
 
-import com.arextest.web.model.contract.contracts.config.replay.ReplayConfiguration;
+import com.arextest.web.model.contract.contracts.config.replay.ComparisonSummaryConfiguration;
 import lombok.Data;
 
 /**
@@ -11,5 +11,5 @@ public class MsgCombination {
     private String caseId;
     private String baseMsg;
     private String testMsg;
-    private ReplayConfiguration.ReplayComparisonConfig comparisonConfig;
+    private ComparisonSummaryConfiguration comparisonConfig;
 }

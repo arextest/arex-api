@@ -23,6 +23,8 @@ public interface ReplayCompareResultRepository extends RepositoryProvider {
 
     List<CompareResultDto> queryCompareResultsByRecordId(String planItemId, String recordId);
 
+    List<CompareResultDto> queryCompareResultsByRecordIdAndReplayId(String recordId, String replayId);
+
     boolean deleteCompareResultsByPlanId(String planId);
 
     int queryCompareResultCountByPlanId(String planId);

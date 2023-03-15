@@ -14,6 +14,7 @@ import com.arextest.web.core.business.QueryResponseTypeStatisticService;
 import com.arextest.web.core.business.ReplayInfoService;
 import com.arextest.web.core.business.ReportService;
 import com.arextest.web.core.business.SchemaInferService;
+import com.arextest.web.core.business.iosummary.SceneReportService;
 import com.arextest.web.model.contract.contracts.ChangeReplayStatusRequestType;
 import com.arextest.web.model.contract.contracts.ChangeReplayStatusResponseType;
 import com.arextest.web.model.contract.contracts.DownloadReplayMsgRequestType;
@@ -23,8 +24,10 @@ import com.arextest.web.model.contract.contracts.QueryCategoryStatisticRequestTy
 import com.arextest.web.model.contract.contracts.QueryCategoryStatisticResponseType;
 import com.arextest.web.model.contract.contracts.QueryDiffAggInfoRequestType;
 import com.arextest.web.model.contract.contracts.QueryDiffAggInfoResponseType;
+import com.arextest.web.model.contract.contracts.QueryDiffMsgByIdResponseType;
 import com.arextest.web.model.contract.contracts.QueryDifferencesRequestType;
 import com.arextest.web.model.contract.contracts.QueryDifferencesResponseType;
+import com.arextest.web.model.contract.contracts.QueryFullLinkInfoResponseType;
 import com.arextest.web.model.contract.contracts.QueryFullLinkMsgRequestType;
 import com.arextest.web.model.contract.contracts.QueryFullLinkMsgResponseType;
 import com.arextest.web.model.contract.contracts.QueryMsgSchemaRequestType;
@@ -41,6 +44,7 @@ import com.arextest.web.model.contract.contracts.QueryReplayCaseRequestType;
 import com.arextest.web.model.contract.contracts.QueryReplayCaseResponseType;
 import com.arextest.web.model.contract.contracts.QueryReplayMsgRequestType;
 import com.arextest.web.model.contract.contracts.QueryReplayMsgResponseType;
+import com.arextest.web.model.contract.contracts.QuerySceneInfoResponseType;
 import com.arextest.web.model.contract.contracts.QueryScenesRequestType;
 import com.arextest.web.model.contract.contracts.QueryScenesResponseType;
 import com.arextest.web.model.contract.contracts.QuerySchemaForConfigRequestType;
@@ -52,7 +56,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.json.JSONException;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -90,6 +93,8 @@ public class ReportQueryController {
     private QueryReplayMsgService queryReplayMsgService;
     @Resource
     private SchemaInferService schemaInferService;
+    @Resource
+    private SceneReportService sceneReportService;
 
 
     @PostMapping("/pushCompareResults")
@@ -176,7 +181,7 @@ public class ReportQueryController {
         try {
             response = msgShowService.queryMsgWithDiff(request);
         } catch (JSONException e) {
-            LogUtils.error(LOGGER,"queryMsgWithDiff", e);
+            LogUtils.error(LOGGER, "queryMsgWithDiff", e);
         }
         return ResponseUtils.successResponse(response);
     }
@@ -224,7 +229,7 @@ public class ReportQueryController {
     @PostMapping("/downloadReplayMsg")
     @ResponseBody
     public void downloadReplayMsg(@Valid @RequestBody DownloadReplayMsgRequestType request,
-            HttpServletResponse response) {
+                                  HttpServletResponse response) {
         queryReplayMsgService.downloadReplayMsg(request, response);
     }
 
@@ -255,6 +260,29 @@ public class ReportQueryController {
     public Response deleteReport(@PathVariable String planId) {
         SuccessResponseType response = new SuccessResponseType();
         response.setSuccess(reportService.deleteReport(planId));
+        return ResponseUtils.successResponse(response);
+    }
+
+    @GetMapping("/querySceneInfo/{planId}/{planItemId}")
+    @ResponseBody
+    public Response querySceneInfo(@PathVariable String planId, @PathVariable String planItemId) {
+        QuerySceneInfoResponseType response = sceneReportService.querySceneInfo(planId, planItemId);
+        return ResponseUtils.successResponse(response);
+    }
+
+
+    @GetMapping("/queryFullLinkInfo/{recordId}/{replayId}")
+    @ResponseBody
+    public Response queryFullLinkInfo(@PathVariable String recordId, @PathVariable String replayId) {
+        QueryFullLinkInfoResponseType response =
+                queryReplayMsgService.queryFullLinkInfo(recordId, replayId);
+        return ResponseUtils.successResponse(response);
+    }
+
+    @GetMapping("/queryDiffMsgById/{id}")
+    @ResponseBody
+    public Response queryDiffMsgById(@PathVariable String id) {
+        QueryDiffMsgByIdResponseType response = queryReplayMsgService.queryDiffMsgById(id);
         return ResponseUtils.successResponse(response);
     }
 }

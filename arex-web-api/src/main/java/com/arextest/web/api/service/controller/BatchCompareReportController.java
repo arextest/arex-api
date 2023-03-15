@@ -42,8 +42,9 @@ public class BatchCompareReportController {
     @PostMapping("/initBatchCompareReport")
     @ResponseBody
     public Response initBatchCompareReport(@Valid @RequestBody BatchCompareReportRequestType request) {
-        boolean result = batchCompareReportService.initBatchCompareReport(request);
-        return ResponseUtils.successResponse(result);
+        return ResponseUtils.successResponse(
+                batchCompareReportService.initBatchCompareReport(request)
+        );
     }
 
     @PostMapping("/updateBatchCompareCase")

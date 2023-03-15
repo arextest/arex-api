@@ -37,6 +37,7 @@ public class ReplayCompareResultRepositoryImpl implements ReplayCompareResultRep
     private static final String RECORD_ID = "recordId";
     private static final String DIFF_RESULT_CODE = "diffResultCode";
     private static final String LOGS = "logs";
+    private static final String COUNT = "count";
 
     @Resource
     private MongoTemplate mongoTemplate;
@@ -118,8 +119,8 @@ public class ReplayCompareResultRepositoryImpl implements ReplayCompareResultRep
 
     @Override
     public Pair<List<CompareResultDto>, Long> queryCompareResultByPage(String planId,
-            Integer pageSize,
-            Integer pageIndex) {
+                                                                       Integer pageSize,
+                                                                       Integer pageIndex) {
         Query query = Query.query(Criteria.where(PLAN_ID).is(planId));
         query.fields().exclude(BASE_MSG).exclude(TEST_MSG);
 
@@ -150,6 +151,14 @@ public class ReplayCompareResultRepositoryImpl implements ReplayCompareResultRep
     }
 
     @Override
+    public List<CompareResultDto> queryCompareResultsByRecordIdAndReplayId(String recordId, String replayId) {
+        Query query = new Query();
+        query.addCriteria(Criteria.where(RECORD_ID).is(recordId).and(REPLAY_ID).is(replayId));
+        List<ReplayCompareResultCollection> daos = mongoTemplate.find(query, ReplayCompareResultCollection.class);
+        return daos.stream().map(CompareResultMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
+    }
+
+    @Override
     public boolean deleteCompareResultsByPlanId(String planId) {
         Query query = Query.query(Criteria.where(PLAN_ID).is(planId));
         DeleteResult deleteResult = mongoTemplate.remove(query, ReplayCompareResultCollection.class);
@@ -164,7 +173,7 @@ public class ReplayCompareResultRepositoryImpl implements ReplayCompareResultRep
 
 
     private Query fillFilterConditions(String planId, String planItemId, String categoryName, Integer resultType,
-            String keyWord) {
+                                       String keyWord) {
         Query query = new Query();
         if (planId != null) {
             query.addCriteria(Criteria.where(PLAN_ID).is(planId));
@@ -184,5 +193,4 @@ public class ReplayCompareResultRepositoryImpl implements ReplayCompareResultRep
         }
         return query;
     }
-
 }

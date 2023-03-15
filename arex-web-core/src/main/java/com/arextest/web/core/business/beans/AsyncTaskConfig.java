@@ -53,4 +53,18 @@ public class AsyncTaskConfig {
         executor.setThreadNamePrefix("sending-mail-executor-");
         return executor;
     }
+
+    @Bean("message-clip-executor")
+    public ThreadPoolTaskExecutor messageClipTaskExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(2);
+        executor.setMaxPoolSize(4);
+        executor.setKeepAliveSeconds(30);
+        executor.setQueueCapacity(1000);
+        executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
+        executor.setWaitForTasksToCompleteOnShutdown(true);
+        executor.setAllowCoreThreadTimeOut(true);
+        executor.setThreadNamePrefix("message-clip-executor-");
+        return executor;
+    }
 }

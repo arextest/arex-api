@@ -2,6 +2,7 @@ package com.arextest.web.model.mapper;
 
 import com.arextest.common.utils.CompressionUtils;
 import com.arextest.common.utils.SerializationUtils;
+import com.arextest.web.model.contract.contracts.CompareResultDetail;
 import com.arextest.web.model.contract.contracts.common.CompareResult;
 import com.arextest.web.model.contract.contracts.common.LogEntity;
 import com.arextest.web.model.dao.mongodb.ReplayCompareResultCollection;
@@ -48,6 +49,8 @@ public interface CompareResultMapper {
     CompareResultDto dtoFromContract(CompareResult contract);
 
     CompareResult contractFromDto(CompareResultDto dto);
+
+    CompareResultDetail detailFromDto(CompareResultDto dto);
 
     @Mappings({
             @Mapping(target = "logs", expression = "java(dto.getDiffResultCode() == 2 ? dto.getLogs() : null)"),

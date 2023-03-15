@@ -26,6 +26,7 @@ public class FSInterfaceCollection extends ModelBase {
     private AddressDao testAddress;
     private String parentId;
     private Integer parentNodeType;
+    private String description;
     private Map<String, Object> customTags;
     private String operationId;
     private String operationResponse;

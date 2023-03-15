@@ -7,7 +7,7 @@
     <groupId>com.arextest</groupId>
     <artifactId>arex-web</artifactId>
     <packaging>pom</packaging>
-    <version>0.2.7-SNAPSHOT</version>
+    <version>0.2.6.2</version>
     <modules>
         <module>arex-web-api</module>
         <module>arex-web-common</module>
@@ -35,7 +35,7 @@
         <shema.inferer.version>0.1.4</shema.inferer.version>
         <snakeyaml.version>1.29</snakeyaml.version>
         <arex-common.version>0.1.3</arex-common.version>
-        <compare-sdk.version>0.1.4</compare-sdk.version>
+        <compare-sdk.version>0.1.6</compare-sdk.version>
         <caffeine.version>2.8.0</caffeine.version>
         <shedlock-spring.version>4.34.0</shedlock-spring.version>
         <springfox-boot-starter.version>3.0.0</springfox-boot-starter.version>
@@ -274,6 +274,7 @@
                 <configuration>
                     <source>8</source>
                     <target>8</target>
+                        <compilerArgument>-Xlint:deprecation</compilerArgument>
                 </configuration>
             </plugin>
             <plugin>

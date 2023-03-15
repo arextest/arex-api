@@ -12,8 +12,6 @@ import java.util.List;
  */
 @Data
 public class BatchCompareReportRequestType {
-    @NotBlank(message = "planId cannot be empty")
-    private String planId;
 
     @NotEmpty(message = "the list of compared case cannot be empty")
     private List<@Valid BatchCompareCase> batchCompareCaseList;
