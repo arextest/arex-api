@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Data
 @NoArgsConstructor
@@ -135,8 +136,8 @@ public class CaseSummary {
 
         private boolean exists(String categoryName, String operationName, UnmatchedCategory unmatched) {
             for (DiffDetail detail : diffs) {
-                if (detail.code == unmatched.getCode() && detail.categoryName == categoryName
-                        && detail.operationName == operationName) {
+                if (detail.code == unmatched.getCode() && Objects.equals(detail.categoryName, categoryName)
+                        && Objects.equals(detail.operationName, operationName)) {
                     return true;
                 }
             }
