@@ -95,7 +95,7 @@ public final class AgentRemoteConfigurationController {
             try {
                 applicationServiceHandler.createOrUpdate(request.getAppId());
             } catch (Throwable e) {
-                LOGGER.error("update application service error:{}", e.getMessage(), e);
+                LogUtils.error(LOGGER, "update application service error:{}", e.getMessage(), e);
             }
         }
     }
