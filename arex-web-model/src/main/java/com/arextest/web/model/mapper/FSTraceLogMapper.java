@@ -37,7 +37,7 @@ public interface FSTraceLogMapper {
         if (StringUtils.isBlank(str)) {
             return null;
         }
-        return JSONUtil.toBean(ZstdUtils.compressString(str), FSNodeDto.class);
+        return JSONUtil.toBean(ZstdUtils.uncompressString(str), FSNodeDto.class);
     }
 
     default List<FSItemDto> mapItems(String str) throws JsonProcessingException {

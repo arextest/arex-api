@@ -112,8 +112,8 @@ public class BatchCompareReportService {
                 dto.setStatus(BatchCompareCaseStatusType.EXCEPTION);
                 dto.setExceptionMsg(request.getExceptionMsg());
             } else {
-                String baseMsg = ZstdUtils.compressString(request.getBaseMsg());
-                String testMsg = ZstdUtils.compressString(request.getTestMsg());
+                String baseMsg = ZstdUtils.uncompressString(request.getBaseMsg());
+                String testMsg = ZstdUtils.uncompressString(request.getTestMsg());
                 CompareResult compareResult = compareService.batchCompare(
                         baseMsg, testMsg, request.getComparisonConfig());
                 int code = compareResult.getCode();
