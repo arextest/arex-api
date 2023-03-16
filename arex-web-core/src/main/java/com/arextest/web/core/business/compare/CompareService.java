@@ -77,14 +77,14 @@ public class CompareService {
 
     public QuickCompareResponseType quickCompareCompressMsg(MsgCombination msgCombination) {
         msgCombination.setBaseMsg(
-                ZstdUtils.compressString(msgCombination.getBaseMsg())
+                ZstdUtils.uncompressString(msgCombination.getBaseMsg())
         );
         msgCombination.setTestMsg(
-                ZstdUtils.compressString(msgCombination.getTestMsg())
+                ZstdUtils.uncompressString(msgCombination.getTestMsg())
         );
         QuickCompareResponseType response = quickCompare(msgCombination);
-        response.setBaseMsg(ZstdUtils.uncompressString(response.getBaseMsg()));
-        response.setTestMsg(ZstdUtils.uncompressString(response.getTestMsg()));
+        response.setBaseMsg(ZstdUtils.compressString(response.getBaseMsg()));
+        response.setTestMsg(ZstdUtils.compressString(response.getTestMsg()));
         return response;
     }
 
