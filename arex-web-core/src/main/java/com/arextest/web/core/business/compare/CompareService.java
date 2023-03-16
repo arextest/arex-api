@@ -1,10 +1,10 @@
 package com.arextest.web.core.business.compare;
 
-import com.arextest.common.utils.CompressionUtils;
 import com.arextest.diff.model.CompareOptions;
 import com.arextest.diff.model.CompareResult;
 import com.arextest.diff.sdk.CompareSDK;
 import com.arextest.web.common.LogUtils;
+import com.arextest.web.common.ZstdUtils;
 import com.arextest.web.core.business.ManualReportService;
 import com.arextest.web.core.business.util.ListUtils;
 import com.arextest.web.core.repository.BatchCompareReportRepository;
@@ -77,14 +77,14 @@ public class CompareService {
 
     public QuickCompareResponseType quickCompareCompressMsg(MsgCombination msgCombination) {
         msgCombination.setBaseMsg(
-                CompressionUtils.useZstdDecompress(msgCombination.getBaseMsg())
+                ZstdUtils.compressString(msgCombination.getBaseMsg())
         );
         msgCombination.setTestMsg(
-                CompressionUtils.useZstdDecompress(msgCombination.getTestMsg())
+                ZstdUtils.compressString(msgCombination.getTestMsg())
         );
         QuickCompareResponseType response = quickCompare(msgCombination);
-        response.setBaseMsg(CompressionUtils.useZstdCompress(response.getBaseMsg()));
-        response.setTestMsg(CompressionUtils.useZstdCompress(response.getTestMsg()));
+        response.setBaseMsg(ZstdUtils.uncompressString(response.getBaseMsg()));
+        response.setTestMsg(ZstdUtils.uncompressString(response.getTestMsg()));
         return response;
     }
 

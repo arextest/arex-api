@@ -2,6 +2,7 @@ package com.arextest.web.model.mapper;
 
 import cn.hutool.json.JSONUtil;
 import com.arextest.common.utils.CompressionUtils;
+import com.arextest.web.common.ZstdUtils;
 import com.arextest.web.model.dao.mongodb.FSTraceLogCollection;
 import com.arextest.web.model.dto.filesystem.FSItemDto;
 import com.arextest.web.model.dto.filesystem.FSNodeDto;
@@ -29,14 +30,14 @@ public interface FSTraceLogMapper {
     FSTraceLogDto dtoFromDao(FSTraceLogCollection dao);
 
     default String map(FSNodeDto dto) {
-        return CompressionUtils.useZstdCompress(JSONUtil.toJsonStr(dto));
+        return ZstdUtils.compressString(JSONUtil.toJsonStr(dto));
     }
 
     default FSNodeDto mapNode(String str) {
         if (StringUtils.isBlank(str)) {
             return null;
         }
-        return JSONUtil.toBean(CompressionUtils.useZstdDecompress(str), FSNodeDto.class);
+        return JSONUtil.toBean(ZstdUtils.compressString(str), FSNodeDto.class);
     }
 
     default List<FSItemDto> mapItems(String str) throws JsonProcessingException {
@@ -44,7 +45,7 @@ public interface FSTraceLogMapper {
             return null;
         }
         ObjectMapper objectMapper = new ObjectMapper();
-        return objectMapper.readValue(CompressionUtils.useZstdDecompress(str), new TypeReference<List<FSItemDto>>() {
+        return objectMapper.readValue(ZstdUtils.uncompressString(str), new TypeReference<List<FSItemDto>>() {
         });
     }
 
@@ -52,6 +53,6 @@ public interface FSTraceLogMapper {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectWriter objectWriter = objectMapper.writerFor(new TypeReference<List<FSItemDto>>() {
         });
-        return CompressionUtils.useZstdCompress(objectWriter.writeValueAsString(items));
+        return ZstdUtils.compressString(objectWriter.writeValueAsString(items));
     }
 }
