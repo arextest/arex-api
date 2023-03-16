@@ -3,8 +3,9 @@ package com.arextest.web.api.service.controller.config;
 import com.arextest.common.model.response.Response;
 import com.arextest.common.utils.ResponseUtils;
 import com.arextest.web.common.LogUtils;
-import com.arextest.web.core.business.config.application.ApplicationServiceConfigurableHandler;
 import com.arextest.web.core.business.config.ConfigurableHandler;
+import com.arextest.web.core.business.config.application.ApplicationInstancesConfigurableHandler;
+import com.arextest.web.core.business.config.application.ApplicationServiceConfigurableHandler;
 import com.arextest.web.model.contract.contracts.common.enums.StatusType;
 import com.arextest.web.model.contract.contracts.config.application.ApplicationConfiguration;
 import com.arextest.web.model.contract.contracts.config.record.DynamicClassConfiguration;
@@ -21,8 +22,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
-import java.util.HashSet;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -42,6 +43,8 @@ public final class AgentRemoteConfigurationController {
     private ConfigurableHandler<ApplicationConfiguration> applicationHandler;
     @Resource
     private ConfigurableHandler<ServiceCollectConfiguration> serviceCollectHandler;
+    @Resource
+    private ApplicationInstancesConfigurableHandler applicationInstancesConfigurableHandler;
     @Resource
     private ApplicationServiceConfigurableHandler applicationServiceHandler;
     private ScheduledExecutorService executorService;
@@ -72,6 +75,7 @@ public final class AgentRemoteConfigurationController {
         body.setDynamicClassConfigurationList(dynamicClassHandler.useResultAsList(appId));
         body.setServiceCollectConfiguration(serviceCollectConfiguration);
         body.setStatus(applicationConfiguration.getStatus());
+        CompletableFuture.runAsync(() -> applicationInstancesConfigurableHandler.createOrUpdate(appId, request.host, request.recordVersion));
         return ResponseUtils.successResponse(body);
     }
 
@@ -91,26 +95,13 @@ public final class AgentRemoteConfigurationController {
             try {
                 applicationServiceHandler.createOrUpdate(request.getAppId());
             } catch (Throwable e) {
-                LogUtils.error(LOGGER, "update application service error:{}", e.getMessage(), e);
+                LOGGER.error("update application service error:{}", e.getMessage(), e);
             }
         }
     }
 
     private ApplicationConfiguration loadApplicationResult(AgentRemoteConfigurationRequest request) {
         ApplicationConfiguration applicationConfiguration = applicationHandler.useResult(request.getAppId());
-        boolean changed = false;
-        if (StringUtils.isNotBlank(request.getHost())) {
-            if (applicationConfiguration.getHosts() == null) {
-                applicationConfiguration.setHosts(new HashSet<>());
-            }
-            if (!applicationConfiguration.getHosts().contains(request.getHost())) {
-                changed = true;
-                applicationConfiguration.getHosts().add(request.getHost());
-            }
-        }
-        if (changed) {
-            applicationHandler.update(applicationConfiguration);
-        }
         return applicationConfiguration;
     }
 
@@ -118,6 +109,7 @@ public final class AgentRemoteConfigurationController {
     private static final class AgentRemoteConfigurationRequest {
         private String appId;
         private String host;
+        private String recordVersion;
     }
 
 
