@@ -8,10 +8,9 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.sql.Timestamp;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * @author jmo
@@ -20,7 +19,6 @@ import java.util.stream.Collectors;
 @Slf4j
 @Component
 public final class ApplicationInstancesConfigurableHandler extends AbstractConfigurableHandler<InstancesConfiguration> {
-    public static final Integer TEN_MINIT_MILLS = 10 * 60 * 1000;
 
     protected ApplicationInstancesConfigurableHandler(@Autowired ConfigRepositoryProvider<InstancesConfiguration> repositoryProvider) {
         super(repositoryProvider);
@@ -35,12 +33,12 @@ public final class ApplicationInstancesConfigurableHandler extends AbstractConfi
             if (first.isPresent()) {
                 InstancesConfiguration instancesConfiguration = first.get();
                 instancesConfiguration.setRecordVersion(recordVersion);
+                instancesConfiguration.setDataUpdateTime(new Date());
                 super.update(instancesConfiguration);
             } else {
                 create(appId, host, recordVersion);
             }
         }
-        deleteExpireInstance(instancesConfigurations);
     }
 
     private void create(String appId, String host, String recordVersion) {
@@ -48,14 +46,8 @@ public final class ApplicationInstancesConfigurableHandler extends AbstractConfi
         instancesConfiguration.setAppId(appId);
         instancesConfiguration.setHost(host);
         instancesConfiguration.setRecordVersion(recordVersion);
+        instancesConfiguration.setDataUpdateTime(new Date());
         super.insert(instancesConfiguration);
-    }
-
-    private void deleteExpireInstance(List<InstancesConfiguration> instancesConfigurations) {
-        long expireTime = System.currentTimeMillis() - TEN_MINIT_MILLS;
-        List<InstancesConfiguration> expireInstances =
-                instancesConfigurations.stream().filter(instancesConfiguration -> instancesConfiguration.getModifiedTime().before(new Timestamp(expireTime))).collect(Collectors.toList());
-        super.removeList(expireInstances);
     }
 
 }

@@ -28,6 +28,7 @@ public class InstancesConfigurationRepositoryImpl implements ConfigRepositoryPro
     private static final String HOST = "host";
 
     private static final String DATA_CHANGE_UPDATE_TIME = "dataChangeUpdateTime";
+    private static final String DATA_UPDATE_TIME = "dataUpdateTime";
 
     @Autowired
     MongoTemplate mongoTemplate;
@@ -53,6 +54,7 @@ public class InstancesConfigurationRepositoryImpl implements ConfigRepositoryPro
         Update update = MongoHelper.getConfigUpdate();
         update.set(RECORD_VERSION, configuration.getRecordVersion());
         update.set(HOST, configuration.getHost());
+        update.set(DATA_UPDATE_TIME, configuration.getDataUpdateTime());
         UpdateResult updateResult = mongoTemplate.updateMulti(query, update, InstancesCollection.class);
         return updateResult.getModifiedCount() > 0;
     }

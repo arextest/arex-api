@@ -23,7 +23,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -75,7 +74,7 @@ public final class AgentRemoteConfigurationController {
         body.setDynamicClassConfigurationList(dynamicClassHandler.useResultAsList(appId));
         body.setServiceCollectConfiguration(serviceCollectConfiguration);
         body.setStatus(applicationConfiguration.getStatus());
-        CompletableFuture.runAsync(() -> applicationInstancesConfigurableHandler.createOrUpdate(appId, request.host, request.recordVersion));
+        applicationInstancesConfigurableHandler.createOrUpdate(appId, request.host, request.recordVersion);
         return ResponseUtils.successResponse(body);
     }
 
