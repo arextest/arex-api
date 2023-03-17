@@ -32,6 +32,7 @@ public class ScheduleConfigurationRepositoryImpl implements ConfigRepositoryProv
     private static final String TARGET_ENV = "targetEnv";
     private static final String SEND_MAX_QPS = "sendMaxQps";
     private static final String OFFSET_DAYS = "offsetDays";
+    private static final String CASE_COUNT_LIMIT = "caseCountLimit";
     private static final String EXCLUSION_OPERATION_MAP = "excludeOperationMap";
 
     @Autowired
@@ -64,7 +65,7 @@ public class ScheduleConfigurationRepositoryImpl implements ConfigRepositoryProv
     public boolean update(ScheduleConfiguration configuration) {
         Query query = Query.query(Criteria.where(APP_ID).is(configuration.getAppId()));
         Update update = MongoHelper.getConfigUpdate();
-        MongoHelper.appendSpecifiedProperties(update, configuration, TARGET_ENV, SEND_MAX_QPS, OFFSET_DAYS);
+        MongoHelper.appendSpecifiedProperties(update, configuration, TARGET_ENV, SEND_MAX_QPS, OFFSET_DAYS, CASE_COUNT_LIMIT);
         if (configuration.getExcludeOperationMap() != null) {
             try {
                 update.set(EXCLUSION_OPERATION_MAP,

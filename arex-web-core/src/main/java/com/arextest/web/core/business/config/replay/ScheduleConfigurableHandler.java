@@ -41,6 +41,7 @@ public final class ScheduleConfigurableHandler extends AbstractConfigurableHandl
         scheduleConfiguration.setOffsetDays(globalScheduleConfiguration.getOffsetDays());
         scheduleConfiguration.setSendMaxQps(globalScheduleConfiguration.getSendMaxQps());
         scheduleConfiguration.setTargetEnv(globalScheduleConfiguration.getTargetEnv());
+        scheduleConfiguration.setCaseCountLimit(globalScheduleConfiguration.getCaseCountLimit());
         return Collections.singletonList(scheduleConfiguration);
     }
 
@@ -65,6 +66,9 @@ public final class ScheduleConfigurableHandler extends AbstractConfigurableHandl
         }
         if (source.getTargetEnv() == null) {
             source.setTargetEnv(globalScheduleConfiguration.getTargetEnv());
+        }
+        if (source.getCaseCountLimit() == null) {
+            source.setCaseCountLimit(globalScheduleConfiguration.getCaseCountLimit());
         }
     }
 }

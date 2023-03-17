@@ -6,6 +6,7 @@ import com.arextest.web.core.repository.ConfigRepositoryProvider;
 import com.arextest.web.core.repository.mongo.util.MongoHelper;
 import com.arextest.web.model.contract.contracts.config.record.ServiceCollectConfiguration;
 import com.arextest.web.model.dao.mongodb.RecordServiceConfigCollection;
+import com.arextest.web.model.dao.mongodb.ServiceOperationCollection;
 import com.arextest.web.model.mapper.RecordServiceConfigMapper;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.client.result.DeleteResult;
@@ -18,6 +19,7 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Repository
@@ -30,6 +32,10 @@ public class ServiceCollectConfigurationRepositoryImpl implements ConfigReposito
     private static final String ALLOW_TIME_OF_DAY_TO = "allowTimeOfDayTo";
     private static final String EXCLUDE_SERVICE_OPERATION_SET = "excludeServiceOperationSet";
     private static final String TIME_MOCK = "timeMock";
+    private static final String STATUS = "status";
+    private static final String OPERATION_NAME = "operationName";
+    private static final int APP_SUSPENDED_STATUS = -1;
+
 
     @Autowired
     MongoTemplate mongoTemplate;
@@ -63,13 +69,15 @@ public class ServiceCollectConfigurationRepositoryImpl implements ConfigReposito
         Update update = MongoHelper.getConfigUpdate();
         MongoHelper.assertNull("update parameter is null", configuration.getAllowTimeOfDayFrom(),
                 configuration.getAllowTimeOfDayTo());
+        Set<String> excludeServiceOperationSet = configuration.getExcludeServiceOperationSet();
         update.set(SAMPLE_RATE, configuration.getSampleRate());
         update.set(ALLOW_DAY_OF_WEEKS, configuration.getAllowDayOfWeeks());
         update.set(ALLOW_TIME_OF_DAY_FROM, configuration.getAllowTimeOfDayFrom());
         update.set(ALLOW_TIME_OF_DAY_TO, configuration.getAllowTimeOfDayTo());
-        update.set(EXCLUDE_SERVICE_OPERATION_SET, configuration.getExcludeServiceOperationSet());
+        update.set(EXCLUDE_SERVICE_OPERATION_SET, excludeServiceOperationSet);
         update.set(TIME_MOCK, configuration.isTimeMock());
         UpdateResult updateResult = mongoTemplate.updateMulti(query, update, RecordServiceConfigCollection.class);
+        updateOperationStatus(query, excludeServiceOperationSet);
         return updateResult.getModifiedCount() > 0;
     }
 
@@ -78,6 +86,13 @@ public class ServiceCollectConfigurationRepositoryImpl implements ConfigReposito
         Query query = Query.query(Criteria.where(APP_ID).is(configuration.getAppId()));
         DeleteResult remove = mongoTemplate.remove(query, RecordServiceConfigCollection.class);
         return remove.getDeletedCount() > 0;
+    }
+
+    public void updateOperationStatus(Query query, Set<String> excludeServiceOperationSet) {
+        Update updateOperation = MongoHelper.getConfigUpdate();
+        query.addCriteria(Criteria.where(OPERATION_NAME).in(excludeServiceOperationSet));
+        updateOperation.set(STATUS, APP_SUSPENDED_STATUS);
+        mongoTemplate.updateMulti(query, updateOperation, ServiceOperationCollection.class);
     }
 
     @Override

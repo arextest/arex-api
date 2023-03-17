@@ -343,6 +343,10 @@ public class ReportPlanStatisticRepositoryImpl implements ReportPlanStatisticRep
         if (!StringUtils.isEmpty(request.getAppId())) {
             query.addCriteria(Criteria.where(APP_ID).is(request.getAppId()));
         }
+
+        if (!StringUtils.isEmpty(request.getImageId())) {
+            query.addCriteria(Criteria.where(TARGET_IMAGE_ID).is(request.getImageId()));
+        }
         return query;
     }
 
