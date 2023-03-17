@@ -1,11 +1,7 @@
 package com.arextest.web.api.service.beans;
 
 import com.arextest.web.common.LogUtils;
-import com.arextest.web.model.dao.mongodb.AppCollection;
-import com.arextest.web.model.dao.mongodb.LogsCollection;
-import com.arextest.web.model.dao.mongodb.RecordServiceConfigCollection;
-import com.arextest.web.model.dao.mongodb.ReplayScheduleConfigCollection;
-import com.arextest.web.model.dao.mongodb.ServiceOperationCollection;
+import com.arextest.web.model.dao.mongodb.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -36,6 +32,7 @@ public class MongodbConfiguration {
     private static final String SERVICE_ID = "serviceId";
     private static final String OPERATION_NAME = "operationName";
     private static final String DATE = "date";
+    private static final String DATE_UPDATE_TIME = "dataUpdateTime";
 
     public MongoDatabaseFactory mongoDbFactory() {
         try {
@@ -70,5 +67,7 @@ public class MongodbConfiguration {
                         .unique());
         mongoTemplate.indexOps(LogsCollection.class)
                 .ensureIndex(new Index(DATE, Sort.Direction.DESC).expire(10, TimeUnit.DAYS));
+        mongoTemplate.indexOps(InstancesCollection.class)
+                .ensureIndex(new Index(DATE_UPDATE_TIME, Sort.Direction.DESC).expire(10, TimeUnit.MINUTES));
     }
 }
