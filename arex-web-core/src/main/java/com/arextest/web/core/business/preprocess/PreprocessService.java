@@ -2,6 +2,7 @@ package com.arextest.web.core.business.preprocess;
 
 import com.arextest.common.utils.CompressionUtils;
 import com.arextest.web.common.LogUtils;
+import com.arextest.web.common.ZstdUtils;
 import com.arextest.web.core.repository.MessagePreprocessRepository;
 import com.arextest.web.core.repository.PreprocessConfigRepository;
 import com.arextest.web.core.repository.ServletMockerRepository;
@@ -64,7 +65,7 @@ public class PreprocessService {
                 if (StringUtils.isNotEmpty(dto.getRequest())) {
                     String key = dto.getAppId() + "_" + dto.getPath() + "_request";
                     try {
-                        String request = CompressionUtils.useZstdDecompress(dto.getRequest());
+                        String request = ZstdUtils.uncompressString(dto.getRequest());
                         String requestJson = new String(Base64.getDecoder().decode(request));
                         updateSchema(key, requestJson);
                     } catch (Exception e) {
@@ -75,7 +76,7 @@ public class PreprocessService {
                 if (StringUtils.isNotEmpty(dto.getResponse())) {
                     String key = dto.getAppId() + "_" + dto.getPath() + "_response";
                     try {
-                        String response = CompressionUtils.useZstdDecompress(dto.getResponse());
+                        String response = ZstdUtils.uncompressString(dto.getResponse());
                         updateSchema(key, response);
                     } catch (Exception e) {
                         LogUtils.error(LOGGER,

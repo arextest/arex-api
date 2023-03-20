@@ -2,6 +2,7 @@ package com.arextest.web.core.business;
 
 import com.arextest.common.utils.CompressionUtils;
 import com.arextest.diff.model.CompareResult;
+import com.arextest.web.common.ZstdUtils;
 import com.arextest.web.core.business.compare.CompareService;
 import com.arextest.web.core.business.compare.LogEntityMapper;
 import com.arextest.web.core.repository.BatchCompareReportRepository;
@@ -111,14 +112,14 @@ public class BatchCompareReportService {
                 dto.setStatus(BatchCompareCaseStatusType.EXCEPTION);
                 dto.setExceptionMsg(request.getExceptionMsg());
             } else {
-                String baseMsg = CompressionUtils.useZstdDecompress(request.getBaseMsg());
-                String testMsg = CompressionUtils.useZstdDecompress(request.getTestMsg());
+                String baseMsg = ZstdUtils.uncompressString(request.getBaseMsg());
+                String testMsg = ZstdUtils.uncompressString(request.getTestMsg());
                 CompareResult compareResult = compareService.batchCompare(
                         baseMsg, testMsg, request.getComparisonConfig());
                 int code = compareResult.getCode();
                 dto.setStatus(convertDiffResultCode(code));
-                dto.setProcessedBaseMsg(CompressionUtils.useZstdCompress(compareResult.getProcessedBaseMsg()));
-                dto.setProcessedTestMsg(CompressionUtils.useZstdCompress(compareResult.getProcessedTestMsg()));
+                dto.setProcessedBaseMsg(ZstdUtils.compressString(compareResult.getProcessedBaseMsg()));
+                dto.setProcessedTestMsg(ZstdUtils.compressString(compareResult.getProcessedTestMsg()));
                 if (code == DiffResultCode.COMPARED_INTERNAL_EXCEPTION) {
                     dto.setExceptionMsg(compareResult.getMessage());
                 } else if (code == DiffResultCode.COMPARED_WITH_DIFFERENCE) {
@@ -165,9 +166,9 @@ public class BatchCompareReportService {
         if (batchCompareReportCaseDto == null) {
             return null;
         }
-        String processedBaseMsg = CompressionUtils.useZstdDecompress(
+        String processedBaseMsg = ZstdUtils.uncompressString(
                 batchCompareReportCaseDto.getProcessedBaseMsg());
-        String processedTestMsg = CompressionUtils.useZstdDecompress(
+        String processedTestMsg = ZstdUtils.uncompressString(
                 batchCompareReportCaseDto.getProcessedTestMsg());
         if (processedBaseMsg != null && processedTestMsg != null) {
             MutablePair<Object, Object> objectObjectMutablePair =

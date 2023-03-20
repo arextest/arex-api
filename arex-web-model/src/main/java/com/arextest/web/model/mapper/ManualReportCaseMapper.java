@@ -2,6 +2,7 @@ package com.arextest.web.model.mapper;
 
 import com.arextest.common.utils.CompressionUtils;
 import com.arextest.common.utils.SerializationUtils;
+import com.arextest.web.common.ZstdUtils;
 import com.arextest.web.model.contract.contracts.common.LogEntity;
 import com.arextest.web.model.contract.contracts.manualreport.ReportCaseType;
 import com.arextest.web.model.dao.mongodb.ManualReportCaseCollection;
@@ -38,12 +39,12 @@ public interface ManualReportCaseMapper {
 
     @Named("compressMsg")
     default String compressMsg(String decompressString) {
-        return CompressionUtils.useZstdCompress(decompressString);
+        return ZstdUtils.compressString(decompressString);
     }
 
     @Named("decompressMsg")
     default String decompressMsg(String compressString) {
-        return CompressionUtils.useZstdDecompress(compressString);
+        return ZstdUtils.uncompressString(compressString);
     }
 
     default String map(List<LogEntity> logs) {
