@@ -4,6 +4,7 @@ import com.arextest.web.common.LogUtils;
 import com.arextest.web.core.repository.ReplayCompareResultRepository;
 import com.arextest.web.model.dao.mongodb.ReplayCompareResultCollection;
 import com.arextest.web.model.dto.CompareResultDto;
+import com.arextest.web.model.enums.DiffResultCode;
 import com.arextest.web.model.mapper.CompareResultMapper;
 import com.mongodb.client.result.DeleteResult;
 import lombok.extern.slf4j.Slf4j;
@@ -131,6 +132,31 @@ public class ReplayCompareResultRepositoryImpl implements ReplayCompareResultRep
         List<ReplayCompareResultCollection> daos = mongoTemplate.find(query, ReplayCompareResultCollection.class);
         List<CompareResultDto> dtos =
                 daos.stream().map(CompareResultMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
+        return new MutablePair<>(dtos, totalCount);
+    }
+
+    @Override
+    public Pair<List<CompareResultDto>, Long> queryAllDiffMsgByPage(String recordId,
+                                                                    String replayId,
+                                                                    Integer pageSize,
+                                                                    Integer pageIndex,
+                                                                    Boolean needTotal) {
+        Query query = Query.query(
+                Criteria.where(RECORD_ID).is(recordId)
+                        .and(REPLAY_ID).is(replayId)
+                        .and(DIFF_RESULT_CODE).ne(DiffResultCode.COMPARED_WITHOUT_DIFFERENCE)
+        );
+
+        Long totalCount = -1L;
+        if (needTotal) {
+            totalCount = mongoTemplate.count(query, ReplayCompareResultCollection.class);
+        }
+        Pageable pageable = PageRequest.of(pageIndex, pageSize);
+        query.with(pageable);
+        List<ReplayCompareResultCollection> result = mongoTemplate.find(query, ReplayCompareResultCollection.class);
+        List<CompareResultDto> dtos =
+                result.stream().map(CompareResultMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
+
         return new MutablePair<>(dtos, totalCount);
     }
 

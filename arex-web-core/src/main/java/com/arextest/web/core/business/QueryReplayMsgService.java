@@ -6,6 +6,8 @@ import com.arextest.web.core.repository.mongo.ApplicationOperationConfigurationR
 import com.arextest.web.model.contract.contracts.CompareResultDetail;
 import com.arextest.web.model.contract.contracts.DownloadReplayMsgRequestType;
 import com.arextest.web.model.contract.contracts.FullLinkInfoItem;
+import com.arextest.web.model.contract.contracts.QueryAllDiffMsgRequestType;
+import com.arextest.web.model.contract.contracts.QueryAllDiffMsgResponseType;
 import com.arextest.web.model.contract.contracts.QueryDiffMsgByIdResponseType;
 import com.arextest.web.model.contract.contracts.QueryFullLinkInfoResponseType;
 import com.arextest.web.model.contract.contracts.QueryFullLinkMsgRequestType;
@@ -20,6 +22,7 @@ import com.arextest.web.model.enums.DiffResultCode;
 import com.arextest.web.model.mapper.CompareResultMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -29,8 +32,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -169,6 +174,24 @@ public class QueryReplayMsgService {
         CompareResultDto compareResultDto = replayCompareResultRepository.queryCompareResultsByObjectId(id);
         CompareResultDetail compareResultDetail = CompareResultMapper.INSTANCE.detailFromDto(compareResultDto);
         response.setCompareResultDetail(compareResultDetail);
+        return response;
+    }
+
+    public QueryAllDiffMsgResponseType queryAllDiffMsg(QueryAllDiffMsgRequestType request) {
+        QueryAllDiffMsgResponseType response = new QueryAllDiffMsgResponseType();
+        Pair<List<CompareResultDto>, Long> listLongPair = replayCompareResultRepository.queryAllDiffMsgByPage(
+                request.getRecordId(),
+                request.getReplayId(),
+                request.getPageSize(),
+                request.getPageIndex(),
+                request.getNeedTotal()
+        );
+        List<CompareResultDetail> details = Optional.ofNullable(listLongPair.getLeft())
+                .orElse(Collections.emptyList()).stream()
+                .map(CompareResultMapper.INSTANCE::detailFromDto)
+                .collect(Collectors.toList());
+        response.setCompareResultDetailList(details);
+        response.setTotalCount(listLongPair.getRight());
         return response;
     }
 

@@ -20,6 +20,8 @@ import com.arextest.web.model.contract.contracts.ChangeReplayStatusResponseType;
 import com.arextest.web.model.contract.contracts.DownloadReplayMsgRequestType;
 import com.arextest.web.model.contract.contracts.PushCompareResultsRequestType;
 import com.arextest.web.model.contract.contracts.PushCompareResultsResponseType;
+import com.arextest.web.model.contract.contracts.QueryAllDiffMsgRequestType;
+import com.arextest.web.model.contract.contracts.QueryAllDiffMsgResponseType;
 import com.arextest.web.model.contract.contracts.QueryCategoryStatisticRequestType;
 import com.arextest.web.model.contract.contracts.QueryCategoryStatisticResponseType;
 import com.arextest.web.model.contract.contracts.QueryDiffAggInfoRequestType;
@@ -283,6 +285,13 @@ public class ReportQueryController {
     @ResponseBody
     public Response queryDiffMsgById(@PathVariable String id) {
         QueryDiffMsgByIdResponseType response = queryReplayMsgService.queryDiffMsgById(id);
+        return ResponseUtils.successResponse(response);
+    }
+
+    @PostMapping("/queryAllDiffMsg")
+    @ResponseBody
+    public Response queryAllDiffMsg(@RequestBody QueryAllDiffMsgRequestType request) {
+        QueryAllDiffMsgResponseType response = queryReplayMsgService.queryAllDiffMsg(request);
         return ResponseUtils.successResponse(response);
     }
 }
