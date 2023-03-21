@@ -12,6 +12,9 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.text.MessageFormat;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 
 @Slf4j
@@ -24,7 +27,7 @@ public class WebLogAspect {
     public void webLog() {
     }
 
-
+    private static final String CLASS_METHOD = "ClassMethod";
 
     @Resource
     private ObjectMapper mapper;
@@ -52,7 +55,12 @@ public class WebLogAspect {
         sb.append(MessageFormat.format("Response Args  : {0}\r\n", mapper.writeValueAsString(result)));
         sb.append(MessageFormat.format("Time-Consuming : {0} ms\r\n", System.currentTimeMillis() - startTime));
         sb.append("=========================================== End ===========================================");
-        LogUtils.info(LOGGER, sb.toString());
+        Map<String, String> tags = new HashMap<>();
+        tags.put(CLASS_METHOD,
+                MessageFormat.format("{0}.{1}",
+                        joinPoint.getSignature().getDeclaringTypeName(),
+                        joinPoint.getSignature().getName()));
+        LogUtils.info(LOGGER, sb.toString(), tags);
         return result;
     }
 
