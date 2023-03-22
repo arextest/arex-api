@@ -1,10 +1,12 @@
 package com.arextest.web.common;
 
+import lombok.SneakyThrows;
 import org.apache.commons.collections4.MapUtils;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
 import org.springframework.stereotype.Component;
 
+import java.net.InetAddress;
 import java.util.Map;
 
 /**
@@ -15,16 +17,45 @@ import java.util.Map;
 public class LogUtils {
     private static final String APP_TYPE = "app-type";
     private static final String AREX_WEB_API = "arex-web-api";
+    private static final String IP = "ip";
     private LogUtils() {
 
     }
 
+    @SneakyThrows
     public static void init() {
         MDC.put(APP_TYPE, AREX_WEB_API);
+        MDC.put(IP, InetAddress.getLocalHost().getHostAddress());
     }
 
     public static void clear() {
         MDC.clear();
+    }
+
+    public static void debug(Logger logger, String s) {
+        debug(logger, s, (Map<String, String>) null);
+    }
+
+    public static void debug(Logger logger, Map<String, String> tags, String s) {
+        init();
+        if (MapUtils.isNotEmpty(tags)) {
+            tags.forEach((k, v) -> MDC.put(k, v));
+        }
+        logger.debug(s);
+        clear();
+    }
+
+    public static void debug(Logger logger, String s, Object... objects) {
+        debug(logger, null, s, objects);
+    }
+
+    public static void debug(Logger logger, Map<String, String> tags, String s, Object... objects) {
+        init();
+        if (MapUtils.isNotEmpty(tags)) {
+            tags.forEach((k, v) -> MDC.put(k, v));
+        }
+        logger.debug(s, objects);
+        clear();
     }
 
 
