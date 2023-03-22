@@ -329,9 +329,9 @@ public class FileSystemService {
                     current.getNodeName() + DUPLICATE_SUFFIX,
                     current);
             if (parent == null) {
-                treeDto.getRoots().add(dupNodeDto);
+                this.addDuplicateItemFollowCurrent(treeDto.getRoots(), dupNodeDto, current);
             } else {
-                parent.getChildren().add(dupNodeDto);
+                this.addDuplicateItemFollowCurrent(parent.getChildren(), dupNodeDto, current);
             }
             fsTreeRepository.updateFSTree(treeDto);
             return true;
@@ -570,7 +570,7 @@ public class FileSystemService {
         FSQueryCaseResponseType response = FSCaseMapper.INSTANCE.contractFromDto(dto);
         String parentId = dto.getParentId();
         FSInterfaceDto fsInterfaceDto = fsInterfaceRepository.queryInterface(parentId);
-        if (fsInterfaceDto != null){
+        if (fsInterfaceDto != null) {
             FSQueryInterfaceResponseType fsQueryInterfaceResponseType =
                     FSInterfaceMapper.INSTANCE.contractFromDto(fsInterfaceDto);
             response.setParentPreRequestScripts(fsQueryInterfaceResponseType.getPreRequestScripts());
@@ -815,9 +815,9 @@ public class FileSystemService {
     }
 
     private Map<Integer, Set<String>> removeItems(FSNodeDto fsNodeDto,
-            String userName,
-            String parentId,
-            String workspaceId) {
+                                                  String userName,
+                                                  String parentId,
+                                                  String workspaceId) {
         if (fsNodeDto == null) {
             return null;
         }
@@ -931,6 +931,18 @@ public class FileSystemService {
             fsInterfaceDto.setOperationId(operationId);
             fsInterfaceRepository.saveInterface(fsInterfaceDto);
         }
+    }
+
+    private void addDuplicateItemFollowCurrent(List<FSNodeDto> treeDtos, FSNodeDto dupNodeDto, FSNodeDto currentDto) {
+        int size = treeDtos.size();
+        int targetIndex = size;
+        for (int i = 0; i < size; i++) {
+            if (Objects.equals(treeDtos.get(i).getInfoId(), currentDto.getInfoId())) {
+                targetIndex = i + 1;
+                break;
+            }
+        }
+        treeDtos.add(targetIndex, dupNodeDto);
     }
 
     @Data
