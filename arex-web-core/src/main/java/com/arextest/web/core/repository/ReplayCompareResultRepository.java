@@ -19,6 +19,8 @@ public interface ReplayCompareResultRepository extends RepositoryProvider {
 
     Pair<List<CompareResultDto>, Long> queryCompareResultByPage(String planId, Integer pageSize, Integer pageIndex);
 
+    Pair<List<CompareResultDto>, Long> queryAllDiffMsgByPage(String recordId, String replayId, Integer pageSize, Integer pageIndex, Boolean needTotal);
+
     CompareResultDto queryCompareResultsByObjectId(String objectId);
 
     List<CompareResultDto> queryCompareResultsByRecordId(String planItemId, String recordId);
