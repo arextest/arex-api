@@ -1,12 +1,15 @@
 package com.arextest.web.model.dto.iosummary;
 
 import cn.hutool.core.collection.CollectionUtil;
+import com.arextest.web.common.Tuple;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 @Data
 @NoArgsConstructor
@@ -39,11 +42,17 @@ public class CaseSummary {
         if (CollectionUtil.isEmpty(diffs)) {
             return 0;
         }
+        Set<Tuple<String, Integer>> categoryAndCodeSet = new HashSet<>();
+        for (DiffDetail diffDetail : diffs) {
+            categoryAndCodeSet.add(
+                    new Tuple<>(diffDetail.categoryName, diffDetail.code)
+            );
+        }
 
         long key = OFFSET_BASIS;
-        for (DiffDetail detail : diffs) {
-            key = (key ^ detail.code) * FNV_PRIME;
-            for (byte c : detail.categoryName.getBytes()) {
+        for (Tuple<String, Integer> item : categoryAndCodeSet) {
+            key = (key ^ item.y) * FNV_PRIME;
+            for (byte c : item.x.getBytes()) {
                 key = (key ^ c) * FNV_PRIME;
             }
         }
