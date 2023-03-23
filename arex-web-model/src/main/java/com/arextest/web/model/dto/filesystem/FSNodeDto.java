@@ -11,6 +11,11 @@ public class FSNodeDto {
     private Integer nodeType;
     private String infoId;
     private String method;  // available for nodeType equal 1
+    /**
+     * availbale for nodeType equal 2
+     * @see com.arextest.web.model.enums.CaseSourceType
+     */
+    private int caseSource;
     private Set<String> labelIds;
     private List<FSNodeDto> children;
 }

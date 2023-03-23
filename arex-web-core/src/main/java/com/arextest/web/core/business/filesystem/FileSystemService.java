@@ -68,6 +68,7 @@ import com.arextest.web.model.dto.filesystem.FSNodeDto;
 import com.arextest.web.model.dto.filesystem.FSTraceLogDto;
 import com.arextest.web.model.dto.filesystem.FSTreeDto;
 import com.arextest.web.model.dto.filesystem.UserWorkspaceDto;
+import com.arextest.web.model.enums.CaseSourceType;
 import com.arextest.web.model.enums.FSInfoItem;
 import com.arextest.web.model.enums.InvitationType;
 import com.arextest.web.model.enums.RoleType;
@@ -191,16 +192,10 @@ public class FileSystemService {
             }
 
             String infoId = null;
+            List<FSNodeDto> targetTreeNodes = null;
             if (request.getParentPath() == null || request.getParentPath().length == 0) {
-                FSNodeDto nodeDto = new FSNodeDto();
-                nodeDto.setNodeName(request.getNodeName());
                 infoId = itemInfo.initItem(null, null, dto.getId(), request.getNodeName());
-                nodeDto.setInfoId(infoId);
-                nodeDto.setNodeType(request.getNodeType());
-                if (request.getNodeType() == FSInfoItem.INTERFACE) {
-                    nodeDto.setMethod(GET_METHOD);
-                }
-                dto.getRoots().add(0, nodeDto);
+                targetTreeNodes = dto.getRoots();
             } else {
                 String[] nodes = request.getParentPath();
 
@@ -224,29 +219,31 @@ public class FileSystemService {
                         break;
                     }
                 }
-                if (!error) {
-                    if (current.getChildren() == null) {
-                        current.setChildren(new ArrayList<>());
-                    }
-                    FSNodeDto newNodeDto = new FSNodeDto();
-                    newNodeDto.setNodeName(request.getNodeName());
-                    infoId = itemInfo.initItem(current.getInfoId(),
-                            current.getNodeType(),
-                            dto.getId(),
-                            request.getNodeName());
-                    newNodeDto.setInfoId(infoId);
-                    newNodeDto.setNodeType(request.getNodeType());
-                    if (request.getNodeType() == FSInfoItem.INTERFACE) {
-                        newNodeDto.setMethod(GET_METHOD);
-                    }
-                    current.getChildren().add(0, newNodeDto);
-
-                } else {
+                if (error) {
                     response.setSuccess(false);
                     return response;
                 }
+
+                if (current.getChildren() == null) {
+                    current.setChildren(new ArrayList<>());
+                }
+                infoId = itemInfo.initItem(current.getInfoId(),
+                        current.getNodeType(),
+                        dto.getId(),
+                        request.getNodeName());
+                targetTreeNodes = current.getChildren();
             }
+
+            FSNodeDto nodeDto = new FSNodeDto();
+            nodeDto.setNodeName(request.getNodeName());
+            nodeDto.setInfoId(infoId);
+            nodeDto.setNodeType(request.getNodeType());
+            if (request.getNodeType() == FSInfoItem.INTERFACE) {
+                nodeDto.setMethod(GET_METHOD);
+            }
+            targetTreeNodes.add(0, nodeDto);
             dto = fsTreeRepository.updateFSTree(dto);
+
             response.setInfoId(infoId);
             response.setWorkspaceId(dto.getId());
             response.setSuccess(true);
@@ -685,13 +682,14 @@ public class FileSystemService {
         }
 
         // add the related information about the replay interface to the manual interface
-        addReplayInfoToManual(request.getOperationId(), path);
+        this.addReplayInfoToManual(request.getOperationId(), path);
 
         FSAddItemRequestType addCase = new FSAddItemRequestType();
         addCase.setId(treeDto.getId());
         addCase.setNodeName(request.getNodeName());
         addCase.setNodeType(FSInfoItem.CASE);
         addCase.setParentPath(path.toArray(new String[path.size()]));
+        addCase.setCaseSource(CaseSourceType.REPLAY_CASE);
         FSAddItemResponseType addCaseResponse = addItem(addCase);
 
         caseDto.setParentId(path.get(path.size() - 1));

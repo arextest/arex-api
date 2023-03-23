@@ -15,4 +15,8 @@ public class FSAddItemRequestType {
     private String nodeName;
     @NotNull(message = "NodeType cannot be empty")
     private Integer nodeType;
+    /**
+     * @see com.arextest.web.model.enums.CaseSourceType
+     */
+    private int caseSource;
 }
