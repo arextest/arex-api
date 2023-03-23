@@ -13,9 +13,10 @@ public class FSNodeType {
     private String method;
     /**
      * availbale for nodeType equal 2
+     *
      * @see com.arextest.web.model.enums.CaseSourceType
      */
-    private int caseSource;
+    private int caseSourceType;
     private Set<String> labelIds;
     private List<FSNodeType> children;
 }
