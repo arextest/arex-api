@@ -741,6 +741,22 @@ public class FileSystemService {
 
         itemInfo.saveItem(itemDto);
 
+        // update tree
+        if (request.getNodeType() == FSInfoItem.CASE) {
+            FSTreeDto workspace = fsTreeRepository.queryFSTreeById(
+                    request.getWorkspaceId()
+            );
+            if (workspace != null) {
+                FSNodeDto node = fileSystemUtils.deepFindByInfoId(
+                        workspace.getRoots(), request.getInfoId()
+                );
+                if (node != null) {
+                    node.setCaseSourceType(CaseSourceType.REPLAY_CASE);
+                    fsTreeRepository.updateFSTree(workspace);
+                }
+            }
+        }
+
         return true;
     }
 
