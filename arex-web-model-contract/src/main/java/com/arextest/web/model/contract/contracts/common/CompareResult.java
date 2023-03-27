@@ -23,6 +23,10 @@ public class CompareResult {
     private String replayId;
     
     private String recordId;
+
+    private long recordTime;
+
+    private long replayTime;
     
     private String baseMsg;
     
