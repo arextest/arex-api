@@ -4,6 +4,7 @@ import com.arextest.web.model.contract.PagingRequest;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
+import java.util.List;
 
 /**
  * Created by rchen9 on 2023/3/20.
@@ -15,6 +16,8 @@ public class QueryAllDiffMsgRequestType implements PagingRequest {
     private String recordId;
     @NotBlank(message = "replayId cannot be empty")
     private String replayId;
+
+    private List<Integer> diffResultCodeList;
 
     private Integer pageIndex;
     private Integer pageSize;

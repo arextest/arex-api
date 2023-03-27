@@ -4,10 +4,10 @@ import com.arextest.web.common.LogUtils;
 import com.arextest.web.core.repository.ReplayCompareResultRepository;
 import com.arextest.web.model.dao.mongodb.ReplayCompareResultCollection;
 import com.arextest.web.model.dto.CompareResultDto;
-import com.arextest.web.model.enums.DiffResultCode;
 import com.arextest.web.model.mapper.CompareResultMapper;
 import com.mongodb.client.result.DeleteResult;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.util.Strings;
@@ -138,14 +138,18 @@ public class ReplayCompareResultRepositoryImpl implements ReplayCompareResultRep
     @Override
     public Pair<List<CompareResultDto>, Long> queryAllDiffMsgByPage(String recordId,
                                                                     String replayId,
+                                                                    List<Integer> diffResultCodeList,
                                                                     Integer pageSize,
                                                                     Integer pageIndex,
                                                                     Boolean needTotal) {
         Query query = Query.query(
                 Criteria.where(RECORD_ID).is(recordId)
                         .and(REPLAY_ID).is(replayId)
-                        .and(DIFF_RESULT_CODE).ne(DiffResultCode.COMPARED_WITHOUT_DIFFERENCE)
         );
+
+        if (CollectionUtils.isNotEmpty(diffResultCodeList)) {
+            query.addCriteria(Criteria.where(DIFF_RESULT_CODE).in(diffResultCodeList));
+        }
 
         Long totalCount = -1L;
         if (needTotal) {

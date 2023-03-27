@@ -5,7 +5,6 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.List;
 
-
 public interface ReplayCompareResultRepository extends RepositoryProvider {
     boolean saveResults(List<CompareResultDto> results);
 
@@ -14,12 +13,14 @@ public interface ReplayCompareResultRepository extends RepositoryProvider {
     List<CompareResultDto> findResultWithoutMsg(String planItemId, String keyWord);
 
     // Pair<List<CompareResultDto>, Long> pageQueryWithoutMsg(Long planId, Long planItemId, String categoryName,
-    //         Integer resultType, String keyWord,
-    //         Integer pageIndex, Integer pageSize, Boolean needTotal);
+    // Integer resultType, String keyWord,
+    // Integer pageIndex, Integer pageSize, Boolean needTotal);
 
     Pair<List<CompareResultDto>, Long> queryCompareResultByPage(String planId, Integer pageSize, Integer pageIndex);
 
-    Pair<List<CompareResultDto>, Long> queryAllDiffMsgByPage(String recordId, String replayId, Integer pageSize, Integer pageIndex, Boolean needTotal);
+    Pair<List<CompareResultDto>, Long> queryAllDiffMsgByPage(String recordId, String replayId,
+                                                             List<Integer> diffResultCodeList,
+                                                             Integer pageSize, Integer pageIndex, Boolean needTotal);
 
     CompareResultDto queryCompareResultsByObjectId(String objectId);
 
