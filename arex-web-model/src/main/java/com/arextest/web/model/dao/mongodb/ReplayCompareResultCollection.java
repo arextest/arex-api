@@ -23,6 +23,10 @@ public class ReplayCompareResultCollection extends ModelBase {
     private String replayId;
     
     private String recordId;
+
+    private long recordTime;
+
+    private long replayTime;
     
     private String baseMsg;
     
