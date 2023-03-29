@@ -121,6 +121,9 @@ public class FileSystemService {
     @Value("${arex.ui.url}")
     private String arexUiUrl;
 
+    @Value("${arex.report.case.inherited}")
+    private String arexCaseInherited;
+
     @Resource
     private FSTreeRepository fsTreeRepository;
 
@@ -563,6 +566,9 @@ public class FileSystemService {
         FSCaseDto dto = fsCaseRepository.queryCase(request.getId(), request.isGetCompareMsg());
         if (dto == null) {
             return new FSQueryCaseResponseType();
+        }
+        if (dto.getInherited() == null) {
+            dto.setInherited("true".equalsIgnoreCase(arexCaseInherited) ? Boolean.TRUE : Boolean.FALSE);
         }
 
         FSQueryCaseResponseType response = FSCaseMapper.INSTANCE.contractFromDto(dto);
