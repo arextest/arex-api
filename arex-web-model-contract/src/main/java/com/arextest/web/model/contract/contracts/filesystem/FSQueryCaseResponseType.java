@@ -22,7 +22,7 @@ public class FSQueryCaseResponseType {
     private AuthType auth;
     private AddressType testAddress;
     private String recordId;
-    private ComparisonMsgType comparisonMsg;
+    // private ComparisonMsgType comparisonMsg;
     private Set<String> labelIds;
     private String description;
     private Boolean inherited;
