@@ -20,9 +20,9 @@ public interface FSCaseMapper {
 
     FSCaseCollection daoFromDto(FSCaseDto dto);
 
-    @Mappings({
-            @Mapping(target = "inherited", expression = "java(dao.getInherited() != null ? dao.getInherited() : Boolean.TRUE)"),
-    })
+    // @Mappings({
+    //         @Mapping(target = "inherited", expression = "java(dao.getInherited() != null ? dao.getInherited() : Boolean.TRUE)"),
+    // })
     FSCaseDto dtoFromDao(FSCaseCollection dao);
 
     CaseItemDto ieItemFromFsItemDto(FSCaseDto dto);
