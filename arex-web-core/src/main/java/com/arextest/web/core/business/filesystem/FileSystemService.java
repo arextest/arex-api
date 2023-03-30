@@ -241,7 +241,7 @@ public class FileSystemService {
             nodeDto.setNodeName(request.getNodeName());
             nodeDto.setInfoId(infoId);
             nodeDto.setNodeType(request.getNodeType());
-            nodeDto.setCaseSourceType(request.getCaseSource());
+            nodeDto.setCaseSourceType(request.getCaseSourceType());
             if (request.getNodeType() == FSInfoItem.INTERFACE) {
                 nodeDto.setMethod(GET_METHOD);
             }
@@ -696,7 +696,7 @@ public class FileSystemService {
         addCase.setNodeName(request.getNodeName());
         addCase.setNodeType(FSInfoItem.CASE);
         addCase.setParentPath(path.toArray(new String[path.size()]));
-        addCase.setCaseSource(CaseSourceType.REPLAY_CASE);
+        addCase.setCaseSourceType(CaseSourceType.REPLAY_CASE);
         FSAddItemResponseType addCaseResponse = addItem(addCase);
 
         caseDto.setParentId(path.get(path.size() - 1));
