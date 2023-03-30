@@ -9,13 +9,13 @@ import com.arextest.web.model.mapper.InstancesMapper;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Repository;
 
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,7 +27,6 @@ public class InstancesConfigurationRepositoryImpl implements ConfigRepositoryPro
     private static final String RECORD_VERSION = "recordVersion";
     private static final String HOST = "host";
 
-    private static final String DATA_CHANGE_UPDATE_TIME = "dataChangeUpdateTime";
     private static final String DATA_UPDATE_TIME = "dataUpdateTime";
 
     @Autowired
@@ -43,7 +42,6 @@ public class InstancesConfigurationRepositoryImpl implements ConfigRepositoryPro
     @Override
     public List<InstancesConfiguration> listBy(String appId) {
         Query query = Query.query(Criteria.where(APP_ID).is(appId));
-        query.with(Sort.by(Sort.Order.desc(DATA_CHANGE_UPDATE_TIME)));
         List<InstancesCollection> instancesCollections = mongoTemplate.find(query, InstancesCollection.class);
         return instancesCollections.stream().map(InstancesMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
     }
@@ -52,9 +50,10 @@ public class InstancesConfigurationRepositoryImpl implements ConfigRepositoryPro
     public boolean update(InstancesConfiguration configuration) {
         Query query = Query.query(Criteria.where(DASH_ID).is(configuration.getId()));
         Update update = MongoHelper.getConfigUpdate();
+        update.set(APP_ID, configuration.getAppId());
         update.set(RECORD_VERSION, configuration.getRecordVersion());
         update.set(HOST, configuration.getHost());
-        update.set(DATA_UPDATE_TIME, configuration.getDataUpdateTime());
+        update.set(DATA_UPDATE_TIME, new Date());
         UpdateResult updateResult = mongoTemplate.updateMulti(query, update, InstancesCollection.class);
         return updateResult.getModifiedCount() > 0;
     }
@@ -68,6 +67,7 @@ public class InstancesConfigurationRepositoryImpl implements ConfigRepositoryPro
 
     @Override
     public boolean insert(InstancesConfiguration configuration) {
+        configuration.setDataUpdateTime(new Date());
         InstancesCollection instancesCollection = InstancesMapper.INSTANCE.daoFromDto(configuration);
         InstancesCollection insert = mongoTemplate.insert(instancesCollection);
         if (insert.getId() != null) {

@@ -68,6 +68,6 @@ public class MongodbConfiguration {
         mongoTemplate.indexOps(LogsCollection.class)
                 .ensureIndex(new Index(DATE, Sort.Direction.DESC).expire(10, TimeUnit.DAYS));
         mongoTemplate.indexOps(InstancesCollection.class)
-                .ensureIndex(new Index(DATE_UPDATE_TIME, Sort.Direction.DESC).expire(10, TimeUnit.MINUTES));
+                .ensureIndex(new Index(DATE_UPDATE_TIME, Sort.Direction.DESC).expire(3, TimeUnit.MINUTES));
     }
 }
