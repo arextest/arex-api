@@ -33,7 +33,7 @@ public final class ApplicationInstancesConfigurableHandler extends AbstractConfi
             if (first.isPresent()) {
                 InstancesConfiguration instancesConfiguration = first.get();
                 instancesConfiguration.setRecordVersion(recordVersion);
-                instancesConfiguration.setDataUpdateTime(new Date());
+                instancesConfiguration.setId(instancesConfiguration.getId());
                 super.update(instancesConfiguration);
             } else {
                 create(appId, host, recordVersion);
@@ -46,7 +46,6 @@ public final class ApplicationInstancesConfigurableHandler extends AbstractConfi
         instancesConfiguration.setAppId(appId);
         instancesConfiguration.setHost(host);
         instancesConfiguration.setRecordVersion(recordVersion);
-        instancesConfiguration.setDataUpdateTime(new Date());
         super.insert(instancesConfiguration);
     }
 
