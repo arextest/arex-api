@@ -67,6 +67,7 @@ public class InstancesConfigurationRepositoryImpl implements ConfigRepositoryPro
 
     @Override
     public boolean insert(InstancesConfiguration configuration) {
+        configuration.setDataUpdateTime(new Date());
         InstancesCollection instancesCollection = InstancesMapper.INSTANCE.daoFromDto(configuration);
         InstancesCollection insert = mongoTemplate.insert(instancesCollection);
         if (insert.getId() != null) {
