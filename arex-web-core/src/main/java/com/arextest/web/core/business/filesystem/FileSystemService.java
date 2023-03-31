@@ -883,7 +883,9 @@ public class FileSystemService {
         dto.setMethod(old.getMethod());
         dto.setNodeType(old.getNodeType());
         dto.setLabelIds(old.getLabelIds());
-        dto.setCaseSourceType(old.getCaseSourceType());
+        if (old.getNodeType() == FSInfoItem.CASE) {
+            dto.setCaseSourceType(old.getCaseSourceType());
+        }
         if (old.getChildren() != null) {
             dto.setChildren(new ArrayList<>(old.getChildren().size()));
             for (FSNodeDto oldChild : old.getChildren()) {
