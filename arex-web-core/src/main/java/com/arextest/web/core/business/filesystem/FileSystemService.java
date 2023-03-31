@@ -241,7 +241,9 @@ public class FileSystemService {
             nodeDto.setNodeName(request.getNodeName());
             nodeDto.setInfoId(infoId);
             nodeDto.setNodeType(request.getNodeType());
-            nodeDto.setCaseSourceType(request.getCaseSourceType());
+            if (request.getNodeType() == FSInfoItem.CASE) {
+                nodeDto.setCaseSourceType(request.getCaseSourceType());
+            }
             if (request.getNodeType() == FSInfoItem.INTERFACE) {
                 nodeDto.setMethod(GET_METHOD);
             }
