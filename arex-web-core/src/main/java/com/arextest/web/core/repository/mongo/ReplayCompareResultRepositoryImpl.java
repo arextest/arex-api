@@ -13,6 +13,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -39,6 +40,8 @@ public class ReplayCompareResultRepositoryImpl implements ReplayCompareResultRep
     private static final String DIFF_RESULT_CODE = "diffResultCode";
     private static final String LOGS = "logs";
     private static final String COUNT = "count";
+    private static final String RECORD_TIME = "recordTime";
+    private static final String REPLAY_TIME = "replayTime";
 
     @Resource
     private MongoTemplate mongoTemplate;
@@ -150,13 +153,14 @@ public class ReplayCompareResultRepositoryImpl implements ReplayCompareResultRep
         if (CollectionUtils.isNotEmpty(diffResultCodeList)) {
             query.addCriteria(Criteria.where(DIFF_RESULT_CODE).in(diffResultCodeList));
         }
-
         Long totalCount = -1L;
         if (needTotal) {
             totalCount = mongoTemplate.count(query, ReplayCompareResultCollection.class);
         }
         Pageable pageable = PageRequest.of(pageIndex, pageSize);
         query.with(pageable);
+        query.with(Sort.by(Sort.Direction.ASC, REPLAY_TIME));
+        query.with(Sort.by(Sort.Direction.ASC, RECORD_TIME));
         List<ReplayCompareResultCollection> result = mongoTemplate.find(query, ReplayCompareResultCollection.class);
         List<CompareResultDto> dtos =
                 result.stream().map(CompareResultMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
