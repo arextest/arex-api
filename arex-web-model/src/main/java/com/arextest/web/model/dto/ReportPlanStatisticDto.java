@@ -3,6 +3,7 @@ package com.arextest.web.model.dto;
 import lombok.Data;
 
 import java.util.Date;
+import java.util.Map;
 
 
 @Data
@@ -49,6 +50,6 @@ public class ReportPlanStatisticDto {
 
     private Integer totalOperationCount;
     private Integer successOperationCount;
-
+    private Map<String, Object> customTags;
     private Long dataChangeCreateTime;
 }

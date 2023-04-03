@@ -3,6 +3,8 @@ package com.arextest.web.model.dao.mongodb;
 import lombok.Data;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.Map;
+
 
 @Data
 @Document(collection = "ReportPlanStatistic")
@@ -42,6 +44,7 @@ public class ReportPlanStatisticCollection extends ModelBase{
     private Long caseEndTime;
     
     private Integer totalCaseCount;
+    private Map<String, Object> customTags;
     // private Integer errorCaseCount;
     // private Integer successCaseCount;
     // private Integer failCaseCount;

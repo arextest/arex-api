@@ -2,6 +2,7 @@ package com.arextest.web.model.contract.contracts.common;
 
 import lombok.Data;
 
+import java.util.Map;
 
 @Data
 public class PlanStatistic {
@@ -49,4 +50,5 @@ public class PlanStatistic {
     private Integer waitOperationCount;
     
     private Integer totalServiceCount;
+    private Map<String, Object> customTags;
 }

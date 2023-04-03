@@ -10,6 +10,7 @@ import com.arextest.web.model.mapper.PlanMapper;
 import com.mongodb.BasicDBObject;
 import com.mongodb.client.result.DeleteResult;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -67,6 +68,7 @@ public class ReportPlanStatisticRepositoryImpl implements ReportPlanStatisticRep
     private static final String DATA_CHANGE_CREATE_TIME = "dataChangeCreateTime";
     private static final String TOTAL_CASE_COUNT = "totalCaseCount";
     private static final String DATE_TIME = "dateTime";
+    private static final String CUSTOM_TAGS = "customTags";
 
     @Resource
     private MongoTemplate mongoTemplate;
@@ -158,6 +160,9 @@ public class ReportPlanStatisticRepositoryImpl implements ReportPlanStatisticRep
         }
         if (result.getReplayEndTime() != null) {
             update.set(REPLAY_END_TIME, result.getReplayEndTime());
+        }
+        if (MapUtils.isNotEmpty(result.getCustomTags())) {
+            update.set(CUSTOM_TAGS, result.getCustomTags());
         }
 
         ReportPlanStatisticCollection dao = mongoTemplate.findAndModify(
