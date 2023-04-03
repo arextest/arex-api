@@ -241,7 +241,9 @@ public class FileSystemService {
             nodeDto.setNodeName(request.getNodeName());
             nodeDto.setInfoId(infoId);
             nodeDto.setNodeType(request.getNodeType());
-            nodeDto.setCaseSourceType(request.getCaseSource());
+            if (request.getNodeType() == FSInfoItem.CASE) {
+                nodeDto.setCaseSourceType(request.getCaseSourceType());
+            }
             if (request.getNodeType() == FSInfoItem.INTERFACE) {
                 nodeDto.setMethod(GET_METHOD);
             }
@@ -696,7 +698,7 @@ public class FileSystemService {
         addCase.setNodeName(request.getNodeName());
         addCase.setNodeType(FSInfoItem.CASE);
         addCase.setParentPath(path.toArray(new String[path.size()]));
-        addCase.setCaseSource(CaseSourceType.REPLAY_CASE);
+        addCase.setCaseSourceType(CaseSourceType.REPLAY_CASE);
         FSAddItemResponseType addCaseResponse = addItem(addCase);
 
         caseDto.setParentId(path.get(path.size() - 1));
@@ -881,6 +883,9 @@ public class FileSystemService {
         dto.setMethod(old.getMethod());
         dto.setNodeType(old.getNodeType());
         dto.setLabelIds(old.getLabelIds());
+        if (old.getNodeType() == FSInfoItem.CASE) {
+            dto.setCaseSourceType(old.getCaseSourceType());
+        }
         if (old.getChildren() != null) {
             dto.setChildren(new ArrayList<>(old.getChildren().size()));
             for (FSNodeDto oldChild : old.getChildren()) {

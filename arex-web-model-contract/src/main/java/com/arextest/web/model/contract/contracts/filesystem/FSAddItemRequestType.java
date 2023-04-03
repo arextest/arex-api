@@ -18,5 +18,5 @@ public class FSAddItemRequestType {
     /**
      * @see com.arextest.web.model.enums.CaseSourceType
      */
-    private int caseSource;
+    private int caseSourceType;
 }
