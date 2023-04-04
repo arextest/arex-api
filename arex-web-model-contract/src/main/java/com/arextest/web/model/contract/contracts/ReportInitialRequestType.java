@@ -3,6 +3,7 @@ package com.arextest.web.model.contract.contracts;
 import lombok.Data;
 
 import java.util.List;
+import java.util.Map;
 
 
 @Data
@@ -18,7 +19,8 @@ public class ReportInitialRequestType {
     private CaseSourceEnvironment caseSourceEnv;
     private TargetImage targetImage;
     private Version version;
-    
+    private Map<String, Object> customTags;
+
     private Integer totalCaseCount;
     
     private List<ReportItem> reportItemList;
