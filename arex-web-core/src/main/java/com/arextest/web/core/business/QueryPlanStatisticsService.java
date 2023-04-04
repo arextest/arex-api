@@ -27,13 +27,19 @@ public class QueryPlanStatisticsService {
 
     public QueryPlanStatisticsResponseType planStatistic(QueryPlanStatisticsRequestType request) {
         QueryPlanStatisticsResponseType response = new QueryPlanStatisticsResponseType();
-        Pair<List<ReportPlanStatisticDto>, Long> result = planStatisticRepository.pageQueryPlanStatistic(request);
 
-        List<String> planIds = result.getLeft().stream().map(ReportPlanStatisticDto::getPlanId)
+        Pair<List<ReportPlanStatisticDto>, Long> result = planStatisticRepository.pageQueryPlanStatistic(request);
+        List<ReportPlanStatisticDto> reportPlanStatisticDtoList = result.getLeft();
+        Long totalCount = result.getRight();
+        response.setTotalCount(totalCount);
+
+        List<String> planIds = reportPlanStatisticDtoList
+                .stream()
+                .map(ReportPlanStatisticDto::getPlanId)
                 .collect(Collectors.toList());
 
         Map<String, CaseCount> caseCountMap = caseCountService.calculateCaseCountsByPlanIds(planIds);
-        for (ReportPlanStatisticDto plan : result.getLeft()) {
+        for (ReportPlanStatisticDto plan : reportPlanStatisticDtoList) {
             CaseCount caseCount = caseCountMap.get(plan.getPlanId());
             if (caseCount == null) {
                 continue;
@@ -47,12 +53,11 @@ public class QueryPlanStatisticsService {
             plan.setSuccessOperationCount(caseCount.getSuccessOperationCount());
         }
 
-        List<PlanStatistic> planStatistics = result.getLeft()
+        List<PlanStatistic> planStatistics = reportPlanStatisticDtoList
                 .stream()
                 .map(PlanMapper.INSTANCE::contractFromDto)
                 .collect(Collectors.toList());
         response.setPlanStatisticList(planStatistics);
-        response.setTotalCount(result.getRight());
         return response;
     }
 }

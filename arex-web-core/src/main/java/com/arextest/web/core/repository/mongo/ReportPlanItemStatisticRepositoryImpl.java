@@ -39,6 +39,7 @@ public class ReportPlanItemStatisticRepositoryImpl implements ReportPlanItemStat
     private static final String REPLAY_START_TIME = "replayStartTime";
     private static final String REPLAY_END_TIME = "replayEndTime";
     private static final String TOTAL_CASE_COUNT = "totalCaseCount";
+    private static final String ERROR_MESSAGE = "errorMessage";
 
     @Resource
     private MongoTemplate mongoTemplate;
@@ -156,7 +157,7 @@ public class ReportPlanItemStatisticRepositoryImpl implements ReportPlanItemStat
     }
 
     @Override
-    public PlanItemDto changePlanItemStatus(String planItemId, Integer status, Integer totalCaseCount) {
+    public PlanItemDto changePlanItemStatus(String planItemId, Integer status, Integer totalCaseCount, String errorMessage) {
         if (planItemId == null || planItemId == "") {
             return null;
         }
@@ -171,6 +172,9 @@ public class ReportPlanItemStatisticRepositoryImpl implements ReportPlanItemStat
         }
         if (totalCaseCount != null) {
             update.set(TOTAL_CASE_COUNT, totalCaseCount);
+        }
+        if (Strings.isNotEmpty(errorMessage)) {
+            update.set(ERROR_MESSAGE, errorMessage);
         }
 
         if (update.getUpdateObject().keySet().isEmpty()) {

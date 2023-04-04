@@ -50,5 +50,7 @@ public class PlanStatistic {
     private Integer waitOperationCount;
     
     private Integer totalServiceCount;
+    private String errorMessage;
+
     private Map<String, Object> customTags;
 }

@@ -12,6 +12,7 @@ public class ChangeReplayStatusRequestType {
     private String planId;
     private Integer totalCaseCount;
     private Integer status;
+    private String errorMessage;
     private List<ReplayItem> items;
 
 
@@ -20,5 +21,6 @@ public class ChangeReplayStatusRequestType {
         private String planItemId;
         private Integer totalCaseCount;
         private Integer status;
+        private String errorMessage;
     }
 }

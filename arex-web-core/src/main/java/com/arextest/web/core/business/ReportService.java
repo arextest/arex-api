@@ -88,16 +88,23 @@ public class ReportService {
                 LogUtils.error(LOGGER, "The number of received cases does not match the declaration.");
             }
         }
-        ReportPlanStatisticDto planDto = planStatisticRepository.changePlanStatus(request.getPlanId(),
-                request.getStatus(), request.getTotalCaseCount());
+        ReportPlanStatisticDto planDto = planStatisticRepository.changePlanStatus(
+                request.getPlanId(),
+                request.getStatus(),
+                request.getTotalCaseCount(),
+                request.getErrorMessage()
+        );
         if (request.getItems() != null) {
             for (ChangeReplayStatusRequestType.ReplayItem item : request.getItems()) {
                 if (Objects.equals(item.getStatus(), ReplayStatusType.FINISHED)) {
                     sceneReportService.report(request.getPlanId(), item.getPlanItemId());
                 }
-                planItemStatisticRepository.changePlanItemStatus(item.getPlanItemId(),
+                planItemStatisticRepository.changePlanItemStatus(
+                        item.getPlanItemId(),
                         item.getStatus(),
-                        item.getTotalCaseCount());
+                        item.getTotalCaseCount(),
+                        item.getErrorMessage()
+                );
             }
         }
         planFinishedService.onPlanFinishEvent(planDto.getAppId(), request.getPlanId(), request.getStatus());
