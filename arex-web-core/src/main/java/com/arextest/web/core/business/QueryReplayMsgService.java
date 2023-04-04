@@ -33,6 +33,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -133,6 +134,8 @@ public class QueryReplayMsgService {
         QueryFullLinkInfoResponseType response = new QueryFullLinkInfoResponseType();
         List<CompareResultDto> dtos =
                 replayCompareResultRepository.queryCompareResultsByRecordIdAndReplayId(recordId, replayId);
+        dtos.sort(Comparator.comparingLong(CompareResultDto::getReplayTime)
+                .thenComparingLong(CompareResultDto::getRecordTime));
 
         if (CollectionUtils.isNotEmpty(dtos)) {
             // judge entrance type by operationId
