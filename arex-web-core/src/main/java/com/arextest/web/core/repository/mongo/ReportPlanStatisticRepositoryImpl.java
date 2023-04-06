@@ -69,6 +69,7 @@ public class ReportPlanStatisticRepositoryImpl implements ReportPlanStatisticRep
     private static final String TOTAL_CASE_COUNT = "totalCaseCount";
     private static final String DATE_TIME = "dateTime";
     private static final String CUSTOM_TAGS = "customTags";
+    private static final String ERROR_MESSAGE = "errorMessage";
 
     @Resource
     private MongoTemplate mongoTemplate;
@@ -207,8 +208,8 @@ public class ReportPlanStatisticRepositoryImpl implements ReportPlanStatisticRep
 
     @Override
     public List<ReportPlanStatisticDto> findLatestSuccessPlanId(String rangeField, Long startTime, Long endTime,
-            String matchField, Integer matchValue,
-            String groupField, String orderField, boolean desc) {
+                                                                String matchField, Integer matchValue,
+                                                                String groupField, String orderField, boolean desc) {
 
         List<AggregationOperation> operations = new ArrayList<>();
         if (!StringUtils.isEmpty(rangeField)) {
@@ -247,13 +248,13 @@ public class ReportPlanStatisticRepositoryImpl implements ReportPlanStatisticRep
 
     @Override
     public List<LatestDailySuccessPlanIdDto> findLatestDailySuccessPlanId(String rangeField,
-            Long startTime,
-            Long endTime,
-            List<MutablePair<Object, Object>> matches,
-            String groupField,
-            String timeDate,
-            String orderField,
-            boolean desc) {
+                                                                          Long startTime,
+                                                                          Long endTime,
+                                                                          List<MutablePair<Object, Object>> matches,
+                                                                          String groupField,
+                                                                          String timeDate,
+                                                                          String orderField,
+                                                                          boolean desc) {
 
         List<AggregationOperation> operations = new ArrayList<>();
 
@@ -303,9 +304,11 @@ public class ReportPlanStatisticRepositoryImpl implements ReportPlanStatisticRep
     }
 
 
-
     @Override
-    public ReportPlanStatisticDto changePlanStatus(String planId, Integer status, Integer totalCaseCount) {
+    public ReportPlanStatisticDto changePlanStatus(String planId,
+                                                   Integer status,
+                                                   Integer totalCaseCount,
+                                                   String errorMessage) {
         if (planId == null || planId == "") {
             return null;
         }
@@ -315,6 +318,9 @@ public class ReportPlanStatisticRepositoryImpl implements ReportPlanStatisticRep
         }
         if (totalCaseCount != null) {
             update.set(TOTAL_CASE_COUNT, totalCaseCount);
+        }
+        if (errorMessage != null) {
+            update.set(ERROR_MESSAGE, errorMessage);
         }
 
         update.set(REPLAY_END_TIME, System.currentTimeMillis());

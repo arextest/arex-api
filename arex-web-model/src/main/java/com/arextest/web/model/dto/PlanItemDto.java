@@ -20,6 +20,7 @@ public class PlanItemDto {
     private String serviceName;
     
     private Integer status;
+    private String errorMessage;
     
     private Long replayStartTime;
     private Long replayEndTime;

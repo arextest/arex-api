@@ -24,14 +24,14 @@ public interface ReportPlanStatisticRepository extends RepositoryProvider {
     Long findReplayCountByAppId(String appId);
 
     List<ReportPlanStatisticDto> findLatestSuccessPlanId(String rangeField, Long startTime, Long endTime,
-            String matchField, Integer matchValue,
-            String groupField, String orderField, boolean desc);
+                                                         String matchField, Integer matchValue,
+                                                         String groupField, String orderField, boolean desc);
 
     List<LatestDailySuccessPlanIdDto> findLatestDailySuccessPlanId(String rangeField, Long startTime, Long endTime,
-            List<MutablePair<Object, Object>> matches, String groupField,
-            String timeDate, String orderField, boolean desc);
+                                                                   List<MutablePair<Object, Object>> matches, String groupField,
+                                                                   String timeDate, String orderField, boolean desc);
 
-    ReportPlanStatisticDto changePlanStatus(String planId, Integer status, Integer totalCaseCount);
+    ReportPlanStatisticDto changePlanStatus(String planId, Integer status, Integer totalCaseCount, String errorMessage);
 
     boolean deletePlan(String planId);
 }
