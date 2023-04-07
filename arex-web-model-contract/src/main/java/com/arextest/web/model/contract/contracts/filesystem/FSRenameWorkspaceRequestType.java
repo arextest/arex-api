@@ -10,5 +10,4 @@ public class FSRenameWorkspaceRequestType {
     private String id;
     @NotBlank(message = "New workspace name cannot be empty")
     private String workspaceName;
-    private String userName;
 }
