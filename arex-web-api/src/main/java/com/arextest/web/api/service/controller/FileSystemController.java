@@ -87,6 +87,8 @@ public class FileSystemController {
                         request.getId())) {
             return ResponseUtils.errorResponse(Constants.NO_PERMISSION, ResponseCode.AUTHENTICATION_FAILED);
         }
+        String userName = JwtUtil.getUserName(token);
+        request.setUserName(userName);
         FSAddItemResponseType response = fileSystemService.addItem(request);
         return ResponseUtils.successResponse(response);
     }
@@ -216,7 +218,8 @@ public class FileSystemController {
     public Response saveInterface(@RequestHeader(name = Constants.ACCESS_TOKEN) String token,
             @RequestBody FSSaveInterfaceRequestType request) {
         String userName = JwtUtil.getUserName(token);
-        FSSaveInterfaceResponseType response = fileSystemService.saveInterface(request, userName);
+        FSSaveInterfaceResponseType response = new FSSaveInterfaceResponseType();
+        response.setSuccess(fileSystemService.saveInterface(request, userName));
         return ResponseUtils.successResponse(response);
     }
 
@@ -232,7 +235,8 @@ public class FileSystemController {
     public Response saveCase(@RequestHeader(name = Constants.ACCESS_TOKEN) String token,
             @RequestBody FSSaveCaseRequestType request) {
         String userName = JwtUtil.getUserName(token);
-        FSSaveCaseResponseType response = fileSystemService.saveCase(request, userName);
+        FSSaveCaseResponseType response = new FSSaveCaseResponseType();
+        response.setSuccess(fileSystemService.saveCase(request, userName));
         return ResponseUtils.successResponse(response);
     }
 

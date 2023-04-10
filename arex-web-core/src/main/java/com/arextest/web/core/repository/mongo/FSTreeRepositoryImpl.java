@@ -8,6 +8,9 @@ import com.arextest.web.model.mapper.FSTreeMapper;
 import com.mongodb.client.result.DeleteResult;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -18,6 +21,8 @@ import org.springframework.stereotype.Component;
 import javax.annotation.Resource;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -27,8 +32,12 @@ public class FSTreeRepositoryImpl implements FSTreeRepository {
     private static final String USERNAME = "userName";
     private static final String ROOTS = "roots";
 
+    @Value("${arex.web.api.redis.lease-time}")
+    private long redisLeaseTime;
     @Resource
     private MongoTemplate mongoTemplate;
+    @Resource
+    private RedissonClient redissonClient;
 
     @Override
     public FSTreeDto initFSTree(FSTreeDto dto) {
@@ -40,7 +49,6 @@ public class FSTreeRepositoryImpl implements FSTreeRepository {
 
     @Override
     public FSTreeDto updateFSTree(FSTreeDto dto) {
-
         Update update = MongoHelper.getUpdate();
         MongoHelper.appendFullProperties(update, dto);
 
@@ -52,6 +60,26 @@ public class FSTreeRepositoryImpl implements FSTreeRepository {
                 FSTreeCollection.class);
 
         return FSTreeMapper.INSTANCE.dtoFromDao(dao);
+    }
+
+    @Override
+    public FSTreeDto updateFSTree(String workspaceId, UnaryOperator<FSTreeDto> unaryOperator) {
+        RLock lock = redissonClient.getLock(workspaceId);
+        try {
+            lock.lock(redisLeaseTime, TimeUnit.SECONDS);
+            FSTreeDto workspace = queryFSTreeById(workspaceId);
+            workspace = unaryOperator.apply(workspace);
+            if (workspace == null) {
+                return null;
+            }
+            FSTreeCollection dao = FSTreeMapper.INSTANCE.daoFromDto(workspace);
+            return FSTreeMapper.INSTANCE.dtoFromDao(mongoTemplate.save(dao));
+        } catch (Exception e) {
+            LOGGER.error("Failed to update workspace.", e);
+        } finally {
+            lock.unlock();
+        }
+        return null;
     }
 
     @Override

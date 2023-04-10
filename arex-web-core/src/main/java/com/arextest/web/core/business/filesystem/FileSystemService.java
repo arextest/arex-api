@@ -103,6 +103,7 @@ import java.util.Objects;
 import java.util.Queue;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -187,72 +188,78 @@ public class FileSystemService {
                 request.setUserName(StringUtils.EMPTY);
             }
 
-            FSTreeDto dto;
+
+            String workspaceId = null;
             if (StringUtils.isEmpty(request.getId())) {
-                dto = addWorkspace(request.getWorkspaceName(), request.getUserName());
+                FSTreeDto dto = addWorkspace(request.getWorkspaceName(), request.getUserName());
+                workspaceId = dto.getId();
             } else {
-                dto = fsTreeRepository.queryFSTreeById(request.getId());
+                workspaceId = request.getId();
             }
 
-            String infoId = null;
-            List<FSNodeDto> targetTreeNodes = null;
-            if (request.getParentPath() == null || request.getParentPath().length == 0) {
-                infoId = itemInfo.initItem(null, null, dto.getId(), request.getNodeName());
-                targetTreeNodes = dto.getRoots();
-            } else {
-                String[] nodes = request.getParentPath();
+            AtomicReference<String> infoId = new AtomicReference<>();
 
-                FSNodeDto current = fileSystemUtils.findByInfoId(dto.getRoots(), nodes[0]);
-                if (current == null) {
-                    response.setSuccess(false);
-                    return response;
-                }
+            FSTreeDto workspace = fsTreeRepository.updateFSTree(workspaceId, dto -> {
+                List<FSNodeDto> targetTreeNodes = null;
+                if (request.getParentPath() == null || request.getParentPath().length == 0) {
+                    infoId.set(itemInfo.initItem(null, null, dto.getId(), request.getNodeName()));
+                    targetTreeNodes = dto.getRoots();
+                } else {
+                    String[] nodes = request.getParentPath();
 
-                boolean error = false;
-                for (int i = 1; i < nodes.length; i++) {
-                    String node = nodes[i];
-                    if (current.getChildren() == null || current.getChildren().size() == 0) {
-                        error = true;
-                        break;
-                    }
-                    current = fileSystemUtils.findByInfoId(current.getChildren(), node);
-
+                    FSNodeDto current = fileSystemUtils.findByInfoId(dto.getRoots(), nodes[0]);
                     if (current == null) {
-                        error = true;
-                        break;
+                        return null;
                     }
-                }
-                if (error) {
-                    response.setSuccess(false);
-                    return response;
+
+                    boolean error = false;
+                    for (int i = 1; i < nodes.length; i++) {
+                        String node = nodes[i];
+                        if (current.getChildren() == null || current.getChildren().size() == 0) {
+                            error = true;
+                            break;
+                        }
+                        current = fileSystemUtils.findByInfoId(current.getChildren(), node);
+
+                        if (current == null) {
+                            error = true;
+                            break;
+                        }
+                    }
+                    if (error) {
+                        return null;
+                    }
+
+                    if (current.getChildren() == null) {
+                        current.setChildren(new ArrayList<>());
+                    }
+                    infoId.set(itemInfo.initItem(current.getInfoId(),
+                            current.getNodeType(),
+                            dto.getId(),
+                            request.getNodeName()));
+                    targetTreeNodes = current.getChildren();
                 }
 
-                if (current.getChildren() == null) {
-                    current.setChildren(new ArrayList<>());
+                FSNodeDto nodeDto = new FSNodeDto();
+                nodeDto.setNodeName(request.getNodeName());
+                nodeDto.setInfoId(infoId.get());
+                nodeDto.setNodeType(request.getNodeType());
+                if (request.getNodeType() == FSInfoItem.CASE) {
+                    nodeDto.setCaseSourceType(request.getCaseSourceType());
                 }
-                infoId = itemInfo.initItem(current.getInfoId(),
-                        current.getNodeType(),
-                        dto.getId(),
-                        request.getNodeName());
-                targetTreeNodes = current.getChildren();
+                if (request.getNodeType() == FSInfoItem.INTERFACE) {
+                    nodeDto.setMethod(GET_METHOD);
+                }
+                targetTreeNodes.add(0, nodeDto);
+                return dto;
+            });
+            if (workspace != null) {
+                response.setSuccess(true);
+                response.setInfoId(infoId.get());
+                response.setWorkspaceId(workspaceId);
+            } else {
+                response.setSuccess(false);
             }
-
-            FSNodeDto nodeDto = new FSNodeDto();
-            nodeDto.setNodeName(request.getNodeName());
-            nodeDto.setInfoId(infoId);
-            nodeDto.setNodeType(request.getNodeType());
-            if (request.getNodeType() == FSInfoItem.CASE) {
-                nodeDto.setCaseSourceType(request.getCaseSourceType());
-            }
-            if (request.getNodeType() == FSInfoItem.INTERFACE) {
-                nodeDto.setMethod(GET_METHOD);
-            }
-            targetTreeNodes.add(0, nodeDto);
-            dto = fsTreeRepository.updateFSTree(dto);
-
-            response.setInfoId(infoId);
-            response.setWorkspaceId(dto.getId());
-            response.setSuccess(true);
 
         } catch (Exception e) {
             LogUtils.error(LOGGER, "failed to add item to filesystem", e);
@@ -262,82 +269,87 @@ public class FileSystemService {
     }
 
     public Boolean removeItem(FSRemoveItemRequestType request, String userName) {
-        FSTreeDto treeDto = fsTreeRepository.queryFSTreeById(request.getId());
-        if (treeDto == null) {
-            return false;
-        }
-        List<FSNodeDto> current = treeDto.getRoots();
-        if (current == null) {
-            return false;
-        }
 
-        String parentId = null;
-        String[] nodes = request.getRemoveNodePath();
-        for (int i = 0; i < nodes.length - 1; i++) {
-
-            String node = nodes[i];
-            FSNodeDto find = fileSystemUtils.findByInfoId(current, node);
-
-            if (find == null || find.getChildren() == null) {
-                return false;
+        FSTreeDto treeDto = fsTreeRepository.updateFSTree(request.getId(), dto -> {
+            if (dto == null) {
+                return null;
             }
-            current = find.getChildren();
-            parentId = find.getInfoId();
-        }
+            List<FSNodeDto> current = dto.getRoots();
+            if (current == null) {
+                return null;
+            }
 
-        FSNodeDto needRemove = fileSystemUtils.findByInfoId(current, nodes[nodes.length - 1]);
-        removeItems(needRemove, userName, parentId, request.getId());
-        current.remove(needRemove);
-        fsTreeRepository.updateFSTree(treeDto);
-        return true;
+            String parentId = null;
+            String[] nodes = request.getRemoveNodePath();
+            for (int i = 0; i < nodes.length - 1; i++) {
+
+                String node = nodes[i];
+                FSNodeDto find = fileSystemUtils.findByInfoId(current, node);
+
+                if (find == null || find.getChildren() == null) {
+                    return null;
+                }
+                current = find.getChildren();
+                parentId = find.getInfoId();
+            }
+
+            FSNodeDto needRemove = fileSystemUtils.findByInfoId(current, nodes[nodes.length - 1]);
+            removeItems(needRemove, userName, parentId, request.getId());
+            current.remove(needRemove);
+            return dto;
+        });
+
+        return treeDto != null ? true : false;
     }
 
     public Boolean rename(FSRenameRequestType request) {
 
-        FSTreeDto fsTreeDto = fsTreeRepository.queryFSTreeById(request.getId());
-        if (fsTreeDto == null) {
-            return false;
-        }
-        FSNodeDto dto = fileSystemUtils.findByPath(fsTreeDto.getRoots(), request.getPath());
-
-        if (dto == null) {
-            return false;
-        }
-        ItemInfo itemInfo = itemInfoFactory.getItemInfo(dto.getNodeType());
-        FSItemDto itemDto = itemInfo.queryById(request.getPath()[request.getPath().length - 1]);
-        if (itemInfo == null) {
-            return false;
-        }
-        itemDto.setName(request.getNewName());
-        itemInfo.saveItem(itemDto);
-        dto.setNodeName(request.getNewName());
-        fsTreeRepository.updateFSTree(fsTreeDto);
-        return true;
+        FSTreeDto fsTreeDto = fsTreeRepository.updateFSTree(request.getId(), dto -> {
+            if (dto == null) {
+                return null;
+            }
+            FSNodeDto fsNodeDto = fileSystemUtils.findByPath(dto.getRoots(), request.getPath());
+            if (fsNodeDto == null) {
+                return null;
+            }
+            ItemInfo itemInfo = itemInfoFactory.getItemInfo(fsNodeDto.getNodeType());
+            FSItemDto itemDto = itemInfo.queryById(request.getPath()[request.getPath().length - 1]);
+            if (itemInfo == null) {
+                return null;
+            }
+            itemDto.setName(request.getNewName());
+            itemInfo.saveItem(itemDto);
+            fsNodeDto.setNodeName(request.getNewName());
+            return dto;
+        });
+        return fsTreeDto != null ? true : false;
     }
 
     public Boolean duplicate(FSDuplicateRequestType request) {
         try {
-            FSTreeDto treeDto = fsTreeRepository.queryFSTreeById(request.getId());
-            FSNodeDto parent = null;
-            FSNodeDto current;
-            if (request.getPath().length != 1) {
-                parent = fileSystemUtils.findByPath(treeDto.getRoots(),
-                        Arrays.copyOfRange(request.getPath(), 0, request.getPath().length - 1));
-                current = fileSystemUtils.findByInfoId(parent.getChildren(),
-                        request.getPath()[request.getPath().length - 1]);
-            } else {
-                current = fileSystemUtils.findByInfoId(treeDto.getRoots(), request.getPath()[0]);
-            }
-            FSNodeDto dupNodeDto = duplicateInfo(parent == null ? null : parent.getInfoId(),
-                    current.getNodeName() + DUPLICATE_SUFFIX,
-                    current);
-            if (parent == null) {
-                this.addDuplicateItemFollowCurrent(treeDto.getRoots(), dupNodeDto, current);
-            } else {
-                this.addDuplicateItemFollowCurrent(parent.getChildren(), dupNodeDto, current);
-            }
-            fsTreeRepository.updateFSTree(treeDto);
-            return true;
+            FSTreeDto treeDto = fsTreeRepository.updateFSTree(request.getId(), dto -> {
+                FSNodeDto parent = null;
+                FSNodeDto current;
+                if (request.getPath().length != 1) {
+                    parent = fileSystemUtils.findByPath(dto.getRoots(),
+                            Arrays.copyOfRange(request.getPath(), 0, request.getPath().length - 1));
+                    current = fileSystemUtils.findByInfoId(parent.getChildren(),
+                            request.getPath()[request.getPath().length - 1]);
+                } else {
+                    current = fileSystemUtils.findByInfoId(dto.getRoots(), request.getPath()[0]);
+                }
+                FSNodeDto dupNodeDto = duplicateInfo(parent == null ? null : parent.getInfoId(),
+                        current.getNodeName() + DUPLICATE_SUFFIX,
+                        current);
+                if (parent == null) {
+                    this.addDuplicateItemFollowCurrent(dto.getRoots(), dupNodeDto, current);
+                } else {
+                    this.addDuplicateItemFollowCurrent(parent.getChildren(), dupNodeDto, current);
+                }
+                return dto;
+            });
+
+            return treeDto != null ? true : false;
         } catch (Exception e) {
             LogUtils.error(LOGGER, "failed to duplicate item", e);
             return false;
@@ -346,54 +358,55 @@ public class FileSystemService {
 
     public Boolean move(FSMoveItemRequestType request) {
         try {
-            FSTreeDto treeDto = fsTreeRepository.queryFSTreeById(request.getId());
-            Tuple<Integer, FSNodeDto> current =
-                    fileSystemUtils.findByPathWithIndex(treeDto.getRoots(), request.getFromNodePath());
-            if (current == null) {
-                return false;
-            }
-            FSNodeDto fromParent = null;
-            FSNodeDto toParent = null;
-            if (request.getFromNodePath().length > 1) {
-                fromParent = fileSystemUtils.findByPath(treeDto.getRoots(),
-                        Arrays.copyOfRange(request.getFromNodePath(), 0, request.getFromNodePath().length - 1));
-            }
-            if (request.getToParentPath() != null && request.getToParentPath().length > 0) {
-                toParent = fileSystemUtils.findByPath(treeDto.getRoots(), request.getToParentPath());
-            }
-            Integer toIndex = request.getToIndex() == null ? 0 : request.getToIndex();
-            if (toParent == null) {
-                treeDto.getRoots().add(toIndex, current.y);
-                updateParentId(current.y, "");
-            } else {
-                if (toParent.getChildren() == null) {
-                    toParent.setChildren(new ArrayList<>());
+            FSTreeDto treeDto = fsTreeRepository.updateFSTree(request.getId(), dto -> {
+                Tuple<Integer, FSNodeDto> current =
+                        fileSystemUtils.findByPathWithIndex(dto.getRoots(), request.getFromNodePath());
+                if (current == null) {
+                    return null;
                 }
-                toParent.getChildren().add(toIndex, current.y);
-                updateParentId(current.y, request.getToParentPath()[request.getToParentPath().length - 1]);
-            }
-            if (fromParent == null && toParent == null) {
-                if (request.getToIndex() < current.x) {
-                    treeDto.getRoots().remove(current.x + 1);
+                FSNodeDto fromParent = null;
+                FSNodeDto toParent = null;
+                if (request.getFromNodePath().length > 1) {
+                    fromParent = fileSystemUtils.findByPath(dto.getRoots(),
+                            Arrays.copyOfRange(request.getFromNodePath(), 0, request.getFromNodePath().length - 1));
+                }
+                if (request.getToParentPath() != null && request.getToParentPath().length > 0) {
+                    toParent = fileSystemUtils.findByPath(dto.getRoots(), request.getToParentPath());
+                }
+                Integer toIndex = request.getToIndex() == null ? 0 : request.getToIndex();
+                if (toParent == null) {
+                    dto.getRoots().add(toIndex, current.y);
+                    updateParentId(current.y, "");
                 } else {
-                    treeDto.getRoots().remove(current.x.intValue());
+                    if (toParent.getChildren() == null) {
+                        toParent.setChildren(new ArrayList<>());
+                    }
+                    toParent.getChildren().add(toIndex, current.y);
+                    updateParentId(current.y, request.getToParentPath()[request.getToParentPath().length - 1]);
                 }
-            } else if (fromParent != null && toParent != null
-                    && Objects.equals(fromParent.getInfoId(), toParent.getInfoId())) {
-                if (request.getToIndex() < current.x) {
-                    fromParent.getChildren().remove(current.x + 1);
+                if (fromParent == null && toParent == null) {
+                    if (request.getToIndex() < current.x) {
+                        dto.getRoots().remove(current.x + 1);
+                    } else {
+                        dto.getRoots().remove(current.x.intValue());
+                    }
+                } else if (fromParent != null && toParent != null
+                        && Objects.equals(fromParent.getInfoId(), toParent.getInfoId())) {
+                    if (request.getToIndex() < current.x) {
+                        fromParent.getChildren().remove(current.x + 1);
+                    } else {
+                        fromParent.getChildren().remove(current.x.intValue());
+                    }
                 } else {
-                    fromParent.getChildren().remove(current.x.intValue());
+                    if (fromParent == null) {
+                        dto.getRoots().remove(current.x.intValue());
+                    } else {
+                        fromParent.getChildren().remove(current.x.intValue());
+                    }
                 }
-            } else {
-                if (fromParent == null) {
-                    treeDto.getRoots().remove(current.x.intValue());
-                } else {
-                    fromParent.getChildren().remove(current.x.intValue());
-                }
-            }
-            fsTreeRepository.updateFSTree(treeDto);
-            return true;
+                return dto;
+            });
+            return treeDto != null ? true : false;
         } catch (Exception e) {
             LogUtils.error(LOGGER, "failed to move item", e);
             return false;
@@ -401,12 +414,12 @@ public class FileSystemService {
     }
 
     public Boolean renameWorkspace(FSRenameWorkspaceRequestType request) {
-        FSTreeDto treeDto = new FSTreeDto();
-        treeDto.setId(request.getId());
-        treeDto.setWorkspaceName(request.getWorkspaceName());
         try {
-            fsTreeRepository.updateFSTree(treeDto);
-            return true;
+            FSTreeDto treeDto = fsTreeRepository.updateFSTree(request.getId(), dto -> {
+                dto.setWorkspaceName(request.getWorkspaceName());
+                return dto;
+            });
+            return treeDto != null ? true : false;
         } catch (Exception e) {
             LogUtils.error(LOGGER, "failed to rename workspace", e);
             return false;
@@ -507,29 +520,32 @@ public class FileSystemService {
         return FSFolderMapper.INSTANCE.contractFromDto(dto);
     }
 
-    public FSSaveInterfaceResponseType saveInterface(FSSaveInterfaceRequestType request, String userName) {
-        FSSaveInterfaceResponseType response = new FSSaveInterfaceResponseType();
-        FSInterfaceDto dto = FSInterfaceMapper.INSTANCE.dtoFromContract(request);
+    public boolean saveInterface(FSSaveInterfaceRequestType request, String userName) {
+        FSInterfaceDto interfaceDto = FSInterfaceMapper.INSTANCE.dtoFromContract(request);
         try {
-            dto = fsInterfaceRepository.saveInterface(dto);
-            fsTraceLogUtils.logUpdateItem(userName, dto);
+            interfaceDto = fsInterfaceRepository.saveInterface(interfaceDto);
+            fsTraceLogUtils.logUpdateItem(userName, interfaceDto);
             // update method in workspace tree
-            FSTreeDto workspace = fsTreeRepository.queryFSTreeById(request.getWorkspaceId());
-            if (workspace != null) {
-                FSNodeDto node = fileSystemUtils.deepFindByInfoId(workspace.getRoots(), request.getId());
-                if (node != null) {
-                    if (request.getAddress() != null && !Objects.equals(request.getAddress().getMethod(),
-                            node.getMethod())) {
-                        node.setMethod(request.getAddress().getMethod());
-                        fsTreeRepository.updateFSTree(workspace);
-                    }
+            fsTreeRepository.updateFSTree(request.getWorkspaceId(), dto -> {
+                if (dto == null) {
+                    return null;
                 }
-            }
-            response.setSuccess(true);
+                FSNodeDto node = fileSystemUtils.deepFindByInfoId(dto.getRoots(), request.getId());
+                if (node == null) {
+                    return null;
+                }
+                if (request.getAddress() != null && !Objects.equals(request.getAddress().getMethod(),
+                        node.getMethod())) {
+                    node.setMethod(request.getAddress().getMethod());
+                    return dto;
+                }
+                return null;
+            });
+            return true;
         } catch (Exception e) {
-            response.setSuccess(false);
+            LOGGER.error("Failed to save interface", e);
+            return false;
         }
-        return response;
     }
 
     public FSQueryInterfaceResponseType queryInterface(FSQueryInterfaceRequestType request) {
@@ -540,28 +556,32 @@ public class FileSystemService {
         return FSInterfaceMapper.INSTANCE.contractFromDto(dto);
     }
 
-    public FSSaveCaseResponseType saveCase(FSSaveCaseRequestType request, String userName) {
-        FSSaveCaseResponseType response = new FSSaveCaseResponseType();
-        FSCaseDto dto = FSCaseMapper.INSTANCE.dtoFromContract(request);
+    public boolean saveCase(FSSaveCaseRequestType request, String userName) {
+        FSCaseDto caseDto = FSCaseMapper.INSTANCE.dtoFromContract(request);
         try {
-            dto = fsCaseRepository.saveCase(dto);
-            fsTraceLogUtils.logUpdateItem(userName, dto);
+            caseDto = fsCaseRepository.saveCase(caseDto);
+            fsTraceLogUtils.logUpdateItem(userName, caseDto);
             // update labels in workspace tree
-            FSTreeDto workspace = fsTreeRepository.queryFSTreeById(request.getWorkspaceId());
-            if (workspace != null) {
-                FSNodeDto node = fileSystemUtils.deepFindByInfoId(workspace.getRoots(), request.getId());
-                if (node != null) {
-                    if (!SetUtils.isEqualSet(node.getLabelIds(), request.getLabelIds())) {
-                        node.setLabelIds(request.getLabelIds());
-                        fsTreeRepository.updateFSTree(workspace);
-                    }
+            fsTreeRepository.updateFSTree(request.getWorkspaceId(), dto -> {
+                if (dto == null) {
+                    return null;
                 }
-            }
-            response.setSuccess(true);
+                FSNodeDto node = fileSystemUtils.deepFindByInfoId(dto.getRoots(), request.getId());
+                if (node == null) {
+                    return null;
+                }
+                if (!SetUtils.isEqualSet(node.getLabelIds(), request.getLabelIds())) {
+                    node.setLabelIds(request.getLabelIds());
+                    return dto;
+                }
+                return null;
+            });
+
+            return true;
         } catch (Exception e) {
-            response.setSuccess(false);
+            LOGGER.error("Failed to save case", e);
+            return false;
         }
-        return response;
     }
 
     public FSQueryCaseResponseType queryCase(FSQueryCaseRequestType request) {
@@ -751,18 +771,20 @@ public class FileSystemService {
 
         // update tree
         if (request.getNodeType() == FSInfoItem.CASE) {
-            FSTreeDto workspace = fsTreeRepository.queryFSTreeById(
-                    request.getWorkspaceId()
-            );
-            if (workspace != null) {
+
+            fsTreeRepository.updateFSTree(request.getWorkspaceId(), dto -> {
+                if (dto == null) {
+                    return null;
+                }
                 FSNodeDto node = fileSystemUtils.deepFindByInfoId(
-                        workspace.getRoots(), request.getInfoId()
+                        dto.getRoots(), request.getInfoId()
                 );
                 if (node != null) {
                     node.setCaseSourceType(CaseSourceType.REPLAY_CASE);
-                    fsTreeRepository.updateFSTree(workspace);
+                    return dto;
                 }
-            }
+                return null;
+            });
         }
 
         return true;
@@ -838,9 +860,9 @@ public class FileSystemService {
     }
 
     private Map<Integer, Set<String>> removeItems(FSNodeDto fsNodeDto,
-                                                  String userName,
-                                                  String parentId,
-                                                  String workspaceId) {
+            String userName,
+            String parentId,
+            String workspaceId) {
         if (fsNodeDto == null) {
             return null;
         }
@@ -931,6 +953,7 @@ public class FileSystemService {
     }
 
     private FSTreeDto addWorkspace(String workspaceName, String userName) {
+
         if (StringUtils.isEmpty(userName)) {
             userName = DEFAULT_WORKSPACE_NAME;
         }
