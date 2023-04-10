@@ -4,7 +4,9 @@ import com.arextest.web.common.LogUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
-import org.aspectj.lang.annotation.*;
+import org.aspectj.lang.annotation.Around;
+import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -13,7 +15,6 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.text.MessageFormat;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 
@@ -60,7 +61,7 @@ public class WebLogAspect {
                 MessageFormat.format("{0}.{1}",
                         joinPoint.getSignature().getDeclaringTypeName(),
                         joinPoint.getSignature().getName()));
-        LogUtils.info(LOGGER, sb.toString(), tags);
+        LogUtils.info(LOGGER, tags, sb.toString());
         return result;
     }
 

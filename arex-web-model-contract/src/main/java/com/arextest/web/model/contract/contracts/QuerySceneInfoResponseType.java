@@ -14,14 +14,15 @@ public class QuerySceneInfoResponseType {
 
     @Data
     public static class SceneInfoType {
+        private int count;
         private List<SubSceneInfoType> subScenes;
     }
 
     @Data
     public static class SubSceneInfoType {
+        private int count;
         private String recordId;
         private String replayId;
-
         private List<DiffDetailType> details;
     }
 
