@@ -44,11 +44,9 @@ import com.arextest.web.model.contract.contracts.filesystem.FSRemoveItemRequestT
 import com.arextest.web.model.contract.contracts.filesystem.FSRenameRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.FSRenameWorkspaceRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.FSSaveCaseRequestType;
-import com.arextest.web.model.contract.contracts.filesystem.FSSaveCaseResponseType;
 import com.arextest.web.model.contract.contracts.filesystem.FSSaveFolderRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.FSSaveFolderResponseType;
 import com.arextest.web.model.contract.contracts.filesystem.FSSaveInterfaceRequestType;
-import com.arextest.web.model.contract.contracts.filesystem.FSSaveInterfaceResponseType;
 import com.arextest.web.model.contract.contracts.filesystem.FSTreeType;
 import com.arextest.web.model.contract.contracts.filesystem.InviteToWorkspaceRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.InviteToWorkspaceResponseType;
@@ -730,6 +728,7 @@ public class FileSystemService {
         recordHeader.setKey(AREX_RECORD_ID);
         recordHeader.setValue(newRecordId);
         recordHeader.setActive(true);
+        caseDto.getHeaders().removeIf(item -> Objects.equals(item.getKey(), AREX_RECORD_ID));
         caseDto.getHeaders().add(0, recordHeader);
 
         if (!storageCase.pinnedCase(request.getRecordId(), newRecordId)) {
@@ -860,9 +859,9 @@ public class FileSystemService {
     }
 
     private Map<Integer, Set<String>> removeItems(FSNodeDto fsNodeDto,
-            String userName,
-            String parentId,
-            String workspaceId) {
+                                                  String userName,
+                                                  String parentId,
+                                                  String workspaceId) {
         if (fsNodeDto == null) {
             return null;
         }
