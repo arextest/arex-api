@@ -12,4 +12,5 @@ public class ScriptBlockDao {
     private String icon;
     private String label;
     private String value;
+    private Boolean disabled;
 }

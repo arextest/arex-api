@@ -32,6 +32,7 @@ import com.arextest.web.model.contract.contracts.QueryDifferencesResponseType;
 import com.arextest.web.model.contract.contracts.QueryFullLinkInfoResponseType;
 import com.arextest.web.model.contract.contracts.QueryFullLinkMsgRequestType;
 import com.arextest.web.model.contract.contracts.QueryFullLinkMsgResponseType;
+import com.arextest.web.model.contract.contracts.QueryLogEntityRequestTye;
 import com.arextest.web.model.contract.contracts.QueryMsgSchemaRequestType;
 import com.arextest.web.model.contract.contracts.QueryMsgSchemaResponseType;
 import com.arextest.web.model.contract.contracts.QueryMsgShowByCaseRequestType;
@@ -290,8 +291,16 @@ public class ReportQueryController {
 
     @PostMapping("/queryAllDiffMsg")
     @ResponseBody
-    public Response queryAllDiffMsg(@RequestBody QueryAllDiffMsgRequestType request) {
+    public Response queryAllDiffMsg(@Valid @RequestBody QueryAllDiffMsgRequestType request) {
         QueryAllDiffMsgResponseType response = queryReplayMsgService.queryAllDiffMsg(request);
         return ResponseUtils.successResponse(response);
+    }
+
+    @PostMapping("/queryLogEntity")
+    @ResponseBody
+    public Response queryLogEntity(@Valid @RequestBody QueryLogEntityRequestTye request) {
+        return ResponseUtils.successResponse(
+                queryReplayMsgService.queryLogEntity(request)
+        );
     }
 }

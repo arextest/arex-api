@@ -22,19 +22,19 @@ public class ComparisonSummaryController {
     @Resource
     ComparisonSummaryService comparisonSummaryService;
 
-    @Deprecated
-    @RequestMapping("/queryByInterfaceIdAndOperationId")
-    @ResponseBody
-    public Response queryByInterfaceIdAndOperationId(@RequestParam String interfaceId,
-                                                     @RequestParam(required = false) String operationId) {
-
-        if (StringUtils.isEmpty(interfaceId)) {
-            return InvalidResponse.REQUESTED_INTERFACE_ID_IS_EMPTY;
-        }
-        ComparisonSummaryConfiguration comparisonDetailsSummary =
-                comparisonSummaryService.getComparisonDetailsSummary(interfaceId);
-        return ResponseUtils.successResponse(comparisonDetailsSummary);
-    }
+    // @Deprecated
+    // @RequestMapping("/queryByInterfaceIdAndOperationId")
+    // @ResponseBody
+    // public Response queryByInterfaceIdAndOperationId(@RequestParam String interfaceId,
+    //                                                  @RequestParam(required = false) String operationId) {
+    //
+    //     if (StringUtils.isEmpty(interfaceId)) {
+    //         return InvalidResponse.REQUESTED_INTERFACE_ID_IS_EMPTY;
+    //     }
+    //     ComparisonSummaryConfiguration comparisonDetailsSummary =
+    //             comparisonSummaryService.getComparisonDetailsSummary(interfaceId);
+    //     return ResponseUtils.successResponse(comparisonDetailsSummary);
+    // }
 
     @RequestMapping("/queryByInterfaceId")
     @ResponseBody
