@@ -17,10 +17,11 @@ public class CompareResultDetail {
     private String baseMsg;
     private String testMsg;
 
+    private String exceptionMsg;
+
     @Data
     public static class LogInfo {
 
-        private String logInfo;
         private List<NodeEntity> nodePath;
         @JsonIgnore
         private int unmatchedType;

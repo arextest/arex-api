@@ -183,7 +183,7 @@ public class QueryReplayMsgService {
         QueryDiffMsgByIdResponseType response = new QueryDiffMsgByIdResponseType();
         CompareResultDto compareResultDto = replayCompareResultRepository.queryCompareResultsByObjectId(id);
         CompareResultDetail compareResultDetail = CompareResultMapper.INSTANCE.detailFromDto(compareResultDto);
-        compareResultDetail.setLogInfos(convertToLogInfo(compareResultDto));
+        fillCompareResultDetail(compareResultDto, compareResultDetail);
         response.setCompareResultDetail(compareResultDetail);
         return response;
     }
@@ -202,7 +202,7 @@ public class QueryReplayMsgService {
                 .orElse(Collections.emptyList()).stream()
                 .map(item -> {
                     CompareResultDetail tempCompareResultDetail = CompareResultMapper.INSTANCE.detailFromDto(item);
-                    tempCompareResultDetail.setLogInfos(convertToLogInfo(item));
+                    fillCompareResultDetail(item, tempCompareResultDetail);
                     return tempCompareResultDetail;
                 }).collect(Collectors.toList());
         response.setCompareResultDetailList(details);
@@ -244,10 +244,10 @@ public class QueryReplayMsgService {
         }
     }
 
-    private List<CompareResultDetail.LogInfo> convertToLogInfo(CompareResultDto compareResultDto) {
+    private void fillCompareResultDetail(CompareResultDto compareResultDto, CompareResultDetail compareResultDetail) {
         List<LogEntity> logEntities = compareResultDto.getLogs();
         if (CollectionUtils.isEmpty(logEntities)) {
-            return null;
+            return;
         }
 
         if (compareResultDto.getDiffResultCode() == DiffResultCode.COMPARED_INTERNAL_EXCEPTION) {
@@ -255,30 +255,30 @@ public class QueryReplayMsgService {
             CompareResultDetail.LogInfo logInfo = new CompareResultDetail.LogInfo();
             logInfo.setUnmatchedType(logEntity.getPathPair().getUnmatchedType());
             logInfo.setNodePath(Collections.emptyList());
-            logInfo.setLogInfo(logEntity.getLogInfo());
-            return Arrays.asList(logInfo);
-        }
-
-        HashMap<MutablePair<String, Integer>, CompareResultDetail.LogInfo> logInfoMap = new HashMap<>();
-        int size = logEntities.size();
-        for (int i = 0; i < size; i++) {
-            LogEntity logEntity = logEntities.get(i);
-            UnmatchedPairEntity pathPair = logEntity.getPathPair();
-            int unmatchedType = pathPair.getUnmatchedType();
-            List<NodeEntity> leftUnmatchedPath = pathPair.getLeftUnmatchedPath();
-            List<NodeEntity> rightUnmatchedPath = pathPair.getRightUnmatchedPath();
-            int leftUnmatchedPathSize = leftUnmatchedPath == null ? 0 : leftUnmatchedPath.size();
-            int rightUnmatchedPathSize = rightUnmatchedPath == null ? 0 : rightUnmatchedPath.size();
-            List<NodeEntity> nodePath = leftUnmatchedPathSize >= rightUnmatchedPathSize ? leftUnmatchedPath : rightUnmatchedPath;
-            MutablePair<String, Integer> tempPair = new MutablePair<>(ListUtils.getFuzzyPathStr(nodePath), unmatchedType);
-            if (!logInfoMap.containsKey(tempPair)) {
-                CompareResultDetail.LogInfo logInfo = new CompareResultDetail.LogInfo();
-                logInfo.setUnmatchedType(unmatchedType);
-                logInfo.setNodePath(nodePath);
-                logInfo.setLogIndex(i);
-                logInfoMap.put(tempPair, logInfo);
+            compareResultDetail.setLogInfos(Collections.singletonList(logInfo));
+            compareResultDetail.setExceptionMsg(logEntity.getLogInfo());
+        } else {
+            HashMap<MutablePair<String, Integer>, CompareResultDetail.LogInfo> logInfoMap = new HashMap<>();
+            int size = logEntities.size();
+            for (int i = 0; i < size; i++) {
+                LogEntity logEntity = logEntities.get(i);
+                UnmatchedPairEntity pathPair = logEntity.getPathPair();
+                int unmatchedType = pathPair.getUnmatchedType();
+                List<NodeEntity> leftUnmatchedPath = pathPair.getLeftUnmatchedPath();
+                List<NodeEntity> rightUnmatchedPath = pathPair.getRightUnmatchedPath();
+                int leftUnmatchedPathSize = leftUnmatchedPath == null ? 0 : leftUnmatchedPath.size();
+                int rightUnmatchedPathSize = rightUnmatchedPath == null ? 0 : rightUnmatchedPath.size();
+                List<NodeEntity> nodePath = leftUnmatchedPathSize >= rightUnmatchedPathSize ? leftUnmatchedPath : rightUnmatchedPath;
+                MutablePair<String, Integer> tempPair = new MutablePair<>(ListUtils.getFuzzyPathStr(nodePath), unmatchedType);
+                if (!logInfoMap.containsKey(tempPair)) {
+                    CompareResultDetail.LogInfo logInfo = new CompareResultDetail.LogInfo();
+                    logInfo.setUnmatchedType(unmatchedType);
+                    logInfo.setNodePath(nodePath);
+                    logInfo.setLogIndex(i);
+                    logInfoMap.put(tempPair, logInfo);
+                }
             }
+            compareResultDetail.setLogInfos(new ArrayList<>(logInfoMap.values()));
         }
-        return new ArrayList<>(logInfoMap.values());
     }
 }
