@@ -38,6 +38,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -182,7 +183,7 @@ public class QueryReplayMsgService {
         QueryDiffMsgByIdResponseType response = new QueryDiffMsgByIdResponseType();
         CompareResultDto compareResultDto = replayCompareResultRepository.queryCompareResultsByObjectId(id);
         CompareResultDetail compareResultDetail = CompareResultMapper.INSTANCE.detailFromDto(compareResultDto);
-        compareResultDetail.setLogInfos(convertToLogInfo(compareResultDto.getLogs()));
+        compareResultDetail.setLogInfos(convertToLogInfo(compareResultDto));
         response.setCompareResultDetail(compareResultDetail);
         return response;
     }
@@ -190,8 +191,8 @@ public class QueryReplayMsgService {
     public QueryAllDiffMsgResponseType queryAllDiffMsg(QueryAllDiffMsgRequestType request) {
         QueryAllDiffMsgResponseType response = new QueryAllDiffMsgResponseType();
         Pair<List<CompareResultDto>, Long> listLongPair = replayCompareResultRepository.queryAllDiffMsgByPage(
+                request.getPlanItemId(),
                 request.getRecordId(),
-                request.getReplayId(),
                 request.getDiffResultCodeList(),
                 request.getPageSize(),
                 request.getPageIndex(),
@@ -201,7 +202,7 @@ public class QueryReplayMsgService {
                 .orElse(Collections.emptyList()).stream()
                 .map(item -> {
                     CompareResultDetail tempCompareResultDetail = CompareResultMapper.INSTANCE.detailFromDto(item);
-                    tempCompareResultDetail.setLogInfos(convertToLogInfo(item.getLogs()));
+                    tempCompareResultDetail.setLogInfos(convertToLogInfo(item));
                     return tempCompareResultDetail;
                 }).collect(Collectors.toList());
         response.setCompareResultDetailList(details);
@@ -243,10 +244,21 @@ public class QueryReplayMsgService {
         }
     }
 
-    private List<CompareResultDetail.LogInfo> convertToLogInfo(List<LogEntity> logEntities) {
+    private List<CompareResultDetail.LogInfo> convertToLogInfo(CompareResultDto compareResultDto) {
+        List<LogEntity> logEntities = compareResultDto.getLogs();
         if (CollectionUtils.isEmpty(logEntities)) {
             return null;
         }
+
+        if (compareResultDto.getDiffResultCode() == DiffResultCode.COMPARED_INTERNAL_EXCEPTION) {
+            LogEntity logEntity = logEntities.get(0);
+            CompareResultDetail.LogInfo logInfo = new CompareResultDetail.LogInfo();
+            logInfo.setUnmatchedType(logEntity.getPathPair().getUnmatchedType());
+            logInfo.setNodePath(Collections.emptyList());
+            logInfo.setLogInfo(logEntity.getLogInfo());
+            return Arrays.asList(logInfo);
+        }
+
         HashMap<MutablePair<String, Integer>, CompareResultDetail.LogInfo> logInfoMap = new HashMap<>();
         int size = logEntities.size();
         for (int i = 0; i < size; i++) {

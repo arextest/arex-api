@@ -19,6 +19,8 @@ public class CompareResultDetail {
 
     @Data
     public static class LogInfo {
+
+        private String logInfo;
         private List<NodeEntity> nodePath;
         @JsonIgnore
         private int unmatchedType;

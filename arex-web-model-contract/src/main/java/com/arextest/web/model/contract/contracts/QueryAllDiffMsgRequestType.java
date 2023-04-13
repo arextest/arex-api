@@ -12,10 +12,11 @@ import java.util.List;
 @Data
 public class QueryAllDiffMsgRequestType implements PagingRequest {
 
+    @NotBlank(message = "planItemId cannot be empty")
+    private String planItemId;
+
     @NotBlank(message = "recordId cannot be empty")
     private String recordId;
-    @NotBlank(message = "replayId cannot be empty")
-    private String replayId;
 
     private List<Integer> diffResultCodeList;
 
