@@ -21,7 +21,7 @@ public class CompareResultDetail {
 
     @Data
     public static class LogInfo {
-
+        private int count;
         private List<NodeEntity> nodePath;
         @JsonIgnore
         private int unmatchedType;

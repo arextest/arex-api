@@ -38,7 +38,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -270,13 +269,17 @@ public class QueryReplayMsgService {
                 int rightUnmatchedPathSize = rightUnmatchedPath == null ? 0 : rightUnmatchedPath.size();
                 List<NodeEntity> nodePath = leftUnmatchedPathSize >= rightUnmatchedPathSize ? leftUnmatchedPath : rightUnmatchedPath;
                 MutablePair<String, Integer> tempPair = new MutablePair<>(ListUtils.getFuzzyPathStr(nodePath), unmatchedType);
+                CompareResultDetail.LogInfo logInfo;
                 if (!logInfoMap.containsKey(tempPair)) {
-                    CompareResultDetail.LogInfo logInfo = new CompareResultDetail.LogInfo();
+                    logInfo = new CompareResultDetail.LogInfo();
                     logInfo.setUnmatchedType(unmatchedType);
                     logInfo.setNodePath(nodePath);
                     logInfo.setLogIndex(i);
                     logInfoMap.put(tempPair, logInfo);
+                } else {
+                    logInfo = logInfoMap.get(tempPair);
                 }
+                logInfo.setCount(logInfo.getCount() + 1);
             }
             compareResultDetail.setLogInfos(new ArrayList<>(logInfoMap.values()));
         }
