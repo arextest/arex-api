@@ -139,15 +139,15 @@ public class ReplayCompareResultRepositoryImpl implements ReplayCompareResultRep
     }
 
     @Override
-    public Pair<List<CompareResultDto>, Long> queryAllDiffMsgByPage(String recordId,
-                                                                    String replayId,
+    public Pair<List<CompareResultDto>, Long> queryAllDiffMsgByPage(String planItemId,
+                                                                    String recordId,
                                                                     List<Integer> diffResultCodeList,
                                                                     Integer pageSize,
                                                                     Integer pageIndex,
                                                                     Boolean needTotal) {
         Query query = Query.query(
-                Criteria.where(RECORD_ID).is(recordId)
-                        .and(REPLAY_ID).is(replayId)
+                Criteria.where(PLAN_ITEM_ID).is(planItemId)
+                        .and(RECORD_ID).is(recordId)
         );
 
         if (CollectionUtils.isNotEmpty(diffResultCodeList)) {

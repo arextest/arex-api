@@ -37,18 +37,18 @@ public class ComparisonReferenceController extends AbstractConfigurableControlle
                 this.comparisonReferenceConfigurableHandler.useResultAsList(appId, operationId));
     }
 
-    @Deprecated
-    @RequestMapping("/queryByInterfaceIdAndOperationId")
-    @ResponseBody
-    public final Response queryByInterfaceIdAndOperationId(@RequestParam String interfaceId,
-                                                           @RequestParam(required = false) String operationId) {
-        if (StringUtils.isEmpty(interfaceId)) {
-            return InvalidResponse.REQUESTED_INTERFACE_ID_IS_EMPTY;
-        }
-        return ResponseUtils.successResponse(
-                this.comparisonReferenceConfigurableHandler.queryByOperationIdAndInterfaceId(
-                        interfaceId, operationId));
-    }
+    // @Deprecated
+    // @RequestMapping("/queryByInterfaceIdAndOperationId")
+    // @ResponseBody
+    // public final Response queryByInterfaceIdAndOperationId(@RequestParam String interfaceId,
+    //                                                        @RequestParam(required = false) String operationId) {
+    //     if (StringUtils.isEmpty(interfaceId)) {
+    //         return InvalidResponse.REQUESTED_INTERFACE_ID_IS_EMPTY;
+    //     }
+    //     return ResponseUtils.successResponse(
+    //             this.comparisonReferenceConfigurableHandler.queryByOperationIdAndInterfaceId(
+    //                     interfaceId, operationId));
+    // }
 
 
     @RequestMapping("/queryByInterfaceId")

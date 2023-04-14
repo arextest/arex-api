@@ -1,6 +1,7 @@
 package com.arextest.web.core.business;
 
 import com.arextest.web.common.LogUtils;
+import com.arextest.web.core.business.util.ListUtils;
 import com.arextest.web.core.repository.ReplayCompareResultRepository;
 import com.arextest.web.core.repository.mongo.ApplicationOperationConfigurationRepositoryImpl;
 import com.arextest.web.model.contract.contracts.CompareResultDetail;
@@ -12,16 +13,21 @@ import com.arextest.web.model.contract.contracts.QueryDiffMsgByIdResponseType;
 import com.arextest.web.model.contract.contracts.QueryFullLinkInfoResponseType;
 import com.arextest.web.model.contract.contracts.QueryFullLinkMsgRequestType;
 import com.arextest.web.model.contract.contracts.QueryFullLinkMsgResponseType;
+import com.arextest.web.model.contract.contracts.QueryLogEntityRequestTye;
+import com.arextest.web.model.contract.contracts.QueryLogEntityResponseType;
 import com.arextest.web.model.contract.contracts.QueryReplayMsgRequestType;
 import com.arextest.web.model.contract.contracts.QueryReplayMsgResponseType;
 import com.arextest.web.model.contract.contracts.common.CompareResult;
 import com.arextest.web.model.contract.contracts.common.LogEntity;
+import com.arextest.web.model.contract.contracts.common.NodeEntity;
+import com.arextest.web.model.contract.contracts.common.UnmatchedPairEntity;
 import com.arextest.web.model.contract.contracts.config.application.ApplicationOperationConfiguration;
 import com.arextest.web.model.dto.CompareResultDto;
 import com.arextest.web.model.enums.DiffResultCode;
 import com.arextest.web.model.mapper.CompareResultMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.stereotype.Component;
 
@@ -34,6 +40,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -175,6 +182,7 @@ public class QueryReplayMsgService {
         QueryDiffMsgByIdResponseType response = new QueryDiffMsgByIdResponseType();
         CompareResultDto compareResultDto = replayCompareResultRepository.queryCompareResultsByObjectId(id);
         CompareResultDetail compareResultDetail = CompareResultMapper.INSTANCE.detailFromDto(compareResultDto);
+        fillCompareResultDetail(compareResultDto, compareResultDetail);
         response.setCompareResultDetail(compareResultDetail);
         return response;
     }
@@ -182,8 +190,8 @@ public class QueryReplayMsgService {
     public QueryAllDiffMsgResponseType queryAllDiffMsg(QueryAllDiffMsgRequestType request) {
         QueryAllDiffMsgResponseType response = new QueryAllDiffMsgResponseType();
         Pair<List<CompareResultDto>, Long> listLongPair = replayCompareResultRepository.queryAllDiffMsgByPage(
+                request.getPlanItemId(),
                 request.getRecordId(),
-                request.getReplayId(),
                 request.getDiffResultCodeList(),
                 request.getPageSize(),
                 request.getPageIndex(),
@@ -191,10 +199,22 @@ public class QueryReplayMsgService {
         );
         List<CompareResultDetail> details = Optional.ofNullable(listLongPair.getLeft())
                 .orElse(Collections.emptyList()).stream()
-                .map(CompareResultMapper.INSTANCE::detailFromDto)
-                .collect(Collectors.toList());
+                .map(item -> {
+                    CompareResultDetail tempCompareResultDetail = CompareResultMapper.INSTANCE.detailFromDto(item);
+                    fillCompareResultDetail(item, tempCompareResultDetail);
+                    return tempCompareResultDetail;
+                }).collect(Collectors.toList());
         response.setCompareResultDetailList(details);
         response.setTotalCount(listLongPair.getRight());
+        return response;
+    }
+
+    public QueryLogEntityResponseType queryLogEntity(QueryLogEntityRequestTye request) {
+        QueryLogEntityResponseType response = new QueryLogEntityResponseType();
+        CompareResultDto dto = replayCompareResultRepository.queryCompareResultsByObjectId(request.getCompareResultId());
+        List<LogEntity> logs = dto.getLogs();
+        response.setLogEntity(logs.get(request.getLogIndex()));
+        response.setDiffResultCode(dto.getDiffResultCode());
         return response;
     }
 
@@ -223,4 +243,45 @@ public class QueryReplayMsgService {
         }
     }
 
+    private void fillCompareResultDetail(CompareResultDto compareResultDto, CompareResultDetail compareResultDetail) {
+        List<LogEntity> logEntities = compareResultDto.getLogs();
+        if (CollectionUtils.isEmpty(logEntities)) {
+            return;
+        }
+
+        if (compareResultDto.getDiffResultCode() == DiffResultCode.COMPARED_INTERNAL_EXCEPTION) {
+            LogEntity logEntity = logEntities.get(0);
+            CompareResultDetail.LogInfo logInfo = new CompareResultDetail.LogInfo();
+            logInfo.setUnmatchedType(logEntity.getPathPair().getUnmatchedType());
+            logInfo.setNodePath(Collections.emptyList());
+            compareResultDetail.setLogInfos(Collections.singletonList(logInfo));
+            compareResultDetail.setExceptionMsg(logEntity.getLogInfo());
+        } else {
+            HashMap<MutablePair<String, Integer>, CompareResultDetail.LogInfo> logInfoMap = new HashMap<>();
+            int size = logEntities.size();
+            for (int i = 0; i < size; i++) {
+                LogEntity logEntity = logEntities.get(i);
+                UnmatchedPairEntity pathPair = logEntity.getPathPair();
+                int unmatchedType = pathPair.getUnmatchedType();
+                List<NodeEntity> leftUnmatchedPath = pathPair.getLeftUnmatchedPath();
+                List<NodeEntity> rightUnmatchedPath = pathPair.getRightUnmatchedPath();
+                int leftUnmatchedPathSize = leftUnmatchedPath == null ? 0 : leftUnmatchedPath.size();
+                int rightUnmatchedPathSize = rightUnmatchedPath == null ? 0 : rightUnmatchedPath.size();
+                List<NodeEntity> nodePath = leftUnmatchedPathSize >= rightUnmatchedPathSize ? leftUnmatchedPath : rightUnmatchedPath;
+                MutablePair<String, Integer> tempPair = new MutablePair<>(ListUtils.getFuzzyPathStr(nodePath), unmatchedType);
+                CompareResultDetail.LogInfo logInfo;
+                if (!logInfoMap.containsKey(tempPair)) {
+                    logInfo = new CompareResultDetail.LogInfo();
+                    logInfo.setUnmatchedType(unmatchedType);
+                    logInfo.setNodePath(nodePath);
+                    logInfo.setLogIndex(i);
+                    logInfoMap.put(tempPair, logInfo);
+                } else {
+                    logInfo = logInfoMap.get(tempPair);
+                }
+                logInfo.setCount(logInfo.getCount() + 1);
+            }
+            compareResultDetail.setLogInfos(new ArrayList<>(logInfoMap.values()));
+        }
+    }
 }

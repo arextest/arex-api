@@ -1,6 +1,8 @@
 package com.arextest.web.core.business;
 
+import com.arextest.diff.utils.ListUti;
 import com.arextest.web.common.LogUtils;
+import com.arextest.web.core.business.util.ListUtils;
 import com.arextest.web.core.repository.ReportDiffAggStatisticRepository;
 import com.arextest.web.model.contract.contracts.common.LogEntity;
 import com.arextest.web.model.contract.contracts.common.LogTag;
@@ -127,7 +129,7 @@ public class SceneService {
                         continue;
                     }
                     String pathStr = getPathStr(pathNodeNamePair.getLeft());
-                    String fuzzyPathStr = getFuzzyPathStr(pathNodeNamePair.getLeft());
+                    String fuzzyPathStr = ListUtils.getFuzzyPathStr(pathNodeNamePair.getLeft());
                     if (!caseMap.containsKey(fuzzyPathStr)) {
                         caseMap.put(fuzzyPathStr, new HashMap<>());
                     }
@@ -286,24 +288,7 @@ public class SceneService {
         return sb.toString();
     }
 
-    /**
-     * calculate path without index for array
-     */
-    private String getFuzzyPathStr(List<NodeEntity> path) {
-        if (path == null || path.size() == 0) {
-            return StringUtils.EMPTY;
-        }
-        StringBuilder sb = new StringBuilder(path.size() * 10);
-        for (NodeEntity p : path) {
-            if (!StringUtils.isEmpty(p.getNodeName())) {
-                if (sb.length() != 0) {
-                    sb.append("\\");
-                }
-                sb.append(p.getNodeName());
-            }
-        }
-        return sb.toString();
-    }
+
 
     /**
      * calculate path with index for array

@@ -1,6 +1,7 @@
 package com.arextest.web.model.contract.contracts;
 
-import com.arextest.web.model.contract.contracts.common.LogEntity;
+import com.arextest.web.model.contract.contracts.common.NodeEntity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
 import java.util.List;
@@ -12,7 +13,18 @@ public class CompareResultDetail {
     private String operationName;
     private int diffResultCode;
 
-    private List<LogEntity> logs;
+    private List<LogInfo> logInfos;
     private String baseMsg;
     private String testMsg;
+
+    private String exceptionMsg;
+
+    @Data
+    public static class LogInfo {
+        private int count;
+        private List<NodeEntity> nodePath;
+        @JsonIgnore
+        private int unmatchedType;
+        private int logIndex;
+    }
 }
