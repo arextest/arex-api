@@ -94,7 +94,7 @@ public class ComparisonInclusionsConfigurationRepositoryImpl implements
         ConfigComparisonInclusionsCollection configComparisonInclusionsCollection =
                 ConfigComparisonInclusionsMapper.INSTANCE.daoFromDto(configuration);
 
-        Update update = MongoHelper.getUpdate();
+        Update update = new Update();
         MongoHelper.appendFullProperties(update, configComparisonInclusionsCollection);
 
         Query query = Query.query(

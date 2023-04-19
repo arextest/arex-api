@@ -98,7 +98,7 @@ public class ComparisonReferenceConfigurationRepositoryImpl implements
         ConfigComparisonReferenceCollection configComparisonReferenceCollection =
                 ConfigComparisonReferenceMapper.INSTANCE.daoFromDto(configuration);
 
-        Update update = MongoHelper.getUpdate();
+        Update update = new Update();
         MongoHelper.appendFullProperties(update, configComparisonReferenceCollection);
 
         Query query = Query.query(

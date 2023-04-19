@@ -105,7 +105,7 @@ public class ComparisonExclusionsConfigurationRepositoryImpl implements
         ConfigComparisonExclusionsCollection configComparisonExclusionsCollection =
                 ConfigComparisonExclusionsMapper.INSTANCE.daoFromDto(configuration);
 
-        Update update = MongoHelper.getUpdate();
+        Update update = new Update();
         MongoHelper.appendFullProperties(update, configComparisonExclusionsCollection);
 
         Query query = Query.query(

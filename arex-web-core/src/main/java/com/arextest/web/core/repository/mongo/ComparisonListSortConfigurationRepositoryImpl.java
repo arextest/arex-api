@@ -97,7 +97,7 @@ public class ComparisonListSortConfigurationRepositoryImpl implements
         ConfigComparisonListSortCollection configComparisonListSortCollection =
                 ConfigComparisonListSortMapper.INSTANCE.daoFromDto(configuration);
 
-        Update update = MongoHelper.getUpdate();
+        Update update = new Update();
         MongoHelper.appendFullProperties(update, configComparisonListSortCollection);
 
         Query query = Query.query(
