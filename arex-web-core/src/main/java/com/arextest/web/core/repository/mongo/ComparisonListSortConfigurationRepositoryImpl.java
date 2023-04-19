@@ -4,15 +4,14 @@ import com.arextest.web.core.repository.ConfigRepositoryField;
 import com.arextest.web.core.repository.ConfigRepositoryProvider;
 import com.arextest.web.core.repository.mongo.util.MongoHelper;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonListSortConfiguration;
-import com.arextest.web.model.dao.mongodb.ConfigComparisonInclusionsCollection;
 import com.arextest.web.model.dao.mongodb.ConfigComparisonListSortCollection;
-import com.arextest.web.model.mapper.ConfigComparisonInclusionsMapper;
 import com.arextest.web.model.mapper.ConfigComparisonListSortMapper;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -40,7 +39,6 @@ public class ComparisonListSortConfigurationRepositoryImpl implements
     private static final String FS_INTERFACE_ID = "fsInterfaceId";
 
 
-
     @Autowired
     MongoTemplate mongoTemplate;
 
@@ -64,7 +62,7 @@ public class ComparisonListSortConfigurationRepositoryImpl implements
 
     @Override
     public List<ComparisonListSortConfiguration> queryByInterfaceIdAndOperationId(String interfaceId,
-            String operationId) {
+                                                                                  String operationId) {
         Query query = new Query();
         if (StringUtils.isNotBlank(operationId)) {
             query.addCriteria(new Criteria().orOperator(Criteria.where(FS_INTERFACE_ID).is(interfaceId),
@@ -96,12 +94,26 @@ public class ComparisonListSortConfigurationRepositoryImpl implements
 
     @Override
     public boolean insert(ComparisonListSortConfiguration configuration) {
-        ConfigComparisonListSortCollection configComparisonListSortCollection = ConfigComparisonListSortMapper.INSTANCE.daoFromDto(configuration);
-        ConfigComparisonListSortCollection insert = mongoTemplate.insert(configComparisonListSortCollection);
-        if (insert.getId() != null) {
-            configuration.setId(insert.getId());
-        }
-        return insert.getId() != null;
+        ConfigComparisonListSortCollection configComparisonListSortCollection =
+                ConfigComparisonListSortMapper.INSTANCE.daoFromDto(configuration);
+
+        Update update = MongoHelper.getUpdate();
+        MongoHelper.appendFullProperties(update, configComparisonListSortCollection);
+
+        Query query = Query.query(
+                Criteria.where(APP_ID).is(configComparisonListSortCollection.getAppId())
+                        .and(OPERATION_ID).is(configComparisonListSortCollection.getOperationId())
+                        .and(EXPIRATION_TYPE).is(configComparisonListSortCollection.getExpirationType())
+                        .and(FS_INTERFACE_ID).is(configComparisonListSortCollection.getFsInterfaceId())
+                        .and(LIST_PATH).is(configComparisonListSortCollection.getListPath())
+                        .and(KEYS).is(configComparisonListSortCollection.getKeys())
+        );
+
+        ComparisonListSortConfiguration dao = mongoTemplate.findAndModify(query,
+                update,
+                FindAndModifyOptions.options().returnNew(true).upsert(true),
+                ComparisonListSortConfiguration.class);
+        return dao != null;
     }
 
     @Override

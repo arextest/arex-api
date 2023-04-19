@@ -37,19 +37,6 @@ public class ComparisonExclusionsController extends AbstractConfigurableControll
                 this.comparisonExclusionsConfigurableHandler.useResultAsList(appId, operationId));
     }
 
-    // @Deprecated
-    // @RequestMapping("/queryByInterfaceIdAndOperationId")
-    // @ResponseBody
-    // public final Response queryByInterfaceIdAndOperationId(@RequestParam String interfaceId,
-    //                                                        @RequestParam(required = false) String operationId) {
-    //     if (StringUtils.isEmpty(interfaceId)) {
-    //         return InvalidResponse.REQUESTED_INTERFACE_ID_IS_EMPTY;
-    //     }
-    //     return ResponseUtils.successResponse(
-    //             this.comparisonExclusionsConfigurableHandler.queryByOperationIdAndInterfaceId(
-    //                     interfaceId, operationId));
-    // }
-
     @RequestMapping("/queryByInterfaceId")
     @ResponseBody
     public final Response queryByInterfaceId(@RequestParam String interfaceId) {

@@ -12,6 +12,7 @@ import com.mongodb.client.result.UpdateResult;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -68,7 +69,7 @@ public class ComparisonExclusionsConfigurationRepositoryImpl implements
 
     @Override
     public List<ComparisonExclusionsConfiguration> queryByInterfaceIdAndOperationId(String interfaceId,
-            String operationId) {
+                                                                                    String operationId) {
         Query query = new Query();
         if (StringUtils.isNotBlank(operationId)) {
             query.addCriteria(new Criteria().orOperator(Criteria.where(FS_INTERFACE_ID).is(interfaceId),
@@ -103,11 +104,23 @@ public class ComparisonExclusionsConfigurationRepositoryImpl implements
     public boolean insert(ComparisonExclusionsConfiguration configuration) {
         ConfigComparisonExclusionsCollection configComparisonExclusionsCollection =
                 ConfigComparisonExclusionsMapper.INSTANCE.daoFromDto(configuration);
-        ConfigComparisonExclusionsCollection insert = mongoTemplate.insert(configComparisonExclusionsCollection);
-        if (insert.getId() != null) {
-            configuration.setId(insert.getId());
-        }
-        return insert.getId() != null;
+
+        Update update = MongoHelper.getUpdate();
+        MongoHelper.appendFullProperties(update, configComparisonExclusionsCollection);
+
+        Query query = Query.query(
+                Criteria.where(APP_ID).is(configComparisonExclusionsCollection.getAppId())
+                        .and(OPERATION_ID).is(configComparisonExclusionsCollection.getOperationId())
+                        .and(EXPIRATION_TYPE).is(configComparisonExclusionsCollection.getExpirationType())
+                        .and(FS_INTERFACE_ID).is(configComparisonExclusionsCollection.getFsInterfaceId())
+                        .and(EXCLUSIONS).is(configComparisonExclusionsCollection.getExclusions())
+        );
+
+        ConfigComparisonExclusionsCollection dao = mongoTemplate.findAndModify(query,
+                update,
+                FindAndModifyOptions.options().returnNew(true).upsert(true),
+                ConfigComparisonExclusionsCollection.class);
+        return dao != null;
     }
 
     @Override
