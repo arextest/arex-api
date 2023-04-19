@@ -55,8 +55,8 @@ public abstract class AbstractConfigurableController<T extends AbstractConfigura
     @PostMapping("/modify/{modifyType}")
     @ResponseBody
     public Response modify(@PathVariable ModifyType modifyType, @RequestBody T configuration) throws Exception {
-        configuration.validParameters();
         if (modifyType == ModifyType.INSERT) {
+            configuration.validParameters();
             return ResponseUtils.successResponse(this.configurableHandler.insert(configuration));
         }
         if (modifyType == ModifyType.UPDATE) {
