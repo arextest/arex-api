@@ -38,6 +38,7 @@ public class ComparisonReferenceConfigurationRepositoryImpl implements
     private static final String EXPIRATION_TYPE = "expirationType";
     private static final String EXPIRATION_DATE = "expirationDate";
     private static final String FS_INTERFACE_ID = "fsInterfaceId";
+    private static final String COMPARE_CONFIG_TYPE = "compareConfigType";
 
 
     @Autowired
@@ -104,16 +105,16 @@ public class ComparisonReferenceConfigurationRepositoryImpl implements
         Query query = Query.query(
                 Criteria.where(APP_ID).is(configComparisonReferenceCollection.getAppId())
                         .and(OPERATION_ID).is(configComparisonReferenceCollection.getOperationId())
-                        .and(EXPIRATION_TYPE).is(configComparisonReferenceCollection.getExpirationType())
+                        .and(COMPARE_CONFIG_TYPE).is(configComparisonReferenceCollection.getCompareConfigType())
                         .and(FS_INTERFACE_ID).is(configComparisonReferenceCollection.getFsInterfaceId())
                         .and(PK_PATH).is(configComparisonReferenceCollection.getPkPath())
                         .and(FK_PATH).is(configComparisonReferenceCollection.getFkPath())
         );
 
-        ComparisonReferenceConfiguration dao = mongoTemplate.findAndModify(query,
+        ConfigComparisonReferenceCollection dao = mongoTemplate.findAndModify(query,
                 update,
                 FindAndModifyOptions.options().returnNew(true).upsert(true),
-                ComparisonReferenceConfiguration.class);
+                ConfigComparisonReferenceCollection.class);
         return dao != null;
     }
 

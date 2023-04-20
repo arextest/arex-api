@@ -37,6 +37,7 @@ public class ComparisonExclusionsConfigurationRepositoryImpl implements
     private static final String EXPIRATION_TYPE = "expirationType";
     private static final String EXPIRATION_DATE = "expirationDate";
     private static final String FS_INTERFACE_ID = "fsInterfaceId";
+    private static final String COMPARE_CONFIG_TYPE = "compareConfigType";
 
 
     @Autowired
@@ -111,7 +112,7 @@ public class ComparisonExclusionsConfigurationRepositoryImpl implements
         Query query = Query.query(
                 Criteria.where(APP_ID).is(configComparisonExclusionsCollection.getAppId())
                         .and(OPERATION_ID).is(configComparisonExclusionsCollection.getOperationId())
-                        .and(EXPIRATION_TYPE).is(configComparisonExclusionsCollection.getExpirationType())
+                        .and(COMPARE_CONFIG_TYPE).is(configComparisonExclusionsCollection.getCompareConfigType())
                         .and(FS_INTERFACE_ID).is(configComparisonExclusionsCollection.getFsInterfaceId())
                         .and(EXCLUSIONS).is(configComparisonExclusionsCollection.getExclusions())
         );
