@@ -14,4 +14,9 @@ import java.sql.Timestamp;
 public abstract class AbstractConfiguration {
     private Integer status;
     private Timestamp modifiedTime;
+
+
+    public void validParameters() throws Exception {
+
+    }
 }
