@@ -106,7 +106,6 @@ public class ComparisonListSortConfigurationRepositoryImpl implements
                         .and(EXPIRATION_TYPE).is(configComparisonListSortCollection.getExpirationType())
                         .and(FS_INTERFACE_ID).is(configComparisonListSortCollection.getFsInterfaceId())
                         .and(LIST_PATH).is(configComparisonListSortCollection.getListPath())
-                        .and(KEYS).is(configComparisonListSortCollection.getKeys())
         );
 
         ComparisonListSortConfiguration dao = mongoTemplate.findAndModify(query,
