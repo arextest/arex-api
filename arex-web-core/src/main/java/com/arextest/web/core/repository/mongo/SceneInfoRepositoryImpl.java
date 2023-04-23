@@ -44,7 +44,9 @@ public class SceneInfoRepositoryImpl implements SceneInfoRepository {
     public List<SceneInfo> querySceneInfo(String planId, String planItemId) {
         Query query = Query.query(Criteria.where(PLAN_ID).is(planId)
                 .and(PLAN_ITEM_ID).is(planItemId)
-                .and(CODE).ne(0));
+                // .and(CODE).ne(0)
+                .and(CODE).nin(-1, 0)
+        );
         List<SceneInfoCollection> sceneInfoCollections =
                 mongoTemplate.find(query, SceneInfoCollection.class);
         return sceneInfoCollections.stream()

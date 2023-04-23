@@ -48,7 +48,7 @@ public class SchemaInferService {
         QueryMsgSchemaResponseType response = new QueryMsgSchemaResponseType();
         String msg = null;
         if (request.getId() != null) {
-            CompareResultDto dto = repository.queryCompareResultsByObjectId(request.getId());
+            CompareResultDto dto = repository.queryCompareResultsById(request.getId());
             msg = request.isUseTestMsg() ? dto.getTestMsg() : dto.getBaseMsg();
         } else {
             msg = request.getMsg();

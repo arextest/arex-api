@@ -20,8 +20,6 @@ import com.arextest.web.model.contract.contracts.ChangeReplayStatusResponseType;
 import com.arextest.web.model.contract.contracts.DownloadReplayMsgRequestType;
 import com.arextest.web.model.contract.contracts.PushCompareResultsRequestType;
 import com.arextest.web.model.contract.contracts.PushCompareResultsResponseType;
-import com.arextest.web.model.contract.contracts.QueryAllDiffMsgRequestType;
-import com.arextest.web.model.contract.contracts.QueryAllDiffMsgResponseType;
 import com.arextest.web.model.contract.contracts.QueryCategoryStatisticRequestType;
 import com.arextest.web.model.contract.contracts.QueryCategoryStatisticResponseType;
 import com.arextest.web.model.contract.contracts.QueryDiffAggInfoRequestType;
@@ -274,11 +272,11 @@ public class ReportQueryController {
     }
 
 
-    @GetMapping("/queryFullLinkInfo/{recordId}/{replayId}")
+    @GetMapping("/queryFullLinkInfo/{planItemId}/{recordId}")
     @ResponseBody
-    public Response queryFullLinkInfo(@PathVariable String recordId, @PathVariable String replayId) {
+    public Response queryFullLinkInfo(@PathVariable String planItemId, @PathVariable String recordId) {
         QueryFullLinkInfoResponseType response =
-                queryReplayMsgService.queryFullLinkInfo(recordId, replayId);
+                queryReplayMsgService.queryFullLinkInfo(planItemId, recordId);
         return ResponseUtils.successResponse(response);
     }
 
@@ -289,12 +287,12 @@ public class ReportQueryController {
         return ResponseUtils.successResponse(response);
     }
 
-    @PostMapping("/queryAllDiffMsg")
-    @ResponseBody
-    public Response queryAllDiffMsg(@Valid @RequestBody QueryAllDiffMsgRequestType request) {
-        QueryAllDiffMsgResponseType response = queryReplayMsgService.queryAllDiffMsg(request);
-        return ResponseUtils.successResponse(response);
-    }
+    // @PostMapping("/queryAllDiffMsg")
+    // @ResponseBody
+    // public Response queryAllDiffMsg(@Valid @RequestBody QueryAllDiffMsgRequestType request) {
+    //     QueryAllDiffMsgResponseType response = queryReplayMsgService.queryAllDiffMsg(request);
+    //     return ResponseUtils.successResponse(response);
+    // }
 
     @PostMapping("/queryLogEntity")
     @ResponseBody

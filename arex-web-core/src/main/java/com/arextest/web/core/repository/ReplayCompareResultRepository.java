@@ -22,11 +22,11 @@ public interface ReplayCompareResultRepository extends RepositoryProvider {
                                                              List<Integer> diffResultCodeList,
                                                              Integer pageSize, Integer pageIndex, Boolean needTotal);
 
-    CompareResultDto queryCompareResultsByObjectId(String objectId);
+    CompareResultDto queryCompareResultsById(String objectId);
 
     List<CompareResultDto> queryCompareResultsByRecordId(String planItemId, String recordId);
 
-    List<CompareResultDto> queryCompareResultsByRecordIdAndReplayId(String recordId, String replayId);
+    // List<CompareResultDto> queryCompareResultsByPlanItemIdAndRecordId(String planItemId, String recordId);
 
     boolean deleteCompareResultsByPlanId(String planId);
 

@@ -10,7 +10,4 @@ public class DiffResultCode {
 
     
     public static final int COMPARED_INTERNAL_EXCEPTION = 2;
-
-    
-    public static final int SEND_FAILED_NOT_COMPARE = 3;
 }
