@@ -16,10 +16,12 @@ import com.arextest.web.model.enums.DiffResultCode;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.util.Strings;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StopWatch;
 
@@ -29,6 +31,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 @Component
@@ -40,6 +44,9 @@ public class SceneService {
 
     @Resource
     private ReportDiffAggStatisticRepository reportDiffAggStatisticRepository;
+
+    @Resource(name = "report-scene-executor")
+    private ThreadPoolTaskExecutor executor;
 
 
     /**
@@ -155,7 +162,8 @@ public class SceneService {
              */
         }
 
-        synchronized (result) {
+        synchronized (SceneService.class) {
+            long currentTimestamp = System.currentTimeMillis();
             DiffAggKey key = new DiffAggKey(compareResultDto.getPlanItemId(),
                     compareResultDto.getCategoryName(),
                     compareResultDto.getOperationName());
@@ -172,6 +180,7 @@ public class SceneService {
                 diffAggDto.setDiffCaseCounts(new HashMap<>());
                 result.put(key, diffAggDto);
             }
+
             DiffAggDto diffAggDto = result.get(key);
 
             for (Map.Entry<String, Map<String, List<Pair<Integer, String>>>> caseEntry : caseMap.entrySet()) {
@@ -204,6 +213,7 @@ public class SceneService {
                     detailDto.setSceneCount(detailDto.getSceneCount() + 1);
                 }
             }
+            LogUtils.info(LOGGER, "lock aggregating scenes cost time: {} ms", System.currentTimeMillis() - currentTimestamp);
         }
     }
 
@@ -238,22 +248,35 @@ public class SceneService {
         if (result == null) {
             return;
         }
-        synchronized (result) {
-            if (result.size() == 0) {
+
+        Map<DiffAggKey, DiffAggDto> tmp = null;
+        synchronized (SceneService.class) {
+            long currentTimestamp = System.currentTimeMillis();
+            if (MapUtils.isEmpty(result)) {
                 return;
             }
-
-            StopWatch sw = new StopWatch();
-            sw.start("scene items");
-
-            for (Map.Entry<DiffAggKey, DiffAggDto> diffScene : result.entrySet()) {
-                reportDiffAggStatisticRepository.updateDiffScenes(diffScene.getValue());
-            }
-            result.clear();
-
-            sw.stop();
-            LogUtils.info(LOGGER, sw.toString());
+            tmp = result;
+            result = new HashMap<>();
+            LogUtils.info(LOGGER, "lock reporting diff scene cost time: {} ms", System.currentTimeMillis() - currentTimestamp);
         }
+
+        CompletableFuture.completedFuture(tmp).thenApplyAsync(t -> {
+            try {
+                StopWatch sw = new StopWatch();
+                sw.start("scene items");
+
+                for (Map.Entry<DiffAggKey, DiffAggDto> diffScene : t.entrySet()) {
+                    reportDiffAggStatisticRepository.updateDiffScenes(diffScene.getValue());
+                }
+                t.clear();
+
+                sw.stop();
+                LogUtils.info(LOGGER, sw.toString());
+            } catch (Exception e) {
+                LOGGER.error("report diff scene error", e);
+            }
+            return null;
+        }, executor);
     }
 
     private String getLogEntityIndexes(List<Pair<Integer, String>> scenePart) {
