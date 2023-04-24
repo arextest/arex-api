@@ -56,48 +56,23 @@ public class SecneServiceTest {
     public void testReport() throws Exception {
         for (int i = 0; i < 5; i++) {
             CountDownLatch latch = new CountDownLatch(1);
-            Thread t1 = new Thread(() -> {
-                try {
-                    latch.await();
-                    push100CompareResults();
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-            });
-            Thread t2 = new Thread(() -> {
-                try {
-                    latch.await();
-                    push100CompareResults();
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-            });
-            Thread t3 = new Thread(() -> {
-                try {
-                    latch.await();
-                    push100CompareResults();
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-            });
-            Thread t4 = new Thread(() -> {
-                try {
-                    latch.await();
-                    push100CompareResults();
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-            });
-            t1.start();
-            t2.start();
-            t3.start();
-            t4.start();
+            Thread[] threads = new Thread[4];
+            for (int j = 0; j < 4; j++) {
+                threads[j] = new Thread(() -> {
+                    try {
+                        latch.await();
+                        push100CompareResults();
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                });
+                threads[j].start();
+            }
 
             latch.countDown();
             Thread.sleep(6000);
         }
 
-        Thread.sleep(5000);
         List<DifferenceDto> differenceDtos = repository.queryDifferences("planItemId", "categoryName", "operationName");
         Assert.assertNotNull(differenceDtos);
         Assert.assertEquals(1, differenceDtos.size());

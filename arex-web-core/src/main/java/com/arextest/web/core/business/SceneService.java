@@ -81,7 +81,7 @@ public class SceneService {
     }
 
 
-    private static Map<DiffAggKey, DiffAggDto> result = new HashMap<>();
+    private static volatile Map<DiffAggKey, DiffAggDto> result = new HashMap<>();
 
     /**
      * calculate multi compareResults
@@ -163,7 +163,6 @@ public class SceneService {
         }
 
         synchronized (SceneService.class) {
-            long currentTimestamp = System.currentTimeMillis();
             DiffAggKey key = new DiffAggKey(compareResultDto.getPlanItemId(),
                     compareResultDto.getCategoryName(),
                     compareResultDto.getOperationName());
@@ -213,7 +212,6 @@ public class SceneService {
                     detailDto.setSceneCount(detailDto.getSceneCount() + 1);
                 }
             }
-            LogUtils.info(LOGGER, "lock aggregating scenes cost time: {} ms", System.currentTimeMillis() - currentTimestamp);
         }
     }
 
@@ -245,9 +243,6 @@ public class SceneService {
      * Enter the calculated scene information into the database by means of a job
      */
     public void report() {
-        if (result == null) {
-            return;
-        }
 
         Map<DiffAggKey, DiffAggDto> tmp = null;
         synchronized (SceneService.class) {
@@ -257,10 +252,15 @@ public class SceneService {
             }
             tmp = result;
             result = new HashMap<>();
-            LogUtils.info(LOGGER, "lock reporting diff scene cost time: {} ms", System.currentTimeMillis() - currentTimestamp);
+            LogUtils.info(LOGGER,
+                    "lock reporting diff scene cost time: {} ms",
+                    System.currentTimeMillis() - currentTimestamp);
         }
 
         CompletableFuture.completedFuture(tmp).thenApplyAsync(t -> {
+            if (MapUtils.isEmpty(t)) {
+                return null;
+            }
             try {
                 StopWatch sw = new StopWatch();
                 sw.start("scene items");
@@ -272,7 +272,7 @@ public class SceneService {
 
                 sw.stop();
                 LogUtils.info(LOGGER, sw.toString());
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 LOGGER.error("report diff scene error", e);
             }
             return null;
