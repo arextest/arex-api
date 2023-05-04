@@ -12,6 +12,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpMethod;
 
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -29,6 +30,9 @@ public class ServletMockerConversionImpl implements MockerConversion {
     private static final String REQUEST_PATH = "RequestPath";
     private static final String PREFIX_URL = "http://{{}}";
     private static final String SERVLET = "Servlet";
+    private static final String CONTENT_TYPE = "content-type";
+
+    private static final String APPLICATION_JSON = "application/json";
 
     @Override
     public String getCategoryName() {
@@ -54,10 +58,15 @@ public class ServletMockerConversionImpl implements MockerConversion {
             addressDto.setEndpoint(PREFIX_URL + targetRequest.getAttribute(REQUEST_PATH).toString());
             caseDto.setAddress(addressDto);
 
+            String contentType = StringUtils.EMPTY;
+
             Map<String, String> headers = (Map<String, String>) targetRequest.getAttribute("Headers");
             if (headers != null) {
                 List<KeyValuePairDto> kvPair = new ArrayList<>(headers.size());
                 for (Map.Entry<String, String> header : headers.entrySet()) {
+                    if (StringUtils.equalsIgnoreCase(header.getKey(), CONTENT_TYPE)) {
+                        contentType = header.getValue();
+                    }
                     KeyValuePairDto kv = new KeyValuePairDto();
                     kv.setKey(header.getKey());
                     kv.setValue(header.getValue());
@@ -85,7 +94,16 @@ public class ServletMockerConversionImpl implements MockerConversion {
                     caseDto.setParams(paramKvPair);
                 } else {
                     BodyDto bodyDto = new BodyDto();
-                    bodyDto.setBody(targetRequest.getBody());
+                    bodyDto.setContentType(contentType);
+                    if (StringUtils.equalsIgnoreCase(contentType, APPLICATION_JSON)) {
+                        try {
+                            bodyDto.setBody(new String(Base64.getDecoder().decode(targetRequest.getBody())));
+                        } catch (Exception e) {
+                            bodyDto.setBody(targetRequest.getBody());
+                        }
+                    } else {
+                        bodyDto.setBody(targetRequest.getBody());
+                    }
                     caseDto.setBody(bodyDto);
                 }
             }
