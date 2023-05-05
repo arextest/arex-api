@@ -53,7 +53,7 @@ public class MsgShowService {
 
     public QueryMsgWithDiffResponseType queryMsgWithDiff(QueryMsgWithDiffRequestType request) throws JSONException {
         QueryMsgWithDiffResponseType response = new QueryMsgWithDiffResponseType();
-        CompareResultDto compareResultDto = replayCompareResultRepository.queryCompareResultsByObjectId(request.getCompareResultId());
+        CompareResultDto compareResultDto = replayCompareResultRepository.queryCompareResultsById(request.getCompareResultId());
         if (compareResultDto == null) {
             return response;
         }

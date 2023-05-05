@@ -1,8 +1,12 @@
 package com.arextest.web.model.dto.iosummary;
 
+import com.arextest.web.model.contract.contracts.common.LogEntity;
+import com.arextest.web.model.dto.CompareResultDto;
+import com.arextest.web.model.enums.DiffResultCode;
 import lombok.Getter;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -36,6 +40,29 @@ public enum UnmatchedCategory {
             mapResult.put(keySelector.apply(category), category);
         }
         return mapResult;
+    }
+
+    public static UnmatchedCategory computeCategory(CompareResultDto compareResult) {
+        switch (compareResult.getDiffResultCode()) {
+            case DiffResultCode.COMPARED_WITHOUT_DIFFERENCE:
+                return UnmatchedCategory.MATCHED;
+            case DiffResultCode.COMPARED_INTERNAL_EXCEPTION:
+                return UnmatchedCategory.UNKNOWN;
+            default: {
+                List<LogEntity> entities = compareResult.getLogs();
+                if (entities == null || entities.size() == 0) {
+                    return UnmatchedCategory.UNKNOWN;
+                } else if (entities.size() > 1) {
+                    return UnmatchedCategory.VALUE_DIFF;
+                }
+                if (compareResult.getBaseMsg() == null) {
+                    return UnmatchedCategory.LEFT_MISSING;
+                } else if (compareResult.getTestMsg() == null) {
+                    return UnmatchedCategory.RIGHT_MISSING;
+                }
+                return UnmatchedCategory.VALUE_DIFF;
+            }
+        }
     }
 
 }
