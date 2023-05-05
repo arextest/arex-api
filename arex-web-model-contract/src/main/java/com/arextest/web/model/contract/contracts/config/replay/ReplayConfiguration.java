@@ -8,11 +8,6 @@ import java.util.List;
 public class ReplayConfiguration {
 
     /**
-     * @see ScheduleConfiguration
-     */
-    ScheduleConfiguration scheduleConfiguration;
-
-    /**
      * comparison configuration
      */
     List<ReplayComparisonConfig> replayComparisonConfigs;
