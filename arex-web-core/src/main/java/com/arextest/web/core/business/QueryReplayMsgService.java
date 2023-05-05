@@ -184,29 +184,6 @@ public class QueryReplayMsgService {
         return response;
     }
 
-    // public QueryAllDiffMsgResponseType queryAllDiffMsg(QueryAllDiffMsgRequestType request) {
-    //     QueryAllDiffMsgResponseType response = new QueryAllDiffMsgResponseType();
-    //     Pair<List<CompareResultDto>, Long> listLongPair = replayCompareResultRepository.queryAllDiffMsgByPage(
-    //             request.getPlanItemId(),
-    //             request.getRecordId(),
-    //             request.getDiffResultCodeList(),
-    //             request.getPageSize(),
-    //             request.getPageIndex(),
-    //             request.getNeedTotal()
-    //     );
-    //     List<CompareResultDetail> details = Optional.ofNullable(listLongPair.getLeft())
-    //             .orElse(Collections.emptyList()).stream()
-    //             .map(item -> {
-    //                 CompareResultDetail tempCompareResultDetail = CompareResultMapper.INSTANCE.detailFromDto(item);
-    //                 tempCompareResultDetail.setCode(UnmatchedCategory.computeCategory(item).getCode());
-    //                 fillCompareResultDetail(item, tempCompareResultDetail);
-    //                 return tempCompareResultDetail;
-    //             }).collect(Collectors.toList());
-    //     response.setCompareResultDetailList(details);
-    //     response.setTotalCount(listLongPair.getRight());
-    //     return response;
-    // }
-
     public QueryLogEntityResponseType queryLogEntity(QueryLogEntityRequestTye request) {
         QueryLogEntityResponseType response = new QueryLogEntityResponseType();
         CompareResultDto dto = replayCompareResultRepository.queryCompareResultsById(request.getCompareResultId());

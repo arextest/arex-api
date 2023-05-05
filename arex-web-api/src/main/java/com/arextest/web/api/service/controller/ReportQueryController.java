@@ -287,13 +287,6 @@ public class ReportQueryController {
         return ResponseUtils.successResponse(response);
     }
 
-    // @PostMapping("/queryAllDiffMsg")
-    // @ResponseBody
-    // public Response queryAllDiffMsg(@Valid @RequestBody QueryAllDiffMsgRequestType request) {
-    //     QueryAllDiffMsgResponseType response = queryReplayMsgService.queryAllDiffMsg(request);
-    //     return ResponseUtils.successResponse(response);
-    // }
-
     @PostMapping("/queryLogEntity")
     @ResponseBody
     public Response queryLogEntity(@Valid @RequestBody QueryLogEntityRequestTye request) {

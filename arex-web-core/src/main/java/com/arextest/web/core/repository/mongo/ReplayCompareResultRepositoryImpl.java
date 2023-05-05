@@ -184,14 +184,6 @@ public class ReplayCompareResultRepositoryImpl implements ReplayCompareResultRep
         return daos.stream().map(CompareResultMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
     }
 
-    // @Override
-    // public List<CompareResultDto> queryCompareResultsByRecordIdAndReplayId(String recordId, String replayId) {
-    //     Query query = new Query();
-    //     query.addCriteria(Criteria.where(RECORD_ID).is(recordId).and(REPLAY_ID).is(replayId));
-    //     List<ReplayCompareResultCollection> daos = mongoTemplate.find(query, ReplayCompareResultCollection.class);
-    //     return daos.stream().map(CompareResultMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
-    // }
-
     @Override
     public boolean deleteCompareResultsByPlanId(String planId) {
         Query query = Query.query(Criteria.where(PLAN_ID).is(planId));
