@@ -11,7 +11,6 @@ public class CompareResultDetail {
     private String id;
     private String categoryName;
     private String operationName;
-    private int diffResultCode;
 
     private List<LogInfo> logInfos;
     private String baseMsg;

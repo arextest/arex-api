@@ -60,8 +60,7 @@ public class QueryResponseTypeStatisticService {
                 temp.setTotalCaseCount(getCaseCount(operationNameMapValue));
                 temp.setSuccessCaseCount(getCaseCount(resultTypeMap.get(DiffResultCode.COMPARED_WITHOUT_DIFFERENCE)));
                 temp.setFailCaseCount(getCaseCount(resultTypeMap.get(DiffResultCode.COMPARED_WITH_DIFFERENCE)));
-                temp.setErrorCaseCount(getCaseCount(resultTypeMap.get(DiffResultCode.COMPARED_INTERNAL_EXCEPTION))
-                        + getCaseCount(resultTypeMap.get(DiffResultCode.SEND_FAILED_NOT_COMPARE)));
+                temp.setErrorCaseCount(getCaseCount(resultTypeMap.get(DiffResultCode.COMPARED_INTERNAL_EXCEPTION)));
                 categoryStatisticList.add(temp);
             });
         });

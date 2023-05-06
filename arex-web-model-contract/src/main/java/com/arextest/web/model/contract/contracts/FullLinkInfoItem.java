@@ -16,12 +16,4 @@ public class FullLinkInfoItem {
     private String categoryName;
     private String operationName;
 
-    public static class ItemStatus {
-        public final static int EXCEPTION = -1;
-        public final static int SUCCESS = 0;
-        public final static int VALUE_DIFF = 1;
-        public final static int LEFT_CALL_MISSING = 2;
-        public final static int RIGHT_CALL_MISSING = 4;
-    }
-
 }

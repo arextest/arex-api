@@ -7,8 +7,6 @@ import com.arextest.web.core.repository.mongo.ApplicationOperationConfigurationR
 import com.arextest.web.model.contract.contracts.CompareResultDetail;
 import com.arextest.web.model.contract.contracts.DownloadReplayMsgRequestType;
 import com.arextest.web.model.contract.contracts.FullLinkInfoItem;
-import com.arextest.web.model.contract.contracts.QueryAllDiffMsgRequestType;
-import com.arextest.web.model.contract.contracts.QueryAllDiffMsgResponseType;
 import com.arextest.web.model.contract.contracts.QueryDiffMsgByIdResponseType;
 import com.arextest.web.model.contract.contracts.QueryFullLinkInfoResponseType;
 import com.arextest.web.model.contract.contracts.QueryFullLinkMsgRequestType;
@@ -23,12 +21,12 @@ import com.arextest.web.model.contract.contracts.common.NodeEntity;
 import com.arextest.web.model.contract.contracts.common.UnmatchedPairEntity;
 import com.arextest.web.model.contract.contracts.config.application.ApplicationOperationConfiguration;
 import com.arextest.web.model.dto.CompareResultDto;
+import com.arextest.web.model.dto.iosummary.UnmatchedCategory;
 import com.arextest.web.model.enums.DiffResultCode;
 import com.arextest.web.model.mapper.CompareResultMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.tuple.MutablePair;
-import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -43,7 +41,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -59,7 +56,7 @@ public class QueryReplayMsgService {
 
     public QueryReplayMsgResponseType queryReplayMsg(QueryReplayMsgRequestType request) {
         QueryReplayMsgResponseType response = new QueryReplayMsgResponseType();
-        CompareResultDto dto = replayCompareResultRepository.queryCompareResultsByObjectId(request.getId());
+        CompareResultDto dto = replayCompareResultRepository.queryCompareResultsById(request.getId());
         if (dto == null) {
             return response;
         }
@@ -85,7 +82,7 @@ public class QueryReplayMsgService {
     }
 
     public void downloadReplayMsg(DownloadReplayMsgRequestType request, HttpServletResponse response) {
-        CompareResultDto dto = replayCompareResultRepository.queryCompareResultsByObjectId(request.getId());
+        CompareResultDto dto = replayCompareResultRepository.queryCompareResultsById(request.getId());
         String fileName = null;
         String msg = null;
         if (request.isBaseMsgDownload()) {
@@ -137,10 +134,10 @@ public class QueryReplayMsgService {
         return response;
     }
 
-    public QueryFullLinkInfoResponseType queryFullLinkInfo(String recordId, String replayId) {
+    public QueryFullLinkInfoResponseType queryFullLinkInfo(String planItemId, String recordId) {
         QueryFullLinkInfoResponseType response = new QueryFullLinkInfoResponseType();
         List<CompareResultDto> dtos =
-                replayCompareResultRepository.queryCompareResultsByRecordIdAndReplayId(recordId, replayId);
+                replayCompareResultRepository.queryCompareResultsByRecordId(planItemId, recordId);
         dtos.sort(Comparator.comparingLong(CompareResultDto::getReplayTime)
                 .thenComparingLong(CompareResultDto::getRecordTime));
 
@@ -180,38 +177,16 @@ public class QueryReplayMsgService {
 
     public QueryDiffMsgByIdResponseType queryDiffMsgById(String id) {
         QueryDiffMsgByIdResponseType response = new QueryDiffMsgByIdResponseType();
-        CompareResultDto compareResultDto = replayCompareResultRepository.queryCompareResultsByObjectId(id);
+        CompareResultDto compareResultDto = replayCompareResultRepository.queryCompareResultsById(id);
         CompareResultDetail compareResultDetail = CompareResultMapper.INSTANCE.detailFromDto(compareResultDto);
         fillCompareResultDetail(compareResultDto, compareResultDetail);
         response.setCompareResultDetail(compareResultDetail);
         return response;
     }
 
-    public QueryAllDiffMsgResponseType queryAllDiffMsg(QueryAllDiffMsgRequestType request) {
-        QueryAllDiffMsgResponseType response = new QueryAllDiffMsgResponseType();
-        Pair<List<CompareResultDto>, Long> listLongPair = replayCompareResultRepository.queryAllDiffMsgByPage(
-                request.getPlanItemId(),
-                request.getRecordId(),
-                request.getDiffResultCodeList(),
-                request.getPageSize(),
-                request.getPageIndex(),
-                request.getNeedTotal()
-        );
-        List<CompareResultDetail> details = Optional.ofNullable(listLongPair.getLeft())
-                .orElse(Collections.emptyList()).stream()
-                .map(item -> {
-                    CompareResultDetail tempCompareResultDetail = CompareResultMapper.INSTANCE.detailFromDto(item);
-                    fillCompareResultDetail(item, tempCompareResultDetail);
-                    return tempCompareResultDetail;
-                }).collect(Collectors.toList());
-        response.setCompareResultDetailList(details);
-        response.setTotalCount(listLongPair.getRight());
-        return response;
-    }
-
     public QueryLogEntityResponseType queryLogEntity(QueryLogEntityRequestTye request) {
         QueryLogEntityResponseType response = new QueryLogEntityResponseType();
-        CompareResultDto dto = replayCompareResultRepository.queryCompareResultsByObjectId(request.getCompareResultId());
+        CompareResultDto dto = replayCompareResultRepository.queryCompareResultsById(request.getCompareResultId());
         List<LogEntity> logs = dto.getLogs();
         response.setLogEntity(logs.get(request.getLogIndex()));
         response.setDiffResultCode(dto.getDiffResultCode());
@@ -219,28 +194,11 @@ public class QueryReplayMsgService {
     }
 
     private int computeItemStatus(CompareResultDto compareResult) {
-        switch (compareResult.getDiffResultCode()) {
-            case DiffResultCode.COMPARED_INTERNAL_EXCEPTION:
-            case DiffResultCode.SEND_FAILED_NOT_COMPARE:
-                return FullLinkInfoItem.ItemStatus.EXCEPTION;
-            case DiffResultCode.COMPARED_WITHOUT_DIFFERENCE:
-                return FullLinkInfoItem.ItemStatus.SUCCESS;
-            default: {
-                List<LogEntity> entities = compareResult.getLogs();
-                if (entities == null || entities.size() == 0) {
-                    return FullLinkInfoItem.ItemStatus.EXCEPTION;
-                } else if (entities.size() > 1) {
-                    return FullLinkInfoItem.ItemStatus.VALUE_DIFF;
-                }
-
-                if (compareResult.getBaseMsg() == null) {
-                    return FullLinkInfoItem.ItemStatus.LEFT_CALL_MISSING;
-                } else if (compareResult.getTestMsg() == null) {
-                    return FullLinkInfoItem.ItemStatus.RIGHT_CALL_MISSING;
-                }
-                return FullLinkInfoItem.ItemStatus.VALUE_DIFF;
-            }
+        UnmatchedCategory unmatchedCategory = UnmatchedCategory.computeCategory(compareResult);
+        if (unmatchedCategory == UnmatchedCategory.UNKNOWN){
+            return -1;
         }
+        return unmatchedCategory.getCode();
     }
 
     private void fillCompareResultDetail(CompareResultDto compareResultDto, CompareResultDetail compareResultDetail) {
