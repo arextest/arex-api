@@ -72,8 +72,8 @@ public class QueryReplayCaseService {
         List<QueryPlanFailCaseResponseType.FailCaseInfo> failCaseInfoList = new ArrayList<>();
         List<CompareResultDto> dtos = replayCompareResultRepository.queryFailCompareResults(
                 request.getPlanId(),
-                request.getPlanItemId(),
-                request.getRecordId(),
+                request.getPlanItemIdList(),
+                request.getRecordIdList(),
                 request.getDiffResultCodeList());
         Map<String, List<CompareResultDto>> compareResultDtoMap = dtos.stream()
                 .collect(Collectors.groupingBy(CompareResultDto::getOperationId));
@@ -86,7 +86,7 @@ public class QueryReplayCaseService {
             List<String> recordIdList = compareResultDtoList.stream()
                     .map(CompareResultDto::getRecordId)
                     .collect(Collectors.toList());
-            failCaseInfo.setRecordIdList(recordIdList);
+            failCaseInfo.setReplayIdList(recordIdList);
             failCaseInfoList.add(failCaseInfo);
         }
         response.setFailCaseInfoList(failCaseInfoList);

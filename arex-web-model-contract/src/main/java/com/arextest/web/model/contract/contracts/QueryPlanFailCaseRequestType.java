@@ -10,7 +10,7 @@ import java.util.List;
 @Data
 public class QueryPlanFailCaseRequestType {
     private String planId;
-    private List<String> planItemId;
-    private List<String> recordId;
+    private List<String> planItemIdList;
+    private List<String> recordIdList;
     private List<Integer> diffResultCodeList;
 }

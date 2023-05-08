@@ -14,6 +14,6 @@ public class QueryPlanFailCaseResponseType {
     @Data
     public static class FailCaseInfo {
         private String operationId;
-        private List<String> recordIdList;
+        private List<String> replayIdList;
     }
 }
