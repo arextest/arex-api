@@ -214,6 +214,8 @@ public class ReplayCompareResultRepositoryImpl implements ReplayCompareResultRep
         if (CollectionUtils.isNotEmpty(diffResultCodeList)) {
             query.addCriteria(Criteria.where(DIFF_RESULT_CODE).in(diffResultCodeList));
         }
+        query.fields().include(OPERATION_ID);
+        query.fields().include(RECORD_ID);
         List<ReplayCompareResultCollection> daos = mongoTemplate.find(query,
                 ReplayCompareResultCollection.class);
         return daos.stream().
