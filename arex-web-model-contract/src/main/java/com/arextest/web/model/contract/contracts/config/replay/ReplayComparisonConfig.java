@@ -5,15 +5,15 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class ReplayConfiguration {
+public class ReplayComparisonConfig {
 
     /**
      * comparison configuration
      */
-    List<ReplayComparisonConfig> replayComparisonConfigs;
+    List<ReplayComparisonItem> replayComparisonItems;
 
     @Data
-    public static class ReplayComparisonConfig extends ComparisonSummaryConfiguration{
+    public static class ReplayComparisonItem extends ComparisonSummaryConfiguration{
         private String operationId;
     }
 }
