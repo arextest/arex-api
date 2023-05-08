@@ -38,10 +38,10 @@ public class ComparisonSummaryService {
         return comparisonSummaryConfiguration;
     }
 
-    public ReplayComparisonConfig getReplayComparisonConfig(String appId) {
-        ReplayComparisonConfig replayComparisonConfig = new ReplayComparisonConfig();
-        replayComparisonConfig.setReplayComparisonItems(getReplayComparisonItems(appId));
-        return replayComparisonConfig;
+    public ReplayCompareConfig getReplayComparisonConfig(String appId) {
+        ReplayCompareConfig replayCompareConfig = new ReplayCompareConfig();
+        replayCompareConfig.setReplayComparisonItems(getReplayComparisonItems(appId));
+        return replayCompareConfig;
     }
 
     private void getComparisonExclusionsConfiguration(String interfaceId,
@@ -92,8 +92,8 @@ public class ComparisonSummaryService {
         comparisonSummaryConfiguration.setReferenceMap(referenceMap);
     }
 
-    private List<ReplayComparisonConfig.ReplayComparisonItem> getReplayComparisonItems(String appId) {
-        Map<String, ReplayComparisonConfig.ReplayComparisonItem> replayConfigurationMap = new HashMap<>();
+    private List<ReplayCompareConfig.ReplayComparisonItem> getReplayComparisonItems(String appId) {
+        Map<String, ReplayCompareConfig.ReplayComparisonItem> replayConfigurationMap = new HashMap<>();
         buildExclusions(replayConfigurationMap, comparisonExclusionsConfigurableHandler.useResultAsList(appId));
         buildInclusions(replayConfigurationMap, comparisonInclusionsConfigurableHandler.useResultAsList(appId));
         buildListSort(replayConfigurationMap, comparisonListSortConfigurableHandler.useResultAsList(appId));
@@ -102,18 +102,18 @@ public class ComparisonSummaryService {
         return new ArrayList<>(replayConfigurationMap.values());
     }
 
-    private void mergeGlobalComparisonConfig(Map<String, ReplayComparisonConfig.ReplayComparisonItem> replayConfigurationMap,
+    private void mergeGlobalComparisonConfig(Map<String, ReplayCompareConfig.ReplayComparisonItem> replayConfigurationMap,
                                              String appId) {
         if (replayConfigurationMap.containsKey(null)) {
 
-            ReplayComparisonConfig.ReplayComparisonItem globalConfig = replayConfigurationMap.get(null);
+            ReplayCompareConfig.ReplayComparisonItem globalConfig = replayConfigurationMap.get(null);
             Set<List<String>> globalExclusionList = globalConfig.getExclusionList();
             Set<List<String>> globalInclusionList = globalConfig.getInclusionList();
 
             List<String> operationIdList = getOperationIdList(appId);
             for (String operationId : operationIdList) {
-                ReplayComparisonConfig.ReplayComparisonItem tempReplayConfig = replayConfigurationMap.getOrDefault(
-                        operationId, new ReplayComparisonConfig.ReplayComparisonItem());
+                ReplayCompareConfig.ReplayComparisonItem tempReplayConfig = replayConfigurationMap.getOrDefault(
+                        operationId, new ReplayCompareConfig.ReplayComparisonItem());
                 tempReplayConfig.setOperationId(operationId);
 
                 if (globalExclusionList != null) {
@@ -154,7 +154,7 @@ public class ComparisonSummaryService {
         return operationIdList;
     }
 
-    private void buildExclusions(Map<String, ReplayComparisonConfig.ReplayComparisonItem> replayConfigurationMap,
+    private void buildExclusions(Map<String, ReplayCompareConfig.ReplayComparisonItem> replayConfigurationMap,
                                  List<ComparisonExclusionsConfiguration> comparisonExclusionsConfigurations) {
         if (CollectionUtils.isNotEmpty(comparisonExclusionsConfigurations)) {
             for (ComparisonExclusionsConfiguration compareExclusionsConfig : comparisonExclusionsConfigurations) {
@@ -163,8 +163,8 @@ public class ComparisonSummaryService {
                 List<String> exclusions = compareExclusionsConfig.getExclusions();
 
                 if (CollectionUtils.isNotEmpty(exclusions)) {
-                    ReplayComparisonConfig.ReplayComparisonItem tempReplayComparisonItem =
-                            replayConfigurationMap.getOrDefault(operationId, new ReplayComparisonConfig.ReplayComparisonItem());
+                    ReplayCompareConfig.ReplayComparisonItem tempReplayComparisonItem =
+                            replayConfigurationMap.getOrDefault(operationId, new ReplayCompareConfig.ReplayComparisonItem());
                     tempReplayComparisonItem.setOperationId(operationId);
 
                     Set<List<String>> tempExclusionList = tempReplayComparisonItem.getExclusionList() ==
@@ -177,7 +177,7 @@ public class ComparisonSummaryService {
         }
     }
 
-    private void buildInclusions(Map<String, ReplayComparisonConfig.ReplayComparisonItem> replayConfigurationMap,
+    private void buildInclusions(Map<String, ReplayCompareConfig.ReplayComparisonItem> replayConfigurationMap,
                                  List<ComparisonInclusionsConfiguration> comparisonInclusionsConfigurations) {
         if (CollectionUtils.isNotEmpty(comparisonInclusionsConfigurations)) {
             for (ComparisonInclusionsConfiguration comparisonInclusionsConfiguration : comparisonInclusionsConfigurations) {
@@ -186,8 +186,8 @@ public class ComparisonSummaryService {
                 List<String> inclusions = comparisonInclusionsConfiguration.getInclusions();
 
                 if (CollectionUtils.isNotEmpty(inclusions)) {
-                    ReplayComparisonConfig.ReplayComparisonItem tempReplayComparisonItem =
-                            replayConfigurationMap.getOrDefault(operationId, new ReplayComparisonConfig.ReplayComparisonItem());
+                    ReplayCompareConfig.ReplayComparisonItem tempReplayComparisonItem =
+                            replayConfigurationMap.getOrDefault(operationId, new ReplayCompareConfig.ReplayComparisonItem());
                     tempReplayComparisonItem.setOperationId(operationId);
 
                     Set<List<String>> tempInclusionList = tempReplayComparisonItem.getInclusionList() ==
@@ -200,7 +200,7 @@ public class ComparisonSummaryService {
         }
     }
 
-    private void buildListSort(Map<String, ReplayComparisonConfig.ReplayComparisonItem> replayConfigurationMap,
+    private void buildListSort(Map<String, ReplayCompareConfig.ReplayComparisonItem> replayConfigurationMap,
                                List<ComparisonListSortConfiguration> comparisonListSortConfigurations) {
         if (CollectionUtils.isNotEmpty(comparisonListSortConfigurations)) {
             for (ComparisonListSortConfiguration compareListSortConfig : comparisonListSortConfigurations) {
@@ -210,8 +210,8 @@ public class ComparisonSummaryService {
                 List<List<String>> keys = compareListSortConfig.getKeys();
 
                 if (CollectionUtils.isNotEmpty(listPath) && CollectionUtils.isNotEmpty(keys)) {
-                    ReplayComparisonConfig.ReplayComparisonItem tempReplayComparisonItem =
-                            replayConfigurationMap.getOrDefault(operationId, new ReplayComparisonConfig.ReplayComparisonItem());
+                    ReplayCompareConfig.ReplayComparisonItem tempReplayComparisonItem =
+                            replayConfigurationMap.getOrDefault(operationId, new ReplayCompareConfig.ReplayComparisonItem());
                     tempReplayComparisonItem.setOperationId(operationId);
 
                     Map<List<String>, List<List<String>>> tempListSortMap = tempReplayComparisonItem.getListSortMap() ==
@@ -224,7 +224,7 @@ public class ComparisonSummaryService {
         }
     }
 
-    private void buildReference(Map<String, ReplayComparisonConfig.ReplayComparisonItem> replayConfigurationMap,
+    private void buildReference(Map<String, ReplayCompareConfig.ReplayComparisonItem> replayConfigurationMap,
                                 List<ComparisonReferenceConfiguration> comparisonReferenceConfigurations) {
         if (CollectionUtils.isNotEmpty(comparisonReferenceConfigurations)) {
             for (ComparisonReferenceConfiguration comparisonReferenceConfiguration : comparisonReferenceConfigurations) {
@@ -234,8 +234,8 @@ public class ComparisonSummaryService {
                 List<String> pkPath = comparisonReferenceConfiguration.getPkPath();
 
                 if (CollectionUtils.isNotEmpty(fkPath) && CollectionUtils.isNotEmpty(pkPath)) {
-                    ReplayComparisonConfig.ReplayComparisonItem tempReplayComparisonItem =
-                            replayConfigurationMap.getOrDefault(operationId, new ReplayComparisonConfig.ReplayComparisonItem());
+                    ReplayCompareConfig.ReplayComparisonItem tempReplayComparisonItem =
+                            replayConfigurationMap.getOrDefault(operationId, new ReplayCompareConfig.ReplayComparisonItem());
                     tempReplayComparisonItem.setOperationId(operationId);
 
                     Map<List<String>, List<String>> tempReferenceMap = tempReplayComparisonItem.getReferenceMap() ==
