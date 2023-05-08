@@ -38,9 +38,9 @@ public class ComparisonSummaryService {
         return comparisonSummaryConfiguration;
     }
 
-    public ReplayComparisonConfig queryConfig(String appId) {
+    public ReplayComparisonConfig getReplayComparisonConfig(String appId) {
         ReplayComparisonConfig replayComparisonConfig = new ReplayComparisonConfig();
-        replayComparisonConfig.setReplayComparisonItems(getReplaySummaryConfig(appId));
+        replayComparisonConfig.setReplayComparisonItems(getReplayComparisonItems(appId));
         return replayComparisonConfig;
     }
 
@@ -92,7 +92,7 @@ public class ComparisonSummaryService {
         comparisonSummaryConfiguration.setReferenceMap(referenceMap);
     }
 
-    private List<ReplayComparisonConfig.ReplayComparisonItem> getReplaySummaryConfig(String appId) {
+    private List<ReplayComparisonConfig.ReplayComparisonItem> getReplayComparisonItems(String appId) {
         Map<String, ReplayComparisonConfig.ReplayComparisonItem> replayConfigurationMap = new HashMap<>();
         buildExclusions(replayConfigurationMap, comparisonExclusionsConfigurableHandler.useResultAsList(appId));
         buildInclusions(replayConfigurationMap, comparisonInclusionsConfigurableHandler.useResultAsList(appId));

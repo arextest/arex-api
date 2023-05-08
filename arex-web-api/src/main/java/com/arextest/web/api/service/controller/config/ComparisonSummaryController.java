@@ -36,7 +36,7 @@ public class ComparisonSummaryController {
     @GetMapping("/queryByAppId/{appId}")
     @ResponseBody
     public Response queryConfigByAppId(@PathVariable String appId) {
-        ReplayComparisonConfig replayComparisonConfig = comparisonSummaryService.queryConfig(appId);
+        ReplayComparisonConfig replayComparisonConfig = comparisonSummaryService.getReplayComparisonConfig(appId);
         return ResponseUtils.successResponse(replayComparisonConfig);
     }
 
