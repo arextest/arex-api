@@ -197,6 +197,30 @@ public class ReplayCompareResultRepositoryImpl implements ReplayCompareResultRep
         return mongoTemplate.findDistinct(query, RECORD_ID, ReplayCompareResultCollection.class, String.class).size();
     }
 
+    @Override
+    public List<CompareResultDto> queryFailCompareResults(String planId,
+                                                          List<String> planItemIdList,
+                                                          List<String> recordIdList,
+                                                          List<Integer> diffResultCodeList) {
+        Query query = Query.query(
+                Criteria.where(PLAN_ID).is(planId)
+        );
+        if (CollectionUtils.isNotEmpty(planItemIdList)) {
+            query.addCriteria(Criteria.where(PLAN_ITEM_ID).in(planItemIdList));
+        }
+        if (CollectionUtils.isNotEmpty(recordIdList)) {
+            query.addCriteria(Criteria.where(RECORD_ID).in(recordIdList));
+        }
+        if (CollectionUtils.isNotEmpty(diffResultCodeList)) {
+            query.addCriteria(Criteria.where(DIFF_RESULT_CODE).in(diffResultCodeList));
+        }
+        List<ReplayCompareResultCollection> daos = mongoTemplate.find(query,
+                ReplayCompareResultCollection.class);
+        return daos.stream().
+                map(CompareResultMapper.INSTANCE::dtoFromDao)
+                .collect(Collectors.toList());
+
+    }
 
     private Query fillFilterConditions(String planId, String planItemId, String categoryName, Integer resultType,
                                        String keyWord) {

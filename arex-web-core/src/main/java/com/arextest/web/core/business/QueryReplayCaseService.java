@@ -2,6 +2,8 @@ package com.arextest.web.core.business;
 
 import cn.hutool.core.collection.CollUtil;
 import com.arextest.web.core.repository.ReplayCompareResultRepository;
+import com.arextest.web.model.contract.contracts.QueryPlanFailCaseRequestType;
+import com.arextest.web.model.contract.contracts.QueryPlanFailCaseResponseType;
 import com.arextest.web.model.contract.contracts.QueryReplayCaseRequestType;
 import com.arextest.web.model.contract.contracts.QueryReplayCaseResponseType;
 import com.arextest.web.model.contract.contracts.common.CaseDetailResult;
@@ -11,7 +13,11 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 
@@ -27,7 +33,7 @@ public class QueryReplayCaseService {
         List<CompareResultDto> resultWithoutMsg = replayCompareResultRepository.findResultWithoutMsg(request.getPlanItemId(),
                 request.getKeyWord());
 
-        Map<Pair<String,String>, List<CompareResultDto>> resultCaseMap =
+        Map<Pair<String, String>, List<CompareResultDto>> resultCaseMap =
                 resultWithoutMsg.stream().collect(Collectors.groupingBy(e -> new MutablePair<>(e.getRecordId(), e.getReplayId())));
         List<CaseDetailResult> results = new ArrayList<>();
         resultCaseMap.forEach((key, resultCaseList) -> {
@@ -38,7 +44,7 @@ public class QueryReplayCaseService {
             results.add(caseDetail);
         });
 
-        
+
         if (request.getDiffResultCode() != null) {
             List<CaseDetailResult> finalResults = new ArrayList<>();
             for (CaseDetailResult caseDetail : results) {
@@ -53,10 +59,37 @@ public class QueryReplayCaseService {
 
         results.sort((m1, m2) -> m2.getDiffResultCode().compareTo(m1.getDiffResultCode()));
         List<CaseDetailResult> caseDetailResults = CollUtil.sortPageAll(request.getPageIndex() - 1, request.getPageSize(), null, results);
-        if (Boolean.TRUE.equals(request.getNeedTotal())){
+        if (Boolean.TRUE.equals(request.getNeedTotal())) {
             response.setTotalCount(Long.valueOf(results.size()));
         }
         response.setResult(caseDetailResults);
+        return response;
+    }
+
+
+    public QueryPlanFailCaseResponseType queryPlanFailCase(QueryPlanFailCaseRequestType request) {
+        QueryPlanFailCaseResponseType response = new QueryPlanFailCaseResponseType();
+        List<QueryPlanFailCaseResponseType.FailCaseInfo> failCaseInfoList = new ArrayList<>();
+        List<CompareResultDto> dtos = replayCompareResultRepository.queryFailCompareResults(
+                request.getPlanId(),
+                request.getPlanItemId(),
+                request.getRecordId(),
+                request.getDiffResultCodeList());
+        Map<String, List<CompareResultDto>> compareResultDtoMap = dtos.stream()
+                .collect(Collectors.groupingBy(CompareResultDto::getOperationId));
+        for (Map.Entry<String, List<CompareResultDto>> entry : compareResultDtoMap.entrySet()) {
+            String operationId = entry.getKey();
+            List<CompareResultDto> compareResultDtoList = entry.getValue();
+            QueryPlanFailCaseResponseType.FailCaseInfo failCaseInfo
+                    = new QueryPlanFailCaseResponseType.FailCaseInfo();
+            failCaseInfo.setOperationId(operationId);
+            List<String> recordIdList = compareResultDtoList.stream()
+                    .map(CompareResultDto::getRecordId)
+                    .collect(Collectors.toList());
+            failCaseInfo.setRecordIdList(recordIdList);
+            failCaseInfoList.add(failCaseInfo);
+        }
+        response.setFailCaseInfoList(failCaseInfoList);
         return response;
     }
 }
