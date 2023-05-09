@@ -4,11 +4,10 @@ import com.arextest.common.model.response.Response;
 import com.arextest.common.utils.ResponseUtils;
 import com.arextest.web.core.business.config.replay.ComparisonSummaryService;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonSummaryConfiguration;
+import com.arextest.web.model.contract.contracts.config.replay.ReplayCompareConfig;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 
@@ -32,6 +31,13 @@ public class ComparisonSummaryController {
                 comparisonSummaryService.getComparisonDetailsSummary(interfaceId);
 
         return ResponseUtils.successResponse(comparisonDetailsSummary);
+    }
+
+    @GetMapping("/queryByAppId/{appId}")
+    @ResponseBody
+    public Response queryConfigByAppId(@PathVariable String appId) {
+        ReplayCompareConfig replayCompareConfig = comparisonSummaryService.getReplayComparisonConfig(appId);
+        return ResponseUtils.successResponse(replayCompareConfig);
     }
 
 }
