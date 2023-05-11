@@ -14,8 +14,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -55,7 +53,7 @@ public class RecordService {
     private ListRecordCaseRequestType toListRecordCaseRequestType(ListRecordRequestType input) {
         ListRecordCaseRequestType output = new ListRecordCaseRequestType();
         output.setAppId(input.getAppId());
-        output.setLastId(input.getLastId());
+        output.setPageIndex(input.getPageIndex());
         output.setOperationType(input.getOperationType());
         output.setOperationName(input.getOperationName());
         output.setPageSize(input.getPageSize());
@@ -64,26 +62,7 @@ public class RecordService {
 
     private RecordItem toRecordItem(AREXMocker input) {
         RecordItem output = new RecordItem();
-        output.setId(input.getId());
-        output.setCategoryType(input.getCategoryType().getName());
-        output.setReplayId(input.getReplayId());
         output.setRecordId(input.getRecordId());
-        output.setAppId(input.getAppId());
-        output.setRecordEnvironment(input.getRecordEnvironment());
-        output.setCreationTime(input.getCreationTime());
-        output.setOperationName(input.getOperationName());
-        output.setRecordVersion(input.getRecordVersion());
-
-        if (input.getTargetRequest() != null) {
-            RecordItem.Target targetRequest = new RecordItem.Target(input.getTargetRequest().getBody(),
-                    input.getTargetRequest().getAttributes(), input.getTargetRequest().getType());
-            output.setTargetRequest(targetRequest);
-        }
-        if (input.getTargetResponse() != null) {
-            RecordItem.Target targetResponse = new RecordItem.Target(input.getTargetResponse().getBody(),
-                    input.getTargetResponse().getAttributes(), input.getTargetResponse().getType());
-            output.setTargetResponse(targetResponse);
-        }
         return output;
     }
 }

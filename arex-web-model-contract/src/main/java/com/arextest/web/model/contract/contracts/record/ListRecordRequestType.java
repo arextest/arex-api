@@ -8,5 +8,5 @@ public class ListRecordRequestType {
     private String operationName;
     private String operationType;
     private Integer pageSize;
-    private String lastId;
+    private Integer pageIndex;
 }
