@@ -63,6 +63,7 @@ public class RecordService {
     private RecordItem toRecordItem(AREXMocker input) {
         RecordItem output = new RecordItem();
         output.setRecordId(input.getRecordId());
+        output.setCreateTime(input.getCreationTime());
         return output;
     }
 }
