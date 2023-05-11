@@ -4,16 +4,7 @@ import com.arextest.common.model.response.Response;
 import com.arextest.common.model.response.ResponseCode;
 import com.arextest.common.utils.ResponseUtils;
 import com.arextest.web.common.LogUtils;
-import com.arextest.web.core.business.DiffSceneService;
-import com.arextest.web.core.business.MsgShowService;
-import com.arextest.web.core.business.QueryPlanItemStatisticService;
-import com.arextest.web.core.business.QueryPlanStatisticsService;
-import com.arextest.web.core.business.QueryReplayCaseService;
-import com.arextest.web.core.business.QueryReplayMsgService;
-import com.arextest.web.core.business.QueryResponseTypeStatisticService;
-import com.arextest.web.core.business.ReplayInfoService;
-import com.arextest.web.core.business.ReportService;
-import com.arextest.web.core.business.SchemaInferService;
+import com.arextest.web.core.business.*;
 import com.arextest.web.core.business.iosummary.SceneReportService;
 import com.arextest.web.model.contract.contracts.ChangeReplayStatusRequestType;
 import com.arextest.web.model.contract.contracts.ChangeReplayStatusResponseType;
@@ -52,6 +43,7 @@ import com.arextest.web.model.contract.contracts.QuerySchemaForConfigRequestType
 import com.arextest.web.model.contract.contracts.ReportInitialRequestType;
 import com.arextest.web.model.contract.contracts.ReportInitialResponseType;
 import com.arextest.web.model.contract.contracts.SuccessResponseType;
+import com.arextest.web.model.contract.contracts.record.ListRecordRequestType;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONException;
@@ -96,7 +88,8 @@ public class ReportQueryController {
     private SchemaInferService schemaInferService;
     @Resource
     private SceneReportService sceneReportService;
-
+    @Resource
+    private RecordService recordService;
 
     @PostMapping("/pushCompareResults")
     @ResponseBody
@@ -293,5 +286,17 @@ public class ReportQueryController {
         return ResponseUtils.successResponse(
                 queryReplayMsgService.queryLogEntity(request)
         );
+    }
+
+    @GetMapping("/countRecord/{appId}")
+    @ResponseBody
+    public Response countRecord(@PathVariable String appId) {
+        return ResponseUtils.successResponse(recordService.countRecord(appId));
+    }
+
+    @PostMapping("/listRecord")
+    @ResponseBody
+    public Response countRecord(@RequestBody ListRecordRequestType requestType) {
+        return ResponseUtils.successResponse(recordService.listRecord(requestType));
     }
 }
