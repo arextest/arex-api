@@ -27,7 +27,9 @@ public class CompareResultDto extends BaseDto {
     private long recordTime;
 
     private long replayTime;
-    
+
+    private String instanceId;
+
     private String baseMsg;
     
     private String testMsg;

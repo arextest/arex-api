@@ -28,6 +28,8 @@ public class CompareResult {
 
     private long replayTime;
     
+    private String instanceId;
+    
     private String baseMsg;
     
     private String testMsg;
