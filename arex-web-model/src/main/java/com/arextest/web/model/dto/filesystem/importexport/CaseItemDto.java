@@ -15,6 +15,7 @@ public class CaseItemDto implements Item {
     private String name;
     private String nodeName;
     private Integer nodeType;
+    private Integer caseSourceType;
     private AddressDto address;
     private List<ScriptBlockDto> preRequestScripts;
     private List<ScriptBlockDto> testScripts;

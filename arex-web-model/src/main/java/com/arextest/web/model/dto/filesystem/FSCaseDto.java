@@ -6,4 +6,5 @@ import lombok.Data;
 public class FSCaseDto extends FSInterfaceAndCaseBaseDto {
     // private ComparisonMsgDto comparisonMsg;
     private Boolean inherited;
+    private int caseSourceType;
 }

@@ -3,10 +3,12 @@ package com.arextest.web.core.repository.mongo;
 import com.arextest.web.core.repository.FSCaseRepository;
 import com.arextest.web.core.repository.mongo.util.MongoHelper;
 import com.arextest.web.model.dao.mongodb.FSCaseCollection;
+import com.arextest.web.model.dao.mongodb.entity.KeyValuePairDao;
 import com.arextest.web.model.dto.filesystem.FSCaseDto;
 import com.arextest.web.model.dto.filesystem.FSItemDto;
 import com.arextest.web.model.mapper.FSCaseMapper;
 import com.mongodb.client.result.DeleteResult;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
@@ -25,6 +27,7 @@ import java.util.stream.Collectors;
 public class FSCaseRepositoryImpl implements FSCaseRepository {
 
     private static final String COMPARISON_MSG = "comparisonMsg";
+    private static final String RECORD_ID_KEY = "arex-record-id";
 
     @Resource
     private MongoTemplate mongoTemplate;
@@ -50,7 +53,7 @@ public class FSCaseRepositoryImpl implements FSCaseRepository {
 
     @Override
     public Boolean removeCases(Set<String> ids) {
-        Set<ObjectId> objectIds = ids.stream().map(id -> new ObjectId(id)).collect(Collectors.toSet());
+        Set<ObjectId> objectIds = ids.stream().map(ObjectId::new).collect(Collectors.toSet());
         Query query = Query.query(Criteria.where(DASH_ID).in(objectIds));
         DeleteResult result = mongoTemplate.remove(query, FSCaseCollection.class);
         return result.getDeletedCount() > 0;
@@ -60,6 +63,17 @@ public class FSCaseRepositoryImpl implements FSCaseRepository {
     public FSCaseDto saveCase(FSCaseDto dto) {
         if (StringUtils.isEmpty(dto.getId())) {
             FSCaseCollection dao = FSCaseMapper.INSTANCE.daoFromDto(dto);
+            if (dao.getDataChangeCreateTime() == null && dao.getDataChangeUpdateTime() == null) {
+                MongoHelper.initInsertObject(dao);
+            }
+            if (dao.getRecordId() == null && CollectionUtils.isNotEmpty(dao.getHeaders())) {
+                dao.setRecordId(dao.getHeaders().stream()
+                        .filter(a -> StringUtils.equals(a.getKey(), RECORD_ID_KEY))
+                        .map(KeyValuePairDao::getValue)
+                        .findAny()
+                        .orElse(null));
+            }
+
             dao = mongoTemplate.save(dao);
             return FSCaseMapper.INSTANCE.dtoFromDao(dao);
         } else {
@@ -106,7 +120,7 @@ public class FSCaseRepositoryImpl implements FSCaseRepository {
 
     @Override
     public List<FSItemDto> queryCases(List<String> ids, boolean getCompareMsg) {
-        List<ObjectId> objectIds = ids.stream().map(id -> new ObjectId(id)).collect(Collectors.toList());
+        List<ObjectId> objectIds = ids.stream().map(ObjectId::new).collect(Collectors.toList());
         Query query = Query.query(Criteria.where(DASH_ID).in(objectIds));
         if (!getCompareMsg) {
             query.fields().exclude(COMPARISON_MSG);
