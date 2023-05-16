@@ -2,6 +2,7 @@ package com.arextest.web.model.contract.contracts;
 
 import lombok.Data;
 
+import javax.validation.constraints.NotBlank;
 import java.util.List;
 
 /**
@@ -9,6 +10,7 @@ import java.util.List;
  */
 @Data
 public class QueryPlanFailCaseRequestType {
+    @NotBlank(message = "planId cannot be empty")
     private String planId;
     private List<String> planItemIdList;
     private List<String> recordIdList;
