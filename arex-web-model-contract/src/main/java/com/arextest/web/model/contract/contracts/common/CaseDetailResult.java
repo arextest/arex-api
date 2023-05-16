@@ -9,6 +9,8 @@ public class CaseDetailResult {
     private String replayId;
     
     private String recordId;
-    
+
+    private String instanceId;
+
     private Integer diffResultCode;
 }
