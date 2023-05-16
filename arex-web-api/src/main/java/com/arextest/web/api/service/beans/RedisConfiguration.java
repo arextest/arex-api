@@ -35,8 +35,8 @@ public class RedisConfiguration {
     private RedissonClient createRedissonClientByAnalyze(String redisUri) {
         Config config = new Config();
         ReplicatedServersConfig replicatedServersConfig = config.useReplicatedServers().setScanInterval(2000);
-        String[] redisHostAndPort = getRedisHostAndPort(redisUri);
-        replicatedServersConfig.addNodeAddress(redisHostAndPort);
+        List<String> redisHostAndPort = getRedisHostAndPort(redisUri);
+        replicatedServersConfig.addNodeAddress(redisHostAndPort.toArray(new String[0]));
 
         Pair<String, String> userNameAndPassword = getUserNameAndPassword(redisUri);
         String user = userNameAndPassword.getKey();
@@ -47,49 +47,63 @@ public class RedisConfiguration {
         if (StringUtils.isNotEmpty(password)) {
             replicatedServersConfig.setPassword(password);
         }
+
+        Integer dataBase = getDataBase(redisUri);
+        if (dataBase != null) {
+            replicatedServersConfig.setDatabase(dataBase);
+        }
         return Redisson.create(config);
+    }
+
+    private List<String> getRedisHostAndPort(String redisUri) {
+        List<String> result = new ArrayList<>();
+        String substring = null;
+        if (redisUri.contains("@")) {
+            int i = redisUri.indexOf('@');
+            if (i != -1) {
+                substring = redisUri.substring(i + 1);
+            }
+        } else {
+            int i = redisUri.indexOf("redis://");
+            if (i != -1) {
+                substring = redisUri.substring(i + 7 + 1);
+            }
+        }
+
+        if (substring == null) {
+            return result;
+        }
+        String[] split = substring.split("/");
+        String hostAndPortStr = split[0];
+        String[] hostAndPortArr = hostAndPortStr.split(",");
+        for (String hostAndPort : hostAndPortArr) {
+            result.add("redis://" + hostAndPort);
+        }
+        return result;
     }
 
     private Pair<String, String> getUserNameAndPassword(String redisUri) {
         String user = "";
         String password = "";
-        // 解析user和password
-        Pattern userPattern = Pattern.compile("redis://([^:]+):([^@]+)@");
-        Matcher userMatcher = userPattern.matcher(redisUri);
-        if (userMatcher.find()) {
-            user = userMatcher.group(1);
-            password = userMatcher.group(2);
-            System.out.println("user: " + user);
-            System.out.println("password: " + password);
+        Pattern pattern = Pattern.compile("redis://(.*?)@(.*?)");
+        Matcher matcher = pattern.matcher(redisUri);
+        if (matcher.matches()) {
+            String group = matcher.group(1);
+            String[] split = group.split(":");
+            user = split[0];
+            password = split[1];
         }
         return new MutablePair<>(user, password);
     }
 
-    private String[] getRedisHostAndPort(String redisUri) {
-        String[] result = null;
-        Pattern pattern = Pattern.compile("redis://(.*?)(@.*?)?/([0-9]+)");
+    private Integer getDataBase(String redisUri) {
+        Integer database = null;
+        Pattern pattern = Pattern.compile("redis://(.*?)/(.*?)");
         Matcher matcher = pattern.matcher(redisUri);
         if (matcher.matches()) {
-            String hosts = matcher.group(2);
-            String[] nodes = hosts.split(",");
-            result = new String[nodes.length];
-            for (int i = 0; i < nodes.length; i++) {
-                String[] parts = nodes[i].split(":");
-                String host = parts[0];
-                int port = parts.length > 1 ? Integer.parseInt(parts[1]) : 6379;
-                result[i] = host + ":" + port;
-            }
+            String group = matcher.group(2);
+            database = Integer.valueOf(group);
         }
-        return result;
-    }
-
-    public static void main(String[] args) {
-        String redisUri = "redis://:111222@10.5.153.1:16380";
-        Pattern pattern = Pattern.compile("redis://(.*?)(@.*?)?/([0-9]+)");
-        Matcher matcher = pattern.matcher(redisUri);
-        if (matcher.find()){
-            String group = matcher.group(3);
-            System.out.println();
-        }
+        return database;
     }
 }
