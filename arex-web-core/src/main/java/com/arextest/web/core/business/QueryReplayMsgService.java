@@ -197,7 +197,7 @@ public class QueryReplayMsgService {
 
     private int computeItemStatus(CompareResultDto compareResult) {
         UnmatchedCategory unmatchedCategory = UnmatchedCategory.computeCategory(compareResult);
-        if (unmatchedCategory == UnmatchedCategory.UNKNOWN){
+        if (unmatchedCategory == UnmatchedCategory.UNKNOWN) {
             return -1;
         }
         return unmatchedCategory.getCode();

@@ -37,6 +37,7 @@ import com.arextest.web.model.contract.contracts.QueryMsgShowByCaseRequestType;
 import com.arextest.web.model.contract.contracts.QueryMsgShowByCaseResponseType;
 import com.arextest.web.model.contract.contracts.QueryMsgWithDiffRequestType;
 import com.arextest.web.model.contract.contracts.QueryMsgWithDiffResponseType;
+import com.arextest.web.model.contract.contracts.QueryPlanFailCaseRequestType;
 import com.arextest.web.model.contract.contracts.QueryPlanItemStatisticsRequestType;
 import com.arextest.web.model.contract.contracts.QueryPlanItemStatisticsResponseType;
 import com.arextest.web.model.contract.contracts.QueryPlanStatisticsRequestType;
@@ -292,6 +293,14 @@ public class ReportQueryController {
     public Response queryLogEntity(@Valid @RequestBody QueryLogEntityRequestTye request) {
         return ResponseUtils.successResponse(
                 queryReplayMsgService.queryLogEntity(request)
+        );
+    }
+
+    @PostMapping("/queryPlanFailCase")
+    @ResponseBody
+    public Response queryPlanFailCase(@Valid @RequestBody QueryPlanFailCaseRequestType request) {
+        return ResponseUtils.successResponse(
+                queryReplayCaseService.queryPlanFailCase(request)
         );
     }
 }
