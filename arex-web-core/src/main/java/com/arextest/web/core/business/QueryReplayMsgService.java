@@ -159,12 +159,14 @@ public class QueryReplayMsgService {
                     entrance.setId(dto.getId());
                     entrance.setCategoryName(dto.getCategoryName());
                     entrance.setOperationName(dto.getOperationName());
+                    entrance.setInstanceId(dto.getInstanceId());
                     entrance.setCode(computeItemStatus(dto));
                 } else {
                     FullLinkInfoItem fullLinkInfoItem = new FullLinkInfoItem();
                     fullLinkInfoItem.setId(dto.getId());
                     fullLinkInfoItem.setCategoryName(dto.getCategoryName());
                     fullLinkInfoItem.setOperationName(dto.getOperationName());
+                    fullLinkInfoItem.setInstanceId(dto.getInstanceId());
                     fullLinkInfoItem.setCode(computeItemStatus(dto));
                     itemList.add(fullLinkInfoItem);
                 }
