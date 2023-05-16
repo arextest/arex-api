@@ -29,4 +29,7 @@ public interface ReplayCompareResultRepository extends RepositoryProvider {
     boolean deleteCompareResultsByPlanId(String planId);
 
     int queryCompareResultCountByPlanId(String planId);
+
+    List<CompareResultDto> queryFailCompareResults(String planId, List<String> planItemIdList,
+                                                   List<String> recordIdList, List<Integer> diffResultCodeList);
 }
