@@ -27,6 +27,9 @@ public class RedisConfiguration {
     @Value("${arex.redis.uri}")
     private String redisUri;
 
+    private final static String USERNAME_AND_PASSWORD_REGEX = "redis://(.*?)@(.*?)";
+    private final static String DATABASE_REGEX = "redis://(.*?)@(.*?)";
+
     @Bean
     public RedissonClient redissonClient() {
         return createRedissonClientByAnalyze(redisUri);
@@ -85,7 +88,7 @@ public class RedisConfiguration {
     private Pair<String, String> getUserNameAndPassword(String redisUri) {
         String user = "";
         String password = "";
-        Pattern pattern = Pattern.compile("redis://(.*?)@(.*?)");
+        Pattern pattern = Pattern.compile(USERNAME_AND_PASSWORD_REGEX);
         Matcher matcher = pattern.matcher(redisUri);
         if (matcher.matches()) {
             String group = matcher.group(1);
@@ -98,7 +101,7 @@ public class RedisConfiguration {
 
     private Integer getDataBase(String redisUri) {
         Integer database = null;
-        Pattern pattern = Pattern.compile("redis://(.*?)/(.*?)");
+        Pattern pattern = Pattern.compile(DATABASE_REGEX);
         Matcher matcher = pattern.matcher(redisUri);
         if (matcher.matches()) {
             String group = matcher.group(2);
