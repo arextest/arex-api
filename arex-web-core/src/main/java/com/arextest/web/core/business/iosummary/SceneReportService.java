@@ -2,15 +2,21 @@ package com.arextest.web.core.business.iosummary;
 
 import cn.hutool.core.collection.CollectionUtil;
 import com.arextest.web.core.repository.CaseSummaryRepository;
+import com.arextest.web.core.repository.ReplayCompareResultRepository;
 import com.arextest.web.core.repository.SceneInfoRepository;
 import com.arextest.web.model.contract.contracts.QuerySceneInfoResponseType;
+import com.arextest.web.model.dto.CompareResultDto;
 import com.arextest.web.model.dto.iosummary.CaseSummary;
 import com.arextest.web.model.dto.iosummary.SceneInfo;
 import com.arextest.web.model.mapper.SceneInfoMapper;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -25,6 +31,9 @@ public class SceneReportService {
 
     @Autowired
     SceneInfoRepository sceneInfoRepository;
+
+    @Autowired
+    ReplayCompareResultRepository replayCompareResultRepository;
 
     /**
      * difference Type Scene Grouping
@@ -48,6 +57,30 @@ public class SceneReportService {
                 sceneInfos.stream()
                         .map(SceneInfoMapper.INSTANCE::contractFromDto)
                         .collect(Collectors.toList());
+        Map<String, QuerySceneInfoResponseType.SubSceneInfoType> subSceneInfoTypeMap =
+                new HashMap<>();
+        for (QuerySceneInfoResponseType.SceneInfoType sceneInfoType : sceneInfoTypes) {
+            List<QuerySceneInfoResponseType.SubSceneInfoType> subScenes = sceneInfoType.getSubScenes();
+            for (QuerySceneInfoResponseType.SubSceneInfoType subSceneInfoType : subScenes) {
+                subSceneInfoTypeMap.put(subSceneInfoType.getRecordId(), subSceneInfoType);
+            }
+        }
+        if (MapUtils.isNotEmpty(subSceneInfoTypeMap)) {
+            List<CompareResultDto> dtos = replayCompareResultRepository.queryCompareResults(
+                    planId,
+                    Collections.singletonList(planItemId),
+                    new ArrayList<>(subSceneInfoTypeMap.keySet()),
+                    null
+            );
+            for (CompareResultDto dto : dtos) {
+                String recordId = dto.getRecordId();
+                QuerySceneInfoResponseType.SubSceneInfoType subSceneInfoType = subSceneInfoTypeMap.get(recordId);
+                if (subSceneInfoType != null) {
+                    subSceneInfoType.setRecordTime(dto.getRecordTime());
+                    subSceneInfoType.setReplayTime(dto.getReplayTime());
+                }
+            }
+        }
         response.setSceneInfos(sceneInfoTypes);
         return response;
     }

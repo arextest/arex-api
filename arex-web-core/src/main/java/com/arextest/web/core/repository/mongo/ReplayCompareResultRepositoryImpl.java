@@ -198,10 +198,10 @@ public class ReplayCompareResultRepositoryImpl implements ReplayCompareResultRep
     }
 
     @Override
-    public List<CompareResultDto> queryFailCompareResults(String planId,
-                                                          List<String> planItemIdList,
-                                                          List<String> recordIdList,
-                                                          List<Integer> diffResultCodeList) {
+    public List<CompareResultDto> queryCompareResults(String planId,
+                                                      List<String> planItemIdList,
+                                                      List<String> recordIdList,
+                                                      List<Integer> diffResultCodeList) {
         Query query = Query.query(
                 Criteria.where(PLAN_ID).is(planId)
         );

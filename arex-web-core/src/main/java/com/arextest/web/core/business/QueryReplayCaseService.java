@@ -70,7 +70,7 @@ public class QueryReplayCaseService {
     public QueryPlanFailCaseResponseType queryPlanFailCase(QueryPlanFailCaseRequestType request) {
         QueryPlanFailCaseResponseType response = new QueryPlanFailCaseResponseType();
         List<QueryPlanFailCaseResponseType.FailCaseInfo> failCaseInfoList = new ArrayList<>();
-        List<CompareResultDto> dtos = replayCompareResultRepository.queryFailCompareResults(
+        List<CompareResultDto> dtos = replayCompareResultRepository.queryCompareResults(
                 request.getPlanId(),
                 request.getPlanItemIdList(),
                 request.getRecordIdList(),
