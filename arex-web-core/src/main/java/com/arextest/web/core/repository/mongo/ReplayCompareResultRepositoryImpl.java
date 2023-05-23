@@ -21,6 +21,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -198,10 +199,11 @@ public class ReplayCompareResultRepositoryImpl implements ReplayCompareResultRep
     }
 
     @Override
-    public List<CompareResultDto> queryFailCompareResults(String planId,
-                                                          List<String> planItemIdList,
-                                                          List<String> recordIdList,
-                                                          List<Integer> diffResultCodeList) {
+    public List<CompareResultDto> queryCompareResults(String planId,
+                                                      List<String> planItemIdList,
+                                                      List<String> recordIdList,
+                                                      List<Integer> diffResultCodeList,
+                                                      List<String> showFields) {
         Query query = Query.query(
                 Criteria.where(PLAN_ID).is(planId)
         );
@@ -214,8 +216,12 @@ public class ReplayCompareResultRepositoryImpl implements ReplayCompareResultRep
         if (CollectionUtils.isNotEmpty(diffResultCodeList)) {
             query.addCriteria(Criteria.where(DIFF_RESULT_CODE).in(diffResultCodeList));
         }
-        query.fields().include(OPERATION_ID);
-        query.fields().include(RECORD_ID);
+        if (CollectionUtils.isNotEmpty(showFields)) {
+            for (String showField : showFields) {
+                query.fields().include(showField);
+            }
+        }
+
         List<ReplayCompareResultCollection> daos = mongoTemplate.find(query,
                 ReplayCompareResultCollection.class);
         return daos.stream().
