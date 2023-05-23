@@ -6,15 +6,12 @@ import com.arextest.web.core.repository.ConfigRepositoryField;
 import com.arextest.web.core.repository.ConfigRepositoryProvider;
 import com.arextest.web.core.repository.mongo.util.MongoHelper;
 import com.arextest.web.model.contract.contracts.config.replay.ScheduleConfiguration;
-import com.arextest.web.model.dao.mongodb.RecordServiceConfigCollection;
 import com.arextest.web.model.dao.mongodb.ReplayScheduleConfigCollection;
 import com.arextest.web.model.mapper.ReplayScheduleConfigMapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
-import java.util.HashSet;
-import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
@@ -58,20 +55,9 @@ public class ScheduleConfigurationRepositoryImpl implements ConfigRepositoryProv
         Query query = Query.query(Criteria.where(APP_ID).is(appId));
         List<ReplayScheduleConfigCollection> replayScheduleConfigCollections =
             mongoTemplate.find(query, ReplayScheduleConfigCollection.class);
-        List<RecordServiceConfigCollection> recordServiceConfigCollections =
-            mongoTemplate.find(query, RecordServiceConfigCollection.class);
-        Set<String> excludeServiceOperationSet = new HashSet<>();
-        if (!recordServiceConfigCollections.isEmpty()) {
-            excludeServiceOperationSet = recordServiceConfigCollections.get(0).getExcludeServiceOperationSet();
-        }
-        List<ScheduleConfiguration> scheduleConfigurationList = replayScheduleConfigCollections.stream()
+        return replayScheduleConfigCollections.stream()
             .map(ReplayScheduleConfigMapper.INSTANCE::dtoFromDao)
             .collect(Collectors.toList());
-        Set<String> finalExcludeServiceOperationSet = excludeServiceOperationSet;
-        scheduleConfigurationList.forEach(scheduleConfiguration -> {
-            scheduleConfiguration.setExcludeServiceOperationSet(finalExcludeServiceOperationSet);
-        });
-        return scheduleConfigurationList;
     }
 
     @Override

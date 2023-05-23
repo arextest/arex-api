@@ -2,7 +2,11 @@ package com.arextest.web.core.business.config.replay;
 
 import com.arextest.web.core.business.config.AbstractConfigurableHandler;
 import com.arextest.web.core.repository.ConfigRepositoryProvider;
+import com.arextest.web.core.repository.mongo.ServiceCollectConfigurationRepositoryImpl;
+import com.arextest.web.model.contract.contracts.config.record.ServiceCollectConfiguration;
 import com.arextest.web.model.contract.contracts.config.replay.ScheduleConfiguration;
+import java.util.Set;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
@@ -20,6 +24,10 @@ import java.util.List;
 public final class ScheduleConfigurableHandler extends AbstractConfigurableHandler<ScheduleConfiguration> {
     @Resource
     private ScheduleConfiguration globalScheduleConfiguration;
+
+    @Resource
+    private ServiceCollectConfigurationRepositoryImpl serviceCollectConfigurationRepositoryImpl;
+
 
     protected ScheduleConfigurableHandler(@Autowired ConfigRepositoryProvider<ScheduleConfiguration> repositoryProvider) {
         super(repositoryProvider);
@@ -41,6 +49,7 @@ public final class ScheduleConfigurableHandler extends AbstractConfigurableHandl
         scheduleConfiguration.setOffsetDays(globalScheduleConfiguration.getOffsetDays());
         scheduleConfiguration.setSendMaxQps(globalScheduleConfiguration.getSendMaxQps());
         scheduleConfiguration.setTargetEnv(globalScheduleConfiguration.getTargetEnv());
+        scheduleConfiguration.setExcludeServiceOperationSet(getExcludeServiceOperationSet(appId));
         return Collections.singletonList(scheduleConfiguration);
     }
 
@@ -66,5 +75,15 @@ public final class ScheduleConfigurableHandler extends AbstractConfigurableHandl
         if (source.getTargetEnv() == null) {
             source.setTargetEnv(globalScheduleConfiguration.getTargetEnv());
         }
+        if (source.getExcludeServiceOperationSet() == null) {
+            source.setExcludeServiceOperationSet(getExcludeServiceOperationSet(source.getAppId()));
+        }
+    }
+    private Set<String> getExcludeServiceOperationSet(String appId) {
+        List<ServiceCollectConfiguration> list = serviceCollectConfigurationRepositoryImpl.listBy(appId);
+        if (CollectionUtils.isEmpty(list)) {
+            return Collections.emptySet();
+        }
+        return list.get(0).getExcludeServiceOperationSet();
     }
 }
