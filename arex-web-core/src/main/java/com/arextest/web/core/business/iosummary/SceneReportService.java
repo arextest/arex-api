@@ -9,7 +9,6 @@ import com.arextest.web.model.dto.CompareResultDto;
 import com.arextest.web.model.dto.iosummary.CaseSummary;
 import com.arextest.web.model.dto.iosummary.SceneInfo;
 import com.arextest.web.model.mapper.SceneInfoMapper;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -70,6 +69,7 @@ public class SceneReportService {
                     planId,
                     Collections.singletonList(planItemId),
                     new ArrayList<>(subSceneInfoTypeMap.keySet()),
+                    null,
                     null
             );
             for (CompareResultDto dto : dtos) {
