@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -24,6 +25,10 @@ import java.util.stream.Collectors;
 
 @Component
 public class SceneReportService {
+
+    private static final String RECORD_ID = "recordId";
+    private static final String RECORD_TIME = "recordTime";
+    private static final String REPLAY_TIME = "replayTime";
 
     @Autowired
     CaseSummaryRepository caseSummaryRepository;
@@ -70,7 +75,7 @@ public class SceneReportService {
                     Collections.singletonList(planItemId),
                     new ArrayList<>(subSceneInfoTypeMap.keySet()),
                     null,
-                    null
+                    Arrays.asList(RECORD_ID, RECORD_TIME, REPLAY_TIME)
             );
             for (CompareResultDto dto : dtos) {
                 String recordId = dto.getRecordId();
