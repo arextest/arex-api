@@ -30,6 +30,9 @@ public interface ReplayCompareResultRepository extends RepositoryProvider {
 
     int queryCompareResultCountByPlanId(String planId);
 
-    List<CompareResultDto> queryFailCompareResults(String planId, List<String> planItemIdList,
-                                                   List<String> recordIdList, List<Integer> diffResultCodeList);
+    List<CompareResultDto> queryCompareResults(String planId,
+                                               List<String> planItemIdList,
+                                               List<String> recordIdList,
+                                               List<Integer> diffResultCodeList,
+                                               List<String> showFields);
 }
