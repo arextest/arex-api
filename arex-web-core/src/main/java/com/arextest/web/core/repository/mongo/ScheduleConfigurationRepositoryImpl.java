@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Repository
 public class ScheduleConfigurationRepositoryImpl implements ConfigRepositoryProvider<ScheduleConfiguration>,
-    ConfigRepositoryField {
+        ConfigRepositoryField {
 
     private static final String TARGET_ENV = "targetEnv";
     private static final String SEND_MAX_QPS = "sendMaxQps";
@@ -44,20 +44,20 @@ public class ScheduleConfigurationRepositoryImpl implements ConfigRepositoryProv
     public List<ScheduleConfiguration> list() {
         Query query = new Query();
         List<ReplayScheduleConfigCollection> replayScheduleConfigCollections =
-            mongoTemplate.find(query, ReplayScheduleConfigCollection.class);
+                mongoTemplate.find(query, ReplayScheduleConfigCollection.class);
         return replayScheduleConfigCollections.stream()
-            .map(ReplayScheduleConfigMapper.INSTANCE::dtoFromDao)
-            .collect(Collectors.toList());
+                .map(ReplayScheduleConfigMapper.INSTANCE::dtoFromDao)
+                .collect(Collectors.toList());
     }
 
     @Override
     public List<ScheduleConfiguration> listBy(String appId) {
         Query query = Query.query(Criteria.where(APP_ID).is(appId));
         List<ReplayScheduleConfigCollection> replayScheduleConfigCollections =
-            mongoTemplate.find(query, ReplayScheduleConfigCollection.class);
+                mongoTemplate.find(query, ReplayScheduleConfigCollection.class);
         return replayScheduleConfigCollections.stream()
-            .map(ReplayScheduleConfigMapper.INSTANCE::dtoFromDao)
-            .collect(Collectors.toList());
+                .map(ReplayScheduleConfigMapper.INSTANCE::dtoFromDao)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -68,11 +68,11 @@ public class ScheduleConfigurationRepositoryImpl implements ConfigRepositoryProv
         if (configuration.getExcludeOperationMap() != null) {
             try {
                 update.set(EXCLUSION_OPERATION_MAP,
-                    objectMapper.writeValueAsString(configuration.getExcludeOperationMap()));
+                        objectMapper.writeValueAsString(configuration.getExcludeOperationMap()));
             } catch (JsonProcessingException e) {
                 LogUtils.error(LOGGER,
-                    "ScheduleConfigurationRepositoryImpl.update: serialize excludeOperationMap failed ",
-                    e);
+                        "ScheduleConfigurationRepositoryImpl.update: serialize excludeOperationMap failed ",
+                        e);
             }
         }
         UpdateResult updateResult = mongoTemplate.updateMulti(query, update, ReplayScheduleConfigCollection.class);
@@ -89,7 +89,7 @@ public class ScheduleConfigurationRepositoryImpl implements ConfigRepositoryProv
     @Override
     public boolean insert(ScheduleConfiguration configuration) {
         ReplayScheduleConfigCollection replayScheduleConfigCollection =
-            ReplayScheduleConfigMapper.INSTANCE.daoFromDto(configuration);
+                ReplayScheduleConfigMapper.INSTANCE.daoFromDto(configuration);
         ReplayScheduleConfigCollection insert = mongoTemplate.insert(replayScheduleConfigCollection);
         return insert.getId() != null;
     }
