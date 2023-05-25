@@ -35,4 +35,6 @@ public class ScheduleConfiguration extends AbstractConfiguration {
      */
     private Integer sendMaxQps;
 
+    private Set<String> excludeServiceOperationSet;
+
 }
