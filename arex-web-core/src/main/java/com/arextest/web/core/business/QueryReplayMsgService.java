@@ -146,21 +146,20 @@ public class QueryReplayMsgService {
 
         if (CollectionUtils.isNotEmpty(dtos)) {
             // judge entrance type by operationId
-            String entranceCategoryName = Strings.EMPTY;
             Set<String> entranceCategoryNames = Collections.emptySet();
             CompareResultDto compareResultDto = dtos.get(0);
             String operationId = compareResultDto.getOperationId();
             ApplicationOperationConfiguration applicationOperationConfiguration =
                     applicationOperationConfigurationRepository.listByOperationId(operationId);
             if (applicationOperationConfiguration != null) {
-                entranceCategoryName = applicationOperationConfiguration.getOperationName();
                 entranceCategoryNames = applicationOperationConfiguration.getOperationTypes();
+                entranceCategoryNames.add(applicationOperationConfiguration.getOperationType());
             }
 
             FullLinkInfoItem entrance = new FullLinkInfoItem();
             List<FullLinkInfoItem> itemList = new ArrayList<>();
             for (CompareResultDto dto : dtos) {
-                if (checkEntrance(dto.getCategoryName(), entranceCategoryName, entranceCategoryNames)) {
+                if (entranceCategoryNames.contains(dto.getCategoryName())) {
                     entrance.setId(dto.getId());
                     entrance.setCategoryName(dto.getCategoryName());
                     entrance.setOperationName(dto.getOperationName());
@@ -198,14 +197,6 @@ public class QueryReplayMsgService {
         response.setLogEntity(logs.get(request.getLogIndex()));
         response.setDiffResultCode(dto.getDiffResultCode());
         return response;
-    }
-
-    // todo: For compatibility with older versions, only the operationTypes type will be compatible in the next version
-    private boolean checkEntrance(String categoryName, String operationType, Set<String> operationTypes) {
-        if (CollectionUtils.isNotEmpty(operationTypes)) {
-            return operationTypes.contains(categoryName);
-        }
-        return Objects.equals(categoryName, operationType);
     }
 
     private int computeItemStatus(CompareResultDto compareResult) {
