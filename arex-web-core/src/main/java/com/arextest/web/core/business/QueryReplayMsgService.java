@@ -40,6 +40,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -146,13 +147,15 @@ public class QueryReplayMsgService {
 
         if (CollectionUtils.isNotEmpty(dtos)) {
             // judge entrance type by operationId
-            Set<String> entranceCategoryNames = Collections.emptySet();
+            Set<String> entranceCategoryNames = new HashSet<>();
             CompareResultDto compareResultDto = dtos.get(0);
             String operationId = compareResultDto.getOperationId();
             ApplicationOperationConfiguration applicationOperationConfiguration =
                     applicationOperationConfigurationRepository.listByOperationId(operationId);
             if (applicationOperationConfiguration != null) {
-                entranceCategoryNames = applicationOperationConfiguration.getOperationTypes();
+                if (CollectionUtils.isNotEmpty(applicationOperationConfiguration.getOperationTypes())) {
+                    entranceCategoryNames = applicationOperationConfiguration.getOperationTypes();
+                }
                 entranceCategoryNames.add(applicationOperationConfiguration.getOperationType());
             }
 
