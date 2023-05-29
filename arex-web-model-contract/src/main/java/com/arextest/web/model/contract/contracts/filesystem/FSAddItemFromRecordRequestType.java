@@ -11,6 +11,8 @@ public class FSAddItemFromRecordRequestType {
     private String workspaceId;
     private String[] parentPath;
     private String nodeName;
+    @NotBlank(message = "planId cannot be empty")
+    private String planId;
     @NotBlank(message = "RecordId cannot be empty")
     private String recordId;
     @JsonIgnore

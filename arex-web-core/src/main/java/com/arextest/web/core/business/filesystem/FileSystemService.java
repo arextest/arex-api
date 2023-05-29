@@ -15,6 +15,7 @@ import com.arextest.web.core.repository.FSFolderRepository;
 import com.arextest.web.core.repository.FSInterfaceRepository;
 import com.arextest.web.core.repository.FSTraceLogRepository;
 import com.arextest.web.core.repository.FSTreeRepository;
+import com.arextest.web.core.repository.ReportPlanStatisticRepository;
 import com.arextest.web.core.repository.UserRepository;
 import com.arextest.web.core.repository.UserWorkspaceRepository;
 import com.arextest.web.model.contract.contracts.filesystem.ChangeRoleRequestType;
@@ -55,8 +56,10 @@ import com.arextest.web.model.contract.contracts.filesystem.UserType;
 import com.arextest.web.model.contract.contracts.filesystem.ValidInvitationRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.ValidInvitationResponseType;
 import com.arextest.web.model.dto.KeyValuePairDto;
+import com.arextest.web.model.dto.ReportPlanStatisticDto;
 import com.arextest.web.model.dto.UserDto;
 import com.arextest.web.model.dto.WorkspaceDto;
+import com.arextest.web.model.dto.filesystem.AddressDto;
 import com.arextest.web.model.dto.filesystem.FSCaseDto;
 import com.arextest.web.model.dto.filesystem.FSFolderDto;
 import com.arextest.web.model.dto.filesystem.FSInterfaceAndCaseBaseDto;
@@ -98,6 +101,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
 import java.util.UUID;
@@ -167,6 +171,9 @@ public class FileSystemService {
 
     @Resource
     private RecoveryFactory recoveryFactory;
+
+    @Resource
+    private ReportPlanStatisticRepository reportPlanStatisticRepository;
 
 
     public FSAddItemResponseType addItem(FSAddItemRequestType request) {
@@ -730,6 +737,19 @@ public class FileSystemService {
         recordHeader.setActive(true);
         caseDto.getHeaders().removeIf(item -> Objects.equals(item.getKey(), AREX_RECORD_ID));
         caseDto.getHeaders().add(0, recordHeader);
+
+        // modify the address of fsCase(domain + request path)
+        String planId = request.getPlanId();
+        ReportPlanStatisticDto reportPlanStatisticDto = reportPlanStatisticRepository.findByPlanId(planId);
+        AddressDto address = caseDto.getAddress();
+        if (address != null) {
+            String domain = Optional.ofNullable(reportPlanStatisticDto.getTargetEnv()).orElse(StringUtils.EMPTY);
+            String requestPath = Optional.ofNullable(address.getEndpoint()).orElse(StringUtils.EMPTY);
+            address.setEndpoint(domain + requestPath);
+        }
+
+        // when fix the case form replay, don't inherit the address of the parent interface
+        caseDto.setInherited(false);
 
         if (!storageCase.pinnedCase(request.getRecordId(), newRecordId)) {
             return null;

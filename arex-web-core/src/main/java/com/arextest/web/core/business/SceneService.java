@@ -1,6 +1,5 @@
 package com.arextest.web.core.business;
 
-import com.arextest.diff.utils.ListUti;
 import com.arextest.web.common.LogUtils;
 import com.arextest.web.core.business.util.ListUtils;
 import com.arextest.web.core.repository.ReportDiffAggStatisticRepository;
@@ -32,7 +31,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 @Component
@@ -59,9 +57,11 @@ public class SceneService {
             this.categoryName = categoryName;
             this.operationName = operationName;
         }
+
         private String planItemId;
         private String categoryName;
         private String operationName;
+
         @Override
         public boolean equals(Object o) {
             if (this == o) {
@@ -74,6 +74,7 @@ public class SceneService {
             return Objects.equals(planItemId, that.planItemId) && Objects.equals(categoryName,
                     that.categoryName) && Objects.equals(operationName, that.operationName);
         }
+
         @Override
         public int hashCode() {
             return Objects.hash(planItemId, categoryName, operationName);
@@ -231,7 +232,7 @@ public class SceneService {
     }
 
     private void setBaseTestMissingScene(Map<String, Map<String, List<Pair<Integer, String>>>> caseMap,
-            String baseMissing) {
+                                         String baseMissing) {
         caseMap.put(baseMissing, new HashMap<>());
         Map<String, List<Pair<Integer, String>>> sceneMap = caseMap.get(baseMissing);
         sceneMap.put(baseMissing, new ArrayList<>());
@@ -310,7 +311,6 @@ public class SceneService {
         }
         return sb.toString();
     }
-
 
 
     /**
