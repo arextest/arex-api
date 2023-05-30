@@ -743,9 +743,8 @@ public class FileSystemService {
         ReportPlanStatisticDto reportPlanStatisticDto = reportPlanStatisticRepository.findByPlanId(planId);
         AddressDto address = caseDto.getAddress();
         if (address != null) {
-            String domain = Optional.ofNullable(reportPlanStatisticDto.getTargetEnv()).orElse(StringUtils.EMPTY);
-            String requestPath = Optional.ofNullable(address.getEndpoint()).orElse(StringUtils.EMPTY);
-            address.setEndpoint(domain + requestPath);
+            address.setEndpoint(this.contactUrl(reportPlanStatisticDto.getTargetEnv(),
+                    address.getEndpoint()));
         }
 
         // when fix the case form replay, don't inherit the address of the parent interface
@@ -1011,6 +1010,22 @@ public class FileSystemService {
             }
         }
         treeDtos.add(targetIndex, dupNodeDto);
+    }
+
+    private String contactUrl(String domain, String operation) {
+        String result = null;
+        domain = Optional.ofNullable(domain).orElse(StringUtils.EMPTY);
+        operation = Optional.ofNullable(operation).orElse(StringUtils.EMPTY);
+        boolean domainContain = StringUtils.endsWith(domain, "/");
+        boolean operationContain = StringUtils.startsWith(operation, "/");
+        if (domainContain && operationContain) {
+            result = domain + operation.substring(1);
+        } else if (!domainContain && !operationContain) {
+            result = domain + "/" + operation;
+        } else {
+            result = domain + operation;
+        }
+        return result;
     }
 
     @Data
