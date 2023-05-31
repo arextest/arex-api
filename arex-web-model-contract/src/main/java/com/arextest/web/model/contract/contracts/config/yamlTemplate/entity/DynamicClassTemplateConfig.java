@@ -6,7 +6,6 @@ import lombok.Data;
 @Data
 public class DynamicClassTemplateConfig {
     private String fullClassName;
-    // private String methodName;
-    // private String parameterTypes;
-    // private String keyFormula;
+    private String methodName;
+    private String parameterTypes;
 }
