@@ -743,7 +743,8 @@ public class FileSystemService {
         ReportPlanStatisticDto reportPlanStatisticDto = reportPlanStatisticRepository.findByPlanId(planId);
         AddressDto address = caseDto.getAddress();
         if (address != null) {
-            address.setEndpoint(this.contactUrl(reportPlanStatisticDto.getTargetEnv(),
+            address.setEndpoint(this.contactUrl(
+                    reportPlanStatisticDto == null ? StringUtils.EMPTY : reportPlanStatisticDto.getTargetEnv(),
                     address.getEndpoint()));
         }
 
