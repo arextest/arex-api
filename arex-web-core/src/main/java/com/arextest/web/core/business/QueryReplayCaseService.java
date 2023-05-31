@@ -19,6 +19,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 
@@ -88,9 +89,9 @@ public class QueryReplayCaseService {
             QueryPlanFailCaseResponseType.FailCaseInfo failCaseInfo
                     = new QueryPlanFailCaseResponseType.FailCaseInfo();
             failCaseInfo.setOperationId(operationId);
-            List<String> recordIdList = compareResultDtoList.stream()
+            Set<String> recordIdList = compareResultDtoList.stream()
                     .map(CompareResultDto::getRecordId)
-                    .collect(Collectors.toList());
+                    .collect(Collectors.toSet());
             failCaseInfo.setReplayIdList(recordIdList);
             failCaseInfoList.add(failCaseInfo);
         }
