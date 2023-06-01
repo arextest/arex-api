@@ -54,6 +54,10 @@ public class InterceptorConfiguration implements WebMvcConfigurer {
         defaultPatterns.add("/api/report/init");
         defaultPatterns.add("/api/report/pushCompareResults");
         defaultPatterns.add("/api/report/pushReplayStatus");
+
+        //test
+        defaultPatterns.add("/api/filesystem/**");
+
         // exclude configuration services
         defaultPatterns.add("/api/config/**");
         // exclude logs services
