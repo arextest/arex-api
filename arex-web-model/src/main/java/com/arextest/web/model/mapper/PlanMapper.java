@@ -2,6 +2,7 @@ package com.arextest.web.model.mapper;
 
 import com.arextest.web.model.contract.contracts.ReportInitialRequestType;
 import com.arextest.web.model.contract.contracts.common.PlanStatistic;
+import com.arextest.web.model.contract.contracts.replay.UpdateReportInfoRequestType;
 import com.arextest.web.model.dao.mongodb.ReportPlanStatisticCollection;
 import com.arextest.web.model.dto.ReportPlanStatisticDto;
 import org.mapstruct.Mapper;
@@ -35,4 +36,6 @@ public interface PlanMapper {
     ReportPlanStatisticDto dtoFromDao(ReportPlanStatisticCollection dao);
 
     PlanStatistic contractFromDto(ReportPlanStatisticDto dto);
+
+    ReportPlanStatisticDto dtoFromContract(UpdateReportInfoRequestType contract);
 }

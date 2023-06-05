@@ -53,6 +53,8 @@ import com.arextest.web.model.contract.contracts.QuerySchemaForConfigRequestType
 import com.arextest.web.model.contract.contracts.ReportInitialRequestType;
 import com.arextest.web.model.contract.contracts.ReportInitialResponseType;
 import com.arextest.web.model.contract.contracts.SuccessResponseType;
+import com.arextest.web.model.contract.contracts.replay.UpdateReportInfoRequestType;
+import com.arextest.web.model.contract.contracts.replay.UpdateReportInfoResponseType;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONException;
@@ -116,6 +118,14 @@ public class ReportQueryController {
         }
         ReportInitialResponseType response = new ReportInitialResponseType();
         response.setSuccess(replayInfoService.initPlan(request));
+        return ResponseUtils.successResponse(response);
+    }
+
+    @PostMapping("/updateReportInfo")
+    @ResponseBody
+    public Response updateReportInfo(@Valid @RequestBody UpdateReportInfoRequestType request) {
+        UpdateReportInfoResponseType response = new UpdateReportInfoResponseType();
+        response.setSuccess(replayInfoService.updatePlan(request));
         return ResponseUtils.successResponse(response);
     }
 
