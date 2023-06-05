@@ -39,8 +39,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -123,7 +125,8 @@ public class QueryReplayMsgService {
     public QueryFullLinkMsgResponseType queryFullLinkMsg(QueryFullLinkMsgRequestType request) {
         QueryFullLinkMsgResponseType response = new QueryFullLinkMsgResponseType();
         List<CompareResultDto> dtos =
-                replayCompareResultRepository.queryCompareResultsByRecordId(request.getPlanItemId(), request.getRecordId());
+                replayCompareResultRepository.queryCompareResultsByRecordId(request.getPlanItemId(),
+                        request.getRecordId());
         if (dtos == null) {
             return response;
         }
@@ -143,28 +146,33 @@ public class QueryReplayMsgService {
 
         if (CollectionUtils.isNotEmpty(dtos)) {
             // judge entrance type by operationId
-            String entranceCategoryName = "";
+            Set<String> entranceCategoryNames = new HashSet<>();
             CompareResultDto compareResultDto = dtos.get(0);
             String operationId = compareResultDto.getOperationId();
             ApplicationOperationConfiguration applicationOperationConfiguration =
                     applicationOperationConfigurationRepository.listByOperationId(operationId);
             if (applicationOperationConfiguration != null) {
-                entranceCategoryName = applicationOperationConfiguration.getOperationType();
+                if (CollectionUtils.isNotEmpty(applicationOperationConfiguration.getOperationTypes())) {
+                    entranceCategoryNames = applicationOperationConfiguration.getOperationTypes();
+                }
+                entranceCategoryNames.add(applicationOperationConfiguration.getOperationType());
             }
 
             FullLinkInfoItem entrance = new FullLinkInfoItem();
             List<FullLinkInfoItem> itemList = new ArrayList<>();
             for (CompareResultDto dto : dtos) {
-                if (Objects.equals(dto.getCategoryName(), entranceCategoryName)) {
+                if (entranceCategoryNames.contains(dto.getCategoryName())) {
                     entrance.setId(dto.getId());
                     entrance.setCategoryName(dto.getCategoryName());
                     entrance.setOperationName(dto.getOperationName());
+                    entrance.setInstanceId(dto.getInstanceId());
                     entrance.setCode(computeItemStatus(dto));
                 } else {
                     FullLinkInfoItem fullLinkInfoItem = new FullLinkInfoItem();
                     fullLinkInfoItem.setId(dto.getId());
                     fullLinkInfoItem.setCategoryName(dto.getCategoryName());
                     fullLinkInfoItem.setOperationName(dto.getOperationName());
+                    fullLinkInfoItem.setInstanceId(dto.getInstanceId());
                     fullLinkInfoItem.setCode(computeItemStatus(dto));
                     itemList.add(fullLinkInfoItem);
                 }
@@ -195,7 +203,7 @@ public class QueryReplayMsgService {
 
     private int computeItemStatus(CompareResultDto compareResult) {
         UnmatchedCategory unmatchedCategory = UnmatchedCategory.computeCategory(compareResult);
-        if (unmatchedCategory == UnmatchedCategory.UNKNOWN){
+        if (unmatchedCategory == UnmatchedCategory.UNKNOWN) {
             return -1;
         }
         return unmatchedCategory.getCode();
@@ -225,8 +233,10 @@ public class QueryReplayMsgService {
                 List<NodeEntity> rightUnmatchedPath = pathPair.getRightUnmatchedPath();
                 int leftUnmatchedPathSize = leftUnmatchedPath == null ? 0 : leftUnmatchedPath.size();
                 int rightUnmatchedPathSize = rightUnmatchedPath == null ? 0 : rightUnmatchedPath.size();
-                List<NodeEntity> nodePath = leftUnmatchedPathSize >= rightUnmatchedPathSize ? leftUnmatchedPath : rightUnmatchedPath;
-                MutablePair<String, Integer> tempPair = new MutablePair<>(ListUtils.getFuzzyPathStr(nodePath), unmatchedType);
+                List<NodeEntity> nodePath =
+                        leftUnmatchedPathSize >= rightUnmatchedPathSize ? leftUnmatchedPath : rightUnmatchedPath;
+                MutablePair<String, Integer> tempPair =
+                        new MutablePair<>(ListUtils.getFuzzyPathStr(nodePath), unmatchedType);
                 CompareResultDetail.LogInfo logInfo;
                 if (!logInfoMap.containsKey(tempPair)) {
                     logInfo = new CompareResultDetail.LogInfo();

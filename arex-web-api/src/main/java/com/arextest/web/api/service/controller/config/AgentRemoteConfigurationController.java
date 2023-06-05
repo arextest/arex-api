@@ -74,6 +74,7 @@ public final class AgentRemoteConfigurationController {
         body.setDynamicClassConfigurationList(dynamicClassHandler.useResultAsList(appId));
         body.setServiceCollectConfiguration(serviceCollectConfiguration);
         body.setStatus(applicationConfiguration.getStatus());
+        body.setTargetAddress(request.getHost());
         applicationInstancesConfigurableHandler.createOrUpdate(appId, request.host, request.recordVersion);
         return ResponseUtils.successResponse(body);
     }
@@ -122,5 +123,7 @@ public final class AgentRemoteConfigurationController {
          * see {@link  StatusType }
          */
         private Integer status;
+
+        private String targetAddress;
     }
 }

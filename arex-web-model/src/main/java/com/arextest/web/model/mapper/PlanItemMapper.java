@@ -1,5 +1,6 @@
 package com.arextest.web.model.mapper;
 
+import com.arextest.web.model.contract.contracts.replay.UpdateReportInfoRequestType;
 import com.arextest.web.model.dao.mongodb.ReportPlanItemStatisticCollection;
 import com.arextest.web.model.dto.PlanItemDto;
 import com.arextest.web.model.contract.contracts.ReportInitialRequestType;
@@ -21,4 +22,6 @@ public interface PlanItemMapper {
             @Mapping(target = "status", constant = "1"),
     })
     PlanItemDto dtoFromContract(ReportInitialRequestType.ReportItem contract);
+
+    PlanItemDto dtoFromContract(UpdateReportInfoRequestType.UpdateReportItem contract);
 }

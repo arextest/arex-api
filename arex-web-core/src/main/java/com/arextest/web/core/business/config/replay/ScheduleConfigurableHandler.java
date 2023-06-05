@@ -2,15 +2,17 @@ package com.arextest.web.core.business.config.replay;
 
 import com.arextest.web.core.business.config.AbstractConfigurableHandler;
 import com.arextest.web.core.repository.ConfigRepositoryProvider;
+import com.arextest.web.model.contract.contracts.config.record.ServiceCollectConfiguration;
 import com.arextest.web.model.contract.contracts.config.replay.ScheduleConfiguration;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+import javax.annotation.Resource;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
-
-import javax.annotation.Resource;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * @author jmo
@@ -21,7 +23,23 @@ public final class ScheduleConfigurableHandler extends AbstractConfigurableHandl
     @Resource
     private ScheduleConfiguration globalScheduleConfiguration;
 
-    protected ScheduleConfigurableHandler(@Autowired ConfigRepositoryProvider<ScheduleConfiguration> repositoryProvider) {
+    @Resource
+    private ConfigRepositoryProvider<ServiceCollectConfiguration> collectConfigurationProvider;
+
+    @Override
+    public List<ScheduleConfiguration> useResultAsList(String appId) {
+        List<ScheduleConfiguration> sourceList = super.useResultAsList(appId);
+        if (CollectionUtils.isNotEmpty(sourceList)) {
+            Set<String> excludeServiceOperationSet = getExcludeServiceOperationSet(appId);
+            for (ScheduleConfiguration source : sourceList) {
+                source.setExcludeServiceOperationSet(excludeServiceOperationSet);
+            }
+        }
+        return sourceList;
+    }
+
+    protected ScheduleConfigurableHandler(
+        @Autowired ConfigRepositoryProvider<ScheduleConfiguration> repositoryProvider) {
         super(repositoryProvider);
     }
 
@@ -66,5 +84,12 @@ public final class ScheduleConfigurableHandler extends AbstractConfigurableHandl
         if (source.getTargetEnv() == null) {
             source.setTargetEnv(globalScheduleConfiguration.getTargetEnv());
         }
+    }
+    private Set<String> getExcludeServiceOperationSet(String appId) {
+        List<ServiceCollectConfiguration> list = collectConfigurationProvider.listBy(appId);
+        if (CollectionUtils.isEmpty(list)) {
+            return Collections.emptySet();
+        }
+        return list.get(0).getExcludeServiceOperationSet();
     }
 }
