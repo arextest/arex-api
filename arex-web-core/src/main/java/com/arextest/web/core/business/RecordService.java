@@ -1,10 +1,10 @@
 package com.arextest.web.core.business;
 
 import com.arextest.model.mock.AREXMocker;
-import com.arextest.model.replay.CountRecordCaseResponseType;
-import com.arextest.model.replay.ListRecordCaseRequestType;
-import com.arextest.model.replay.ListRecordCaseResponseType;
+import com.arextest.model.mock.MockCategoryType;
+import com.arextest.model.replay.*;
 import com.arextest.web.common.HttpUtils;
+import com.arextest.web.common.TimeUtils;
 import com.arextest.web.model.contract.contracts.record.CountRecordResponseType;
 import com.arextest.web.model.contract.contracts.record.ListRecordRequestType;
 import com.arextest.web.model.contract.contracts.record.ListRecordResponseType;
@@ -26,36 +26,52 @@ public class RecordService {
     @Value(("${arex.storage.listRecord.url}"))
     private String listRecordUrl;
 
+    private static final String CREATE_TIME_COLUMN_NAME = "creationTime";
+
     public CountRecordResponseType countRecord(String appId) {
-        ResponseEntity<CountRecordCaseResponseType> response =
-                HttpUtils.get(countRecordUrl + appId, CountRecordCaseResponseType.class);
+        QueryCaseCountRequestType requestType = new QueryCaseCountRequestType();
+        requestType.setAppId(appId);
+        requestType.setEndTime(System.currentTimeMillis());
+        requestType.setBeginTime(System.currentTimeMillis() - TimeUtils.ONE_DAY_MILL);
+        ResponseEntity<QueryCaseCountResponseType> response =
+                HttpUtils.post(countRecordUrl, requestType, QueryCaseCountResponseType.class);
         CountRecordResponseType responseType = new CountRecordResponseType();
         responseType.setRecordedCaseCount(
-                Optional.ofNullable(response.getBody()).map(CountRecordCaseResponseType::getRecordedCaseCount)
+                Optional.ofNullable(response.getBody()).map(QueryCaseCountResponseType::getCount)
                         .orElse(0L));
 
         return responseType;
     }
 
     public ListRecordResponseType listRecord(ListRecordRequestType requestType) {
-        ResponseEntity<ListRecordCaseResponseType> response = HttpUtils.post(
-                listRecordUrl, toListRecordCaseRequestType(requestType), ListRecordCaseResponseType.class);
+        PagedRequestType pagedRequestType = toPagedRequestType(requestType);
+        pagedRequestType.setEndTime(System.currentTimeMillis());
+        pagedRequestType.setBeginTime(System.currentTimeMillis() - TimeUtils.ONE_DAY_MILL);
+        pagedRequestType.setOrderCondition(
+                new OrderCondition(CREATE_TIME_COLUMN_NAME, OrderMethodEnum.DESCENDING.getCode()));
 
+        ResponseEntity<PagedResponseType> listResponse = HttpUtils.post(
+                listRecordUrl, pagedRequestType, PagedResponseType.class);
         ListRecordResponseType responseType = new ListRecordResponseType();
-        if (response != null && response.getBody() != null) {
-            responseType.setTotalCount(response.getBody().getTotalCount());
+        if (listResponse != null && listResponse.getBody() != null) {
             responseType.setRecordList(
-                    response.getBody().getRecordList().stream().map(this::toRecordItem).collect(Collectors.toList()));
+                    listResponse.getBody().getRecords().stream().map(this::toRecordItem).collect(Collectors.toList()));
+        }
+
+        ResponseEntity<QueryCaseCountResponseType> countResponse =
+                HttpUtils.post(countRecordUrl, pagedRequestType, QueryCaseCountResponseType.class);
+        if (countResponse != null && countResponse.getBody() != null) {
+            responseType.setTotalCount(countResponse.getBody().getCount());
         }
         return responseType;
     }
 
-    private ListRecordCaseRequestType toListRecordCaseRequestType(ListRecordRequestType input) {
-        ListRecordCaseRequestType output = new ListRecordCaseRequestType();
+    private PagedRequestType toPagedRequestType(ListRecordRequestType input) {
+        PagedRequestType output = new PagedRequestType();
         output.setAppId(input.getAppId());
         output.setPageIndex(input.getPageIndex());
-        output.setOperationType(input.getOperationType());
-        output.setOperationName(input.getOperationName());
+        output.setCategory(MockCategoryType.create(input.getOperationType()));
+        output.setOperation(input.getOperationName());
         output.setPageSize(input.getPageSize());
         return output;
     }
