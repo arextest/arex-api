@@ -5,6 +5,9 @@ import com.arextest.web.model.contract.contracts.config.AbstractConfiguration;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+import java.util.Set;
+
 
 @Getter
 @Setter
@@ -13,7 +16,9 @@ public class ApplicationOperationConfiguration extends AbstractConfiguration imp
     private String appId;
     private String serviceId;
     private String operationName;
+    @Deprecated
     private String operationType;
+    private Set<String> operationTypes;
     private String operationResponse;
     private Integer recordedCaseCount;
 }

@@ -37,6 +37,7 @@ import com.arextest.web.model.contract.contracts.QueryMsgShowByCaseRequestType;
 import com.arextest.web.model.contract.contracts.QueryMsgShowByCaseResponseType;
 import com.arextest.web.model.contract.contracts.QueryMsgWithDiffRequestType;
 import com.arextest.web.model.contract.contracts.QueryMsgWithDiffResponseType;
+import com.arextest.web.model.contract.contracts.QueryPlanFailCaseRequestType;
 import com.arextest.web.model.contract.contracts.QueryPlanItemStatisticsRequestType;
 import com.arextest.web.model.contract.contracts.QueryPlanItemStatisticsResponseType;
 import com.arextest.web.model.contract.contracts.QueryPlanStatisticsRequestType;
@@ -52,6 +53,8 @@ import com.arextest.web.model.contract.contracts.QuerySchemaForConfigRequestType
 import com.arextest.web.model.contract.contracts.ReportInitialRequestType;
 import com.arextest.web.model.contract.contracts.ReportInitialResponseType;
 import com.arextest.web.model.contract.contracts.SuccessResponseType;
+import com.arextest.web.model.contract.contracts.replay.UpdateReportInfoRequestType;
+import com.arextest.web.model.contract.contracts.replay.UpdateReportInfoResponseType;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONException;
@@ -115,6 +118,14 @@ public class ReportQueryController {
         }
         ReportInitialResponseType response = new ReportInitialResponseType();
         response.setSuccess(replayInfoService.initPlan(request));
+        return ResponseUtils.successResponse(response);
+    }
+
+    @PostMapping("/updateReportInfo")
+    @ResponseBody
+    public Response updateReportInfo(@Valid @RequestBody UpdateReportInfoRequestType request) {
+        UpdateReportInfoResponseType response = new UpdateReportInfoResponseType();
+        response.setSuccess(replayInfoService.updatePlan(request));
         return ResponseUtils.successResponse(response);
     }
 
@@ -292,6 +303,14 @@ public class ReportQueryController {
     public Response queryLogEntity(@Valid @RequestBody QueryLogEntityRequestTye request) {
         return ResponseUtils.successResponse(
                 queryReplayMsgService.queryLogEntity(request)
+        );
+    }
+
+    @PostMapping("/queryPlanFailCase")
+    @ResponseBody
+    public Response queryPlanFailCase(@Valid @RequestBody QueryPlanFailCaseRequestType request) {
+        return ResponseUtils.successResponse(
+                queryReplayCaseService.queryPlanFailCase(request)
         );
     }
 }

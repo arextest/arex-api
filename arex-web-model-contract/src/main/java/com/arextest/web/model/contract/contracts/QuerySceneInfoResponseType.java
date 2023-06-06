@@ -23,6 +23,8 @@ public class QuerySceneInfoResponseType {
         private int count;
         private String recordId;
         private String replayId;
+        private long recordTime;
+        private long replayTime;
         private List<DiffDetailType> details;
     }
 

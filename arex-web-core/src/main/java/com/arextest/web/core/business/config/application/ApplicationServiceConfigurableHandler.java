@@ -90,6 +90,7 @@ public final class ApplicationServiceConfigurableHandler
             operationConfiguration = new ApplicationOperationConfiguration();
             operationConfiguration.setOperationName(operationName);
             operationConfiguration.setOperationType(operationDescription.getOperationType());
+            operationConfiguration.setOperationTypes(operationDescription.getOperationTypes());
             operationConfiguration.setServiceId(service.getId());
             operationConfiguration.setAppId(service.getAppId());
             operationConfiguration.setStatus(StatusType.NORMAL.getMask());
