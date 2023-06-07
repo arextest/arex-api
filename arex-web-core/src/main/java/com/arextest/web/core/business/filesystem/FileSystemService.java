@@ -834,7 +834,6 @@ public class FileSystemService {
         }
         String exportString = ie.exportItem(nodes, itemInfos);
         return new Tuple<>(true, exportString);
-        Proxy
     }
 
     public boolean importItem(FSImportItemRequestType request) {
