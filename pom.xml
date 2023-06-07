@@ -7,7 +7,7 @@
     <groupId>com.arextest</groupId>
     <artifactId>arex-web</artifactId>
     <packaging>pom</packaging>
-    <version>0.4.0-SNAPSHOT</version>
+    <version>0.3.0.2</version>
     <modules>
         <module>arex-web-api</module>
         <module>arex-web-common</module>
