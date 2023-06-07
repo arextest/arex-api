@@ -53,6 +53,8 @@ import com.arextest.web.model.contract.contracts.QuerySchemaForConfigRequestType
 import com.arextest.web.model.contract.contracts.ReportInitialRequestType;
 import com.arextest.web.model.contract.contracts.ReportInitialResponseType;
 import com.arextest.web.model.contract.contracts.SuccessResponseType;
+import com.arextest.web.model.contract.contracts.replay.AnalyzeCompareResultsRequestType;
+import com.arextest.web.model.contract.contracts.replay.AnalyzeCompareResultsResponseType;
 import com.arextest.web.model.contract.contracts.replay.UpdateReportInfoRequestType;
 import com.arextest.web.model.contract.contracts.replay.UpdateReportInfoResponseType;
 import lombok.extern.slf4j.Slf4j;
@@ -100,12 +102,20 @@ public class ReportQueryController {
     @Resource
     private SceneReportService sceneReportService;
 
-
+    @Deprecated
     @PostMapping("/pushCompareResults")
     @ResponseBody
     public Response pushCompareResults(@Valid @RequestBody PushCompareResultsRequestType request) {
         PushCompareResultsResponseType response = new PushCompareResultsResponseType();
         response.setSuccess(reportService.saveCompareResults(request));
+        return ResponseUtils.successResponse(response);
+    }
+
+    @PostMapping("/analyzeCompareResults")
+    @ResponseBody
+    public Response analyzeCompareResults(@Valid @RequestBody AnalyzeCompareResultsRequestType request) {
+        AnalyzeCompareResultsResponseType response = new AnalyzeCompareResultsResponseType();
+        response.setSuccess(reportService.analyzeCompareResults(request));
         return ResponseUtils.successResponse(response);
     }
 

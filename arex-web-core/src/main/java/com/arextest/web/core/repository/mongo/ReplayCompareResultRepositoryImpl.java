@@ -21,7 +21,6 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -175,6 +174,14 @@ public class ReplayCompareResultRepositoryImpl implements ReplayCompareResultRep
         query.addCriteria(Criteria.where(DASH_ID).is(objectId));
         ReplayCompareResultCollection result = mongoTemplate.findOne(query, ReplayCompareResultCollection.class);
         return CompareResultMapper.INSTANCE.dtoFromDao(result);
+    }
+
+    @Override
+    public List<CompareResultDto> queryMultiCompareResults(List<String> objectIds) {
+        Query query = new Query();
+        query.addCriteria(Criteria.where(DASH_ID).in(objectIds));
+        List<ReplayCompareResultCollection> results = mongoTemplate.find(query, ReplayCompareResultCollection.class);
+        return results.stream().map(CompareResultMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
     }
 
     @Override
