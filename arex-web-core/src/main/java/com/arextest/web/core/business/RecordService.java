@@ -2,7 +2,12 @@ package com.arextest.web.core.business;
 
 import com.arextest.model.mock.AREXMocker;
 import com.arextest.model.mock.MockCategoryType;
-import com.arextest.model.replay.*;
+import com.arextest.model.replay.PagedRequestType;
+import com.arextest.model.replay.PagedResponseType;
+import com.arextest.model.replay.QueryCaseCountRequestType;
+import com.arextest.model.replay.QueryCaseCountResponseType;
+import com.arextest.model.replay.SortingOption;
+import com.arextest.model.replay.SortingTypeEnum;
 import com.arextest.web.common.HttpUtils;
 import com.arextest.web.common.TimeUtils;
 import com.arextest.web.model.contract.contracts.record.CountRecordResponseType;
@@ -14,6 +19,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -47,8 +53,8 @@ public class RecordService {
         PagedRequestType pagedRequestType = toPagedRequestType(requestType);
         pagedRequestType.setEndTime(System.currentTimeMillis());
         pagedRequestType.setBeginTime(System.currentTimeMillis() - TimeUtils.ONE_DAY_MILL);
-        pagedRequestType.setOrderCondition(
-                new OrderCondition(CREATE_TIME_COLUMN_NAME, OrderMethodEnum.DESCENDING.getCode()));
+        pagedRequestType.setSortingOptions(Collections.singletonList(
+                new SortingOption(CREATE_TIME_COLUMN_NAME, SortingTypeEnum.DESCENDING.getCode())));
 
         ResponseEntity<PagedResponseType> listResponse = HttpUtils.post(
                 listRecordUrl, pagedRequestType, PagedResponseType.class);
