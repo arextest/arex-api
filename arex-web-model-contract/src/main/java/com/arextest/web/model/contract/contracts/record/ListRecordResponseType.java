@@ -12,10 +12,6 @@ public class ListRecordResponseType {
      */
     private Long totalCount;
 
-    /**
-     * simple version of
-     * @see com.arextest.model.mock.AREXMocker
-     */
     private List<RecordItem> recordList;
 
 
