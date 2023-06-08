@@ -54,6 +54,7 @@ import com.arextest.web.model.contract.contracts.QuerySchemaForConfigRequestType
 import com.arextest.web.model.contract.contracts.ReportInitialRequestType;
 import com.arextest.web.model.contract.contracts.ReportInitialResponseType;
 import com.arextest.web.model.contract.contracts.SuccessResponseType;
+import com.arextest.web.model.contract.contracts.record.CountRecordRequestType;
 import com.arextest.web.model.contract.contracts.record.ListRecordRequestType;
 import com.arextest.web.model.contract.contracts.replay.UpdateReportInfoRequestType;
 import com.arextest.web.model.contract.contracts.replay.UpdateReportInfoResponseType;
@@ -317,10 +318,10 @@ public class ReportQueryController {
         );
     }
 
-    @GetMapping("/countRecord/{appId}")
+    @PostMapping("/countRecord}")
     @ResponseBody
-    public Response countRecord(@PathVariable String appId) {
-        return ResponseUtils.successResponse(recordService.countRecord(appId));
+    public Response countRecord(@RequestBody CountRecordRequestType requestType) {
+        return ResponseUtils.successResponse(recordService.countRecord(requestType));
     }
 
     @PostMapping("/listRecord")

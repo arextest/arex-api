@@ -17,4 +17,12 @@ public class ListRecordResponseType {
      * @see com.arextest.model.mock.AREXMocker
      */
     private List<RecordItem> recordList;
+
+
+    @Data
+    public static class RecordItem {
+        private String recordId;
+        private Long createTime;
+        private String operationType;
+    }
 }
