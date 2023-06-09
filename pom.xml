@@ -273,16 +273,6 @@
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-mongodb4</artifactId>
         </dependency>
-        <dependency>
-            <groupId>io.github.kyuseok-oh</groupId>
-            <artifactId>postman-utils</artifactId>
-            <version>1.0.4</version>
-        </dependency>
-        <dependency>
-            <groupId>io.github.sampaiodias</groupId>
-            <artifactId>postman-exporter</artifactId>
-            <version>0.3.0</version>
-        </dependency>
     </dependencies>
 
     <repositories>
