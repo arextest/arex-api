@@ -3,6 +3,7 @@ package com.arextest.web.core.business.filesystem.pincase;
 import com.arextest.model.mock.AREXMocker;
 import com.arextest.model.mock.Mocker;
 import com.arextest.web.common.LogUtils;
+import com.arextest.web.core.business.constants.NetworkConstants;
 import com.arextest.web.model.dto.KeyValuePairDto;
 import com.arextest.web.model.dto.filesystem.AddressDto;
 import com.arextest.web.model.dto.filesystem.BodyDto;
@@ -29,9 +30,6 @@ public class ServletMockerConversionImpl implements MockerConversion {
     private static final String HTTP_METHOD = "HttpMethod";
     private static final String REQUEST_PATH = "RequestPath";
     private static final String SERVLET = "Servlet";
-    private static final String CONTENT_TYPE = "content-type";
-
-    private static final String APPLICATION_JSON = "application/json";
 
     @Override
     public String getCategoryName() {
@@ -63,7 +61,7 @@ public class ServletMockerConversionImpl implements MockerConversion {
             if (headers != null) {
                 List<KeyValuePairDto> kvPair = new ArrayList<>(headers.size());
                 for (Map.Entry<String, String> header : headers.entrySet()) {
-                    if (StringUtils.equalsIgnoreCase(header.getKey(), CONTENT_TYPE)) {
+                    if (StringUtils.equalsIgnoreCase(header.getKey(), NetworkConstants.CONTENT_TYPE)) {
                         contentType = header.getValue();
                     }
                     KeyValuePairDto kv = new KeyValuePairDto();
@@ -94,7 +92,7 @@ public class ServletMockerConversionImpl implements MockerConversion {
                 } else {
                     BodyDto bodyDto = new BodyDto();
                     bodyDto.setContentType(contentType);
-                    if (StringUtils.equalsIgnoreCase(contentType, APPLICATION_JSON)) {
+                    if (StringUtils.equalsIgnoreCase(contentType, NetworkConstants.APPLICATION_JSON)) {
                         try {
                             bodyDto.setBody(new String(Base64.getDecoder().decode(targetRequest.getBody())));
                         } catch (Exception e) {
