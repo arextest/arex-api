@@ -83,13 +83,13 @@ public class PostmanImportExportImpl implements ImportExport {
             if (CollectionUtils.isEmpty(parent.getChildren())) {
                 parent.setChildren(new ArrayList<>());
             }
-            folder = creatRootFolder(collection, fsTreeDto.getId(), parent.getInfoId(), parent.getNodeType());
+            folder = createRootFolder(collection, fsTreeDto.getId(), parent.getInfoId(), parent.getNodeType());
             parent.getChildren().add(folder);
         } else {
             if (CollectionUtils.isEmpty(fsTreeDto.getRoots())) {
                 fsTreeDto.setRoots(new ArrayList<>());
             }
-            folder = creatRootFolder(collection, fsTreeDto.getId(), null, null);
+            folder = createRootFolder(collection, fsTreeDto.getId(), null, null);
             fsTreeDto.getRoots().add(folder);
         }
 
@@ -103,7 +103,7 @@ public class PostmanImportExportImpl implements ImportExport {
         return null;
     }
 
-    private FSNodeDto creatRootFolder(Collection collection, String workSpaceId, String parentId, Integer parentNodeType) {
+    private FSNodeDto createRootFolder(Collection collection, String workSpaceId, String parentId, Integer parentNodeType) {
         FSNodeDto folderNode = new FSNodeDto();
         folderNode.setNodeName(collection.getInfo().getName());
         folderNode.setNodeType(FSInfoItem.FOLDER);
@@ -114,7 +114,7 @@ public class PostmanImportExportImpl implements ImportExport {
     }
 
     private FSNodeDto getFolderNode(String workSpaceId, String parentId, Integer parentNodeType,
-                                    FSNodeDto folderNode, FSFolderDto fsFolderDto, List<CollectionItem> item) {
+                                    FSNodeDto folderNode, FSFolderDto fsFolderDto, List<CollectionItem> items) {
         fsFolderDto.setParentNodeType(parentNodeType);
         fsFolderDto.setParentId(parentId);
         fsFolderDto.setWorkspaceId(workSpaceId);
@@ -123,13 +123,15 @@ public class PostmanImportExportImpl implements ImportExport {
         folderNode.setInfoId(id);
 
         List<FSNodeDto> children = new ArrayList<>();
-        item.forEach(collectionItem -> {
-            if (collectionItem.getRequest() == null) {
-                children.add(createFolderNode(collectionItem, workSpaceId, id, folderNode.getNodeType()));
-            } else {
-                children.add(createInterfaceNode(collectionItem, workSpaceId, id, folderNode.getNodeType()));
-            }
-        });
+        if (CollectionUtils.isNotEmpty(items)) {
+            items.forEach(collectionItem -> {
+                if (collectionItem.getRequest() == null) {
+                    children.add(createFolderNode(collectionItem, workSpaceId, id, folderNode.getNodeType()));
+                } else {
+                    children.add(createInterfaceNode(collectionItem, workSpaceId, id, folderNode.getNodeType()));
+                }
+            });
+        }
         folderNode.setChildren(children);
         return folderNode;
     }
@@ -152,7 +154,7 @@ public class PostmanImportExportImpl implements ImportExport {
         interfaceNode.setNodeType(FSInfoItem.INTERFACE);
         interfaceNode.setMethod(itemRequest.getMethod());
 
-        FSInterfaceDto fsInterfaceDto = creatFSInterfaceAndCaseBaseDto(
+        FSInterfaceDto fsInterfaceDto = createFSInterfaceAndCaseBaseDto(
                 itemRequest, workSpaceId, parentId, parentNodeType, new FSInterfaceDto());
         fsInterfaceDto.setName(item.getName());
 
@@ -218,9 +220,8 @@ public class PostmanImportExportImpl implements ImportExport {
         caseNode.setNodeType(FSInfoItem.CASE);
         caseNode.setCaseSourceType(CaseSourceType.MANUAL_CASE);
 
-        FSCaseDto fsCaseDto = creatFSInterfaceAndCaseBaseDto(itemRequest, workSpaceId, parentId, parentNodeType,
+        FSCaseDto fsCaseDto = createFSInterfaceAndCaseBaseDto(itemRequest, workSpaceId, parentId, parentNodeType,
                 new FSCaseDto());
-        fsCaseDto.setCaseSourceType(caseNode.getCaseSourceType());
         fsCaseDto.setName(caseNode.getNodeName());
 
         ItemInfo itemInfo = itemInfoFactory.getItemInfo(caseNode.getNodeType());
@@ -229,7 +230,7 @@ public class PostmanImportExportImpl implements ImportExport {
         return caseNode;
     }
 
-    private <T extends FSInterfaceAndCaseBaseDto> T creatFSInterfaceAndCaseBaseDto(
+    private <T extends FSInterfaceAndCaseBaseDto> T createFSInterfaceAndCaseBaseDto(
             ItemRequest itemRequest, String workSpaceId, String parentId, Integer parentNodeType, T input) {
         input.setParentNodeType(parentNodeType);
         input.setParentId(parentId);
