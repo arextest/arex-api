@@ -7,7 +7,6 @@ import java.util.List;
 @Data
 public class CollectionItem {
     private String name;
-    //private ItemProtocolProfileBehavior protocolProfileBehavior;
     private List<CollectionItem> item;
     private ItemRequest request;
     private List<ItemResponse> response;

@@ -9,5 +9,4 @@ public class Collection {
     private CollectionInfo info;
     private List<CollectionItem> item;
     private List<CollectionEvent> event;
-    //private List<CollectionVariable> variable;
 }
