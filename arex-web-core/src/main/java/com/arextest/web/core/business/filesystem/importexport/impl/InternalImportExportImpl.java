@@ -121,8 +121,9 @@ public class InternalImportExportImpl implements ImportExport {
     }
 
     private FSNodeDto convertToWorkspaceItem(String workspaceId, String parentId, Integer parentNodeType, Item item) {
-        FSItemDto fsItemDto = null;
+        FSItemDto fsItemDto;
         String method = null;
+        FSNodeDto node = new FSNodeDto();
         switch (item.getNodeType()) {
             case FSInfoItem.INTERFACE:
                 fsItemDto = FSInterfaceMapper.INSTANCE.fsItemFromIeItemDto((InterfaceItemDto) item);
@@ -130,6 +131,7 @@ public class InternalImportExportImpl implements ImportExport {
                 break;
             case FSInfoItem.CASE:
                 fsItemDto = FSCaseMapper.INSTANCE.fsItemFromIeItemDto((CaseItemDto) item);
+                node.setCaseSourceType(((CaseItemDto) item).getCaseSourceType());
                 break;
             case FSInfoItem.FOLDER:
                 fsItemDto = FSFolderMapper.INSTANCE.fsItemFromIeItemDto((FolderItemDto) item);
@@ -139,10 +141,13 @@ public class InternalImportExportImpl implements ImportExport {
                 return null;
         }
 
+        fsItemDto.setWorkspaceId(workspaceId);
+        fsItemDto.setParentId(parentId);
+        fsItemDto.setParentNodeType(parentNodeType);
         ItemInfo itemInfo = itemInfoFactory.getItemInfo(item.getNodeType());
         String id = itemInfo.saveItem(fsItemDto);
 
-        FSNodeDto node = new FSNodeDto();
+
         node.setInfoId(id);
         node.setNodeName(item.getNodeName());
         node.setNodeType(item.getNodeType());
@@ -165,13 +170,14 @@ public class InternalImportExportImpl implements ImportExport {
             return null;
         }
 
-        Item item = null;
+        Item item;
         switch (node.getNodeType()) {
             case FSInfoItem.INTERFACE:
                 item = FSInterfaceMapper.INSTANCE.ieItemFromFsItemDto((FSInterfaceDto) fsItemDto);
                 break;
             case FSInfoItem.CASE:
                 item = FSCaseMapper.INSTANCE.ieItemFromFsItemDto((FSCaseDto) fsItemDto);
+                ((CaseItemDto) item).setCaseSourceType(node.getCaseSourceType());
                 break;
             case FSInfoItem.FOLDER:
                 item = FSFolderMapper.INSTANCE.ieItemFromFsItemDto((FSFolderDto) fsItemDto);
