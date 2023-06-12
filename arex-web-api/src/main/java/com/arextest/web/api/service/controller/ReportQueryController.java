@@ -318,7 +318,7 @@ public class ReportQueryController {
         );
     }
 
-    @PostMapping("/countRecord}")
+    @PostMapping("/countRecord")
     @ResponseBody
     public Response countRecord(@RequestBody CountRecordRequestType requestType) {
         return ResponseUtils.successResponse(recordService.countRecord(requestType));
@@ -328,5 +328,11 @@ public class ReportQueryController {
     @ResponseBody
     public Response countRecord(@RequestBody ListRecordRequestType requestType) {
         return ResponseUtils.successResponse(recordService.listRecord(requestType));
+    }
+
+    @PostMapping("/aggCount")
+    @ResponseBody
+    public Response aggCountRecord(@RequestBody CountRecordRequestType requestType) {
+        return ResponseUtils.successResponse(recordService.aggCountRecord(requestType));
     }
 }
