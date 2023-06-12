@@ -12,7 +12,7 @@ public class FSNodeDto {
     private String infoId;
     private String method;  // available for nodeType equal 1
     /**
-     * availbale for nodeType equal 2
+     * available for nodeType equal 2
      * @see com.arextest.web.model.enums.CaseSourceType
      */
     private int caseSourceType;
