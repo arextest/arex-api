@@ -1,6 +1,5 @@
 package com.arextest.web.model.mapper;
 
-import com.arextest.common.utils.CompressionUtils;
 import com.arextest.common.utils.SerializationUtils;
 import com.arextest.web.common.ZstdUtils;
 import com.arextest.web.model.contract.contracts.CompareResultDetail;

@@ -11,6 +11,7 @@ import java.util.List;
 public class SubSceneInfoDao {
     private int code;
     private int count;
+    // private long groupKey;
 
     private String recordId;
     private String replayId;

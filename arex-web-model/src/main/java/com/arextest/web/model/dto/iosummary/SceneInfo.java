@@ -1,10 +1,9 @@
 package com.arextest.web.model.dto.iosummary;
 
-import cn.hutool.core.collection.CollectionUtil;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.commons.collections4.CollectionUtils;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,27 +17,37 @@ public class SceneInfo {
 
     private int code;
     private int count;
+    private long categoryKey;
+
     private String planId;
     private String planItemId;
     private List<SubSceneInfo> subScenes;
+    private Map<String, SubSceneInfo> subSceneInfoMap;
 
-    SceneInfo(int code, int count, String planId, String planItemId, List<SubSceneInfo> subScenes) {
+    SceneInfo(int code, long categoryKey, String planId, String planItemId, Map<String, SubSceneInfo> subSceneInfoMap) {
         this.code = code;
-        this.count = count;
+        this.categoryKey = categoryKey;
         this.planId = planId;
         this.planItemId = planItemId;
-        this.subScenes = subScenes;
+        // this.subScenes = subScenes;
+        this.subSceneInfoMap = subSceneInfoMap;
     }
 
     public static class Builder {
         private int code;
-        private int count;
+        private long categoryKey;
         private String planId;
-        private String planItmId;
-        private Map<Long, SubSceneInfo> subSceneMap;
+        private String planItemId;
+        // private SubSceneInfo subSceneInfo;
+        private Map<String, SubSceneInfo> subSceneMap;
 
         public Builder code(int code) {
             this.code = code;
+            return this;
+        }
+
+        public Builder categoryKey(long categoryKey) {
+            this.categoryKey = categoryKey;
             return this;
         }
 
@@ -48,29 +57,36 @@ public class SceneInfo {
         }
 
         public Builder planItemId(String planItemId) {
-            this.planItmId = planItemId;
+            this.planItemId = planItemId;
             return this;
         }
 
         public Builder summary(CaseSummary summary) {
-            this.count++;
-            if (!CollectionUtil.isEmpty(summary.getDiffs())) {
-                if (subSceneMap == null) {
-                    subSceneMap = new HashMap<>();
-                }
-
-                subSceneMap.computeIfAbsent(summary.groupKey(), k ->
-                        new SubSceneInfo(summary.getRecordId(), summary.getReplayId(),
-                                summary.getCode(), summary.getDiffs()))
-                        .increment();
+            // this.count++;
+            // if (!CollectionUtil.isEmpty(summary.getDiffs())) {
+            //     if (subSceneMap == null) {
+            //         subSceneMap = new HashMap<>();
+            //     }
+            //
+            //     subSceneMap.computeIfAbsent(summary.groupKey(), k ->
+            //             new SubSceneInfo(summary.getRecordId(), summary.getReplayId(),
+            //                     summary.getCode(), summary.getDiffs()))
+            //             .increment();
+            // }
+            if (CollectionUtils.isNotEmpty(summary.getDiffs())) {
+                SubSceneInfo subSceneInfo = new SubSceneInfo(summary.getCode(),
+                        summary.getRecordId(), summary.getReplayId(), summary.getDiffs());
+                subSceneMap = new HashMap<>();
+                subSceneMap.put(String.valueOf(summary.categoryKey()), subSceneInfo);
             }
-
             return this;
         }
 
         public SceneInfo build() {
-            return new SceneInfo(code, count, planId, planItmId,
-                    subSceneMap == null ? null : new ArrayList<>(subSceneMap.values()));
+            // return new SceneInfo(code, count, planId, planItmId,
+            //         subSceneMap == null ? null : new ArrayList<>(subSceneMap.values()));
+            return new SceneInfo(code, categoryKey, planId, planItemId,
+                    subSceneMap == null ? null : subSceneMap);
         }
     }
 }

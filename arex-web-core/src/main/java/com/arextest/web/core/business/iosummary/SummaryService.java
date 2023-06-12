@@ -6,6 +6,7 @@ import com.arextest.web.model.dto.CompareResultDto;
 import com.arextest.web.model.dto.iosummary.CaseSummary;
 import com.arextest.web.model.dto.iosummary.UnmatchedCategory;
 import com.arextest.web.model.enums.DiffResultCode;
+import lombok.Builder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -16,6 +17,9 @@ public class SummaryService {
 
     @Autowired
     CaseSummaryRepository caseSummaryRepository;
+
+    @Autowired
+    SceneReportService sceneReportService;
 
     /**
      * analyze the compared results
@@ -35,6 +39,7 @@ public class SummaryService {
                 .rePlayId(compareResultDto.getReplayId())
                 .build();
         caseSummaryRepository.save(summary);
+        sceneReportService.report(summary);
     }
 
     private CaseSummary.Builder analysis0(CaseSummary.Builder builder, CompareResultDto compareResultDto) {

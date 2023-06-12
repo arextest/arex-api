@@ -96,9 +96,9 @@ public class ReportService {
         );
         if (request.getItems() != null) {
             for (ChangeReplayStatusRequestType.ReplayItem item : request.getItems()) {
-                if (Objects.equals(item.getStatus(), ReplayStatusType.FINISHED)) {
-                    sceneReportService.report(request.getPlanId(), item.getPlanItemId());
-                }
+                // if (Objects.equals(item.getStatus(), ReplayStatusType.FINISHED)) {
+                //     sceneReportService.report(request.getPlanId(), item.getPlanItemId());
+                // }
                 planItemStatisticRepository.changePlanItemStatus(
                         item.getPlanItemId(),
                         item.getStatus(),
