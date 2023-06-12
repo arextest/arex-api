@@ -62,8 +62,8 @@ public class ReportSceneServiceTest {
 
     @Test
     public void testReport() {
-        String planId = "6482ebe22238060b941c903d";
-        String planItemId = "6482ebe22238060b941c904f";
+        String planId = "64634f24d71f522ffb4deaff";
+        String planItemId = "64634f24d71f522ffb4deb40";
         List<CaseSummary> caseSummaryList = caseSummaryRepository.query(planId, planItemId);
         caseSummaryList.forEach(item -> sceneReportService.report(item));
     }
