@@ -11,6 +11,7 @@ import com.arextest.web.core.business.QueryPlanStatisticsService;
 import com.arextest.web.core.business.QueryReplayCaseService;
 import com.arextest.web.core.business.QueryReplayMsgService;
 import com.arextest.web.core.business.QueryResponseTypeStatisticService;
+import com.arextest.web.core.business.RecordService;
 import com.arextest.web.core.business.ReplayInfoService;
 import com.arextest.web.core.business.ReportService;
 import com.arextest.web.core.business.SchemaInferService;
@@ -53,6 +54,8 @@ import com.arextest.web.model.contract.contracts.QuerySchemaForConfigRequestType
 import com.arextest.web.model.contract.contracts.ReportInitialRequestType;
 import com.arextest.web.model.contract.contracts.ReportInitialResponseType;
 import com.arextest.web.model.contract.contracts.SuccessResponseType;
+import com.arextest.web.model.contract.contracts.record.CountRecordRequestType;
+import com.arextest.web.model.contract.contracts.record.ListRecordRequestType;
 import com.arextest.web.model.contract.contracts.replay.AnalyzeCompareResultsRequestType;
 import com.arextest.web.model.contract.contracts.replay.AnalyzeCompareResultsResponseType;
 import com.arextest.web.model.contract.contracts.replay.UpdateReportInfoRequestType;
@@ -101,6 +104,8 @@ public class ReportQueryController {
     private SchemaInferService schemaInferService;
     @Resource
     private SceneReportService sceneReportService;
+    @Resource
+    private RecordService recordService;
 
     @Deprecated
     @PostMapping("/pushCompareResults")
@@ -322,5 +327,26 @@ public class ReportQueryController {
         return ResponseUtils.successResponse(
                 queryReplayCaseService.queryPlanFailCase(request)
         );
+    }
+
+    @PostMapping("/countRecord")
+    @ResponseBody
+    public Response countRecord(@RequestBody CountRecordRequestType requestType) {
+        return ResponseUtils.successResponse(recordService.countRecord(requestType));
+    }
+
+    @PostMapping("/listRecord")
+    @ResponseBody
+    public Response countRecord(@RequestBody ListRecordRequestType requestType) {
+        if (requestType.getOperationType() == null) {
+            return ResponseUtils.errorResponse("no operationType", ResponseCode.REQUESTED_PARAMETER_INVALID);
+        }
+        return ResponseUtils.successResponse(recordService.listRecord(requestType));
+    }
+
+    @PostMapping("/aggCount")
+    @ResponseBody
+    public Response aggCountRecord(@RequestBody CountRecordRequestType requestType) {
+        return ResponseUtils.successResponse(recordService.aggCountRecord(requestType));
     }
 }
