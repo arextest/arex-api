@@ -52,9 +52,6 @@ public class RecordService {
         QueryCaseCountRequestType queryCaseCountRequestType = new QueryCaseCountRequestType();
         queryCaseCountRequestType.setAppId(requestType.getAppId());
         queryCaseCountRequestType.setOperation(requestType.getOperationName());
-        if (requestType.getOperationType() != null) {
-            queryCaseCountRequestType.setCategory(MockCategoryType.createEntryPoint(requestType.getOperationType()));
-        }
         queryCaseCountRequestType.setEndTime(requestType.getEndTime());
         queryCaseCountRequestType.setBeginTime(requestType.getBeginTime());
         ResponseEntity<QueryCaseCountResponseType> response =
@@ -79,18 +76,15 @@ public class RecordService {
         responseType.setRecordList(recordItemList);
 
         ResponseEntity<PagedResponseType> listResponse;
-        for (String operationType : requestType.getOperationTypes()) {
-            pagedRequestType.setCategory(MockCategoryType.createEntryPoint(operationType));
-            listResponse = HttpUtils.post(listRecordUrl, pagedRequestType, PagedResponseType.class);
-            if (listResponse != null && listResponse.getBody() != null) {
-                recordItemList.addAll(listResponse.getBody().getRecords()
-                        .stream()
-                        .map(arexMocker -> toRecordItem(arexMocker, operationType))
-                        .collect(Collectors.toList()));
-            }
+        String operationType = requestType.getOperationType();
+        pagedRequestType.setCategory(MockCategoryType.createEntryPoint(operationType));
+        listResponse = HttpUtils.post(listRecordUrl, pagedRequestType, PagedResponseType.class);
+        if (listResponse != null && listResponse.getBody() != null) {
+            recordItemList.addAll(listResponse.getBody().getRecords()
+                    .stream()
+                    .map(arexMocker -> toRecordItem(arexMocker, operationType))
+                    .collect(Collectors.toList()));
         }
-
-        pagedRequestType.setCategory(null);
         ResponseEntity<QueryCaseCountResponseType> countResponse =
                 HttpUtils.post(countRecordUrl, pagedRequestType, QueryCaseCountResponseType.class);
         if (countResponse != null && countResponse.getBody() != null) {
@@ -105,9 +99,6 @@ public class RecordService {
 
         CountOperationCaseRequestType countOperationCaseRequestType = new CountOperationCaseRequestType();
         countOperationCaseRequestType.setAppId(requestType.getAppId());
-        if (requestType.getOperationType() != null) {
-            countOperationCaseRequestType.setCategory(MockCategoryType.createEntryPoint(requestType.getOperationType()));
-        }
         countOperationCaseRequestType.setEndTime(requestType.getEndTime());
         countOperationCaseRequestType.setBeginTime(requestType.getBeginTime());
         ResponseEntity<CountOperationCaseResponseType> response =

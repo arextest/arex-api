@@ -8,7 +8,7 @@ import java.util.List;
 public class ListRecordRequestType {
     private String appId;
     private String operationName;
-    private List<String> operationTypes;
+    private String operationType;
     private Integer pageSize;
     private Integer pageIndex;
     private Long beginTime;

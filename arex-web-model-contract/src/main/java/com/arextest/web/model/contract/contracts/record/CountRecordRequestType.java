@@ -5,7 +5,6 @@ import lombok.Data;
 @Data
 public class CountRecordRequestType {
     private String appId;
-    private String operationType;
     private String operationName;
     /**
      * milliseconds
