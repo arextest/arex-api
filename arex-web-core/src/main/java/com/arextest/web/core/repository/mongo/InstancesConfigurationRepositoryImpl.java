@@ -9,12 +9,14 @@ import com.arextest.web.model.mapper.InstancesMapper;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -42,6 +44,15 @@ public class InstancesConfigurationRepositoryImpl implements ConfigRepositoryPro
     @Override
     public List<InstancesConfiguration> listBy(String appId) {
         Query query = Query.query(Criteria.where(APP_ID).is(appId));
+        List<InstancesCollection> instancesCollections = mongoTemplate.find(query, InstancesCollection.class);
+        return instancesCollections.stream().map(InstancesMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
+    }
+
+    public List<InstancesConfiguration> listBy(String appid, int top) {
+        if (top == 0) {
+            return Collections.emptyList();
+        }
+        Query query = Query.query(Criteria.where(APP_ID).is(appid)).limit(top).with(Sort.by(DASH_ID).ascending());
         List<InstancesCollection> instancesCollections = mongoTemplate.find(query, InstancesCollection.class);
         return instancesCollections.stream().map(InstancesMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
     }
@@ -82,4 +93,5 @@ public class InstancesConfigurationRepositoryImpl implements ConfigRepositoryPro
         DeleteResult remove = mongoTemplate.remove(query, InstancesCollection.class);
         return remove.getDeletedCount() > 0;
     }
+
 }

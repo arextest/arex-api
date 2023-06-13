@@ -8,6 +8,7 @@ import com.arextest.web.core.business.config.application.ApplicationInstancesCon
 import com.arextest.web.core.business.config.application.ApplicationServiceConfigurableHandler;
 import com.arextest.web.model.contract.contracts.common.enums.StatusType;
 import com.arextest.web.model.contract.contracts.config.application.ApplicationConfiguration;
+import com.arextest.web.model.contract.contracts.config.application.InstancesConfiguration;
 import com.arextest.web.model.contract.contracts.config.record.DynamicClassConfiguration;
 import com.arextest.web.model.contract.contracts.config.record.ServiceCollectConfiguration;
 import lombok.Data;
@@ -23,9 +24,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 
 /**
@@ -36,6 +39,8 @@ import java.util.concurrent.TimeUnit;
 @Controller
 @RequestMapping("/api/config/agent")
 public final class AgentRemoteConfigurationController {
+
+    private static final String NOT_RECORDING = "(not recording)";
     @Resource
     private ConfigurableHandler<DynamicClassConfiguration> dynamicClassHandler;
     @Resource
@@ -74,8 +79,16 @@ public final class AgentRemoteConfigurationController {
         body.setDynamicClassConfigurationList(dynamicClassHandler.useResultAsList(appId));
         body.setServiceCollectConfiguration(serviceCollectConfiguration);
         body.setStatus(applicationConfiguration.getStatus());
-        body.setTargetAddress(request.getHost());
         applicationInstancesConfigurableHandler.createOrUpdate(appId, request.host, request.recordVersion);
+        List<InstancesConfiguration> instances = applicationInstancesConfigurableHandler.useResultAsList(request.appId,
+                serviceCollectConfiguration.getRecordMachineCountLimit());
+        Set<String> recordingHosts =
+                instances.stream().map(InstancesConfiguration::getHost).collect(Collectors.toSet());
+        if (recordingHosts.contains(request.getHost())) {
+            body.setTargetAddress(request.getHost());
+        } else {
+            body.setTargetAddress(request.getHost() + NOT_RECORDING);
+        }
         return ResponseUtils.successResponse(body);
     }
 

@@ -31,6 +31,8 @@ public class ServiceCollectConfigurationRepositoryImpl implements ConfigReposito
     private static final String EXCLUDE_SERVICE_OPERATION_SET = "excludeServiceOperationSet";
     private static final String TIME_MOCK = "timeMock";
 
+    private static final String RECORD_MACHINE_COUNT_LIMIT = "recordMachineCountLimit";
+
     @Autowired
     MongoTemplate mongoTemplate;
 
@@ -69,6 +71,8 @@ public class ServiceCollectConfigurationRepositoryImpl implements ConfigReposito
         update.set(ALLOW_TIME_OF_DAY_TO, configuration.getAllowTimeOfDayTo());
         update.set(EXCLUDE_SERVICE_OPERATION_SET, configuration.getExcludeServiceOperationSet());
         update.set(TIME_MOCK, configuration.isTimeMock());
+        update.set(RECORD_MACHINE_COUNT_LIMIT,
+                configuration.getRecordMachineCountLimit() == null ? 1 : configuration.getRecordMachineCountLimit());
         UpdateResult updateResult = mongoTemplate.updateMulti(query, update, RecordServiceConfigCollection.class);
         return updateResult.getModifiedCount() > 0;
     }
