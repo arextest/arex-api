@@ -6,7 +6,6 @@ import com.arextest.web.model.dto.CompareResultDto;
 import com.arextest.web.model.dto.iosummary.CaseSummary;
 import com.arextest.web.model.dto.iosummary.UnmatchedCategory;
 import com.arextest.web.model.enums.DiffResultCode;
-import lombok.Builder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

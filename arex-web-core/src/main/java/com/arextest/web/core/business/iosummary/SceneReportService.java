@@ -38,21 +38,6 @@ public class SceneReportService {
     ReplayCompareResultRepository replayCompareResultRepository;
 
     /**
-     * difference Type Scene Grouping
-     */
-    // public void report(String planId, String planItemId) {
-    //     List<CaseSummary> data = caseSummaryRepository.query(planId, planItemId);
-    //     if (CollectionUtil.isEmpty(data)) {
-    //         return;
-    //     }
-    //     List<SceneInfo> sceneInfos = groupMainScene(data).stream()
-    //             .map(SceneInfo.Builder::build)
-    //             .sorted(Comparator.comparingInt(SceneInfo::getCode))
-    //             .collect(Collectors.toList());
-    //     sceneInfoRepository.save(sceneInfos);
-    // }
-
-    /**
      * from CaseSummary to ScnenInfo
      */
     public void report(CaseSummary caseSummary) {
@@ -111,22 +96,8 @@ public class SceneReportService {
         return response;
     }
 
-    /**
-     * Group main scenes according to Code
-     */
-    // private Collection<SceneInfo.Builder> groupMainScene(List<CaseSummary> caseSummaries) {
-    //     Map<Long, SceneInfo.Builder> main = new HashMap<>();
-    //     for (CaseSummary summary : caseSummaries) {
-    //         main.computeIfAbsent(summary.categoryKey(), k -> SceneInfo.builder()
-    //                 .code(summary.getCode())
-    //                 .planId(summary.getPlanId())
-    //                 .planItemId(summary.getPlanItemId()))
-    //                 .summary(summary);
-    //     }
-    //     return main.values();
-    // }
     private boolean shouldCompare(CaseSummary caseSummary, SceneInfo sceneInfo) {
-        String categoryKey = String.valueOf(caseSummary.categoryKey());
+        String categoryKey = String.valueOf(caseSummary.groupKey());
         Map<String, SubSceneInfo> subSceneInfoMap = sceneInfo.getSubSceneInfoMap();
         if (subSceneInfoMap != null && subSceneInfoMap.containsKey(categoryKey)) {
             SubSceneInfo subSceneInfo = subSceneInfoMap.get(categoryKey);

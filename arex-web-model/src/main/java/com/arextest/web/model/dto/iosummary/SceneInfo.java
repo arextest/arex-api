@@ -29,7 +29,6 @@ public class SceneInfo {
         this.categoryKey = categoryKey;
         this.planId = planId;
         this.planItemId = planItemId;
-        // this.subScenes = subScenes;
         this.subSceneInfoMap = subSceneInfoMap;
     }
 
@@ -38,7 +37,6 @@ public class SceneInfo {
         private long categoryKey;
         private String planId;
         private String planItemId;
-        // private SubSceneInfo subSceneInfo;
         private Map<String, SubSceneInfo> subSceneMap;
 
         public Builder code(int code) {
@@ -62,29 +60,16 @@ public class SceneInfo {
         }
 
         public Builder summary(CaseSummary summary) {
-            // this.count++;
-            // if (!CollectionUtil.isEmpty(summary.getDiffs())) {
-            //     if (subSceneMap == null) {
-            //         subSceneMap = new HashMap<>();
-            //     }
-            //
-            //     subSceneMap.computeIfAbsent(summary.groupKey(), k ->
-            //             new SubSceneInfo(summary.getRecordId(), summary.getReplayId(),
-            //                     summary.getCode(), summary.getDiffs()))
-            //             .increment();
-            // }
             if (CollectionUtils.isNotEmpty(summary.getDiffs())) {
                 SubSceneInfo subSceneInfo = new SubSceneInfo(summary.getCode(),
                         summary.getRecordId(), summary.getReplayId(), summary.getDiffs());
                 subSceneMap = new HashMap<>();
-                subSceneMap.put(String.valueOf(summary.categoryKey()), subSceneInfo);
+                subSceneMap.put(String.valueOf(summary.groupKey()), subSceneInfo);
             }
             return this;
         }
 
         public SceneInfo build() {
-            // return new SceneInfo(code, count, planId, planItmId,
-            //         subSceneMap == null ? null : new ArrayList<>(subSceneMap.values()));
             return new SceneInfo(code, categoryKey, planId, planItemId,
                     subSceneMap == null ? null : subSceneMap);
         }
