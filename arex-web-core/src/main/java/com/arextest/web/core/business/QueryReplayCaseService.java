@@ -77,7 +77,8 @@ public class QueryReplayCaseService {
         QueryPlanFailCaseResponseType response = new QueryPlanFailCaseResponseType();
         List<QueryPlanFailCaseResponseType.FailCaseInfo> failCaseInfoList = new ArrayList<>();
         List<Integer> diffResultCodeList = new ArrayList<>();
-        if (CollectionUtils.isEmpty(request.getRecordIdList())) {
+        if (CollectionUtils.isEmpty(request.getRecordIdList())
+                && CollectionUtils.isNotEmpty(request.getDiffResultCodeList())) {
             diffResultCodeList.addAll(request.getDiffResultCodeList());
         }
         List<CompareResultDto> dtos = replayCompareResultRepository.queryCompareResults(
