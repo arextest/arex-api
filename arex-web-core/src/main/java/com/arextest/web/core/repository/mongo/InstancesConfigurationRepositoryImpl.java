@@ -1,30 +1,36 @@
 package com.arextest.web.core.repository.mongo;
 
+import com.arextest.web.common.LogUtils;
 import com.arextest.web.core.repository.ConfigRepositoryField;
 import com.arextest.web.core.repository.ConfigRepositoryProvider;
+import com.arextest.web.core.repository.RepositoryProvider;
 import com.arextest.web.core.repository.mongo.util.MongoHelper;
 import com.arextest.web.model.contract.contracts.config.application.InstancesConfiguration;
 import com.arextest.web.model.dao.mongodb.InstancesCollection;
 import com.arextest.web.model.mapper.InstancesMapper;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Repository
 public class InstancesConfigurationRepositoryImpl implements ConfigRepositoryProvider<InstancesConfiguration>,
         ConfigRepositoryField {
 
     private static final String APP_ID = "appId";
-    private static final String RECORD_VERSION = "recordVersion";
     private static final String HOST = "host";
 
     private static final String DATA_UPDATE_TIME = "dataUpdateTime";
@@ -46,16 +52,37 @@ public class InstancesConfigurationRepositoryImpl implements ConfigRepositoryPro
         return instancesCollections.stream().map(InstancesMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
     }
 
+    public List<InstancesConfiguration> listBy(String appid, int top) {
+        if (top == 0) {
+            return Collections.emptyList();
+        }
+        Query query = Query.query(Criteria.where(APP_ID).is(appid)).limit(top).with(Sort.by(DASH_ID).ascending());
+        List<InstancesCollection> instancesCollections = mongoTemplate.find(query, InstancesCollection.class);
+        return instancesCollections.stream().map(InstancesMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
+    }
+
     @Override
     public boolean update(InstancesConfiguration configuration) {
-        Query query = Query.query(Criteria.where(DASH_ID).is(configuration.getId()));
+        Query query =
+                Query.query(Criteria.where(APP_ID).is(configuration.getAppId()).and(HOST).is(configuration.getHost()));
         Update update = MongoHelper.getConfigUpdate();
-        update.set(APP_ID, configuration.getAppId());
-        update.set(RECORD_VERSION, configuration.getRecordVersion());
-        update.set(HOST, configuration.getHost());
-        update.set(DATA_UPDATE_TIME, new Date());
-        UpdateResult updateResult = mongoTemplate.updateMulti(query, update, InstancesCollection.class);
-        return updateResult.getModifiedCount() > 0;
+        InstancesCollection dao = InstancesMapper.INSTANCE.daoFromDto(configuration);
+        MongoHelper.appendFullProperties(update, dao);
+        update.setOnInsert(RepositoryProvider.DATA_CHANGE_CREATE_TIME, System.currentTimeMillis());
+        if (configuration.getDataUpdateTime() == null) {
+            update.set(DATA_UPDATE_TIME, new Date());
+        }
+
+        try {
+            mongoTemplate.findAndModify(query,
+                    update,
+                    FindAndModifyOptions.options().returnNew(true).upsert(true),
+                    InstancesCollection.class);
+            return true;
+        } catch (Exception e) {
+            LogUtils.error(LOGGER, "update instances error", e);
+            return false;
+        }
     }
 
     @Override
@@ -82,4 +109,5 @@ public class InstancesConfigurationRepositoryImpl implements ConfigRepositoryPro
         DeleteResult remove = mongoTemplate.remove(query, InstancesCollection.class);
         return remove.getDeletedCount() > 0;
     }
+
 }

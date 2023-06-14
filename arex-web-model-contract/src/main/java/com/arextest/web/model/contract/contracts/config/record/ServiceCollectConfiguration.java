@@ -43,4 +43,9 @@ public class ServiceCollectConfiguration extends AbstractConfiguration {
     private String allowTimeOfDayTo;
 
     private Set<String> excludeServiceOperationSet;
+
+    /**
+     * Maximum number of recording machines for each group
+     */
+    private Integer recordMachineCountLimit;
 }

@@ -6,6 +6,7 @@ import lombok.NonNull;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Date;
+import java.util.Map;
 
 @Data
 @NoArgsConstructor
@@ -14,10 +15,10 @@ public class InstancesCollection extends ModelBase {
 
     @NonNull
     private String appId;
-
     private String host;
-
     private String recordVersion;
-
     private Date dataUpdateTime;
+    private String agentStatus;
+    private Map<String, String> systemEnv;
+    private Map<String, String> systemProperties;
 }

@@ -26,7 +26,8 @@ final class ServiceCollectConfigurableHandler extends AbstractConfigurableHandle
     @Resource
     private ServiceCollectConfiguration globalDefaultConfiguration;
 
-    protected ServiceCollectConfigurableHandler(@Autowired ConfigRepositoryProvider<ServiceCollectConfiguration> repositoryProvider) {
+    protected ServiceCollectConfigurableHandler(
+            @Autowired ConfigRepositoryProvider<ServiceCollectConfiguration> repositoryProvider) {
         super(repositoryProvider);
     }
 
@@ -39,6 +40,10 @@ final class ServiceCollectConfigurableHandler extends AbstractConfigurableHandle
         serviceCollectConfiguration.setTimeMock(globalDefaultConfiguration.isTimeMock());
         serviceCollectConfiguration.setAllowTimeOfDayFrom(globalDefaultConfiguration.getAllowTimeOfDayFrom());
         serviceCollectConfiguration.setAllowTimeOfDayTo(globalDefaultConfiguration.getAllowTimeOfDayTo());
+        serviceCollectConfiguration.setRecordMachineCountLimit(
+                globalDefaultConfiguration.getRecordMachineCountLimit() == null ?
+                        1 :
+                        globalDefaultConfiguration.getRecordMachineCountLimit());
         return Collections.singletonList(serviceCollectConfiguration);
     }
 

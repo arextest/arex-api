@@ -29,4 +29,6 @@ public class RecordServiceConfigCollection extends ModelBase {
     private String allowTimeOfDayTo;
 
     private Set<String> excludeServiceOperationSet;
+
+    private Integer recordMachineCountLimit;
 }
