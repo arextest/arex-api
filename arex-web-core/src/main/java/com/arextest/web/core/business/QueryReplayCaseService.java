@@ -8,6 +8,7 @@ import com.arextest.web.model.contract.contracts.QueryReplayCaseRequestType;
 import com.arextest.web.model.contract.contracts.QueryReplayCaseResponseType;
 import com.arextest.web.model.contract.contracts.common.CaseDetailResult;
 import com.arextest.web.model.dto.CompareResultDto;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.stereotype.Component;
@@ -65,7 +66,7 @@ public class QueryReplayCaseService {
         results.sort((m1, m2) -> m2.getDiffResultCode().compareTo(m1.getDiffResultCode()));
         List<CaseDetailResult> caseDetailResults = CollUtil.sortPageAll(request.getPageIndex() - 1, request.getPageSize(), null, results);
         if (Boolean.TRUE.equals(request.getNeedTotal())) {
-            response.setTotalCount(Long.valueOf(results.size()));
+            response.setTotalCount((long) results.size());
         }
         response.setResult(caseDetailResults);
         return response;
@@ -75,11 +76,15 @@ public class QueryReplayCaseService {
     public QueryPlanFailCaseResponseType queryPlanFailCase(QueryPlanFailCaseRequestType request) {
         QueryPlanFailCaseResponseType response = new QueryPlanFailCaseResponseType();
         List<QueryPlanFailCaseResponseType.FailCaseInfo> failCaseInfoList = new ArrayList<>();
+        List<Integer> diffResultCodeList = new ArrayList<>();
+        if (CollectionUtils.isEmpty(request.getRecordIdList())) {
+            diffResultCodeList.addAll(request.getDiffResultCodeList());
+        }
         List<CompareResultDto> dtos = replayCompareResultRepository.queryCompareResults(
                 request.getPlanId(),
                 request.getPlanItemIdList(),
                 request.getRecordIdList(),
-                request.getDiffResultCodeList(),
+                diffResultCodeList,
                 Arrays.asList(OPERATION_ID, RECORD_ID));
         Map<String, List<CompareResultDto>> compareResultDtoMap = dtos.stream()
                 .collect(Collectors.groupingBy(CompareResultDto::getOperationId));
