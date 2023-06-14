@@ -42,11 +42,7 @@ public abstract class AbstractComparisonConfigurableHandler<T extends AbstractCo
     }
 
     public List<T> useResultAsList(String appId, int compareConfigType) {
-        List<T> comparisonDetails = repositoryProvider.listBy(appId);
-        if (CollectionUtils.isNotEmpty(comparisonDetails)) {
-            comparisonDetails.removeIf(this::removeDetailsExpired);
-        }
-        return comparisonDetails.stream()
+        return this.useResultAsList(appId).stream()
                 .filter(config -> config.getCompareConfigType() == compareConfigType)
                 .collect(Collectors.toList());
     }
