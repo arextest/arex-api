@@ -9,8 +9,11 @@ import com.arextest.web.core.business.config.application.ApplicationServiceConfi
 import com.arextest.web.model.contract.contracts.common.enums.StatusType;
 import com.arextest.web.model.contract.contracts.config.application.ApplicationConfiguration;
 import com.arextest.web.model.contract.contracts.config.application.InstancesConfiguration;
+import com.arextest.web.model.contract.contracts.config.instance.AgentRemoteConfigurationRequest;
+import com.arextest.web.model.contract.contracts.config.instance.AgentRemoteConfigurationResponse;
 import com.arextest.web.model.contract.contracts.config.record.DynamicClassConfiguration;
 import com.arextest.web.model.contract.contracts.config.record.ServiceCollectConfiguration;
+import com.arextest.web.model.mapper.InstancesMapper;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -24,6 +27,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -67,10 +71,10 @@ public final class AgentRemoteConfigurationController {
         if (StringUtils.isEmpty(appId)) {
             return InvalidResponse.REQUESTED_APP_ID_IS_EMPTY;
         }
-        LogUtils.info(LOGGER, "from appId: {} , load config", request.appId);
+        LogUtils.info(LOGGER, "from appId: {} , load config", appId);
         ApplicationConfiguration applicationConfiguration = this.loadApplicationResult(request);
         if (applicationConfiguration == null) {
-            LogUtils.info(LOGGER, "from appId: {} load config resource not found", request.appId);
+            LogUtils.info(LOGGER, "from appId: {} load config resource not found", appId);
             return ResponseUtils.resourceNotFoundResponse();
         }
         ServiceCollectConfiguration serviceCollectConfiguration = serviceCollectHandler.useResult(appId);
@@ -79,8 +83,9 @@ public final class AgentRemoteConfigurationController {
         body.setDynamicClassConfigurationList(dynamicClassHandler.useResultAsList(appId));
         body.setServiceCollectConfiguration(serviceCollectConfiguration);
         body.setStatus(applicationConfiguration.getStatus());
-        applicationInstancesConfigurableHandler.createOrUpdate(appId, request.host, request.recordVersion);
-        List<InstancesConfiguration> instances = applicationInstancesConfigurableHandler.useResultAsList(request.appId,
+        InstancesConfiguration instancesConfiguration = InstancesMapper.INSTANCE.dtoFromContract(request);
+        applicationInstancesConfigurableHandler.createOrUpdate(instancesConfiguration);
+        List<InstancesConfiguration> instances = applicationInstancesConfigurableHandler.useResultAsList(appId,
                 serviceCollectConfiguration.getRecordMachineCountLimit());
         Set<String> recordingHosts =
                 instances.stream().map(InstancesConfiguration::getHost).collect(Collectors.toSet());
@@ -116,27 +121,5 @@ public final class AgentRemoteConfigurationController {
     private ApplicationConfiguration loadApplicationResult(AgentRemoteConfigurationRequest request) {
         ApplicationConfiguration applicationConfiguration = applicationHandler.useResult(request.getAppId());
         return applicationConfiguration;
-    }
-
-    @Data
-    private static final class AgentRemoteConfigurationRequest {
-        private String appId;
-        private String host;
-        private String recordVersion;
-    }
-
-
-    @Data
-    private static final class AgentRemoteConfigurationResponse {
-        private ServiceCollectConfiguration serviceCollectConfiguration;
-        private List<DynamicClassConfiguration> dynamicClassConfigurationList;
-
-        /**
-         * Bit flag composed of bits that record/replay are enabled.
-         * see {@link  StatusType }
-         */
-        private Integer status;
-
-        private String targetAddress;
     }
 }

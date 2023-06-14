@@ -30,30 +30,11 @@ public final class ApplicationInstancesConfigurableHandler extends AbstractConfi
     @Resource
     private InstancesConfigurationRepositoryImpl instancesConfigurationRepository;
 
-    public void createOrUpdate(String appId, String host, String recordVersion) {
-        List<InstancesConfiguration> instancesConfigurations = super.useResultAsList(appId);
-        if (CollectionUtils.isEmpty(instancesConfigurations)) {
-            create(appId, host, recordVersion);
-        } else {
-            Optional<InstancesConfiguration> first = instancesConfigurations.stream()
-                    .filter(instancesConfiguration -> instancesConfiguration.getHost().equals(host))
-                    .findFirst();
-            if (first.isPresent()) {
-                InstancesConfiguration instancesConfiguration = first.get();
-                instancesConfiguration.setRecordVersion(recordVersion);
-                instancesConfiguration.setId(instancesConfiguration.getId());
-                super.update(instancesConfiguration);
-            } else {
-                create(appId, host, recordVersion);
-            }
-        }
+    public void createOrUpdate(InstancesConfiguration instancesConfiguration) {
+        super.update(instancesConfiguration);
     }
 
-    private void create(String appId, String host, String recordVersion) {
-        InstancesConfiguration instancesConfiguration = new InstancesConfiguration();
-        instancesConfiguration.setAppId(appId);
-        instancesConfiguration.setHost(host);
-        instancesConfiguration.setRecordVersion(recordVersion);
+    private void create(InstancesConfiguration instancesConfiguration) {
         super.insert(instancesConfiguration);
     }
 
