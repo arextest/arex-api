@@ -8,6 +8,8 @@ import com.arextest.web.model.dto.PlanItemDto;
 import com.arextest.web.model.dto.ReportPlanStatisticDto;
 import com.arextest.web.model.enums.DiffResultCode;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.MapUtils;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StopWatch;
 
@@ -15,6 +17,7 @@ import javax.annotation.Resource;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 
 @Slf4j
@@ -23,19 +26,17 @@ public class StatisticService {
 
     @Resource
     private ReportPlanItemStatisticRepository planItemStatisticRepository;
-    @Resource
-    private ReportPlanStatisticRepository planStatisticRepository;
+
+    @Resource(name = "report-statistic-executor")
+    private ThreadPoolTaskExecutor executor;
 
 
-    private static Map<String, PlanItemDto> planItemMap = new HashMap<>();
-
-
-    private static Map<String, ReportPlanStatisticDto> planMap = new HashMap<>();
+    private static volatile Map<String, PlanItemDto> planItemMap = new HashMap<>();
 
 
     public void statisticPlanItems(List<CompareResultDto> results) {
         // 100000 records costs 32ms
-        synchronized (planItemMap) {
+        synchronized (StatisticService.class) {
             for (CompareResultDto r : results) {
                 statisticCase(planItemMap, r, StatisticType.CASE_COUNT);
                 if (r.getDiffResultCode() == DiffResultCode.COMPARED_WITHOUT_DIFFERENCE) {
@@ -46,7 +47,6 @@ public class StatisticService {
                 } else {
                     statisticCase(planItemMap, r, StatisticType.ERROR);
                 }
-                // updatePlan(planMap, r);
             }
         }
     }
@@ -115,23 +115,37 @@ public class StatisticService {
 
 
     public void report() {
-        if (planItemMap == null) {
-            return;
-        }
-        synchronized (planItemMap) {
-            if (planItemMap.size() == 0) {
+        Map<String, PlanItemDto> tmp = null;
+        synchronized (StatisticService.class) {
+            long currentTimestamp = System.currentTimeMillis();
+            if (MapUtils.isEmpty(planItemMap)) {
                 return;
             }
-            StopWatch sw = new StopWatch();
-            sw.start("report plan items");
-
-            for (Map.Entry<String, PlanItemDto> pi : planItemMap.entrySet()) {
-                planItemStatisticRepository.updatePlanItems(pi.getValue());
-            }
-            planItemMap.clear();
-
-            sw.stop();
-            LogUtils.info(LOGGER, sw.toString());
+            tmp = planItemMap;
+            planItemMap = new HashMap<>();
+            LogUtils.info(LOGGER,
+                    "locking plan statistic map cost time: {} ms",
+                    System.currentTimeMillis() - currentTimestamp);
         }
+
+        CompletableFuture.completedFuture(tmp).thenApplyAsync(piMap -> {
+            if (MapUtils.isEmpty(piMap)) {
+                return null;
+            }
+            try {
+                long currentTimestamp = System.currentTimeMillis();
+                for (Map.Entry<String, PlanItemDto> pi : piMap.entrySet()) {
+                    planItemStatisticRepository.updatePlanItems(pi.getValue());
+                }
+                LogUtils.info(LOGGER,
+                        "updating statistic of plan items cost time: {} ms. plan items count:{}",
+                        System.currentTimeMillis() - currentTimestamp,
+                        piMap.size());
+                piMap.clear();
+            } catch (Exception e) {
+                LogUtils.error(LOGGER, "updating statistics of plan items error", e);
+            }
+            return null;
+        }, executor);
     }
 }
