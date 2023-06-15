@@ -16,6 +16,7 @@ public class CompareResultDetail {
     private String baseMsg;
     private String testMsg;
 
+    private Integer diffResultCode;
     private String exceptionMsg;
 
     @Data
