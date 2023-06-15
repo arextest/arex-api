@@ -36,7 +36,7 @@ public class StatisticService {
 
     public void statisticPlanItems(List<CompareResultDto> results) {
         // 100000 records costs 32ms
-        synchronized (planItemMap) {
+        synchronized (StatisticService.class) {
             for (CompareResultDto r : results) {
                 statisticCase(planItemMap, r, StatisticType.CASE_COUNT);
                 if (r.getDiffResultCode() == DiffResultCode.COMPARED_WITHOUT_DIFFERENCE) {

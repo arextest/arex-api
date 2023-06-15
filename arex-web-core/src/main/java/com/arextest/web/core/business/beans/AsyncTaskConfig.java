@@ -28,71 +28,43 @@ public class AsyncTaskConfig {
 
     @Bean("recovery-items-executor")
     public ThreadPoolTaskExecutor recoveryItemsExecutor() {
-        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(2);
-        executor.setMaxPoolSize(8);
-        executor.setKeepAliveSeconds(60);
-        executor.setQueueCapacity(1000);
-        executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
-        executor.setWaitForTasksToCompleteOnShutdown(true);
-        executor.setAllowCoreThreadTimeOut(true);
-        executor.setThreadNamePrefix("recovery-items-executor-");
-        return executor;
+        return newExecutor("recovery-items-executor-", 2, 8, 60, 1000);
     }
 
     @Bean("sending-mail-executor")
     public ThreadPoolTaskExecutor sendingMailExecutor() {
-        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(1);
-        executor.setMaxPoolSize(4);
-        executor.setKeepAliveSeconds(60);
-        executor.setQueueCapacity(1000);
-        executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
-        executor.setWaitForTasksToCompleteOnShutdown(true);
-        executor.setAllowCoreThreadTimeOut(true);
-        executor.setThreadNamePrefix("sending-mail-executor-");
-        return executor;
+        return newExecutor("sending-mail-executor-", 1, 4, 60, 1000);
     }
 
     @Bean("message-clip-executor")
     public ThreadPoolTaskExecutor messageClipTaskExecutor() {
-        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(2);
-        executor.setMaxPoolSize(4);
-        executor.setKeepAliveSeconds(30);
-        executor.setQueueCapacity(1000);
-        executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
-        executor.setWaitForTasksToCompleteOnShutdown(true);
-        executor.setAllowCoreThreadTimeOut(true);
-        executor.setThreadNamePrefix("message-clip-executor-");
-        return executor;
+        return newExecutor("message-clip-executor-", 2, 4, 30, 1000);
     }
 
     @Bean("report-scene-executor")
     public ThreadPoolTaskExecutor reportSceneExecutor() {
-        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(2);
-        executor.setMaxPoolSize(4);
-        executor.setKeepAliveSeconds(60);
-        executor.setQueueCapacity(1000);
-        executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
-        executor.setWaitForTasksToCompleteOnShutdown(true);
-        executor.setAllowCoreThreadTimeOut(true);
-        executor.setThreadNamePrefix("report-scene-executor-");
-        return executor;
+        return newExecutor("report-scene-executor-", 2, 4, 60, 1000);
     }
 
     @Bean("report-statistic-executor")
     public ThreadPoolTaskExecutor reportStatisticExecutor() {
+        return newExecutor("report-statistic-executor-", 2, 4, 60, 1000);
+    }
+
+    private ThreadPoolTaskExecutor newExecutor(String namePrefix,
+            int corePoolSize,
+            int maxPoolSize,
+            int keepAliveSeconds,
+            int queueCapacity) {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(2);
-        executor.setMaxPoolSize(4);
-        executor.setKeepAliveSeconds(60);
-        executor.setQueueCapacity(1000);
+        executor.setCorePoolSize(corePoolSize);
+        executor.setMaxPoolSize(maxPoolSize);
+        executor.setKeepAliveSeconds(keepAliveSeconds);
+        executor.setQueueCapacity(queueCapacity);
         executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
         executor.setWaitForTasksToCompleteOnShutdown(true);
         executor.setAllowCoreThreadTimeOut(true);
-        executor.setThreadNamePrefix("report-statistic-executor-");
+        executor.setThreadNamePrefix(namePrefix);
         return executor;
     }
 }
