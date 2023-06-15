@@ -232,7 +232,7 @@ public class SceneService {
     }
 
     private void setBaseTestMissingScene(Map<String, Map<String, List<Pair<Integer, String>>>> caseMap,
-                                         String baseMissing) {
+            String baseMissing) {
         caseMap.put(baseMissing, new HashMap<>());
         Map<String, List<Pair<Integer, String>>> sceneMap = caseMap.get(baseMissing);
         sceneMap.put(baseMissing, new ArrayList<>());
@@ -263,16 +263,15 @@ public class SceneService {
                 return null;
             }
             try {
-                StopWatch sw = new StopWatch();
-                sw.start("scene items");
+                long currentTimestamp = System.currentTimeMillis();
 
                 for (Map.Entry<DiffAggKey, DiffAggDto> diffScene : t.entrySet()) {
                     reportDiffAggStatisticRepository.updateDiffScenes(diffScene.getValue());
                 }
+                LogUtils.info(LOGGER,
+                        "report diff scene cost time: {} ms. map key count:{}",
+                        System.currentTimeMillis() - currentTimestamp, t.size());
                 t.clear();
-
-                sw.stop();
-                LogUtils.info(LOGGER, sw.toString());
             } catch (Throwable e) {
                 LOGGER.error("report diff scene error", e);
             }

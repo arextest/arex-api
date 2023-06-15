@@ -81,4 +81,18 @@ public class AsyncTaskConfig {
         executor.setThreadNamePrefix("report-scene-executor-");
         return executor;
     }
+
+    @Bean("report-statistic-executor")
+    public ThreadPoolTaskExecutor reportStatisticExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(2);
+        executor.setMaxPoolSize(4);
+        executor.setKeepAliveSeconds(60);
+        executor.setQueueCapacity(1000);
+        executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
+        executor.setWaitForTasksToCompleteOnShutdown(true);
+        executor.setAllowCoreThreadTimeOut(true);
+        executor.setThreadNamePrefix("report-statistic-executor-");
+        return executor;
+    }
 }
