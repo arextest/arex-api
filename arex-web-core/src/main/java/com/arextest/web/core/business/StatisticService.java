@@ -147,24 +147,5 @@ public class StatisticService {
             }
             return null;
         }, executor);
-
-        if (planItemMap == null) {
-            return;
-        }
-        synchronized (planItemMap) {
-            if (planItemMap.size() == 0) {
-                return;
-            }
-            StopWatch sw = new StopWatch();
-            sw.start("report plan items");
-
-            for (Map.Entry<String, PlanItemDto> pi : planItemMap.entrySet()) {
-                planItemStatisticRepository.updatePlanItems(pi.getValue());
-            }
-            planItemMap.clear();
-
-            sw.stop();
-            LogUtils.info(LOGGER, sw.toString());
-        }
     }
 }
