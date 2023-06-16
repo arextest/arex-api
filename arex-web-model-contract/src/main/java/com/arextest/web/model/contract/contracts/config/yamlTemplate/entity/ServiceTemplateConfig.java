@@ -21,4 +21,6 @@ public class ServiceTemplateConfig {
     private String allowTimeOfDayTo;
 
     private Collection<String> excludeServiceOperationSet;
+
+    private Integer recordMachineCountLimit;
 }

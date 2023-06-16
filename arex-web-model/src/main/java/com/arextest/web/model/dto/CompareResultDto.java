@@ -39,6 +39,8 @@ public class CompareResultDto extends BaseDto {
     private String planItemId;
     
     private Integer diffResultCode;
+
+    private MsgInfoDto msgInfo;
     
     private Date dataCreateTime;
 }

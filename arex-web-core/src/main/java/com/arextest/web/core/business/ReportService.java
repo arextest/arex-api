@@ -22,8 +22,11 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -69,8 +72,13 @@ public class ReportService {
     }
 
     public boolean analyzeCompareResults(AnalyzeCompareResultsRequestType request) {
-        List<CompareResultDto> results = replayCompareResultRepository.queryMultiCompareResults(request.getIds());
-        if (CollectionUtils.isNotEmpty(results)){
+        List<AnalyzeCompareResultsRequestType.AnalyzeCompareResultItem> analyzeCompareResultItems =
+                Optional.ofNullable(request.getAnalyzeCompareResultItems()).orElse(Collections.emptyList());
+        List<CompareResultDto> results = analyzeCompareResultItems.stream()
+                .map(CompareResultMapper.INSTANCE::dtoFromAnalyzeContract)
+                .collect(Collectors.toList());
+
+        if (CollectionUtils.isNotEmpty(results)) {
             // save caseSummary to db
             summaryService.analysis(results);
             statisticService.statisticPlanItems(results);

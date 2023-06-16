@@ -5,6 +5,7 @@ import com.arextest.web.model.contract.contracts.config.AbstractConfiguration;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -43,4 +44,14 @@ public class ServiceCollectConfiguration extends AbstractConfiguration {
     private String allowTimeOfDayTo;
 
     private Set<String> excludeServiceOperationSet;
+
+    /**
+     * Maximum number of recording machines for each group
+     */
+    private Integer recordMachineCountLimit;
+
+    /**
+     * Extended content for user-defined
+     */
+    private Map<String, String> extendField;
 }

@@ -2,6 +2,7 @@ package com.arextest.web.model.mapper;
 
 
 import com.arextest.web.model.contract.contracts.config.application.InstancesConfiguration;
+import com.arextest.web.model.contract.contracts.config.instance.AgentRemoteConfigurationRequest;
 import com.arextest.web.model.dao.mongodb.InstancesCollection;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -19,10 +20,7 @@ public interface InstancesMapper {
     })
     InstancesConfiguration dtoFromDao(InstancesCollection dao);
 
-    @Mappings({
-            @Mapping(target = "id", expression = "java(null)"),
-            @Mapping(target = "dataChangeCreateTime", expression = "java(System.currentTimeMillis())"),
-            @Mapping(target = "dataChangeUpdateTime", expression = "java(System.currentTimeMillis())")
-    })
     InstancesCollection daoFromDto(InstancesConfiguration dto);
+
+    InstancesConfiguration dtoFromContract(AgentRemoteConfigurationRequest contract);
 }

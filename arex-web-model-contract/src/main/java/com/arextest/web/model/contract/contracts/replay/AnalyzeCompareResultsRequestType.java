@@ -2,7 +2,6 @@ package com.arextest.web.model.contract.contracts.replay;
 
 import lombok.Data;
 
-import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -10,6 +9,36 @@ import java.util.List;
  */
 @Data
 public class AnalyzeCompareResultsRequestType {
-    @NotNull(message = "ids cannot be null")
-    private List<String> ids;
+
+    private List<AnalyzeCompareResultItem> analyzeCompareResultItems;
+
+    @Data
+    public static class AnalyzeCompareResultItem {
+
+        private String planId;
+
+        private String planItemId;
+
+        private String operationId;
+
+        private String serviceName;
+
+        private String categoryName;
+
+        private String operationName;
+
+        private String replayId;
+
+        private String recordId;
+
+        private Integer diffResultCode;
+
+        private MsgInfo msgInfo;
+
+    }
+
+    @Data
+    public static class MsgInfo {
+        private int msgMiss;
+    }
 }

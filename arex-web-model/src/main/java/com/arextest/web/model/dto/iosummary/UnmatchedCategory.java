@@ -1,13 +1,14 @@
 package com.arextest.web.model.dto.iosummary;
 
-import com.arextest.web.model.contract.contracts.common.LogEntity;
+import com.arextest.web.model.contract.contracts.common.enums.MsgMissingCode;
 import com.arextest.web.model.dto.CompareResultDto;
+import com.arextest.web.model.dto.MsgInfoDto;
 import com.arextest.web.model.enums.DiffResultCode;
 import lombok.Getter;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 
 @Getter
@@ -49,18 +50,15 @@ public enum UnmatchedCategory {
             case DiffResultCode.COMPARED_INTERNAL_EXCEPTION:
                 return UnmatchedCategory.UNKNOWN;
             default: {
-                List<LogEntity> entities = compareResult.getLogs();
-                if (entities == null || entities.size() == 0) {
-                    return UnmatchedCategory.UNKNOWN;
-                } else if (entities.size() > 1) {
+                MsgInfoDto msgInfo = compareResult.getMsgInfo();
+                int msgMiss = Optional.ofNullable(msgInfo).map(MsgInfoDto::getMsgMiss).orElse(MsgMissingCode.NO_MISSING);
+                if (msgMiss == MsgMissingCode.LEFT_MISSING) {
+                    return UnmatchedCategory.LEFT_MISSING;
+                } else if (msgMiss == MsgMissingCode.RIGHT_MISSING) {
+                    return UnmatchedCategory.RIGHT_MISSING;
+                } else {
                     return UnmatchedCategory.VALUE_DIFF;
                 }
-                if (compareResult.getBaseMsg() == null) {
-                    return UnmatchedCategory.LEFT_MISSING;
-                } else if (compareResult.getTestMsg() == null) {
-                    return UnmatchedCategory.RIGHT_MISSING;
-                }
-                return UnmatchedCategory.VALUE_DIFF;
             }
         }
     }
