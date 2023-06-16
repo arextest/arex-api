@@ -59,7 +59,7 @@ public interface CompareResultMapper {
     CompareResult contractFromDtoLogsLimitDisplay(CompareResultDto dto);
 
 
-    CompareResultDto dtoFromAnalyzeContract(AnalyzeCompareResultsRequestType.AnalyzeCompareResultItem analyzeCompareResultItem);
+    CompareResultDto dtoFromAnalyzeContract(AnalyzeCompareResultsRequestType.AnalyzeCompareInfoItem analyzeCompareInfoItem);
 
     @Named("compressMsg")
     default String compressMsg(String decompressString) {

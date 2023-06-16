@@ -72,9 +72,9 @@ public class ReportService {
     }
 
     public boolean analyzeCompareResults(AnalyzeCompareResultsRequestType request) {
-        List<AnalyzeCompareResultsRequestType.AnalyzeCompareResultItem> analyzeCompareResultItems =
-                Optional.ofNullable(request.getAnalyzeCompareResultItems()).orElse(Collections.emptyList());
-        List<CompareResultDto> results = analyzeCompareResultItems.stream()
+        List<AnalyzeCompareResultsRequestType.AnalyzeCompareInfoItem> analyzeCompareInfoItems =
+                Optional.ofNullable(request.getAnalyzeCompareInfos()).orElse(Collections.emptyList());
+        List<CompareResultDto> results = analyzeCompareInfoItems.stream()
                 .map(CompareResultMapper.INSTANCE::dtoFromAnalyzeContract)
                 .collect(Collectors.toList());
 

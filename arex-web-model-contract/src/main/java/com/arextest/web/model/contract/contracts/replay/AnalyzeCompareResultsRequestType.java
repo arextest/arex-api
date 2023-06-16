@@ -10,10 +10,10 @@ import java.util.List;
 @Data
 public class AnalyzeCompareResultsRequestType {
 
-    private List<AnalyzeCompareResultItem> analyzeCompareResultItems;
+    private List<AnalyzeCompareInfoItem> analyzeCompareInfos;
 
     @Data
-    public static class AnalyzeCompareResultItem {
+    public static class AnalyzeCompareInfoItem {
 
         private String planId;
 
