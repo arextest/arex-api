@@ -33,6 +33,8 @@ public class ServiceCollectConfigurationRepositoryImpl implements ConfigReposito
 
     private static final String RECORD_MACHINE_COUNT_LIMIT = "recordMachineCountLimit";
 
+    private static final String EXTEND_FIELD = "extendField";
+
     @Autowired
     MongoTemplate mongoTemplate;
 
@@ -73,6 +75,7 @@ public class ServiceCollectConfigurationRepositoryImpl implements ConfigReposito
         update.set(TIME_MOCK, configuration.isTimeMock());
         update.set(RECORD_MACHINE_COUNT_LIMIT,
                 configuration.getRecordMachineCountLimit() == null ? 1 : configuration.getRecordMachineCountLimit());
+        update.set(EXTEND_FIELD, configuration.getExtendField());
         UpdateResult updateResult = mongoTemplate.updateMulti(query, update, RecordServiceConfigCollection.class);
         return updateResult.getModifiedCount() > 0;
     }

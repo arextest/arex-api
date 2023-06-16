@@ -6,6 +6,7 @@ import lombok.NonNull;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.Map;
 import java.util.Set;
 
 
@@ -31,4 +32,6 @@ public class RecordServiceConfigCollection extends ModelBase {
     private Set<String> excludeServiceOperationSet;
 
     private Integer recordMachineCountLimit;
+
+    private Map<String, String> extendField;
 }
