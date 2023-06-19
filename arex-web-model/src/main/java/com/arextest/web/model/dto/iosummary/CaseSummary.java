@@ -21,8 +21,6 @@ public class CaseSummary {
         return new Builder();
     }
 
-    private Long categoryKey;
-
     private int code;
     private String recordId;
     private String replayId;
@@ -30,6 +28,9 @@ public class CaseSummary {
     private String planItemId;
 
     private List<DiffDetail> diffs;
+
+    private Long categoryKey;
+    private Long groupKey;
 
     CaseSummary(String planId, String planItemId, String recordId, String replayId, int code, List<DiffDetail> diffs) {
         this.planId = planId;
@@ -73,6 +74,10 @@ public class CaseSummary {
     }
 
     public long groupKey() {
+        if (this.groupKey != null) {
+            return this.groupKey;
+        }
+
         if (CollectionUtil.isEmpty(diffs)) {
             return 0;
         }

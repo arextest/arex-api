@@ -7,7 +7,7 @@
     <groupId>com.arextest</groupId>
     <artifactId>arex-web</artifactId>
     <packaging>pom</packaging>
-    <version>0.3.0.4</version>
+    <version>0.0.0.0-SNAPSHOT</version>
     <modules>
         <module>arex-web-api</module>
         <module>arex-web-common</module>
@@ -122,6 +122,11 @@
                 <groupId>com.arextest</groupId>
                 <artifactId>arex-model</artifactId>
                 <version>${arex-storage.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.arextest</groupId>
+                <artifactId>compare-sdk</artifactId>
+                <version>0.1.18-SNAPSHOT</version>
             </dependency>
             <!--spring-boot-->
             <dependency>
@@ -383,8 +388,8 @@
         <profile>
             <id>jar-local</id>
             <properties>
-                <releases.repo></releases.repo>
-                <snapshots.repo></snapshots.repo>
+                <releases.repo>http://maven.release.ctripcorp.com/nexus/content/repositories/flightrelease</releases.repo>
+                <snapshots.repo>http://maven.release.ctripcorp.com/nexus/content/repositories/flightsnapshot</snapshots.repo>
             </properties>
         </profile>
     </profiles>
