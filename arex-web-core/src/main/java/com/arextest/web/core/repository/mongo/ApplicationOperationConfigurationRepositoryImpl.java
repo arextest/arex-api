@@ -82,4 +82,11 @@ public class ApplicationOperationConfigurationRepositoryImpl implements
         List<ServiceOperationCollection> serviceOperationCollections = mongoTemplate.find(query, ServiceOperationCollection.class);
         return serviceOperationCollections.stream().map(ServiceOperationMapper.INSTANCE::baseInfoFromDao).collect(Collectors.toList());
     }
+
+    @Override
+    public boolean removeByAppId(String appId) {
+        Query query = Query.query(Criteria.where(APP_ID).is(appId));
+        DeleteResult remove = mongoTemplate.remove(query, ServiceOperationCollection.class);
+        return remove.getDeletedCount() > 0;
+    }
 }

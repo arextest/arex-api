@@ -9,6 +9,8 @@ import com.arextest.web.model.dao.mongodb.AppCollection;
 import com.arextest.web.model.mapper.AppMapper;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -29,6 +31,11 @@ public class ApplicationConfigurationRepositoryImpl implements ConfigRepositoryP
     private static final String AGENT_EXT_VERSION = "agentExtVersion";
 
     private static final String FEATURES = "features";
+
+    @Resource
+    private List<ConfigRepositoryProvider> configRepositoryProviders;
+
+
 
     @Resource
     MongoTemplate mongoTemplate;
@@ -64,6 +71,12 @@ public class ApplicationConfigurationRepositoryImpl implements ConfigRepositoryP
 
     @Override
     public boolean remove(ApplicationConfiguration configuration) {
+        if (StringUtils.isBlank(configuration.getAppId())) {
+            return false;
+        }
+        for (ConfigRepositoryProvider configRepositoryProvider : configRepositoryProviders) {
+            configRepositoryProvider.removeByAppId(configuration.getAppId());
+        }
         Query query = Query.query(Criteria.where(APP_ID).is(configuration.getAppId()));
         DeleteResult remove = mongoTemplate.remove(query, AppCollection.class);
         return remove.getDeletedCount() > 0;
