@@ -177,14 +177,6 @@ public class ReplayCompareResultRepositoryImpl implements ReplayCompareResultRep
     }
 
     @Override
-    public List<CompareResultDto> queryMultiCompareResults(List<String> objectIds) {
-        Query query = new Query();
-        query.addCriteria(Criteria.where(DASH_ID).in(objectIds));
-        List<ReplayCompareResultCollection> results = mongoTemplate.find(query, ReplayCompareResultCollection.class);
-        return results.stream().map(CompareResultMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
-    }
-
-    @Override
     public List<CompareResultDto> queryCompareResultsByRecordId(String planItemId, String recordId) {
         Query query = new Query();
         query.addCriteria(Criteria.where(RECORD_ID).is(recordId).and(PLAN_ITEM_ID).is(planItemId));
