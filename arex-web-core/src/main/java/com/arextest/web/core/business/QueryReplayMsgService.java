@@ -31,10 +31,8 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import javax.xml.bind.DatatypeConverter;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -187,6 +185,12 @@ public class QueryReplayMsgService {
         QueryDiffMsgByIdResponseType response = new QueryDiffMsgByIdResponseType();
         CompareResultDto compareResultDto = replayCompareResultRepository.queryCompareResultsById(id);
         CompareResultDetail compareResultDetail = CompareResultMapper.INSTANCE.detailFromDto(compareResultDto);
+
+        //base64解码
+        if(compareResultDetail.getBaseMsg() != null){
+            compareResultDetail.setBaseMsg(this.deCode(compareResultDetail.getBaseMsg()));
+        }
+
         fillCompareResultDetail(compareResultDto, compareResultDetail);
         response.setCompareResultDetail(compareResultDetail);
         return response;
@@ -196,7 +200,15 @@ public class QueryReplayMsgService {
         QueryLogEntityResponseType response = new QueryLogEntityResponseType();
         CompareResultDto dto = replayCompareResultRepository.queryCompareResultsById(request.getCompareResultId());
         List<LogEntity> logs = dto.getLogs();
-        response.setLogEntity(logs.get(request.getLogIndex()));
+
+        LogEntity logEntity = logs.get(request.getLogIndex());
+
+        //base64解码
+        if(logEntity.getBaseValue() != null ||logEntity.getBaseValue() != ""){
+            logEntity.setBaseValue(this.deCode(logEntity.getBaseValue().toString()));
+        }
+
+        response.setLogEntity(logEntity);
         response.setDiffResultCode(dto.getDiffResultCode());
         return response;
     }
@@ -252,4 +264,25 @@ public class QueryReplayMsgService {
             compareResultDetail.setLogInfos(new ArrayList<>(logInfoMap.values()));
         }
     }
+    /**
+     * base64解码之方法一
+     * @explain DatatypeConverter.java实现
+     * @param base64Str
+     *            待解码字符串
+     * @return 解码字符串
+     */
+    public  String deCode(String base64Str) {
+        // 解码后的字符串
+        String str = "" ;
+        // 解码
+        byte [] base64Data = DatatypeConverter.parseBase64Binary(base64Str);
+        try {
+            // byte[]-->String
+            str = new String(base64Data, "utf-8" );
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        return str;
+    }
+
 }
