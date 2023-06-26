@@ -93,4 +93,11 @@ public class ScheduleConfigurationRepositoryImpl implements ConfigRepositoryProv
         ReplayScheduleConfigCollection insert = mongoTemplate.insert(replayScheduleConfigCollection);
         return insert.getId() != null;
     }
+
+    @Override
+    public boolean removeByAppId(String appId) {
+        Query query = Query.query(Criteria.where(APP_ID).is(appId));
+        DeleteResult remove = mongoTemplate.remove(query, ReplayScheduleConfigCollection.class);
+        return remove.getDeletedCount() > 0;
+    }
 }

@@ -57,6 +57,8 @@ public class ApplicationServiceConfigurationRepositoryImpl implements
     public boolean remove(ApplicationServiceConfiguration configuration) {
         Query query = Query.query(Criteria.where(DASH_ID).is(configuration.getId()));
         DeleteResult remove = mongoTemplate.remove(query, ServiceCollection.class);
+
+
         return remove.getDeletedCount() > 0;
     }
 
@@ -74,5 +76,12 @@ public class ApplicationServiceConfigurationRepositoryImpl implements
     public long count(String appId) {
         Query query = Query.query(Criteria.where(APP_ID).is(appId));
         return mongoTemplate.count(query, ServiceCollection.class);
+    }
+
+    @Override
+    public boolean removeByAppId(String appId) {
+        Query query = Query.query(Criteria.where(APP_ID).is(appId));
+        DeleteResult remove = mongoTemplate.remove(query, ServiceCollection.class);
+        return remove.getDeletedCount() > 0;
     }
 }

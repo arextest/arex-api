@@ -37,4 +37,6 @@ public class ScheduleConfiguration extends AbstractConfiguration {
 
     private Set<String> excludeServiceOperationSet;
 
+    private Set<String> includeServiceOperationSet;
+
 }

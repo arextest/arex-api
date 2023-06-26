@@ -94,4 +94,11 @@ public class ServiceCollectConfigurationRepositoryImpl implements ConfigReposito
         RecordServiceConfigCollection insert = mongoTemplate.insert(recordServiceConfigCollection);
         return insert.getId() != null;
     }
+
+    @Override
+    public boolean removeByAppId(String appId) {
+        Query query = Query.query(Criteria.where(APP_ID).is(appId));
+        DeleteResult remove = mongoTemplate.remove(query, RecordServiceConfigCollection.class);
+        return remove.getDeletedCount() > 0;
+    }
 }

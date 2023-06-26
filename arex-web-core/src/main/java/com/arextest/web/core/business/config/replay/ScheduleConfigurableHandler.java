@@ -4,11 +4,20 @@ import com.arextest.web.core.business.config.AbstractConfigurableHandler;
 import com.arextest.web.core.repository.ConfigRepositoryProvider;
 import com.arextest.web.model.contract.contracts.config.record.ServiceCollectConfiguration;
 import com.arextest.web.model.contract.contracts.config.replay.ScheduleConfiguration;
+
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import javax.annotation.Resource;
+
+import com.arextest.web.model.dao.mongodb.ServiceOperationCollection;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
@@ -20,6 +29,8 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public final class ScheduleConfigurableHandler extends AbstractConfigurableHandler<ScheduleConfiguration> {
+
+    private static final String INCLUDE_SERVICE_OPERATIONS = "includeServiceOperations";
     @Resource
     private ScheduleConfiguration globalScheduleConfiguration;
 
@@ -30,16 +41,17 @@ public final class ScheduleConfigurableHandler extends AbstractConfigurableHandl
     public List<ScheduleConfiguration> useResultAsList(String appId) {
         List<ScheduleConfiguration> sourceList = super.useResultAsList(appId);
         if (CollectionUtils.isNotEmpty(sourceList)) {
-            Set<String> excludeServiceOperationSet = getExcludeServiceOperationSet(appId);
+            ImmutablePair<Set<String>,Set<String>> includeExcludeServiceOperations = getIncludeExcludeServiceOperations(appId);
             for (ScheduleConfiguration source : sourceList) {
-                source.setExcludeServiceOperationSet(excludeServiceOperationSet);
+                source.setIncludeServiceOperationSet(includeExcludeServiceOperations.getLeft());
+                source.setExcludeServiceOperationSet(includeExcludeServiceOperations.getRight());
             }
         }
         return sourceList;
     }
 
     protected ScheduleConfigurableHandler(
-        @Autowired ConfigRepositoryProvider<ScheduleConfiguration> repositoryProvider) {
+            @Autowired ConfigRepositoryProvider<ScheduleConfiguration> repositoryProvider) {
         super(repositoryProvider);
     }
 
@@ -85,11 +97,25 @@ public final class ScheduleConfigurableHandler extends AbstractConfigurableHandl
             source.setTargetEnv(globalScheduleConfiguration.getTargetEnv());
         }
     }
-    private Set<String> getExcludeServiceOperationSet(String appId) {
+    private ImmutablePair<Set<String>, Set<String>> getIncludeExcludeServiceOperations(String appId) {
         List<ServiceCollectConfiguration> list = collectConfigurationProvider.listBy(appId);
         if (CollectionUtils.isEmpty(list)) {
-            return Collections.emptySet();
+            return new ImmutablePair<>(Collections.emptySet(), Collections.emptySet());
         }
-        return list.get(0).getExcludeServiceOperationSet();
+        ServiceCollectConfiguration serviceCollect = list.get(0);
+        Set<String> includeServiceOperations = new HashSet<>();
+        Set<String> excludeServiceOperations = new HashSet<>();
+        if (MapUtils.isNotEmpty(serviceCollect.getExtendField()) &&
+                serviceCollect.getExtendField().containsKey(INCLUDE_SERVICE_OPERATIONS)) {
+            String includeOperations = serviceCollect.getExtendField().get(INCLUDE_SERVICE_OPERATIONS);
+            if (StringUtils.isNotBlank(includeOperations)) {
+                includeServiceOperations.addAll(Arrays.asList(StringUtils.split(includeOperations, ",")));
+            }
+        }
+        if (CollectionUtils.isNotEmpty(serviceCollect.getExcludeServiceOperationSet())) {
+            excludeServiceOperations = serviceCollect.getExcludeServiceOperationSet();
+        }
+
+        return new ImmutablePair<>(includeServiceOperations, excludeServiceOperations);
     }
 }
