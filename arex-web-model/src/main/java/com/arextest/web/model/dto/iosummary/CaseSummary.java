@@ -29,6 +29,9 @@ public class CaseSummary {
 
     private List<DiffDetail> diffs;
 
+    private Long categoryKey;
+    private Long groupKey;
+
     CaseSummary(String planId, String planItemId, String recordId, String replayId, int code, List<DiffDetail> diffs) {
         this.planId = planId;
         this.planItemId = planItemId;
@@ -39,32 +42,42 @@ public class CaseSummary {
     }
 
     public long categoryKey() {
-        if (CollectionUtil.isEmpty(diffs)) {
-            return 0;
-        }
-        Set<Tuple<String, Integer>> categoryAndCodeSet = new HashSet<>();
-        for (DiffDetail diffDetail : diffs) {
-            categoryAndCodeSet.add(
-                    new Tuple<>(diffDetail.categoryName, diffDetail.code)
-            );
+        if (this.categoryKey != null) {
+            return this.categoryKey;
         }
 
-        long key = OFFSET_BASIS;
-        for (Tuple<String, Integer> item : categoryAndCodeSet) {
-            key = (key ^ item.y) * FNV_PRIME;
-            for (byte c : item.x.getBytes()) {
-                key = (key ^ c) * FNV_PRIME;
+        if (CollectionUtil.isEmpty(diffs)) {
+            this.categoryKey = 0L;
+        } else {
+            Set<Tuple<String, Integer>> categoryAndCodeSet = new HashSet<>();
+            for (DiffDetail diffDetail : diffs) {
+                categoryAndCodeSet.add(
+                        new Tuple<>(diffDetail.categoryName, diffDetail.code)
+                );
             }
+
+            long key = OFFSET_BASIS;
+            for (Tuple<String, Integer> item : categoryAndCodeSet) {
+                key = (key ^ item.y) * FNV_PRIME;
+                for (byte c : item.x.getBytes()) {
+                    key = (key ^ c) * FNV_PRIME;
+                }
+            }
+            key += key << 13;
+            key ^= key >> 7;
+            key += key << 3;
+            key ^= key >> 17;
+            key += key << 5;
+            this.categoryKey = Math.abs(key);
         }
-        key += key << 13;
-        key ^= key >> 7;
-        key += key << 3;
-        key ^= key >> 17;
-        key += key << 5;
-        return Math.abs(key);
+        return this.categoryKey;
     }
 
     public long groupKey() {
+        if (this.groupKey != null) {
+            return this.groupKey;
+        }
+
         if (CollectionUtil.isEmpty(diffs)) {
             return 0;
         }

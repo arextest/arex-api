@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -22,4 +23,6 @@ public class CaseSummaryCollection extends ModelBase {
     private String planItemId;
 
     private List<DiffDetailDao> diffs;
+
+    private Date dataCreateTime;
 }

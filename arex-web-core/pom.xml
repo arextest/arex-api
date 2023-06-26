@@ -25,10 +25,6 @@
         </dependency>
         <dependency>
             <groupId>com.arextest</groupId>
-            <artifactId>compare-sdk</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.arextest</groupId>
             <artifactId>arex-model</artifactId>
         </dependency>
         <dependency>

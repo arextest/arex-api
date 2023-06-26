@@ -1,18 +1,27 @@
 package com.arextest.web.core.repository.mongo;
 
 import com.arextest.web.core.repository.SceneInfoRepository;
+import com.arextest.web.core.repository.mongo.util.MongoHelper;
 import com.arextest.web.model.dao.mongodb.iosummary.SceneInfoCollection;
+import com.arextest.web.model.dao.mongodb.iosummary.SubSceneInfoDao;
 import com.arextest.web.model.dto.iosummary.SceneInfo;
+import com.arextest.web.model.dto.iosummary.SubSceneInfo;
 import com.arextest.web.model.mapper.SceneInfoMapper;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -21,11 +30,8 @@ import java.util.stream.Collectors;
 @Component
 public class SceneInfoRepositoryImpl implements SceneInfoRepository {
 
-    private static final String PLAN_ID = "planId";
+    private static final String DOT = ".";
 
-    private static final String PLAN_ITEM_ID = "planItemId";
-
-    private static final String CODE = "code";
     @Autowired
     MongoTemplate mongoTemplate;
 
@@ -41,15 +47,54 @@ public class SceneInfoRepositoryImpl implements SceneInfoRepository {
     }
 
     @Override
+    public SceneInfo save(SceneInfo sceneInfo) {
+
+        Update update = MongoHelper.getUpdate();
+        update.inc(SceneInfoCollection.Fields.count);
+        update.setOnInsert(SceneInfoCollection.Fields.dataCreateTime, new Date());
+        update.setOnInsert(SceneInfoCollection.Fields.code, sceneInfo.getCode());
+
+        Map<String, SubSceneInfo> subSceneInfoMap = sceneInfo.getSubSceneInfoMap();
+        Query query = Query.query(Criteria.where(SceneInfoCollection.Fields.planId).is(sceneInfo.getPlanId())
+                .and(SceneInfoCollection.Fields.planItemId).is(sceneInfo.getPlanItemId())
+                .and(SceneInfoCollection.Fields.categoryKey).is(sceneInfo.getCategoryKey())
+        );
+        if (MapUtils.isNotEmpty(subSceneInfoMap)) {
+            List<String> groupKeyList = new ArrayList<>(subSceneInfoMap.keySet());
+            String groupKey = groupKeyList.get(0);
+            String groupKeyName = toColumnName(SceneInfoCollection.Fields.subSceneInfoMap, groupKey);
+            SubSceneInfo subSceneInfo = subSceneInfoMap.get(groupKey);
+
+            update.inc(toColumnName(groupKeyName, SubSceneInfoDao.Fields.count));
+            update.set(toColumnName(groupKeyName, SubSceneInfoDao.Fields.code), subSceneInfo.getCode());
+            update.set(toColumnName(groupKeyName, SubSceneInfoDao.Fields.recordId), subSceneInfo.getRecordId());
+            update.set(toColumnName(groupKeyName, SubSceneInfoDao.Fields.replayId), subSceneInfo.getReplayId());
+            update.set(toColumnName(groupKeyName, SubSceneInfoDao.Fields.details), subSceneInfo.getDetails());
+        }
+
+        SceneInfoCollection andModify = mongoTemplate.findAndModify(
+                query,
+                update,
+                FindAndModifyOptions.options().upsert(true).returnNew(true),
+                SceneInfoCollection.class
+        );
+        return SceneInfoMapper.INSTANCE.dtoFromDao(andModify);
+    }
+
+    @Override
     public List<SceneInfo> querySceneInfo(String planId, String planItemId) {
-        Query query = Query.query(Criteria.where(PLAN_ID).is(planId)
-                .and(PLAN_ITEM_ID).is(planItemId)
-                .and(CODE).nin(-1, 0)
+        Query query = Query.query(Criteria.where(SceneInfoCollection.Fields.planId).is(planId)
+                .and(SceneInfoCollection.Fields.planItemId).is(planItemId)
+                .and(SceneInfoCollection.Fields.code).nin(-1, 0)
         );
         List<SceneInfoCollection> sceneInfoCollections =
                 mongoTemplate.find(query, SceneInfoCollection.class);
         return sceneInfoCollections.stream()
                 .map(SceneInfoMapper.INSTANCE::dtoFromDao)
                 .collect(Collectors.toList());
+    }
+
+    private String toColumnName(String groupKeyName, String columnName) {
+        return groupKeyName + DOT + columnName;
     }
 }

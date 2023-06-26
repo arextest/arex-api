@@ -11,17 +11,22 @@ import com.arextest.web.core.repository.ReportPlanStatisticRepository;
 import com.arextest.web.model.contract.contracts.ChangeReplayStatusRequestType;
 import com.arextest.web.model.contract.contracts.PushCompareResultsRequestType;
 import com.arextest.web.model.contract.contracts.common.CompareResult;
+import com.arextest.web.model.contract.contracts.replay.AnalyzeCompareResultsRequestType;
 import com.arextest.web.model.dto.CompareResultDto;
 import com.arextest.web.model.dto.ReportPlanStatisticDto;
 import com.arextest.web.model.enums.ReplayStatusType;
 import com.arextest.web.model.mapper.CompareResultMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -45,6 +50,7 @@ public class ReportService {
     @Resource
     private SceneReportService sceneReportService;
 
+    @Deprecated
     public boolean saveCompareResults(PushCompareResultsRequestType request) {
         List<CompareResultDto> results = new ArrayList<>(request.getResults().size());
         for (CompareResult cr : request.getResults()) {
@@ -62,6 +68,21 @@ public class ReportService {
         statisticService.statisticPlanItems(results);
 
         sceneService.statisticScenes(results);
+        return true;
+    }
+
+    public boolean analyzeCompareResults(AnalyzeCompareResultsRequestType request) {
+        List<AnalyzeCompareResultsRequestType.AnalyzeCompareInfoItem> analyzeCompareInfoItems =
+                Optional.ofNullable(request.getAnalyzeCompareInfos()).orElse(Collections.emptyList());
+        List<CompareResultDto> results = analyzeCompareInfoItems.stream()
+                .map(CompareResultMapper.INSTANCE::dtoFromAnalyzeContract)
+                .collect(Collectors.toList());
+
+        if (CollectionUtils.isNotEmpty(results)) {
+            // save caseSummary to db
+            summaryService.analysis(results);
+            statisticService.statisticPlanItems(results);
+        }
         return true;
     }
 
@@ -96,9 +117,6 @@ public class ReportService {
         );
         if (request.getItems() != null) {
             for (ChangeReplayStatusRequestType.ReplayItem item : request.getItems()) {
-                if (Objects.equals(item.getStatus(), ReplayStatusType.FINISHED)) {
-                    sceneReportService.report(request.getPlanId(), item.getPlanItemId());
-                }
                 planItemStatisticRepository.changePlanItemStatus(
                         item.getPlanItemId(),
                         item.getStatus(),

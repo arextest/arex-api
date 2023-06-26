@@ -17,6 +17,9 @@ public class SummaryService {
     @Autowired
     CaseSummaryRepository caseSummaryRepository;
 
+    @Autowired
+    SceneReportService sceneReportService;
+
     /**
      * analyze the compared results
      */
@@ -35,6 +38,7 @@ public class SummaryService {
                 .rePlayId(compareResultDto.getReplayId())
                 .build();
         caseSummaryRepository.save(summary);
+        sceneReportService.report(summary);
     }
 
     private CaseSummary.Builder analysis0(CaseSummary.Builder builder, CompareResultDto compareResultDto) {

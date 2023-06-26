@@ -1,27 +1,30 @@
 package com.arextest.web.model.dao.mongodb;
 
+import com.arextest.web.model.dao.mongodb.entity.MsgInfoDao;
 import lombok.Data;
+import lombok.experimental.FieldNameConstants;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Date;
 
 
 @Data
+@FieldNameConstants
 @Document(collection = "ReplayCompareResult")
 public class ReplayCompareResultCollection extends ModelBase {
-    
+
     private String planId;
-    
+
     private String operationId;
-    
+
     private String serviceName;
-    
+
     private String categoryName;
-    
+
     private String operationName;
-    
+
     private String replayId;
-    
+
     private String recordId;
 
     private long recordTime;
@@ -31,14 +34,16 @@ public class ReplayCompareResultCollection extends ModelBase {
     private String instanceId;
 
     private String baseMsg;
-    
+
     private String testMsg;
-    
+
     private String logs;
     // planItemId
     private String planItemId;
-    
+
     private int diffResultCode;
+
+    private MsgInfoDao msgInfo;
 
     private Date dataCreateTime;
 }

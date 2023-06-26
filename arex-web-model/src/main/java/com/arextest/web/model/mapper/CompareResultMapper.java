@@ -1,11 +1,11 @@
 package com.arextest.web.model.mapper;
 
-import com.arextest.common.utils.CompressionUtils;
 import com.arextest.common.utils.SerializationUtils;
 import com.arextest.web.common.ZstdUtils;
 import com.arextest.web.model.contract.contracts.CompareResultDetail;
 import com.arextest.web.model.contract.contracts.common.CompareResult;
 import com.arextest.web.model.contract.contracts.common.LogEntity;
+import com.arextest.web.model.contract.contracts.replay.AnalyzeCompareResultsRequestType;
 import com.arextest.web.model.dao.mongodb.ReplayCompareResultCollection;
 import com.arextest.web.model.dto.CompareResultDto;
 import org.apache.commons.lang3.StringUtils;
@@ -57,6 +57,9 @@ public interface CompareResultMapper {
             @Mapping(target = "logs", expression = "java(dto.getDiffResultCode() == 2 ? dto.getLogs() : null)"),
     })
     CompareResult contractFromDtoLogsLimitDisplay(CompareResultDto dto);
+
+
+    CompareResultDto dtoFromAnalyzeContract(AnalyzeCompareResultsRequestType.AnalyzeCompareInfoItem analyzeCompareInfoItem);
 
     @Named("compressMsg")
     default String compressMsg(String decompressString) {
