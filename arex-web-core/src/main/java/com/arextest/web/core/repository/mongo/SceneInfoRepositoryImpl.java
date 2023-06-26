@@ -65,11 +65,11 @@ public class SceneInfoRepositoryImpl implements SceneInfoRepository {
             String groupKeyName = toColumnName(SceneInfoCollection.Fields.subSceneInfoMap, groupKey);
             SubSceneInfo subSceneInfo = subSceneInfoMap.get(groupKey);
 
-            update.inc(toColumnName(groupKeyName, SceneInfoCollection.Fields.count));
-            update.setOnInsert(toColumnName(groupKeyName, SceneInfoCollection.Fields.code), subSceneInfo.getCode());
-            update.setOnInsert(toColumnName(groupKeyName, SubSceneInfoDao.Fields.recordId), subSceneInfo.getRecordId());
-            update.setOnInsert(toColumnName(groupKeyName, SubSceneInfoDao.Fields.replayId), subSceneInfo.getReplayId());
-            update.setOnInsert(toColumnName(groupKeyName, SubSceneInfoDao.Fields.details), subSceneInfo.getDetails());
+            update.inc(toColumnName(groupKeyName, SubSceneInfoDao.Fields.count));
+            update.set(toColumnName(groupKeyName, SubSceneInfoDao.Fields.code), subSceneInfo.getCode());
+            update.set(toColumnName(groupKeyName, SubSceneInfoDao.Fields.recordId), subSceneInfo.getRecordId());
+            update.set(toColumnName(groupKeyName, SubSceneInfoDao.Fields.replayId), subSceneInfo.getReplayId());
+            update.set(toColumnName(groupKeyName, SubSceneInfoDao.Fields.details), subSceneInfo.getDetails());
         }
 
         SceneInfoCollection andModify = mongoTemplate.findAndModify(
