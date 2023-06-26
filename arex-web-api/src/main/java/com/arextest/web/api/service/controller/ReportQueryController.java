@@ -306,6 +306,7 @@ public class ReportQueryController {
         return ResponseUtils.successResponse(response);
     }
 
+    @Deprecated
     @GetMapping("/queryDiffMsgById/{id}")
     @ResponseBody
     public Response queryDiffMsgById(@PathVariable String id) {
@@ -313,6 +314,7 @@ public class ReportQueryController {
         return ResponseUtils.successResponse(response);
     }
 
+    @Deprecated
     @PostMapping("/queryLogEntity")
     @ResponseBody
     public Response queryLogEntity(@Valid @RequestBody QueryLogEntityRequestTye request) {

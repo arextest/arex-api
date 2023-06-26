@@ -53,39 +53,7 @@ public class SceneReportService {
                 .planId(caseSummary.getPlanId())
                 .planItemId(caseSummary.getPlanItemId())
                 .summary(caseSummary).build();
-        SceneInfo savedSceneInfo = sceneInfoRepository.save(sceneInfo);
-        /**
-         * determine whether to compare according to the count number
-         * If count=1, trigger comparison
-         * If cunnt is greater than 1, no comparison is made
-         */
-        if (shouldCompare(caseSummary, savedSceneInfo)) {
-
-            // String planId = caseSummary.getPlanId();
-            // String planItemId = caseSummary.getPlanItemId();
-            // String recordId = caseSummary.getRecordId();
-            //
-            // List<CompareResultDto> dtos = replayCompareResultRepository.queryCompareResults(planId,
-            //         Collections.singletonList(planItemId),
-            //         Collections.singletonList(recordId),
-            //         null,
-            //         Arrays.asList(
-            //                 ReplayCompareResultCollection.Fields.baseMsg,
-            //                 ReplayCompareResultCollection.Fields.testMsg
-            //         )
-            // );
-            // if (CollectionUtils.isEmpty(dtos)) {
-            //     LogUtils.warn(LOGGER, "report don't find compareResult",
-            //             ImmutableMap.of("planId", planId, "recordId", recordId));
-            // } else {
-            //     CompareResultDto dto = dtos.get(0);
-            //     // todo: getCompareConfig
-            //     // 全量触发落库
-            //
-            // }
-
-
-        }
+        sceneInfoRepository.save(sceneInfo);
     }
 
     public QuerySceneInfoResponseType querySceneInfo(String planId, String planItemId) {
@@ -124,17 +92,5 @@ public class SceneReportService {
         }
         response.setSceneInfos(sceneInfoTypes);
         return response;
-    }
-
-    private boolean shouldCompare(CaseSummary caseSummary, SceneInfo sceneInfo) {
-        String categoryKey = String.valueOf(caseSummary.groupKey());
-        Map<String, SubSceneInfo> subSceneInfoMap = sceneInfo.getSubSceneInfoMap();
-        if (subSceneInfoMap != null && subSceneInfoMap.containsKey(categoryKey)) {
-            SubSceneInfo subSceneInfo = subSceneInfoMap.get(categoryKey);
-            if (subSceneInfo.getCode() == 1) {
-                return true;
-            }
-        }
-        return false;
     }
 }
