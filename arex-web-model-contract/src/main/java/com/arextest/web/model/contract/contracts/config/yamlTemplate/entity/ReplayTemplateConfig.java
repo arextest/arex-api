@@ -15,5 +15,5 @@ public class ReplayTemplateConfig {
 
     // private Set<String> targetEnv;
 
-    // private Integer sendMaxQps;
+    private Integer sendMaxQps;
 }
