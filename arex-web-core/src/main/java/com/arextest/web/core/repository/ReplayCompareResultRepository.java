@@ -35,4 +35,5 @@ public interface ReplayCompareResultRepository extends RepositoryProvider {
                                                List<String> recordIdList,
                                                List<Integer> diffResultCodeList,
                                                List<String> showFields);
+    CompareResultDto queryLatestCompareResultByOperationId(String operationId);
 }

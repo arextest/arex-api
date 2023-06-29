@@ -229,6 +229,15 @@ public class ReplayCompareResultRepositoryImpl implements ReplayCompareResultRep
 
     }
 
+    @Override
+    public CompareResultDto queryLatestCompareResultByOperationId(String operationId) {
+        Sort sort = Sort.by(Sort.Direction.DESC, DATA_CHANGE_UPDATE_TIME);
+        Query query = Query.query(Criteria.where(OPERATION_ID).is(operationId))
+                .with(sort)
+                .limit(1);
+        return mongoTemplate.findOne(query, CompareResultDto.class);
+    }
+
     private Query fillFilterConditions(String planId, String planItemId, String categoryName, Integer resultType,
                                        String keyWord) {
         Query query = new Query();

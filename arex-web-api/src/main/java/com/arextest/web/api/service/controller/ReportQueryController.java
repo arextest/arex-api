@@ -54,6 +54,7 @@ import com.arextest.web.model.contract.contracts.QuerySchemaForConfigRequestType
 import com.arextest.web.model.contract.contracts.ReportInitialRequestType;
 import com.arextest.web.model.contract.contracts.ReportInitialResponseType;
 import com.arextest.web.model.contract.contracts.SuccessResponseType;
+import com.arextest.web.model.contract.contracts.SyncResponseContractRequestType;
 import com.arextest.web.model.contract.contracts.record.CountRecordRequestType;
 import com.arextest.web.model.contract.contracts.record.ListRecordRequestType;
 import com.arextest.web.model.contract.contracts.replay.AnalyzeCompareResultsRequestType;
@@ -350,5 +351,11 @@ public class ReportQueryController {
     @ResponseBody
     public Response aggCountRecord(@RequestBody CountRecordRequestType requestType) {
         return ResponseUtils.successResponse(recordService.aggCountRecord(requestType));
+    }
+
+    @PostMapping("/syncResponse")
+    @ResponseBody
+    public Response syncResponse(@RequestBody SyncResponseContractRequestType requestType) {
+        return ResponseUtils.successResponse(schemaInferService.syncResponseContract(requestType));
     }
 }

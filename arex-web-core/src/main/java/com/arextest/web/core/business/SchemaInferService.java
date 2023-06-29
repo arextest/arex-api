@@ -2,6 +2,15 @@ package com.arextest.web.core.business;
 
 import com.arextest.web.common.LogUtils;
 import com.arextest.web.core.repository.ReplayCompareResultRepository;
+import com.arextest.web.core.repository.ReplayDependencyRepository;
+import com.arextest.web.model.contract.contracts.QueryMsgSchemaRequestType;
+import com.arextest.web.model.contract.contracts.QueryMsgSchemaResponseType;
+import com.arextest.web.model.contract.contracts.QuerySchemaForConfigRequestType;
+import com.arextest.web.model.contract.contracts.SyncResponseContractRequestType;
+import com.arextest.web.model.contract.contracts.SyncResponseContractResponseType;
+import com.arextest.web.model.contract.contracts.common.Dependency;
+import com.arextest.web.model.dto.CompareResultDto;
+import com.arextest.web.model.dto.ReplayDependencyDto;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -10,10 +19,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.Lists;
 import com.saasquatch.jsonschemainferrer.JsonSchemaInferrer;
 import com.saasquatch.jsonschemainferrer.SpecVersion;
-import com.arextest.web.model.contract.contracts.QueryMsgSchemaRequestType;
-import com.arextest.web.model.contract.contracts.QueryMsgSchemaResponseType;
-import com.arextest.web.model.contract.contracts.QuerySchemaForConfigRequestType;
-import com.arextest.web.model.dto.CompareResultDto;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
@@ -24,6 +29,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 
 @Slf4j
@@ -31,7 +37,10 @@ import java.util.Objects;
 public class SchemaInferService {
 
     @Resource
-    private ReplayCompareResultRepository repository;
+    private ReplayCompareResultRepository replayCompareResultRepository;
+
+    @Resource
+    private ReplayDependencyRepository replayDependencyRepository;
 
     private static final String TYPE = "type";
     private static final String PROPERTIES = "properties";
@@ -48,7 +57,7 @@ public class SchemaInferService {
         QueryMsgSchemaResponseType response = new QueryMsgSchemaResponseType();
         String msg = null;
         if (request.getId() != null) {
-            CompareResultDto dto = repository.queryCompareResultsById(request.getId());
+            CompareResultDto dto = replayCompareResultRepository.queryCompareResultsById(request.getId());
             msg = request.isUseTestMsg() ? dto.getTestMsg() : dto.getBaseMsg();
         } else {
             msg = request.getMsg();
@@ -87,6 +96,35 @@ public class SchemaInferService {
         }
         return response;
     }
+
+    public SyncResponseContractResponseType syncResponseContract(SyncResponseContractRequestType request) {
+        List<Dependency> dependencies = queryAndUpsertDependencies(request.getOperationId());
+
+        // todo: syncResponseContract for entryPoint and all dependencies
+        return null;
+    }
+
+    private List<Dependency> queryAndUpsertDependencies(String operationId) {
+        CompareResultDto latestCompareResult = replayCompareResultRepository.queryLatestCompareResultByOperationId(operationId);
+        List<CompareResultDto> compareResultDtoList = replayCompareResultRepository.queryCompareResultsByRecordId(
+                latestCompareResult.getPlanItemId(), latestCompareResult.getRecordId());
+        // filter entrypoint
+        List<Dependency> dependencies = compareResultDtoList.stream()
+                .filter(compareResultDto -> !StringUtils.equals(compareResultDto.getOperationId(), operationId))
+                .map(compareResultDto -> new Dependency(compareResultDto.getOperationId(), compareResultDto.getOperationName()))
+                .collect(Collectors.toList());
+
+        ReplayDependencyDto replayDependencyDto = new ReplayDependencyDto();
+        replayDependencyDto.setDependencies(dependencies);
+        replayDependencyDto.setRecordId(latestCompareResult.getRecordId());
+        replayDependencyDto.setOperationId(operationId);
+        replayDependencyDto.setOperationType(latestCompareResult.getCategoryName());
+        replayDependencyDto.setOperationName(latestCompareResult.getOperationName());
+        replayDependencyDto.setPlanItemId(latestCompareResult.getPlanItemId());
+        replayDependencyRepository.saveDependency(replayDependencyDto);
+        return dependencies;
+    }
+
 
     private void adjustJsonNode(JsonNode node, boolean isArray) {
         JsonNode typeNode = node.get(TYPE);
