@@ -120,7 +120,6 @@ public class SchemaInferService {
         replayDependencyDto.setOperationId(operationId);
         replayDependencyDto.setOperationType(latestCompareResult.getCategoryName());
         replayDependencyDto.setOperationName(latestCompareResult.getOperationName());
-        replayDependencyDto.setPlanItemId(latestCompareResult.getPlanItemId());
         replayDependencyRepository.saveDependency(replayDependencyDto);
         return dependencies;
     }

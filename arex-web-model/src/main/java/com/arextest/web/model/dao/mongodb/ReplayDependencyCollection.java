@@ -14,7 +14,6 @@ public class ReplayDependencyCollection extends ModelBase {
     private String operationId;
     private String operationName;
     private String operationType;
-    private String planItemId;
     private String recordId;
     private List<DependencyDao> dependencies;
 }

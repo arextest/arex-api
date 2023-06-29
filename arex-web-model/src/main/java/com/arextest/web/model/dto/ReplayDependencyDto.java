@@ -11,7 +11,6 @@ public class ReplayDependencyDto extends BaseDto {
     private String operationId;
     private String operationName;
     private String operationType;
-    private String planItemId;
     private String recordId;
     private List<Dependency> dependencies;
 }
