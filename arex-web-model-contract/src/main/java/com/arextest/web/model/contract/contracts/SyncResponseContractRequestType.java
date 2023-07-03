@@ -10,5 +10,6 @@ public class SyncResponseContractRequestType {
     private String appId;
     @NotNull
     private String operationId;
-    private List<String> dependencyOpIdList;
+    // applicationId
+    private List<String> dependencyIdList;
 }

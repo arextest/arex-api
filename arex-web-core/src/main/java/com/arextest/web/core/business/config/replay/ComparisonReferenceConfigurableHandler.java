@@ -40,7 +40,7 @@ public class ComparisonReferenceConfigurableHandler extends AbstractComparisonCo
                 this.queryByOperationIdAndInterfaceId(interfaceId, operationId);
         if (StringUtils.isNotEmpty(operationId)) {
             ApplicationOperationConfiguration applicationOperationConfiguration =
-                    applicationOperationConfigurableHandler.useResultById(operationId);
+                    applicationOperationConfigurableHandler.useResultByOperationId(operationId);
             if (applicationOperationConfiguration != null) {
                 List<ComparisonReferenceConfiguration> globalConfig =
                         this.useResultAsList(applicationOperationConfiguration.getAppId(), null);

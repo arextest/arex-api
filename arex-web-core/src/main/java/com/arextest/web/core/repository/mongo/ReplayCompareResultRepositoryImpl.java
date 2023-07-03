@@ -5,6 +5,7 @@ import com.arextest.web.core.repository.ReplayCompareResultRepository;
 import com.arextest.web.model.dao.mongodb.ReplayCompareResultCollection;
 import com.arextest.web.model.dto.CompareResultDto;
 import com.arextest.web.model.mapper.CompareResultMapper;
+import com.mongodb.BasicDBObject;
 import com.mongodb.client.result.DeleteResult;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -15,6 +16,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
@@ -22,6 +25,8 @@ import org.springframework.stereotype.Component;
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 
@@ -96,7 +101,8 @@ public class ReplayCompareResultRepositoryImpl implements ReplayCompareResultRep
     // @Override
     // public Pair<List<CompareResultDto>, Long> pageQueryWithoutMsg(Long planId, Long planItemId, String categoryName,
     //                                                               Integer resultType, String keyWord,
-    //                                                               Integer pageIndex, Integer pageSize, Boolean needTotal) {
+    //                                                               Integer pageIndex, Integer pageSize, Boolean
+    //                                                               needTotal) {
     //     Query query = fillFilterConditions(planId, planItemId, categoryName, resultType, keyWord);
     //
     //     query.fields().include(PLAN_ITEM_ID);
@@ -230,12 +236,43 @@ public class ReplayCompareResultRepositoryImpl implements ReplayCompareResultRep
     }
 
     @Override
-    public CompareResultDto queryLatestCompareResultByOperationId(String operationId) {
+    public List<CompareResultDto> queryLatestCompareResultByOperationId(String operationId, int limit) {
         Sort sort = Sort.by(Sort.Direction.DESC, DATA_CHANGE_UPDATE_TIME);
         Query query = Query.query(Criteria.where(OPERATION_ID).is(operationId))
                 .with(sort)
-                .limit(1);
-        return mongoTemplate.findOne(query, CompareResultDto.class);
+                .limit(limit);
+        return mongoTemplate.find(query, CompareResultDto.class);
+    }
+
+    @Override
+    public Map<String, List<CompareResultDto>> queryLatestCompareResultMap(String operationId,
+                                                                           List<String> operationNames, int limit) {
+        Criteria criteria = new Criteria();
+        criteria.and(OPERATION_ID).is(operationId);
+        criteria.and(OPERATION_NAME).in(operationNames);
+        Sort sort = Sort.by(Sort.Direction.DESC, DATA_CHANGE_UPDATE_TIME);
+        Aggregation aggregation = Aggregation.newAggregation(
+                Aggregation.match(criteria),
+                Aggregation.sort(sort),
+                Aggregation.group(OPERATION_NAME)
+                        .first(OPERATION_ID).as(OPERATION_ID)
+                        .first(CATEGORY_NAME).as(CATEGORY_NAME)
+                        .first(TEST_MSG).as(TEST_MSG).first(BASE_MSG).as(BASE_MSG),
+                Aggregation.limit(limit));
+        AggregationResults<BasicDBObject> aggregate = mongoTemplate.aggregate(aggregation,
+                ReplayCompareResultCollection.class, BasicDBObject.class);
+        return aggregate.getMappedResults().stream()
+                .map(this::convert)
+                .collect(Collectors.groupingBy(CompareResultDto::getOperationName));
+    }
+
+    private CompareResultDto convert(BasicDBObject basicDBObject) {
+        CompareResultDto compareResultDto = new CompareResultDto();
+        compareResultDto.setOperationId(basicDBObject.getString(OPERATION_ID));
+        compareResultDto.setOperationName(basicDBObject.getString(OPERATION_NAME));
+        compareResultDto.setTestMsg(basicDBObject.getString(BASE_MSG));
+        compareResultDto.setBaseMsg(basicDBObject.getString(BASE_MSG));
+        return compareResultDto;
     }
 
     private Query fillFilterConditions(String planId, String planItemId, String categoryName, Integer resultType,

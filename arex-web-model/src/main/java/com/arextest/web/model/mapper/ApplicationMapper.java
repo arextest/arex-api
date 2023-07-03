@@ -1,15 +1,15 @@
 package com.arextest.web.model.mapper;
 
-import com.arextest.web.model.dao.mongodb.ReplayDependencyCollection;
-import com.arextest.web.model.dto.ReplayDependencyDto;
+import com.arextest.web.model.dao.mongodb.AppContractCollection;
+import com.arextest.web.model.dto.AppContractDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
 import org.mapstruct.factory.Mappers;
 
 @Mapper
-public interface ReplayDependencyMapper {
-    ReplayDependencyMapper INSTANCE = Mappers.getMapper(ReplayDependencyMapper.class);
+public interface ApplicationMapper extends BaseMapper {
+    ApplicationMapper INSTANCE = Mappers.getMapper(ApplicationMapper.class);
 
     @Mappings({
             @Mapping(target = "dataChangeCreateTime", expression = "java("
@@ -21,9 +21,15 @@ public interface ReplayDependencyMapper {
                     + "dto.getDataChangeUpdateTime() == null"
                     + "?System.currentTimeMillis()"
                     + ":dto.getDataChangeUpdateTime())"
-            )
-    })
-    ReplayDependencyCollection daoFromDto(ReplayDependencyDto dto);
+            ),
 
-    ReplayDependencyDto dtoFromDao(ReplayDependencyCollection dao);
+            @Mapping(target = "contract", qualifiedByName = "compressMsg")
+
+    })
+    AppContractCollection daoFromDto(AppContractDto dto);
+
+    @Mappings({
+            @Mapping(target = "contract", qualifiedByName = "decompressMsg")
+    })
+    AppContractDto dtoFromDao(AppContractCollection dao);
 }
