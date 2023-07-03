@@ -40,7 +40,7 @@ public class ComparisonListSortConfigurableHandler extends AbstractComparisonCon
                 this.queryByOperationIdAndInterfaceId(interfaceId, operationId);
         if (StringUtils.isNotEmpty(operationId)) {
             ApplicationOperationConfiguration applicationOperationConfiguration =
-                    applicationOperationConfigurableHandler.useResultById(operationId);
+                    applicationOperationConfigurableHandler.useResultByOperationId(operationId);
             if (applicationOperationConfiguration != null) {
                 List<ComparisonListSortConfiguration> globalConfig =
                         this.useResultAsList(applicationOperationConfiguration.getAppId(), null);

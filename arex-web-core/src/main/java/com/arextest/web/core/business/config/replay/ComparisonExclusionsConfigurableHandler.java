@@ -40,7 +40,7 @@ public class ComparisonExclusionsConfigurableHandler extends AbstractComparisonC
                 this.queryByOperationIdAndInterfaceId(interfaceId, operationId);
         if (StringUtils.isNotEmpty(operationId)) {
             ApplicationOperationConfiguration applicationOperationConfiguration =
-                    applicationOperationConfigurableHandler.useResultById(operationId);
+                    applicationOperationConfigurableHandler.useResultByOperationId(operationId);
             if (applicationOperationConfiguration != null) {
                 List<ComparisonExclusionsConfiguration> globalConfig =
                         this.useResultAsList(applicationOperationConfiguration.getAppId(), null);
