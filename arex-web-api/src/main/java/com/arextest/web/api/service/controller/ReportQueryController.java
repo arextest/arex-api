@@ -334,13 +334,13 @@ public class ReportQueryController {
 
     @PostMapping("/countRecord")
     @ResponseBody
-    public Response countRecord(@RequestBody CountRecordRequestType requestType) {
+    public Response countRecord(@Valid @RequestBody CountRecordRequestType requestType) {
         return ResponseUtils.successResponse(recordService.countRecord(requestType));
     }
 
     @PostMapping("/listRecord")
     @ResponseBody
-    public Response countRecord(@RequestBody ListRecordRequestType requestType) {
+    public Response countRecord(@Valid @RequestBody ListRecordRequestType requestType) {
         if (requestType.getOperationType() == null) {
             return ResponseUtils.errorResponse("no operationType", ResponseCode.REQUESTED_PARAMETER_INVALID);
         }
@@ -349,13 +349,13 @@ public class ReportQueryController {
 
     @PostMapping("/aggCount")
     @ResponseBody
-    public Response aggCountRecord(@RequestBody CountRecordRequestType requestType) {
+    public Response aggCountRecord(@Valid @RequestBody CountRecordRequestType requestType) {
         return ResponseUtils.successResponse(recordService.aggCountRecord(requestType));
     }
 
-    @PostMapping("/syncResponse")
+    @PostMapping("/syncResponseContract")
     @ResponseBody
-    public Response syncResponse(@RequestBody SyncResponseContractRequestType requestType) {
+    public Response syncResponse(@Valid @RequestBody SyncResponseContractRequestType requestType) {
         return ResponseUtils.successResponse(schemaInferService.syncResponseContract(requestType));
     }
 }

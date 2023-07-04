@@ -7,7 +7,7 @@ import java.util.Map;
 
 @Data
 public class SyncResponseContractResponseType {
-    private String contractStr;
+    private String entryContractStr;
     // key:applicationId
     private Map<String, Dependency> dependencyMap;
 }

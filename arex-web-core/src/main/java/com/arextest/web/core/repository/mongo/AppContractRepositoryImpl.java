@@ -4,7 +4,7 @@ import com.arextest.web.core.repository.AppContractRepository;
 import com.arextest.web.core.repository.mongo.util.MongoHelper;
 import com.arextest.web.model.dao.mongodb.AppContractCollection;
 import com.arextest.web.model.dto.AppContractDto;
-import com.arextest.web.model.mapper.ApplicationMapper;
+import com.arextest.web.model.mapper.AppContractMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.BulkOperations;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 public class AppContractRepositoryImpl implements AppContractRepository {
     private static final String OPERATION_ID = "operationId";
     private static final String OPERATION_NAME = "operationName";
+    private static final String OPERATION_TYPE = "operationType";
     @Resource
     private MongoTemplate mongoTemplate;
 
@@ -31,17 +32,18 @@ public class AppContractRepositoryImpl implements AppContractRepository {
             BulkOperations bulkOperations = mongoTemplate.bulkOps(BulkOperations.BulkMode.UNORDERED,
                     AppContractCollection.class);
             for (AppContractDto applicationInfoDto : applicationInfoDtos) {
-                AppContractCollection collection = ApplicationMapper.INSTANCE.daoFromDto(applicationInfoDto);
+                AppContractCollection collection = AppContractMapper.INSTANCE.daoFromDto(applicationInfoDto);
                 Query query = new Query()
                         .addCriteria(Criteria.where(OPERATION_ID).is(collection.getOperationId()))
-                        .addCriteria(Criteria.where(OPERATION_NAME).is(collection.getOperationName()));
+                        .addCriteria(Criteria.where(OPERATION_NAME).is(collection.getOperationName()))
+                        .addCriteria(Criteria.where(OPERATION_TYPE).is(collection.getOperationType()));
                 Update update = MongoHelper.getUpdate();
                 MongoHelper.appendFullProperties(update, collection);
                 bulkOperations.upsert(query, update);
             }
             bulkOperations.execute();
         } catch (Exception e) {
-            LOGGER.error("saveApplicationList failed! list:{}", applicationInfoDtos);
+            LOGGER.error("saveApplicationList failed! list:{}", applicationInfoDtos, e);
             return false;
         }
         return true;
@@ -53,7 +55,7 @@ public class AppContractRepositoryImpl implements AppContractRepository {
 
         return mongoTemplate.find(query, AppContractCollection.class)
                 .stream()
-                .map(ApplicationMapper.INSTANCE::dtoFromDao)
+                .map(AppContractMapper.INSTANCE::dtoFromDao)
                 .collect(Collectors.toList());
     }
 }

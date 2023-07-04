@@ -5,6 +5,7 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public interface ReplayCompareResultRepository extends RepositoryProvider {
     boolean saveResults(List<CompareResultDto> results);
@@ -37,8 +38,12 @@ public interface ReplayCompareResultRepository extends RepositoryProvider {
                                                List<Integer> diffResultCodeList,
                                                List<String> showFields);
 
-    List<CompareResultDto> queryLatestCompareResultByOperationId(String operationId, int limit);
+    List<CompareResultDto> queryCompareResults(List<String> planItemIdList,
+                                               List<String> recordIdList);
+
+
+    List<CompareResultDto> queryLatestEntryPointCompareResult(String operationId, Set<String> operationTypes, int limit);
 
     Map<String, List<CompareResultDto>> queryLatestCompareResultMap(String operationId, List<String> operationNames,
-                                                                    int limit);
+                                                                    List<String> operationTypes);
 }

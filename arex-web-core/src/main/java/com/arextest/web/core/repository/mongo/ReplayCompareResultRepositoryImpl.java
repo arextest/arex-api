@@ -5,7 +5,6 @@ import com.arextest.web.core.repository.ReplayCompareResultRepository;
 import com.arextest.web.model.dao.mongodb.ReplayCompareResultCollection;
 import com.arextest.web.model.dto.CompareResultDto;
 import com.arextest.web.model.mapper.CompareResultMapper;
-import com.mongodb.BasicDBObject;
 import com.mongodb.client.result.DeleteResult;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -16,8 +15,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.aggregation.Aggregation;
-import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
@@ -26,7 +23,7 @@ import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 
@@ -47,6 +44,8 @@ public class ReplayCompareResultRepositoryImpl implements ReplayCompareResultRep
     private static final String COUNT = "count";
     private static final String RECORD_TIME = "recordTime";
     private static final String REPLAY_TIME = "replayTime";
+
+    private static final String COLLECTION_NAME = "ReplayCompareResult";
 
     @Resource
     private MongoTemplate mongoTemplate;
@@ -236,43 +235,48 @@ public class ReplayCompareResultRepositoryImpl implements ReplayCompareResultRep
     }
 
     @Override
-    public List<CompareResultDto> queryLatestCompareResultByOperationId(String operationId, int limit) {
+    public List<CompareResultDto> queryCompareResults(List<String> planItemIdList, List<String> recordIdList) {
+        Query query = new Query();
+        Criteria criteria = new Criteria();
+        List<Criteria> orCriteriaList = new ArrayList<>();
+        for (int i = 0; i < planItemIdList.size(); i++) {
+            orCriteriaList.add(Criteria.where(PLAN_ITEM_ID).is(planItemIdList.get(i)).and(RECORD_ID).is(recordIdList.get(i)));
+        }
+        criteria.orOperator(orCriteriaList);
+        query.addCriteria(criteria);
+        List<ReplayCompareResultCollection> daos = mongoTemplate.find(query, ReplayCompareResultCollection.class);
+        return daos.stream().map(CompareResultMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<CompareResultDto> queryLatestEntryPointCompareResult(String operationId, Set<String> operationTypes,
+                                                                     int limit) {
         Sort sort = Sort.by(Sort.Direction.DESC, DATA_CHANGE_UPDATE_TIME);
         Query query = Query.query(Criteria.where(OPERATION_ID).is(operationId))
+                .addCriteria(Criteria.where(CATEGORY_NAME).in(operationTypes))
                 .with(sort)
                 .limit(limit);
-        return mongoTemplate.find(query, CompareResultDto.class);
+        return mongoTemplate.find(query, ReplayCompareResultCollection.class)
+                .stream()
+                .map(CompareResultMapper.INSTANCE::dtoFromDao)
+                .collect(Collectors.toList());
     }
 
     @Override
     public Map<String, List<CompareResultDto>> queryLatestCompareResultMap(String operationId,
-                                                                           List<String> operationNames, int limit) {
+                                                                           List<String> operationNames,
+                                                                           List<String> operationTypes) {
         Criteria criteria = new Criteria();
-        criteria.and(OPERATION_ID).is(operationId);
-        criteria.and(OPERATION_NAME).in(operationNames);
-        Sort sort = Sort.by(Sort.Direction.DESC, DATA_CHANGE_UPDATE_TIME);
-        Aggregation aggregation = Aggregation.newAggregation(
-                Aggregation.match(criteria),
-                Aggregation.sort(sort),
-                Aggregation.group(OPERATION_NAME)
-                        .first(OPERATION_ID).as(OPERATION_ID)
-                        .first(CATEGORY_NAME).as(CATEGORY_NAME)
-                        .first(TEST_MSG).as(TEST_MSG).first(BASE_MSG).as(BASE_MSG),
-                Aggregation.limit(limit));
-        AggregationResults<BasicDBObject> aggregate = mongoTemplate.aggregate(aggregation,
-                ReplayCompareResultCollection.class, BasicDBObject.class);
-        return aggregate.getMappedResults().stream()
-                .map(this::convert)
-                .collect(Collectors.groupingBy(CompareResultDto::getOperationName));
-    }
+        List<Criteria> orCriteriaList = new ArrayList<>();
+        for (int i = 0; i < operationNames.size(); i++) {
+            orCriteriaList.add(Criteria.where(OPERATION_NAME).is(operationNames.get(i)).and(CATEGORY_NAME).is(operationTypes.get(i)));
+        }
+        criteria.orOperator(orCriteriaList).andOperator(Criteria.where(OPERATION_ID).is(operationId));
 
-    private CompareResultDto convert(BasicDBObject basicDBObject) {
-        CompareResultDto compareResultDto = new CompareResultDto();
-        compareResultDto.setOperationId(basicDBObject.getString(OPERATION_ID));
-        compareResultDto.setOperationName(basicDBObject.getString(OPERATION_NAME));
-        compareResultDto.setTestMsg(basicDBObject.getString(BASE_MSG));
-        compareResultDto.setBaseMsg(basicDBObject.getString(BASE_MSG));
-        return compareResultDto;
+        Query query = Query.query(criteria).with(Sort.by(Sort.Direction.DESC, DATA_CHANGE_UPDATE_TIME));
+        return mongoTemplate.find(query, ReplayCompareResultCollection.class).stream()
+                .map(CompareResultMapper.INSTANCE::dtoFromDao)
+                .collect(Collectors.groupingBy(CompareResultDto::getOperationName));
     }
 
     private Query fillFilterConditions(String planId, String planItemId, String categoryName, Integer resultType,
