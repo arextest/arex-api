@@ -14,6 +14,7 @@
         <module>arex-web-core</module>
         <module>arex-web-model</module>
         <module>arex-web-model-contract</module>
+        <module>arex-accurate-lib</module>
     </modules>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
