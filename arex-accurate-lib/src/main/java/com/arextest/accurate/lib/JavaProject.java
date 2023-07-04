@@ -845,6 +845,10 @@ public class JavaProject {
         }
     }
 
+    /**
+     * 将类中的所有MethodDeclaration转到JCodeMethod,并返回
+     * @return
+     */
     public List<JCodeMethod> getJCodeMethods() {
         List<JCodeMethod> listMethods = new ArrayList<>();
         for (JCodeClass oneClass : classes.values()) {
