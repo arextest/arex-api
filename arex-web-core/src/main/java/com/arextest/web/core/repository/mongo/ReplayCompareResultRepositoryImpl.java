@@ -254,11 +254,25 @@ public class ReplayCompareResultRepositoryImpl implements ReplayCompareResultRep
         Aggregation aggregation = Aggregation.newAggregation(
                 Aggregation.match(criteria),
                 Aggregation.sort(sort),
-                Aggregation.group(OPERATION_NAME),
+                Aggregation.group(OPERATION_NAME)
+                        .first(OPERATION_ID).as(OPERATION_ID)
+                        .first(CATEGORY_NAME).as(CATEGORY_NAME)
+                        .first(TEST_MSG).as(TEST_MSG).first(BASE_MSG).as(BASE_MSG),
                 Aggregation.limit(limit));
-        AggregationResults<CompareResultDto> aggregate = mongoTemplate.aggregate(aggregation, CompareResultDto.class,
-                CompareResultDto.class);
-        return aggregate.getMappedResults().stream().collect(Collectors.groupingBy(CompareResultDto::getOperationName));
+        AggregationResults<BasicDBObject> aggregate = mongoTemplate.aggregate(aggregation,
+                ReplayCompareResultCollection.class, BasicDBObject.class);
+        return aggregate.getMappedResults().stream()
+                .map(this::convert)
+                .collect(Collectors.groupingBy(CompareResultDto::getOperationName));
+    }
+
+    private CompareResultDto convert(BasicDBObject basicDBObject) {
+        CompareResultDto compareResultDto = new CompareResultDto();
+        compareResultDto.setOperationId(basicDBObject.getString(OPERATION_ID));
+        compareResultDto.setOperationName(basicDBObject.getString(OPERATION_NAME));
+        compareResultDto.setTestMsg(basicDBObject.getString(BASE_MSG));
+        compareResultDto.setBaseMsg(basicDBObject.getString(BASE_MSG));
+        return compareResultDto;
     }
 
     private Query fillFilterConditions(String planId, String planItemId, String categoryName, Integer resultType,

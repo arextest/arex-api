@@ -2,7 +2,7 @@ package com.arextest.web.core.business;
 
 import com.arextest.model.mock.MockCategoryType;
 import com.arextest.web.common.LogUtils;
-import com.arextest.web.core.repository.ApplicationRepository;
+import com.arextest.web.core.repository.AppContractRepository;
 import com.arextest.web.core.repository.ReplayCompareResultRepository;
 import com.arextest.web.model.contract.contracts.QueryMsgSchemaRequestType;
 import com.arextest.web.model.contract.contracts.QueryMsgSchemaResponseType;
@@ -10,7 +10,7 @@ import com.arextest.web.model.contract.contracts.QuerySchemaForConfigRequestType
 import com.arextest.web.model.contract.contracts.SyncResponseContractRequestType;
 import com.arextest.web.model.contract.contracts.SyncResponseContractResponseType;
 import com.arextest.web.model.contract.contracts.common.Dependency;
-import com.arextest.web.model.dto.ApplicationDto;
+import com.arextest.web.model.dto.AppContractDto;
 import com.arextest.web.model.dto.CompareResultDto;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -46,7 +46,7 @@ public class SchemaInferService {
     private ReplayCompareResultRepository replayCompareResultRepository;
 
     @Resource
-    private ApplicationRepository applicationRepository;
+    private AppContractRepository appContractRepository;
 
     private static final String TYPE = "type";
     private static final String PROPERTIES = "properties";
@@ -130,29 +130,28 @@ public class SchemaInferService {
                 dependencies.stream().map(CompareResultDto::getOperationName).collect(Collectors.toList()),
                 LIMIT);
 
-        List<ApplicationDto> applicationDtos = new ArrayList<>();
-        ApplicationDto entryPointApplication = new ApplicationDto();
+        List<AppContractDto> applicationInfoDtos = new ArrayList<>();
+        AppContractDto entryPointApplication = new AppContractDto();
         entryPointApplication.setOperationId(operationId);
         entryPointApplication.setOperationName(latestCompareResult.getOperationName());
         entryPointApplication.setOperationType(latestCompareResult.getCategoryName());
         entryPointApplication.setContract(perceiveContract(latestNCompareResults));
-        applicationDtos.add(entryPointApplication);
+        applicationInfoDtos.add(entryPointApplication);
 
         compareResultMap.values().forEach(compareResultDtoList -> {
             CompareResultDto compareResultDto = compareResultDtoList.get(FIRST_INDEX);
             if (CollectionUtils.isNotEmpty(compareResultDtoList)) {
-                ApplicationDto dependencyApplication = new ApplicationDto();
+                AppContractDto dependencyApplication = new AppContractDto();
                 dependencyApplication.setContract(perceiveContract(compareResultDtoList));
                 dependencyApplication.setOperationId(operationId);
                 dependencyApplication.setOperationName(compareResultDto.getOperationName());
                 dependencyApplication.setOperationType(compareResultDto.getCategoryName());
-                applicationDtos.add(dependencyApplication);
+                applicationInfoDtos.add(dependencyApplication);
             }
         });
-        applicationRepository.saveApplicationList(applicationDtos);
+        appContractRepository.saveAppContractList(applicationInfoDtos);
 
-
-        Map<String, Dependency> dependencyMap = applicationRepository.queryApplicationList(operationId)
+        Map<String, Dependency> dependencyMap = appContractRepository.queryAppContractList(operationId)
                 .stream()
                 .filter(applicationDto -> !MockCategoryType.create(applicationDto.getOperationType()).isEntryPoint())
                 .map(this::buildDependency)
@@ -162,11 +161,11 @@ public class SchemaInferService {
         return responseType;
     }
 
-    private Dependency buildDependency(ApplicationDto applicationDto) {
+    private Dependency buildDependency(AppContractDto applicationInfoDto) {
         Dependency dependency = new Dependency();
-        dependency.setDependencyId(applicationDto.getId());
-        dependency.setDependencyName(applicationDto.getOperationName());
-        dependency.setContract(applicationDto.getContract());
+        dependency.setDependencyId(applicationInfoDto.getId());
+        dependency.setDependencyName(applicationInfoDto.getOperationName());
+        dependency.setContract(applicationInfoDto.getContract());
         return dependency;
     }
 

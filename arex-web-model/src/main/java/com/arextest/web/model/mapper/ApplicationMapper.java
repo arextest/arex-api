@@ -1,7 +1,7 @@
 package com.arextest.web.model.mapper;
 
-import com.arextest.web.model.dao.mongodb.ApplicationCollection;
-import com.arextest.web.model.dto.ApplicationDto;
+import com.arextest.web.model.dao.mongodb.AppContractCollection;
+import com.arextest.web.model.dto.AppContractDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
@@ -26,10 +26,10 @@ public interface ApplicationMapper extends BaseMapper {
             @Mapping(target = "contract", qualifiedByName = "compressMsg")
 
     })
-    ApplicationCollection daoFromDto(ApplicationDto dto);
+    AppContractCollection daoFromDto(AppContractDto dto);
 
     @Mappings({
             @Mapping(target = "contract", qualifiedByName = "decompressMsg")
     })
-    ApplicationDto dtoFromDao(ApplicationCollection dao);
+    AppContractDto dtoFromDao(AppContractCollection dao);
 }

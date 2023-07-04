@@ -1,11 +1,13 @@
-package com.arextest.web.model.dto;
+package com.arextest.web.model.dao.mongodb;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class ApplicationDto extends BaseDto {
+@Document(collection = "AppContract")
+public class AppContractCollection extends ModelBase {
     private String operationId;
     private String operationName;
     private String operationType;
