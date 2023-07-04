@@ -79,6 +79,12 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.arextest</groupId>
+            <artifactId>arex-accurate-lib</artifactId>
+            <version>0.4.0</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
     <profiles>
         <profile>

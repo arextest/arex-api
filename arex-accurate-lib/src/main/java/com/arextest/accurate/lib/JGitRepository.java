@@ -241,7 +241,7 @@ public class JGitRepository {
         return output;
     }
 
-    public HashMap<String, CodeDiff> findCodeChangesForCommits(final String fromRevision, final String toRevision) throws GitAPIException {
+    public HashMap<String, CodeDiff> findCodeChangesBetweenCommitStrings(final String fromRevision, final String toRevision) throws GitAPIException {
         return doLocked(() -> {
             RevCommit laterCommit = null;
             RevCommit earlierCommit = null;
@@ -374,13 +374,13 @@ public class JGitRepository {
     }
 
     /**
-     * TODO: WHY AGAIN
+     * TODO: API Clone Failed
      *
      * @param uname
      * @param pwd
      * @return
      */
-    public String cloneRepositoryShell(String uname, String pwd) {
+    public String cloneRepositoryByAPI(String uname, String pwd) {
         File codeNewGitDir = new File(gitDir);
         if (codeNewGitDir.exists()) {
             return gitDir + " exists. clone failed.";

@@ -30,7 +30,13 @@ import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.revwalk.RevWalk;
+import org.gitlab4j.api.webhook.EventCommit;
+import org.gitlab4j.api.webhook.EventMergeRequest;
 
 import java.io.*;
 import java.nio.file.Path;
@@ -98,13 +104,15 @@ public class JavaProject {
      * @param password git token
      * @return git result description.
      */
-    public String cloneGitRepository(String userName, String password) {
+    public JGitRepository cloneGitRepository(String userName, String password) {
         try {
             JGitRepository gitRepository = new JGitRepository(GitRepositoryURL, rootPath, gitBranch);
-            return gitRepository.cloneRepositoryShell(gitConfig.getGitWorkspaceDir(), userName, password);
+            gitRepository.cloneRepositoryShell(gitConfig.getGitWorkspaceDir(), userName, password);
+            return gitRepository;
         } catch (Exception e) {
-            return e.toString();
+            LOGGER.error(e.toString());
         }
+        return null;
     }
 
     /**
@@ -244,8 +252,8 @@ public class JavaProject {
             @Override
             public void visit(MethodDeclaration oldMD, Void arg) {
                 String queryName = JCodeMethod.getMethodFullName(oldMD);
-                if (mdSet.containsKey(queryName)){
-                    JCodeMethod jcm =JCodeMethod.covertToJCodeMethod(mdSet.get(queryName));
+                if (mdSet.containsKey(queryName)) {
+                    JCodeMethod jcm = JCodeMethod.covertToJCodeMethod(mdSet.get(queryName));
                     jcm.setOldDeclare(oldMD.toString());
                     result.add(jcm);
                 }
@@ -263,7 +271,9 @@ public class JavaProject {
      *
      * @throws IOException 文件找不到
      */
-    public void scanProject() throws IOException {
+    public HashMap<String, JCodeClass> scanProject() throws IOException {
+        classes.clear();
+
         HashMap<String, String> codeFiles = new HashMap<>();
         findJavaFilesByRoot(rootPath, codeFiles);
         javaFiles.addAll(codeFiles.keySet());
@@ -271,6 +281,7 @@ public class JavaProject {
         for (String javaCodeFileName : javaFiles) {
             ScanOneJavaCode(javaCodeFileName, codeFiles.get(javaCodeFileName));
         }
+        return classes;
     }
 
     /**
@@ -647,7 +658,7 @@ public class JavaProject {
     private HashMap<String, CodeDiff> pullCodeDiff(final String newRevision, final String oldRevision) throws IOException {
         try {
             JGitRepository.initJGitRepository(newRevision);
-            return JGitRepository.findCodeChangesForCommits(newRevision, oldRevision);
+            return JGitRepository.findCodeChangesBetweenCommitStrings(newRevision, oldRevision);
         } catch (Exception ex) {
             LOGGER.info(ex.getMessage());
             return null;
@@ -695,6 +706,46 @@ public class JavaProject {
         }
     }
 
+
+    /**
+     * webhook接收gitlab的EventMergeRequest
+     * 1 没有代码下载代码
+     * 2 有代码, 则拉取最新代码 git pull
+     * 2. 有历史merge, 则新旧两个commit比较变更函数
+     * 3. 分析新commit的函数(是否记录再说)
+     * TODO : 异步实现, 当检查查询符合要求后就返回success
+     *
+     * @param request EventMergeRequest
+     * @return SUCCESS OR FAIL MESSAGE
+     */
+    public Response DoEventMergeRequestOfGitlab(EventMergeRequest request) throws GitAPIException, IOException, ArtifactNotFoundException, XmlPullParserException, ArtifactResolutionException {
+        String urlInfo = request.getUrl();
+        Pair<String, String> userToken = getGitRepositoryUserToken(urlInfo);
+
+        initialProjectConfig(urlInfo, request.getTargetBranch());
+        JGitRepository gitRepository = cloneGitRepository(userToken.getLeft(), userToken.getRight());
+        if (gitRepository == null) {
+            return Response.exceptionResponse("clone failed");
+        }
+
+        EventCommit eventCommit = request.getLastCommit();
+        String commitId = eventCommit.getId();
+        RevCommit revCommit = new RevWalk(gitRepository.getGitRepo())
+                .parseCommit(ObjectId.fromString(commitId));
+        List<RevCommit> lr = revCommits(userToken.getLeft(), userToken.getRight());
+        if (lr.size() > 1) {
+            RevCommit lastCommit = lr.get(1);
+            List<JCodeMethod> result = scanCodeDiffMethods(revCommit.toString(), lastCommit.toString());
+            // TODO: save changed method name to DB
+        }
+
+        // just for walk not compile
+        HashMap<String,JCodeClass> result = scanProject();
+        // TODO: save class and method code  to DB
+
+        return Response.successResponse();
+    }
+
     /**
      * Clone Git 代码仓库
      * shell方式拉的代码
@@ -707,11 +758,11 @@ public class JavaProject {
         Pair<String, String> userToken = getGitRepositoryUserToken(urlInfo);
 
         initialProjectConfig(urlInfo, request.getBranch());
-        String returnInfo = cloneGitRepository(userToken.getLeft(), userToken.getRight());
-        if (returnInfo.contains("success")) {
+        JGitRepository gitRepository = cloneGitRepository(userToken.getLeft(), userToken.getRight());
+        if (gitRepository != null) {
             return Response.successResponse();
         }
-        return Response.exceptionResponse(returnInfo);
+        return Response.exceptionResponse("clone failed");
     }
 
     /**
@@ -819,6 +870,7 @@ public class JavaProject {
 
     /**
      * 静态分析之Spring的调用树分析(最新代码)
+     * 是否用得着以后再说
      *
      * @param gitURL
      * @param branch
@@ -844,6 +896,7 @@ public class JavaProject {
 
     /**
      * 根据被测试服务记录的CallStack分析
+     * 老代码
      *
      * @param request
      * @return
