@@ -28,7 +28,6 @@
         <zstd-extend.version>1.0.1</zstd-extend.version>
         <commons-lang3.version>3.8.1</commons-lang3.version>
         <httpclient.version>4.5.2</httpclient.version>
-        <orgjson-verison>20180813</orgjson-verison>
         <jackson-verison>2.10.3</jackson-verison>
         <hutool-all.version>5.7.2</hutool-all.version>
         <guava.version>31.1-jre</guava.version>
@@ -156,11 +155,6 @@
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpclient</artifactId>
                 <version>${httpclient.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.json</groupId>
-                <artifactId>json</artifactId>
-                <version>${orgjson-verison}</version>
             </dependency>
             <dependency>
                 <groupId>cn.hutool</groupId>

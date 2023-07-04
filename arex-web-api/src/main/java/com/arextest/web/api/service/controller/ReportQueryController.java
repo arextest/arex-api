@@ -3,7 +3,6 @@ package com.arextest.web.api.service.controller;
 import com.arextest.common.model.response.Response;
 import com.arextest.common.model.response.ResponseCode;
 import com.arextest.common.utils.ResponseUtils;
-import com.arextest.web.common.LogUtils;
 import com.arextest.web.core.business.DiffSceneService;
 import com.arextest.web.core.business.MsgShowService;
 import com.arextest.web.core.business.QueryPlanItemStatisticService;
@@ -62,7 +61,6 @@ import com.arextest.web.model.contract.contracts.replay.UpdateReportInfoRequestT
 import com.arextest.web.model.contract.contracts.replay.UpdateReportInfoResponseType;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.json.JSONException;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -204,12 +202,7 @@ public class ReportQueryController {
     @PostMapping("/queryMsgWithDiff")
     @ResponseBody
     public Response queryMsgWithDiff(@RequestBody QueryMsgWithDiffRequestType request) {
-        QueryMsgWithDiffResponseType response = null;
-        try {
-            response = msgShowService.queryMsgWithDiff(request);
-        } catch (JSONException e) {
-            LogUtils.error(LOGGER, "queryMsgWithDiff", e);
-        }
+        QueryMsgWithDiffResponseType response = msgShowService.queryMsgWithDiff(request);
         return ResponseUtils.successResponse(response);
     }
 
