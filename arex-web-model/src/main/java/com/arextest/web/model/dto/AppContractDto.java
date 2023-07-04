@@ -12,5 +12,6 @@ public class AppContractDto extends BaseDto {
     private String operationName;
     private String operationType;
     private String contract;
-
+    // not included in db
+    private Boolean isEntryPoint;
 }

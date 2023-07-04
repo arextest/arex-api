@@ -1,5 +1,6 @@
 package com.arextest.web.core.repository.mongo;
 
+import cn.hutool.core.util.BooleanUtil;
 import com.arextest.web.core.repository.AppContractRepository;
 import com.arextest.web.core.repository.mongo.util.MongoHelper;
 import com.arextest.web.model.dao.mongodb.AppContractCollection;
@@ -35,8 +36,10 @@ public class AppContractRepositoryImpl implements AppContractRepository {
                 AppContractCollection collection = AppContractMapper.INSTANCE.daoFromDto(applicationInfoDto);
                 Query query = new Query()
                         .addCriteria(Criteria.where(OPERATION_ID).is(collection.getOperationId()))
-                        .addCriteria(Criteria.where(OPERATION_NAME).is(collection.getOperationName()))
-                        .addCriteria(Criteria.where(OPERATION_TYPE).is(collection.getOperationType()));
+                        .addCriteria(Criteria.where(OPERATION_NAME).is(collection.getOperationName()));
+                if (BooleanUtil.isFalse(applicationInfoDto.getIsEntryPoint())) {
+                    query.addCriteria(Criteria.where(OPERATION_TYPE).is(collection.getOperationType()));
+                }
                 Update update = MongoHelper.getUpdate();
                 MongoHelper.appendFullProperties(update, collection);
                 bulkOperations.upsert(query, update);
