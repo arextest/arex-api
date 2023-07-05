@@ -20,7 +20,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @Mapper
-public interface ManualReportCaseMapper {
+public interface ManualReportCaseMapper extends BaseMapper {
     ManualReportCaseMapper INSTANCE = Mappers.getMapper(ManualReportCaseMapper.class);
 
     List<ManualReportCaseDto> dtoFromFsCaseDto(List<FSCaseDto> dtos);
@@ -36,16 +36,6 @@ public interface ManualReportCaseMapper {
     ReportCaseType contractFromDto(ManualReportCaseDto dto);
 
     ManualReportCaseDto dtoFromDao(ManualReportCaseCollection dao);
-
-    @Named("compressMsg")
-    default String compressMsg(String decompressString) {
-        return ZstdUtils.compressString(decompressString);
-    }
-
-    @Named("decompressMsg")
-    default String decompressMsg(String compressString) {
-        return ZstdUtils.uncompressString(compressString);
-    }
 
     default String map(List<LogEntity> logs) {
         if (logs == null) {

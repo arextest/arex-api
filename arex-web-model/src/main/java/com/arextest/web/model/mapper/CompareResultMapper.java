@@ -20,7 +20,7 @@ import java.util.List;
 
 
 @Mapper
-public interface CompareResultMapper {
+public interface CompareResultMapper extends BaseMapper {
 
     CompareResultMapper INSTANCE = Mappers.getMapper(CompareResultMapper.class);
 
@@ -60,16 +60,6 @@ public interface CompareResultMapper {
 
 
     CompareResultDto dtoFromAnalyzeContract(AnalyzeCompareResultsRequestType.AnalyzeCompareInfoItem analyzeCompareInfoItem);
-
-    @Named("compressMsg")
-    default String compressMsg(String decompressString) {
-        return ZstdUtils.compressString(decompressString);
-    }
-
-    @Named("decompressMsg")
-    default String decompressMsg(String compressString) {
-        return ZstdUtils.uncompressString(compressString);
-    }
 
     default String map(List<LogEntity> logs) {
         if (logs == null) {

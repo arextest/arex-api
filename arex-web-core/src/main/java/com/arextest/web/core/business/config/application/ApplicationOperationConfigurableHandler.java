@@ -33,7 +33,7 @@ public final class ApplicationOperationConfigurableHandler extends AbstractConfi
         return super.insert(configuration);
     }
 
-    public ApplicationOperationConfiguration useResultById(String operationId) {
+    public ApplicationOperationConfiguration useResultByOperationId(String operationId) {
         return applicationOperationConfigurationRepository.listByOperationId(operationId);
     }
 }

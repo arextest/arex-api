@@ -54,6 +54,7 @@ import com.arextest.web.model.contract.contracts.QuerySchemaForConfigRequestType
 import com.arextest.web.model.contract.contracts.ReportInitialRequestType;
 import com.arextest.web.model.contract.contracts.ReportInitialResponseType;
 import com.arextest.web.model.contract.contracts.SuccessResponseType;
+import com.arextest.web.model.contract.contracts.SyncResponseContractRequestType;
 import com.arextest.web.model.contract.contracts.record.CountRecordRequestType;
 import com.arextest.web.model.contract.contracts.record.ListRecordRequestType;
 import com.arextest.web.model.contract.contracts.replay.AnalyzeCompareResultsRequestType;
@@ -333,13 +334,13 @@ public class ReportQueryController {
 
     @PostMapping("/countRecord")
     @ResponseBody
-    public Response countRecord(@RequestBody CountRecordRequestType requestType) {
+    public Response countRecord(@Valid @RequestBody CountRecordRequestType requestType) {
         return ResponseUtils.successResponse(recordService.countRecord(requestType));
     }
 
     @PostMapping("/listRecord")
     @ResponseBody
-    public Response countRecord(@RequestBody ListRecordRequestType requestType) {
+    public Response countRecord(@Valid @RequestBody ListRecordRequestType requestType) {
         if (requestType.getOperationType() == null) {
             return ResponseUtils.errorResponse("no operationType", ResponseCode.REQUESTED_PARAMETER_INVALID);
         }
@@ -348,7 +349,13 @@ public class ReportQueryController {
 
     @PostMapping("/aggCount")
     @ResponseBody
-    public Response aggCountRecord(@RequestBody CountRecordRequestType requestType) {
+    public Response aggCountRecord(@Valid @RequestBody CountRecordRequestType requestType) {
         return ResponseUtils.successResponse(recordService.aggCountRecord(requestType));
+    }
+
+    @PostMapping("/syncResponseContract")
+    @ResponseBody
+    public Response syncResponse(@Valid @RequestBody SyncResponseContractRequestType requestType) {
+        return ResponseUtils.successResponse(schemaInferService.syncResponseContract(requestType));
     }
 }
