@@ -1,6 +1,7 @@
 package com.arextest.web.model.contract.contracts.config.replay;
 
 
+import com.arextest.web.model.contract.contracts.common.enums.CompareConfigType;
 import com.arextest.web.model.contract.contracts.common.enums.ExpirationType;
 import com.arextest.web.model.contract.contracts.config.AbstractConfiguration;
 import lombok.Getter;
@@ -16,7 +17,7 @@ public abstract class AbstractComparisonDetailsConfiguration extends AbstractCon
 
     /**
      * optional
-     * if empty should be apply to all appIds replay compare,means global default
+     * when compareConfigType = 1, appId is empty
      */
     private String appId;
 
@@ -35,8 +36,7 @@ public abstract class AbstractComparisonDetailsConfiguration extends AbstractCon
 
     /**
      * the source of the configuration.
-     * 0 = from arex record
-     * 1 = from collections
+     * {@link CompareConfigType}
      */
     private int compareConfigType;
 
@@ -44,5 +44,10 @@ public abstract class AbstractComparisonDetailsConfiguration extends AbstractCon
      * This value is valid only when {compareConfigType} = 1
      */
     private String fsInterfaceId;
+
+    /**
+     * This value is valid only when {compareConfigType} = 2
+     */
+    private String dependencyId;
 
 }
