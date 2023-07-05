@@ -1,6 +1,7 @@
 package com.arextest.web.core.repository.mongo;
 
 import cn.hutool.core.util.BooleanUtil;
+import com.arextest.web.common.LogUtils;
 import com.arextest.web.core.repository.AppContractRepository;
 import com.arextest.web.core.repository.mongo.util.MongoHelper;
 import com.arextest.web.model.dao.mongodb.AppContractCollection;
@@ -46,7 +47,7 @@ public class AppContractRepositoryImpl implements AppContractRepository {
             }
             bulkOperations.execute();
         } catch (Exception e) {
-            LOGGER.error("saveApplicationList failed! list:{}", applicationInfoDtos, e);
+            LogUtils.error(LOGGER, "saveApplicationList failed! list:{}", applicationInfoDtos, e);
             return false;
         }
         return true;

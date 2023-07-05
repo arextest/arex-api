@@ -45,8 +45,6 @@ public class ReplayCompareResultRepositoryImpl implements ReplayCompareResultRep
     private static final String RECORD_TIME = "recordTime";
     private static final String REPLAY_TIME = "replayTime";
 
-    private static final String COLLECTION_NAME = "ReplayCompareResult";
-
     @Resource
     private MongoTemplate mongoTemplate;
 
