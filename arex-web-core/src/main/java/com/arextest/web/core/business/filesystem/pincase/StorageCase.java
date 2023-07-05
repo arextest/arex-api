@@ -6,11 +6,12 @@ import com.arextest.model.replay.ViewRecordResponseType;
 import com.arextest.web.common.HttpUtils;
 import com.arextest.web.common.LogUtils;
 import com.arextest.web.model.dto.filesystem.FSCaseDto;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.Data;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -37,9 +38,12 @@ public class StorageCase {
     @Resource
     private MockerConversionFactory factory;
 
+    @Resource
+    private ObjectMapper objectMapper;
+
     @SneakyThrows
     public FSCaseDto getViewRecord(String recordId) {
-        JSONObject request = new JSONObject();
+        ObjectNode request = objectMapper.createObjectNode();
         request.put(RECORD_ID, recordId);
         ResponseEntity<ViewRecordResponseType>
                 response =

@@ -10,12 +10,14 @@ import com.arextest.web.model.contract.contracts.common.UnmatchedPairEntity;
 import com.arextest.web.model.contract.contracts.common.UnmatchedType;
 import com.arextest.web.model.dto.CompareResultDto;
 import com.arextest.web.model.enums.DiffResultCode;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.tuple.MutablePair;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 
@@ -26,6 +28,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -51,7 +54,9 @@ public class MsgShowService {
     @Resource(name = "message-clip-executor")
     ThreadPoolTaskExecutor executor;
 
-    public QueryMsgWithDiffResponseType queryMsgWithDiff(QueryMsgWithDiffRequestType request) throws JSONException {
+    private static final ObjectMapper COMPARE_OBJECT_MAPPER = new ObjectMapper();
+
+    public QueryMsgWithDiffResponseType queryMsgWithDiff(QueryMsgWithDiffRequestType request) {
         QueryMsgWithDiffResponseType response = new QueryMsgWithDiffResponseType();
         CompareResultDto compareResultDto = replayCompareResultRepository.queryCompareResultsById(request.getCompareResultId());
         if (compareResultDto == null) {
@@ -120,14 +125,14 @@ public class MsgShowService {
         return sceneLogs;
     }
 
-    public MutablePair<Object, Object> produceNewObjectFromOriginal(String baseMsg, String testMsg, List<LogEntity> sceneLogs) throws JSONException {
+    public MutablePair<Object, Object> produceNewObjectFromOriginal(String baseMsg, String testMsg, List<LogEntity> sceneLogs) {
 
         List<CompletableFuture<Object>> parseTaskList =
                 Stream.of(baseMsg, testMsg, baseMsg, testMsg)
                         .map(item -> CompletableFuture.supplyAsync(() -> {
                             try {
                                 return objectParse(item);
-                            } catch (JSONException e) {
+                            } catch (JsonProcessingException e) {
                                 return null;
                             }
                         }, executor))
@@ -189,12 +194,12 @@ public class MsgShowService {
         return new MutablePair<>(constructedBaseObj, constructedTestObj);
     }
 
-    private Object objectParse(String msg) throws JSONException {
+    private Object objectParse(String msg) throws JsonProcessingException {
         Object obj = null;
         if (msg.startsWith("[")) {
-            obj = new JSONArray(msg);
+            obj = COMPARE_OBJECT_MAPPER.readValue(msg, ArrayNode.class);
         } else {
-            obj = new JSONObject(msg);
+            obj = COMPARE_OBJECT_MAPPER.readValue(msg, ObjectNode.class);
         }
         return obj;
     }
@@ -246,19 +251,19 @@ public class MsgShowService {
         return unmatchedPath;
     }
 
-    private List<NodeEntity> fillConstructedObjFromOriginal(List<NodeEntity> unmatchedPath, Object obj, Object constructedObj, ArrayOrder arrayOrder) throws JSONException {
+    private List<NodeEntity> fillConstructedObjFromOriginal(List<NodeEntity> unmatchedPath, Object obj, Object constructedObj, ArrayOrder arrayOrder) {
 
         List<NodeEntity> constructedUnmatchedPath = new ArrayList<>();
 
         for (int i = 0; i < unmatchedPath.size(); i++) {
-            Object tempObj = null;
-            Object tempConstructedObj = null;
+            JsonNode tempObj = null;
+            JsonNode tempConstructedObj = null;
             ArrayOrder tempArrayOrder = new ArrayOrder();
             NodeEntity nodePath = unmatchedPath.get(i);
 
-            if (obj instanceof JSONObject) {
-                JSONObject obj1 = (JSONObject) obj;
-                JSONObject constructedObj1 = (JSONObject) constructedObj;
+            if (obj instanceof ObjectNode) {
+                ObjectNode obj1 = (ObjectNode) obj;
+                ObjectNode constructedObj1 = (ObjectNode) constructedObj;
 
                 String nodeName = nodePath.getNodeName();
                 if (Objects.equals(nodeName, EMPTY)) {
@@ -266,18 +271,16 @@ public class MsgShowService {
                 }
                 tempObj = obj1.get(nodeName);
 
-                try {
-                    tempConstructedObj = constructedObj1.get(nodeName);
-                } catch (JSONException e) {
-
-                    if (tempObj instanceof JSONObject) {
-                        tempConstructedObj = new JSONObject();
-                    } else if (tempObj instanceof JSONArray) {
-                        tempConstructedObj = new JSONArray();
+                tempConstructedObj = constructedObj1.get(nodeName);
+                if (tempConstructedObj == null) {
+                    if (tempObj instanceof ObjectNode) {
+                        tempConstructedObj = COMPARE_OBJECT_MAPPER.createObjectNode();
+                    } else if (tempObj instanceof ArrayNode) {
+                        tempConstructedObj = COMPARE_OBJECT_MAPPER.createArrayNode();
                     } else {
                         tempConstructedObj = tempObj;
                     }
-                    constructedObj1.put(nodeName, tempConstructedObj);
+                    constructedObj1.set(nodeName, tempConstructedObj);
                 }
 
                 if (arrayOrder.getObjectStructure().containsKey(nodeName)) {
@@ -286,12 +289,12 @@ public class MsgShowService {
                     arrayOrder.getObjectStructure().put(nodeName, tempArrayOrder);
                 }
                 constructedUnmatchedPath.add(new NodeEntity(nodeName, 0));
-            } else if (obj instanceof JSONArray) {
-                JSONArray obj1 = (JSONArray) obj;
-                JSONArray constructedObj1 = (JSONArray) constructedObj;
+            } else if (obj instanceof ArrayNode) {
+                ArrayNode obj1 = (ArrayNode) obj;
+                ArrayNode constructedObj1 = (ArrayNode) constructedObj;
 
                 int beforeIndex = nodePath.getIndex();
-                int curIndex = constructedObj1.length();
+                int curIndex = constructedObj1.size();
                 if (beforeIndex == Integer.MIN_VALUE) {
                     return constructedUnmatchedPath;
                 }
@@ -308,7 +311,7 @@ public class MsgShowService {
 
                     Integer arrayIndex = findFirstArrayNode(unmatchedPath);
                     if (i == arrayIndex) {
-                        constructedObj1.put(curIndex, tempObj);
+                        constructedObj1.insert(curIndex, tempObj);
                         constructedUnmatchedPath.add(new NodeEntity(null, curIndex));
                     }
                 }
@@ -323,24 +326,25 @@ public class MsgShowService {
         return constructedUnmatchedPath;
     }
 
-    private void cropJSONArray(Object obj) throws JSONException {
-        if (obj instanceof JSONObject) {
-            JSONObject obj1 = (JSONObject) obj;
-            String[] names = JSONObject.getNames(obj1);
-            if (names == null) {
-                names = new String[0];
+    private void cropJSONArray(Object obj) {
+        if (obj instanceof ObjectNode) {
+            ObjectNode obj1 = (ObjectNode) obj;
+            Iterator<String> stringIterator = obj1.fieldNames();
+            List<String> names = new ArrayList<>();
+            while (stringIterator.hasNext()) {
+                names.add(stringIterator.next());
             }
             for (String name : names) {
-                Object tempObj = obj1.get(name);
-                if (tempObj instanceof JSONArray) {
+                JsonNode tempObj = obj1.get(name);
+                if (tempObj instanceof ArrayNode) {
                     obj1.remove(name);
                 } else {
                     cropJSONArray(tempObj);
                 }
             }
-        } else if (obj instanceof JSONArray) {
-            JSONArray objArr = ((JSONArray) obj);
-            int length = objArr.length();
+        } else if (obj instanceof ArrayNode) {
+            ArrayNode objArr = ((ArrayNode) obj);
+            int length = objArr.size();
             for (int i = length - 1; i >= 0; i--) {
                 objArr.remove(i);
             }
