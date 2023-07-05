@@ -54,8 +54,7 @@ public class MsgShowService {
     @Resource(name = "message-clip-executor")
     ThreadPoolTaskExecutor executor;
 
-    @Resource
-    private ObjectMapper objectMapper;
+    private static final ObjectMapper COMPARE_OBJECT_MAPPER = new ObjectMapper();
 
     public QueryMsgWithDiffResponseType queryMsgWithDiff(QueryMsgWithDiffRequestType request) {
         QueryMsgWithDiffResponseType response = new QueryMsgWithDiffResponseType();
@@ -198,9 +197,9 @@ public class MsgShowService {
     private Object objectParse(String msg) throws JsonProcessingException {
         Object obj = null;
         if (msg.startsWith("[")) {
-            obj = objectMapper.readValue(msg, ArrayNode.class);
+            obj = COMPARE_OBJECT_MAPPER.readValue(msg, ArrayNode.class);
         } else {
-            obj = objectMapper.readValue(msg, ObjectNode.class);
+            obj = COMPARE_OBJECT_MAPPER.readValue(msg, ObjectNode.class);
         }
         return obj;
     }
@@ -275,9 +274,9 @@ public class MsgShowService {
                 tempConstructedObj = constructedObj1.get(nodeName);
                 if (tempConstructedObj == null) {
                     if (tempObj instanceof ObjectNode) {
-                        tempConstructedObj = objectMapper.createObjectNode();
+                        tempConstructedObj = COMPARE_OBJECT_MAPPER.createObjectNode();
                     } else if (tempObj instanceof ArrayNode) {
-                        tempConstructedObj = objectMapper.createArrayNode();
+                        tempConstructedObj = COMPARE_OBJECT_MAPPER.createArrayNode();
                     } else {
                         tempConstructedObj = tempObj;
                     }
