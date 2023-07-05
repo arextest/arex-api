@@ -1,6 +1,5 @@
 package com.arextest.web.core.business.preprocess;
 
-import cn.hutool.json.JSONException;
 import com.arextest.web.common.LogUtils;
 import com.arextest.web.common.ZstdUtils;
 import com.arextest.web.core.repository.MessagePreprocessRepository;
@@ -93,7 +92,7 @@ public class PreprocessService {
         LogUtils.info(LOGGER, "finish updating servlet schema");
     }
 
-    public Boolean updateSchema(String key, String message) throws JSONException {
+    public Boolean updateSchema(String key, String message) {
         Object json = parseJson(message);
         if (json == null) {
             return false;
