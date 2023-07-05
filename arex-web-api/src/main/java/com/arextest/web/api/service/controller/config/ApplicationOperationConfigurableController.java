@@ -32,6 +32,6 @@ public class ApplicationOperationConfigurableController extends AbstractConfigur
         if (StringUtils.isEmpty(operationId)) {
             return InvalidResponse.REQUESTED_APP_ID_IS_EMPTY;
         }
-        return ResponseUtils.successResponse(this.applicationOperationConfigurableHandler.useResultById(operationId));
+        return ResponseUtils.successResponse(this.applicationOperationConfigurableHandler.useResultByOperationId(operationId));
     }
 }

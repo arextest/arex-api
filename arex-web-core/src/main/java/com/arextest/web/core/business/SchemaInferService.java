@@ -1,7 +1,16 @@
 package com.arextest.web.core.business;
 
 import com.arextest.web.common.LogUtils;
+import com.arextest.web.core.repository.AppContractRepository;
 import com.arextest.web.core.repository.ReplayCompareResultRepository;
+import com.arextest.web.core.repository.mongo.ApplicationOperationConfigurationRepositoryImpl;
+import com.arextest.web.model.contract.contracts.QueryMsgSchemaRequestType;
+import com.arextest.web.model.contract.contracts.QueryMsgSchemaResponseType;
+import com.arextest.web.model.contract.contracts.QuerySchemaForConfigRequestType;
+import com.arextest.web.model.contract.contracts.SyncResponseContractRequestType;
+import com.arextest.web.model.contract.contracts.SyncResponseContractResponseType;
+import com.arextest.web.model.dto.AppContractDto;
+import com.arextest.web.model.dto.CompareResultDto;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -10,20 +19,23 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.Lists;
 import com.saasquatch.jsonschemainferrer.JsonSchemaInferrer;
 import com.saasquatch.jsonschemainferrer.SpecVersion;
-import com.arextest.web.model.contract.contracts.QueryMsgSchemaRequestType;
-import com.arextest.web.model.contract.contracts.QueryMsgSchemaResponseType;
-import com.arextest.web.model.contract.contracts.QuerySchemaForConfigRequestType;
-import com.arextest.web.model.dto.CompareResultDto;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 
 @Slf4j
@@ -31,13 +43,23 @@ import java.util.Objects;
 public class SchemaInferService {
 
     @Resource
-    private ReplayCompareResultRepository repository;
+    private ReplayCompareResultRepository replayCompareResultRepository;
+
+    @Resource
+    private AppContractRepository appContractRepository;
+
+    @Resource
+    private ApplicationOperationConfigurationRepositoryImpl applicationOperationConfigurationRepository;
 
     private static final String TYPE = "type";
     private static final String PROPERTIES = "properties";
     private static final String ITEMS = "items";
     private static final String OBJECT = "object";
     private static final String ARRAY = "array";
+
+    private static final int LIMIT = 5;
+
+    private static final int FIRST_INDEX = 0;
 
     private static final JsonSchemaInferrer INFERRER = JsonSchemaInferrer.newBuilder()
             .setSpecVersion(SpecVersion.DRAFT_06)
@@ -48,7 +70,7 @@ public class SchemaInferService {
         QueryMsgSchemaResponseType response = new QueryMsgSchemaResponseType();
         String msg = null;
         if (request.getId() != null) {
-            CompareResultDto dto = repository.queryCompareResultsById(request.getId());
+            CompareResultDto dto = replayCompareResultRepository.queryCompareResultsById(request.getId());
             msg = request.isUseTestMsg() ? dto.getTestMsg() : dto.getBaseMsg();
         } else {
             msg = request.getMsg();
@@ -87,6 +109,71 @@ public class SchemaInferService {
         }
         return response;
     }
+
+    public SyncResponseContractResponseType syncResponseContract(SyncResponseContractRequestType request) {
+        String operationId = request.getOperationId();
+        SyncResponseContractResponseType responseType = new SyncResponseContractResponseType();
+        Set<String> entryPointTypes =
+                applicationOperationConfigurationRepository.listByOperationId(operationId).getOperationTypes();
+        List<CompareResultDto> latestNEntryCompareResults =
+                replayCompareResultRepository.queryLatestEntryPointCompareResult(operationId, entryPointTypes, LIMIT);
+        if (CollectionUtils.isEmpty(latestNEntryCompareResults)) {
+            return responseType;
+        }
+        CompareResultDto latestEntryCompareResult = latestNEntryCompareResults.get(FIRST_INDEX);
+        List<String> planItemIds =
+                latestNEntryCompareResults.stream().map(CompareResultDto::getPlanItemId).collect(Collectors.toList());
+        List<String> recordIds =
+                latestNEntryCompareResults.stream().map(CompareResultDto::getRecordId).collect(Collectors.toList());
+
+
+        // distinct by operationName
+        List<CompareResultDto> dependencies =
+                new ArrayList<>(replayCompareResultRepository.queryCompareResults(planItemIds, recordIds)
+                        .stream()
+                        .filter(compareResultDto -> !entryPointTypes.contains(compareResultDto.getCategoryName()))
+                        .collect(Collectors.toMap(
+                                CompareResultDto::getOperationName, Function.identity(),
+                                (oldValue, newValue) -> oldValue))
+                        .values());
+
+        // key:<operationName, operationType>
+        Map<Pair<String, String>, List<CompareResultDto>> compareResultMap =
+                dependencies.stream().collect(Collectors.groupingBy(compareResultDto ->
+                        new ImmutablePair<>(compareResultDto.getOperationName(), compareResultDto.getCategoryName())));
+
+        List<AppContractDto> applicationInfoDtos = new ArrayList<>();
+        AppContractDto entryPointApplication = new AppContractDto();
+        entryPointApplication.setOperationId(operationId);
+        entryPointApplication.setOperationName(latestEntryCompareResult.getOperationName());
+        entryPointApplication.setOperationType(latestEntryCompareResult.getCategoryName());
+        entryPointApplication.setContract(perceiveContract(latestNEntryCompareResults));
+        entryPointApplication.setIsEntryPoint(true);
+        applicationInfoDtos.add(entryPointApplication);
+
+        compareResultMap.values().forEach(compareResultDtoList -> {
+            CompareResultDto compareResultDto = compareResultDtoList.get(FIRST_INDEX);
+            if (CollectionUtils.isNotEmpty(compareResultDtoList)) {
+                AppContractDto dependencyApplication = new AppContractDto();
+                dependencyApplication.setContract(perceiveContract(compareResultDtoList));
+                dependencyApplication.setOperationId(operationId);
+                dependencyApplication.setOperationName(compareResultDto.getOperationName());
+                dependencyApplication.setOperationType(compareResultDto.getCategoryName());
+                dependencyApplication.setIsEntryPoint(false);
+                applicationInfoDtos.add(dependencyApplication);
+            }
+        });
+        appContractRepository.saveAppContractList(applicationInfoDtos);
+
+        responseType.setEntryContractStr(entryPointApplication.getContract());
+        return responseType;
+    }
+
+    private String perceiveContract(List<CompareResultDto> compareResultDtoList) {
+        // todo:
+        return null;
+    }
+
 
     private void adjustJsonNode(JsonNode node, boolean isArray) {
         JsonNode typeNode = node.get(TYPE);
