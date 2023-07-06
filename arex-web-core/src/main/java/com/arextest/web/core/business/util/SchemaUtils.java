@@ -16,13 +16,18 @@ public class SchemaUtils {
         model.forEach((key, value) -> mergeEntry(contract, key, value));
     }
 
-    public static String mergeJson(String contract, String model) throws JsonProcessingException {
-        ObjectMapper objectMapper = new ObjectMapper();
-        Map<String, Object> contractMap = contract == null ? new HashMap<>() : objectMapper.readValue(contract, Map.class);
-        if (model == null) return contract;
-        Map<String, Object> modelMap = objectMapper.readValue(model, Map.class);
-        mergeMap(contractMap, modelMap);
-        return objectMapper.writeValueAsString(contractMap);
+    public static String mergeJson(String contract, String model) {
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            Map<String, Object> contractMap = contract == null ? new HashMap<>() : objectMapper.readValue(contract, Map.class);
+            if (model == null) return contract;
+            Map<String, Object> modelMap = objectMapper.readValue(model, Map.class);
+            mergeMap(contractMap, modelMap);
+            return objectMapper.writeValueAsString(contractMap);
+        } catch (JsonProcessingException e) {
+            LogUtils.error(LOGGER, "objectMapper readValue failed! contract:{}, model:{}", contract, model);
+        }
+        return null;
     }
 
     private static void mergeEntry(Map<String, Object> contract, String key, Object value) {
