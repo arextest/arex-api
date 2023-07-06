@@ -358,4 +358,10 @@ public class ReportQueryController {
     public Response syncResponse(@Valid @RequestBody SyncResponseContractRequestType requestType) {
         return ResponseUtils.successResponse(schemaInferService.syncResponseContract(requestType));
     }
+
+    @GetMapping("/queryContract/{id}")
+    @ResponseBody
+    public Response queryContract(@PathVariable String id) {
+        return ResponseUtils.successResponse(schemaInferService.queryContract(id));
+    }
 }

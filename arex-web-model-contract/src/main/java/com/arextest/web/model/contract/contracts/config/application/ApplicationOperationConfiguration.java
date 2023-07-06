@@ -1,5 +1,6 @@
 package com.arextest.web.model.contract.contracts.config.application;
 
+import com.arextest.web.model.contract.contracts.common.Dependency;
 import com.arextest.web.model.contract.contracts.config.AbstractConfiguration;
 import lombok.Getter;
 import lombok.Setter;
@@ -22,5 +23,5 @@ public class ApplicationOperationConfiguration extends AbstractConfiguration imp
     private String operationResponse;
     private String responseContract;
     private Integer recordedCaseCount;
-    private List<String> dependencyContractIds;
+    private List<Dependency> dependencyList;
 }

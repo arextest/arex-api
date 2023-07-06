@@ -1,6 +1,7 @@
 package com.arextest.web.core.business;
 
 import com.arextest.web.common.LogUtils;
+import com.arextest.web.core.business.util.SchemaUtils;
 import com.arextest.web.core.repository.AppContractRepository;
 import com.arextest.web.core.repository.ReplayCompareResultRepository;
 import com.arextest.web.core.repository.mongo.ApplicationOperationConfigurationRepositoryImpl;
@@ -9,8 +10,10 @@ import com.arextest.web.model.contract.contracts.QueryMsgSchemaResponseType;
 import com.arextest.web.model.contract.contracts.QuerySchemaForConfigRequestType;
 import com.arextest.web.model.contract.contracts.SyncResponseContractRequestType;
 import com.arextest.web.model.contract.contracts.SyncResponseContractResponseType;
+import com.arextest.web.model.contract.contracts.common.DependencyWithContract;
 import com.arextest.web.model.dto.AppContractDto;
 import com.arextest.web.model.dto.CompareResultDto;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -29,6 +32,7 @@ import org.springframework.stereotype.Component;
 import javax.annotation.Resource;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -60,6 +64,8 @@ public class SchemaInferService {
     private static final int LIMIT = 5;
 
     private static final int FIRST_INDEX = 0;
+
+    private static final ObjectMapper CONTRACT_OBJ_MAPPER = new ObjectMapper();
 
     private static final JsonSchemaInferrer INFERRER = JsonSchemaInferrer.newBuilder()
             .setSpecVersion(SpecVersion.DRAFT_06)
@@ -108,6 +114,10 @@ public class SchemaInferService {
             LogUtils.warn(LOGGER, "schemaInferForConfig", e);
         }
         return response;
+    }
+
+    public AppContractDto queryContract(String id) {
+        return appContractRepository.queryById(id);
     }
 
     public SyncResponseContractResponseType syncResponseContract(SyncResponseContractRequestType request) {
@@ -163,15 +173,46 @@ public class SchemaInferService {
                 applicationInfoDtos.add(dependencyApplication);
             }
         });
-        appContractRepository.saveAppContractList(applicationInfoDtos);
 
-        responseType.setEntryContractStr(entryPointApplication.getContract());
+        List<DependencyWithContract> dependencyList =
+                appContractRepository.upsertAppContractListWithResult(applicationInfoDtos)
+                        .stream()
+                        .filter(applicationDto -> !entryPointTypes.contains(applicationDto.getOperationType()))
+                        .map(this::buildDependency)
+                        .collect(Collectors.toList());
+        responseType.setEntryPointContractStr(entryPointApplication.getContract());
+        responseType.setDependencyList(dependencyList);
         return responseType;
     }
 
+
+    private DependencyWithContract buildDependency(AppContractDto appContractDto) {
+        DependencyWithContract dependency = new DependencyWithContract();
+        dependency.setDependencyId(appContractDto.getId());
+        dependency.setDependencyName(appContractDto.getOperationName());
+        dependency.setDependencyType(appContractDto.getOperationType());
+        dependency.setContract(appContractDto.getContract());
+        return dependency;
+    }
+
     private String perceiveContract(List<CompareResultDto> compareResultDtoList) {
-        // todo:
-        return null;
+        try {
+            Map<String, Object> contract = new HashMap<>();
+            for (CompareResultDto compareResultDto : compareResultDtoList) {
+                if (compareResultDto.getBaseMsg() != null) {
+                    SchemaUtils.mergeMap(contract, CONTRACT_OBJ_MAPPER.readValue(compareResultDto.getBaseMsg(),
+                            Map.class));
+                }
+                if (compareResultDto.getTestMsg() != null) {
+                    SchemaUtils.mergeMap(contract, CONTRACT_OBJ_MAPPER.readValue(compareResultDto.getTestMsg(),
+                            Map.class));
+                }
+            }
+            return CONTRACT_OBJ_MAPPER.writeValueAsString(contract);
+        } catch (JsonProcessingException e) {
+            LogUtils.error(LOGGER, "perceiveContract failed", e);
+            return null;
+        }
     }
 
 
