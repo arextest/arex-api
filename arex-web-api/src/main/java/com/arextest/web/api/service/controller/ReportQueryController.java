@@ -14,6 +14,7 @@ import com.arextest.web.core.business.RecordService;
 import com.arextest.web.core.business.ReplayInfoService;
 import com.arextest.web.core.business.ReportService;
 import com.arextest.web.core.business.SchemaInferService;
+import com.arextest.web.core.business.appcontract.AppContractService;
 import com.arextest.web.core.business.iosummary.SceneReportService;
 import com.arextest.web.model.contract.contracts.ChangeReplayStatusRequestType;
 import com.arextest.web.model.contract.contracts.ChangeReplayStatusResponseType;
@@ -54,6 +55,7 @@ import com.arextest.web.model.contract.contracts.ReportInitialRequestType;
 import com.arextest.web.model.contract.contracts.ReportInitialResponseType;
 import com.arextest.web.model.contract.contracts.SuccessResponseType;
 import com.arextest.web.model.contract.contracts.SyncResponseContractRequestType;
+import com.arextest.web.model.contract.contracts.appcontract.AddDependencyToSystemRequestType;
 import com.arextest.web.model.contract.contracts.record.CountRecordRequestType;
 import com.arextest.web.model.contract.contracts.record.ListRecordRequestType;
 import com.arextest.web.model.contract.contracts.replay.AnalyzeCompareResultsRequestType;
@@ -105,6 +107,9 @@ public class ReportQueryController {
     private SceneReportService sceneReportService;
     @Resource
     private RecordService recordService;
+
+    @Resource
+    private AppContractService appContractService;
 
     @Deprecated
     @PostMapping("/pushCompareResults")
@@ -351,4 +356,13 @@ public class ReportQueryController {
     public Response syncResponse(@Valid @RequestBody SyncResponseContractRequestType requestType) {
         return ResponseUtils.successResponse(schemaInferService.syncResponseContract(requestType));
     }
+
+    @PostMapping("/addDependencyToSystem")
+    @ResponseBody
+    public Response queryReplayCase(@Valid @RequestBody AddDependencyToSystemRequestType request) {
+        return ResponseUtils.successResponse(
+                appContractService.addDependencyToSystem(request)
+        );
+    }
+
 }

@@ -1,6 +1,5 @@
 package com.arextest.web.api.service.controller.config;
 
-
 import com.arextest.common.model.response.Response;
 import com.arextest.common.utils.ResponseUtils;
 import com.arextest.web.core.business.config.ConfigurableHandler;
@@ -19,7 +18,7 @@ import javax.annotation.Resource;
 @RequestMapping("/api/config/comparison/exclusions")
 public class ComparisonExclusionsController extends AbstractConfigurableController<ComparisonExclusionsConfiguration> {
     public ComparisonExclusionsController(
-            @Autowired ConfigurableHandler<ComparisonExclusionsConfiguration> configurableHandler) {
+        @Autowired ConfigurableHandler<ComparisonExclusionsConfiguration> configurableHandler) {
         super(configurableHandler);
     }
 
@@ -30,23 +29,17 @@ public class ComparisonExclusionsController extends AbstractConfigurableControll
     @RequestMapping("/useResultAsList")
     @ResponseBody
     public final Response useResultList(@RequestParam String appId,
-                                        @RequestParam(required = false) String operationId) {
+        @RequestParam(required = false) String operationId) {
         if (StringUtils.isEmpty(appId)) {
             return InvalidResponse.REQUESTED_APP_ID_IS_EMPTY;
         }
-        return ResponseUtils.successResponse(
-                this.comparisonExclusionsConfigurableHandler.useResultAsList(appId, operationId));
-    }
-
-
-    @PostMapping("/queryComparisonConfig")
-    @ResponseBody
-    public Response modify(@RequestBody QueryComparisonRequestType configuration) throws Exception {
-        return ResponseUtils.successResponse(null);
+        return ResponseUtils
+            .successResponse(this.comparisonExclusionsConfigurableHandler.useResultAsList(appId, operationId));
     }
 
     /**
      * query config which is compareConfig =1
+     * 
      * @param interfaceId
      * @return
      */
@@ -56,9 +49,15 @@ public class ComparisonExclusionsController extends AbstractConfigurableControll
         if (StringUtils.isEmpty(interfaceId)) {
             return InvalidResponse.REQUESTED_INTERFACE_ID_IS_EMPTY;
         }
-        return ResponseUtils.successResponse(
-                this.comparisonExclusionsConfigurableHandler.queryByInterfaceId(interfaceId));
+        return ResponseUtils
+            .successResponse(this.comparisonExclusionsConfigurableHandler.queryByInterfaceId(interfaceId));
     }
 
+    @PostMapping("/queryComparisonConfig")
+    @ResponseBody
+    public Response modify(@RequestBody QueryComparisonRequestType request) {
+        return ResponseUtils.successResponse(this.comparisonExclusionsConfigurableHandler
+            .queryComparisonConfig(request.getAppId(), request.getOperationId(), request.getDependencyId()));
+    }
 
 }
