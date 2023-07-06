@@ -81,6 +81,6 @@ public class SchemaUtilsTest {
 
         Map<String, Object> newModel = OBJECT_MAPPER.readValue(JSON2, Map.class);
         SchemaUtils.mergeMap(contractMap, newModel);
-        Assert.assertEquals(4, ((Map)((List) contractMap.get("body")).get(0)).entrySet().size());
+        Assert.assertEquals(5, ((Map)((List) contractMap.get("body")).get(0)).entrySet().size());
     }
 }
