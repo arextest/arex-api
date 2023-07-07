@@ -6,13 +6,11 @@ import java.util.List;
 
 public interface AppContractRepository extends RepositoryProvider {
 
-    boolean upsertAppContractList(List<AppContractDto> appContractDtos);
-
     boolean updateById(List<AppContractDto> appContractDtos);
 
-    List<AppContractDto> upsertAppContractListWithResult(List<AppContractDto> appContractDtos);
+    List<AppContractDto> insert(List<AppContractDto> appContractDtos);
 
-    List<AppContractDto> queryAppContractList(String operationId);
+    List<AppContractDto> queryAppContractListByOpId(String operationId);
 
     AppContractDto queryById(String id);
 }

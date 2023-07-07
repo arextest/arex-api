@@ -47,7 +47,7 @@ public final class ApplicationOperationConfigurableHandler extends AbstractConfi
     public ApplicationOperationConfiguration useResultByOperationId(String operationId) {
         ApplicationOperationConfiguration result =
                 applicationOperationConfigurationRepository.listByOperationId(operationId);
-        List<AppContractDto> appContractDtoList = appContractRepository.queryAppContractList(operationId);
+        List<AppContractDto> appContractDtoList = appContractRepository.queryAppContractListByOpId(operationId);
 
         List<Dependency> dependencyList = new ArrayList<>();
 

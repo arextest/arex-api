@@ -62,6 +62,7 @@ public class SchemaInferService {
     private static final String ITEMS = "items";
     private static final String OBJECT = "object";
     private static final String ARRAY = "array";
+    private static final String NULL_STR = "null";
 
     private static final int LIMIT = 5;
 
@@ -145,47 +146,92 @@ public class SchemaInferService {
                 latestNEntryCompareResults.stream().map(CompareResultDto::getPlanItemId).collect(Collectors.toList());
         List<String> recordIds =
                 latestNEntryCompareResults.stream().map(CompareResultDto::getRecordId).collect(Collectors.toList());
+        List<CompareResultDto> compareResultDtoList = replayCompareResultRepository.queryCompareResults(planItemIds,
+                recordIds);
 
+        // distinct by operationType-operationName
+        Map<Pair<String, String>, List<CompareResultDto>> dependencyMap = new HashMap<>();
+        for (CompareResultDto item : compareResultDtoList) {
+            // filter dependency
+            if (entryPointTypes.contains(item.getCategoryName())) {
+                continue;
+            }
+            Pair<String, String> pair = new ImmutablePair<>(item.getCategoryName(), item.getOperationName());
+            List<CompareResultDto> compareResultDtos = dependencyMap.getOrDefault(pair, new ArrayList<>());
+            if (compareResultDtos.size() >= LIMIT) {
+                continue;
+            }
+            compareResultDtos.add(item);
+            dependencyMap.put(pair, compareResultDtos);
+        }
 
-        // distinct by operationName
-        List<CompareResultDto> dependencies =
-                new ArrayList<>(replayCompareResultRepository.queryCompareResults(planItemIds, recordIds)
-                        .stream()
-                        .filter(compareResultDto -> !entryPointTypes.contains(compareResultDto.getCategoryName()))
-                        .collect(Collectors.toMap(
-                                CompareResultDto::getOperationName, Function.identity(),
-                                (oldValue, newValue) -> oldValue))
-                        .values());
-
-        // key:<operationName, operationType>
-        Map<Pair<String, String>, List<CompareResultDto>> compareResultMap =
-                dependencies.stream().collect(Collectors.groupingBy(compareResultDto ->
-                        new ImmutablePair<>(compareResultDto.getOperationName(), compareResultDto.getCategoryName())));
-
-        List<AppContractDto> applicationInfoDtos = new ArrayList<>();
+        // entryPoint contract
+        List<AppContractDto> upserts = new ArrayList<>();
         AppContractDto entryPointApplication = new AppContractDto();
         entryPointApplication.setOperationId(operationId);
         entryPointApplication.setOperationName(latestEntryCompareResult.getOperationName());
         entryPointApplication.setOperationType(latestEntryCompareResult.getCategoryName());
         entryPointApplication.setContract(perceiveContract(latestNEntryCompareResults));
-        entryPointApplication.setIsEntryPoint(true);
-        applicationInfoDtos.add(entryPointApplication);
+        upserts.add(entryPointApplication);
 
-        compareResultMap.values().forEach(compareResultDtoList -> {
-            CompareResultDto compareResultDto = compareResultDtoList.get(FIRST_INDEX);
-            if (CollectionUtils.isNotEmpty(compareResultDtoList)) {
+        dependencyMap.values().forEach(list -> {
+            CompareResultDto compareResultDto = list.get(FIRST_INDEX);
+            if (CollectionUtils.isNotEmpty(list)) {
                 AppContractDto dependencyApplication = new AppContractDto();
-                dependencyApplication.setContract(perceiveContract(compareResultDtoList));
+                dependencyApplication.setContract(perceiveContract(list));
                 dependencyApplication.setOperationId(operationId);
                 dependencyApplication.setOperationName(compareResultDto.getOperationName());
                 dependencyApplication.setOperationType(compareResultDto.getCategoryName());
-                dependencyApplication.setIsEntryPoint(false);
-                applicationInfoDtos.add(dependencyApplication);
+                upserts.add(dependencyApplication);
             }
         });
 
-        List<DependencyWithContract> dependencyList =
-                appContractRepository.upsertAppContractListWithResult(applicationInfoDtos)
+
+        List<AppContractDto> appContractDtoList = appContractRepository.queryAppContractListByOpId(operationId);
+        // pair of <type,name>, entryPoint doesn't need type to identify
+        Map<Pair<String, String>, AppContractDto> existedMap = appContractDtoList.stream().collect(Collectors.toMap(
+                item -> {
+                    if (entryPointTypes.contains(item.getOperationType())) {
+                        return new ImmutablePair<>(null, item.getOperationName());
+                    } else {
+                        return new ImmutablePair<>(item.getOperationType(), item.getOperationName());
+                    }
+                },
+                Function.identity()));
+        // separate updates and inserts
+        List<AppContractDto> updates = new ArrayList<>();
+        List<AppContractDto> inserts = new ArrayList<>();
+        Long currentTimeMillis = System.currentTimeMillis();
+        for (AppContractDto item : upserts) {
+            Pair<String, String> pair = entryPointTypes.contains(item.getOperationType())
+                    ? new ImmutablePair<>(null, item.getOperationName())
+                    : new ImmutablePair<>(item.getOperationType(), item.getOperationName());
+            if (existedMap.containsKey(pair)) {
+                String oldContract = existedMap.get(pair).getContract();
+                // expand old contract but not overwrite simply
+                if (!StringUtils.equals(oldContract, item.getContract())
+                        && oldContract != null && !oldContract.equals(NULL_STR)) {
+                    String newContract = SchemaUtils.mergeJson(oldContract, item.getContract());
+                    item.setContract(newContract);
+                }
+                item.setId(existedMap.get(pair).getId());
+                item.setDataChangeUpdateTime(currentTimeMillis);
+                updates.add(item);
+            } else {
+                item.setDataChangeUpdateTime(currentTimeMillis);
+                item.setDataChangeCreateTime(currentTimeMillis);
+                inserts.add(item);
+            }
+        }
+        if (CollectionUtils.isNotEmpty(updates)) {
+            appContractRepository.updateById(updates);
+        }
+        if (CollectionUtils.isNotEmpty(inserts)) {
+            List<AppContractDto> insertResults = new ArrayList<>(appContractRepository.insert(inserts));
+            updates.addAll(insertResults);
+        }
+
+        List<DependencyWithContract> dependencyList = updates
                         .stream()
                         .filter(applicationDto -> !entryPointTypes.contains(applicationDto.getOperationType()))
                         .map(this::buildDependency)
