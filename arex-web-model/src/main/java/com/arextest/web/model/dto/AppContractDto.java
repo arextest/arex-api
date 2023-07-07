@@ -8,6 +8,8 @@ import lombok.ToString;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 public class AppContractDto extends BaseDto {
+    private String appId;
+    private boolean isEntry;
     private String operationId;
     private String operationName;
     private String operationType;

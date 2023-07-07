@@ -8,6 +8,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @EqualsAndHashCode(callSuper = true)
 @Document(collection = "AppContract")
 public class AppContractCollection extends ModelBase {
+    private String appId;
+    private boolean isEntry;
     private String operationId;
     private String operationName;
     private String operationType;

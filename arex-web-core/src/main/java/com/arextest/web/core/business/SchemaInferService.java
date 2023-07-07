@@ -12,6 +12,7 @@ import com.arextest.web.model.contract.contracts.QuerySchemaForConfigRequestType
 import com.arextest.web.model.contract.contracts.SyncResponseContractRequestType;
 import com.arextest.web.model.contract.contracts.SyncResponseContractResponseType;
 import com.arextest.web.model.contract.contracts.common.DependencyWithContract;
+import com.arextest.web.model.contract.contracts.config.application.ApplicationOperationConfiguration;
 import com.arextest.web.model.dto.AppContractDto;
 import com.arextest.web.model.dto.CompareResultDto;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -134,8 +135,9 @@ public class SchemaInferService {
     public SyncResponseContractResponseType syncResponseContract(SyncResponseContractRequestType request) {
         String operationId = request.getOperationId();
         SyncResponseContractResponseType responseType = new SyncResponseContractResponseType();
-        Set<String> entryPointTypes =
-                applicationOperationConfigurationRepository.listByOperationId(operationId).getOperationTypes();
+        ApplicationOperationConfiguration applicationOperationConfiguration =
+                applicationOperationConfigurationRepository.listByOperationId(operationId);
+        Set<String> entryPointTypes = applicationOperationConfiguration.getOperationTypes();
         List<CompareResultDto> latestNEntryCompareResults =
                 replayCompareResultRepository.queryLatestEntryPointCompareResult(operationId, entryPointTypes, LIMIT);
         if (CollectionUtils.isEmpty(latestNEntryCompareResults)) {
@@ -172,6 +174,8 @@ public class SchemaInferService {
         entryPointApplication.setOperationName(latestEntryCompareResult.getOperationName());
         entryPointApplication.setOperationType(latestEntryCompareResult.getCategoryName());
         entryPointApplication.setContract(perceiveContract(latestNEntryCompareResults));
+        entryPointApplication.setAppId(applicationOperationConfiguration.getAppId());
+        entryPointApplication.setEntry(true);
         upserts.add(entryPointApplication);
 
         dependencyMap.values().forEach(list -> {
@@ -182,6 +186,8 @@ public class SchemaInferService {
                 dependencyApplication.setOperationId(operationId);
                 dependencyApplication.setOperationName(compareResultDto.getOperationName());
                 dependencyApplication.setOperationType(compareResultDto.getCategoryName());
+                dependencyApplication.setAppId(applicationOperationConfiguration.getAppId());
+                dependencyApplication.setEntry(false);
                 upserts.add(dependencyApplication);
             }
         });
@@ -190,20 +196,16 @@ public class SchemaInferService {
         List<AppContractDto> appContractDtoList = appContractRepository.queryAppContractListByOpId(operationId);
         // pair of <type,name>, entryPoint doesn't need type to identify
         Map<Pair<String, String>, AppContractDto> existedMap = appContractDtoList.stream().collect(Collectors.toMap(
-                item -> {
-                    if (entryPointTypes.contains(item.getOperationType())) {
-                        return new ImmutablePair<>(null, item.getOperationName());
-                    } else {
-                        return new ImmutablePair<>(item.getOperationType(), item.getOperationName());
-                    }
-                },
+                item -> item.isEntry()
+                        ? new ImmutablePair<>(null, item.getOperationName())
+                        : new ImmutablePair<>(item.getOperationType(), item.getOperationName()),
                 Function.identity()));
         // separate updates and inserts
         List<AppContractDto> updates = new ArrayList<>();
         List<AppContractDto> inserts = new ArrayList<>();
         Long currentTimeMillis = System.currentTimeMillis();
         for (AppContractDto item : upserts) {
-            Pair<String, String> pair = entryPointTypes.contains(item.getOperationType())
+            Pair<String, String> pair = item.isEntry()
                     ? new ImmutablePair<>(null, item.getOperationName())
                     : new ImmutablePair<>(item.getOperationType(), item.getOperationName());
             if (existedMap.containsKey(pair)) {
@@ -232,10 +234,10 @@ public class SchemaInferService {
         }
 
         List<DependencyWithContract> dependencyList = updates
-                        .stream()
-                        .filter(applicationDto -> !entryPointTypes.contains(applicationDto.getOperationType()))
-                        .map(this::buildDependency)
-                        .collect(Collectors.toList());
+                .stream()
+                .filter(appContractDto -> !appContractDto.isEntry())
+                .map(this::buildDependency)
+                .collect(Collectors.toList());
         responseType.setEntryPointContractStr(entryPointApplication.getContract());
         responseType.setDependencyList(dependencyList);
         return responseType;
