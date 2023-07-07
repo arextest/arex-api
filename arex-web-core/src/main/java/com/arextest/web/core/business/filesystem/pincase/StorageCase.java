@@ -96,7 +96,7 @@ public class StorageCase {
         }
 
         List<AREXMocker> mockers = response.getBody().getRecordResult();
-        return mockers.stream().filter(m -> (m.getCategoryType() != null && m.getCategoryType().isEntryPoint()))
+        return mockers.stream().filter(m -> m.getCategoryType() != null && m.getCategoryType().isEntryPoint())
             .findFirst().orElse(null);
     }
 

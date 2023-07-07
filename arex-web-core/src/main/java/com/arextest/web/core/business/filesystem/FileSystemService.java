@@ -794,11 +794,8 @@ public class FileSystemService {
 
         String configBatchNo = storageCase.getConfigBatchNo(newRecordId);
         if (StringUtils.isNotBlank(configBatchNo)) {
-            kvDto = new KeyValuePairDto();
-            kvDto.setKey(AREX_REPLAY_PREPARE_DEPENDENCY);
-            kvDto.setValue(PINNED_PRE_FIX + configBatchNo);
-            kvDto.setActive(true);
-            interfaceDto.getHeaders().add(kvDto);
+            interfaceDto.getHeaders()
+                .add(new KeyValuePairDto(AREX_REPLAY_PREPARE_DEPENDENCY, PINNED_PRE_FIX + configBatchNo, true));
         }
         itemInfo.saveItem(itemDto);
 
