@@ -797,7 +797,7 @@ public class FileSystemService {
         kvDto.setKey(AREX_REPLAY_PREPARE_DEPENDENCY);
         kvDto.setValue(PINNED_PRE_FIX + configBatchNo);
         kvDto.setActive(true);
-        interfaceDto.getHeaders().add(0, kvDto);
+        interfaceDto.getHeaders().add(kvDto);
 
         itemInfo.saveItem(itemDto);
 
