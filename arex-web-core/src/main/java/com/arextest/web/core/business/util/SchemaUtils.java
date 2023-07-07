@@ -12,6 +12,11 @@ import java.util.Map;
 
 @Slf4j
 public class SchemaUtils {
+    private static final String DEFAULT_STR = "String";
+    private static final int DEFAULT_INT = 1;
+    private static final double DEFAULT_DOUBLE = 1.0;
+    private static final char DEFAULT_CHAR = 'c';
+
     public static void mergeMap(Map<String, Object> contract, Map<String, Object> model) {
         model.forEach((key, value) -> mergeEntry(contract, key, value));
     }
@@ -74,22 +79,22 @@ public class SchemaUtils {
 
     private static Object handlePrimaryItem(Object item) {
         if (item instanceof Integer || item instanceof Long) {
-            return 1;
+            return DEFAULT_INT;
         }
         if (item instanceof Double || item instanceof Float) {
-            return 0.1;
+            return DEFAULT_DOUBLE;
         }
         if (item instanceof Boolean) {
             return Boolean.TRUE;
         }
         if (item instanceof String) {
-            return "String";
+            return DEFAULT_STR;
         }
         if (item instanceof char[]) {
             if (((char[]) item).length == 1) {
-                return 'c';
+                return DEFAULT_CHAR;
             } else {
-                return "String";
+                return DEFAULT_STR;
             }
         }
 

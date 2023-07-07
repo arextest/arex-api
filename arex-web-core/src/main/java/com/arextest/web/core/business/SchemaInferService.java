@@ -6,6 +6,7 @@ import com.arextest.web.core.repository.AppContractRepository;
 import com.arextest.web.core.repository.ReplayCompareResultRepository;
 import com.arextest.web.core.repository.mongo.ApplicationOperationConfigurationRepositoryImpl;
 import com.arextest.web.model.contract.contracts.OverwriteContractRequestType;
+import com.arextest.web.model.contract.contracts.QueryContractRequestType;
 import com.arextest.web.model.contract.contracts.QueryMsgSchemaRequestType;
 import com.arextest.web.model.contract.contracts.QueryMsgSchemaResponseType;
 import com.arextest.web.model.contract.contracts.QuerySchemaForConfigRequestType;
@@ -65,6 +66,10 @@ public class SchemaInferService {
     private static final String ARRAY = "array";
     private static final String NULL_STR = "null";
 
+    private static final String ANY_OF = "anyOf";
+
+    private static final String VALUE_WITH_SYMBOL = "%value%";
+
     private static final int LIMIT = 5;
 
     private static final int FIRST_INDEX = 0;
@@ -78,7 +83,7 @@ public class SchemaInferService {
 
     public QueryMsgSchemaResponseType schemaInfer(QueryMsgSchemaRequestType request) {
         QueryMsgSchemaResponseType response = new QueryMsgSchemaResponseType();
-        String msg = null;
+        String msg;
         if (request.getId() != null) {
             CompareResultDto dto = replayCompareResultRepository.queryCompareResultsById(request.getId());
             msg = request.isUseTestMsg() ? dto.getTestMsg() : dto.getBaseMsg();
@@ -120,8 +125,13 @@ public class SchemaInferService {
         return response;
     }
 
-    public AppContractDto queryContract(String id) {
-        return appContractRepository.queryById(id);
+    public AppContractDto queryContract(QueryContractRequestType requestType) {
+        if (requestType.getContractId() != null) {
+            return appContractRepository.queryById(requestType.getContractId());
+        } else {
+            return appContractRepository.queryEntryPointContract(requestType.getOperationId());
+        }
+
     }
 
     public boolean overwriteContract(OverwriteContractRequestType request) {
@@ -281,7 +291,7 @@ public class SchemaInferService {
         }
         if (typeNode.isValueNode()) {
             String type = typeNode.asText();
-            ObjectNode subNode = null;
+            ObjectNode subNode;
             if (Objects.equals(type, OBJECT)) {
                 subNode = (ObjectNode) node.get(PROPERTIES);
                 if (subNode != null) {
@@ -294,20 +304,20 @@ public class SchemaInferService {
             } else if (Objects.equals(type, ARRAY)) {
                 subNode = (ObjectNode) node.get(ITEMS);
                 if (subNode != null) {
-                    JsonNode anyOf = subNode.get("anyOf");
+                    JsonNode anyOf = subNode.get(ANY_OF);
                     if (anyOf != null) {
-                        subNode.remove("anyOf");
+                        subNode.remove(ANY_OF);
                         ((ObjectNode) node).set(ITEMS, removeNullNode(anyOf));
                     }
                     adjustJsonNode(node.get(ITEMS), true);
                 }
             } else {
-                if (isArray && !Objects.equals(type, "null")) {
+                if (isArray && !Objects.equals(type, NULL_STR)) {
                     JsonNode oldTypeNode = node.get(TYPE);
                     ObjectNode newNode = JsonNodeFactory.instance.objectNode();
                     ObjectNode newTypeNode = JsonNodeFactory.instance.objectNode();
                     newTypeNode.set(TYPE, JsonNodeFactory.instance.textNode(oldTypeNode.asText()));
-                    newNode.set("%value%", newTypeNode);
+                    newNode.set(VALUE_WITH_SYMBOL, newTypeNode);
                     ((ObjectNode) node).set(TYPE, JsonNodeFactory.instance.textNode(OBJECT));
                     ((ObjectNode) node).set(PROPERTIES, newNode);
                 }
@@ -319,7 +329,7 @@ public class SchemaInferService {
                 ObjectNode newNode = JsonNodeFactory.instance.objectNode();
                 ObjectNode newTypeNode = JsonNodeFactory.instance.objectNode();
                 newTypeNode.set(TYPE, JsonNodeFactory.instance.textNode(oldTypeNode.asText()));
-                newNode.set("%value%", newTypeNode);
+                newNode.set(VALUE_WITH_SYMBOL, newTypeNode);
                 ((ObjectNode) node).set(TYPE, JsonNodeFactory.instance.textNode(OBJECT));
                 ((ObjectNode) node).set(PROPERTIES, newNode);
             }
@@ -331,7 +341,7 @@ public class SchemaInferService {
         ArrayNode arrayNode = (ArrayNode) node;
         int size = arrayNode.size();
         for (int i = 0; i < size; i++) {
-            if (!Objects.equals(arrayNode.get(i).get(TYPE).asText(), "null")) {
+            if (!Objects.equals(arrayNode.get(i).get(TYPE).asText(), NULL_STR)) {
                 return arrayNode.get(i);
             }
         }
@@ -342,7 +352,7 @@ public class SchemaInferService {
         ArrayNode arrayNode = (ArrayNode) node;
         int size = arrayNode.size();
         for (int i = 0; i < size; i++) {
-            if (!Objects.equals(arrayNode.get(i).asText(), "null")) {
+            if (!Objects.equals(arrayNode.get(i).asText(), NULL_STR)) {
                 return arrayNode.get(i);
             }
         }
@@ -387,7 +397,7 @@ public class SchemaInferService {
             return false;
         }
         String type = typeNode.asText();
-        ObjectNode subNode = null;
+        ObjectNode subNode;
         if (Objects.equals(type, OBJECT)) {
             subNode = (ObjectNode) node.get(PROPERTIES);
             if (subNode != null) {

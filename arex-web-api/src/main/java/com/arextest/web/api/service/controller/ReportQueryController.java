@@ -24,6 +24,7 @@ import com.arextest.web.model.contract.contracts.PushCompareResultsRequestType;
 import com.arextest.web.model.contract.contracts.PushCompareResultsResponseType;
 import com.arextest.web.model.contract.contracts.QueryCategoryStatisticRequestType;
 import com.arextest.web.model.contract.contracts.QueryCategoryStatisticResponseType;
+import com.arextest.web.model.contract.contracts.QueryContractRequestType;
 import com.arextest.web.model.contract.contracts.QueryDiffAggInfoRequestType;
 import com.arextest.web.model.contract.contracts.QueryDiffAggInfoResponseType;
 import com.arextest.web.model.contract.contracts.QueryDiffMsgByIdResponseType;
@@ -360,10 +361,10 @@ public class ReportQueryController {
         return ResponseUtils.successResponse(schemaInferService.syncResponseContract(requestType));
     }
 
-    @GetMapping("/queryContract/{id}")
+    @PostMapping("/queryContract/{id}")
     @ResponseBody
-    public Response queryContract(@PathVariable String id) {
-        return ResponseUtils.successResponse(schemaInferService.queryContract(id));
+    public Response queryContract(@Valid @RequestBody QueryContractRequestType requestType) {
+        return ResponseUtils.successResponse(schemaInferService.queryContract(requestType));
     }
 
     @PostMapping("/overwriteContract")

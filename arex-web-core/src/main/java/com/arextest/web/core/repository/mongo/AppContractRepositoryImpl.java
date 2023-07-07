@@ -27,6 +27,7 @@ public class AppContractRepositoryImpl implements AppContractRepository {
     private static final String OPERATION_NAME = "operationName";
     private static final String OPERATION_TYPE = "operationType";
     private static final String CONTRACT = "contract";
+    private static final String IS_ENTRY = "isEntry";
     @Resource
     private MongoTemplate mongoTemplate;
 
@@ -67,6 +68,13 @@ public class AppContractRepositoryImpl implements AppContractRepository {
                 .stream()
                 .map(AppContractMapper.INSTANCE::dtoFromDao)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public AppContractDto queryEntryPointContract(String operationId) {
+        Query query = new Query().addCriteria(Criteria.where(OPERATION_ID).is(operationId).and(IS_ENTRY).is(true));
+
+        return AppContractMapper.INSTANCE.dtoFromDao(mongoTemplate.findOne(query, AppContractCollection.class));
     }
 
     @Override
