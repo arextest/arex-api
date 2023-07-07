@@ -70,6 +70,8 @@ public class SchemaInferService {
 
     private static final String VALUE_WITH_SYMBOL = "%value%";
 
+    private static final String EMPTY_CONTRACT = "{}";
+
     private static final int LIMIT = 5;
 
     private static final int FIRST_INDEX = 0;
@@ -138,7 +140,7 @@ public class SchemaInferService {
         AppContractDto appContractDto = new AppContractDto();
         appContractDto.setId(request.getContractId());
         appContractDto.setOperationId(request.getOperationId());
-        String contract = SchemaUtils.mergeJson(null, request.getOperationResponse());
+        String contract = SchemaUtils.mergeJson(EMPTY_CONTRACT, request.getOperationResponse());
         appContractDto.setContract(contract);
         return appContractRepository.update(Collections.singletonList(appContractDto));
     }
@@ -186,7 +188,7 @@ public class SchemaInferService {
         entryPointApplication.setOperationType(latestEntryCompareResult.getCategoryName());
         entryPointApplication.setContract(perceiveContract(latestNEntryCompareResults));
         entryPointApplication.setAppId(applicationOperationConfiguration.getAppId());
-        entryPointApplication.setEntry(true);
+        entryPointApplication.setIsEntry(true);
         upserts.add(entryPointApplication);
 
         dependencyMap.values().forEach(list -> {
@@ -198,7 +200,7 @@ public class SchemaInferService {
                 dependencyApplication.setOperationName(compareResultDto.getOperationName());
                 dependencyApplication.setOperationType(compareResultDto.getCategoryName());
                 dependencyApplication.setAppId(applicationOperationConfiguration.getAppId());
-                dependencyApplication.setEntry(false);
+                dependencyApplication.setIsEntry(false);
                 upserts.add(dependencyApplication);
             }
         });
@@ -207,7 +209,7 @@ public class SchemaInferService {
         List<AppContractDto> appContractDtoList = appContractRepository.queryAppContractListByOpId(operationId);
         // pair of <type,name>, entryPoint doesn't need type to identify
         Map<Pair<String, String>, AppContractDto> existedMap = appContractDtoList.stream().collect(Collectors.toMap(
-                item -> item.isEntry()
+                item -> item.getIsEntry()
                         ? new ImmutablePair<>(null, item.getOperationName())
                         : new ImmutablePair<>(item.getOperationType(), item.getOperationName()),
                 Function.identity()));
@@ -216,7 +218,7 @@ public class SchemaInferService {
         List<AppContractDto> inserts = new ArrayList<>();
         Long currentTimeMillis = System.currentTimeMillis();
         for (AppContractDto item : upserts) {
-            Pair<String, String> pair = item.isEntry()
+            Pair<String, String> pair = item.getIsEntry()
                     ? new ImmutablePair<>(null, item.getOperationName())
                     : new ImmutablePair<>(item.getOperationType(), item.getOperationName());
             if (existedMap.containsKey(pair)) {
@@ -246,7 +248,7 @@ public class SchemaInferService {
 
         List<DependencyWithContract> dependencyList = updates
                 .stream()
-                .filter(appContractDto -> !appContractDto.isEntry())
+                .filter(appContractDto -> !appContractDto.getIsEntry())
                 .map(this::buildDependency)
                 .collect(Collectors.toList());
         responseType.setEntryPointContractStr(entryPointApplication.getContract());
@@ -265,24 +267,31 @@ public class SchemaInferService {
     }
 
     private String perceiveContract(List<CompareResultDto> compareResultDtoList) {
+
+        Map<String, Object> contract = new HashMap<>();
         try {
-            Map<String, Object> contract = new HashMap<>();
             for (CompareResultDto compareResultDto : compareResultDtoList) {
-                if (compareResultDto.getBaseMsg() != null) {
-                    SchemaUtils.mergeMap(contract, CONTRACT_OBJ_MAPPER.readValue(compareResultDto.getBaseMsg(),
-                            Map.class));
-                }
-                if (compareResultDto.getTestMsg() != null) {
-                    SchemaUtils.mergeMap(contract, CONTRACT_OBJ_MAPPER.readValue(compareResultDto.getTestMsg(),
-                            Map.class));
+                try {
+                    if (compareResultDto.getBaseMsg() != null) {
+                        SchemaUtils.mergeMap(contract, CONTRACT_OBJ_MAPPER.readValue(compareResultDto.getBaseMsg(),
+                                Map.class));
+                    }
+                    if (compareResultDto.getTestMsg() != null) {
+                        SchemaUtils.mergeMap(contract, CONTRACT_OBJ_MAPPER.readValue(compareResultDto.getTestMsg(),
+                                Map.class));
+                    }
+                } catch (JsonProcessingException e1) {
+                    LogUtils.error(LOGGER, "ObjectMapper readValue failed, item:{}", e1, compareResultDto);
+                    return CONTRACT_OBJ_MAPPER.writeValueAsString(contract);
                 }
             }
             return CONTRACT_OBJ_MAPPER.writeValueAsString(contract);
-        } catch (JsonProcessingException e) {
-            LogUtils.error(LOGGER, "perceiveContract failed", e);
+        } catch (JsonProcessingException e2) {
+            LogUtils.error(LOGGER, "ObjectMapper writeValue failed, contract:{}", e2, contract);
             return null;
         }
     }
+
 
 
     private void adjustJsonNode(JsonNode node, boolean isArray) {

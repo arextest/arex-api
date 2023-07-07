@@ -52,7 +52,7 @@ public final class ApplicationOperationConfigurableHandler extends AbstractConfi
         List<Dependency> dependencyList = new ArrayList<>();
 
         for (AppContractDto appContractDto : appContractDtoList) {
-            if (appContractDto.isEntry()) {
+            if (appContractDto.getIsEntry()) {
                 Dependency dependency = new Dependency();
                 dependency.setDependencyId(appContractDto.getId());
                 dependency.setDependencyType(appContractDto.getOperationType());

@@ -42,8 +42,7 @@ public class AppContractRepositoryImpl implements AppContractRepository {
                 Query query = new Query();
                 if (appContractDto.getId() != null) {
                     query.addCriteria(Criteria.where(DASH_ID).is(collection.getId()));
-                }
-                if (appContractDto.getOperationId() != null) {
+                } else if (appContractDto.getOperationId() != null) {
                     query.addCriteria(Criteria.where(OPERATION_ID).is(appContractDto.getOperationId())
                             .and(IS_ENTRY).is(true));
                 }
