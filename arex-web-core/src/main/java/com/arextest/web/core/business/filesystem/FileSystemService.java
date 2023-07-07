@@ -121,6 +121,8 @@ public class FileSystemService {
     private static final String LINK_PLACEHOLDER = "{{link}}";
     private static final String GET_METHOD = "GET";
     private static final String AREX_RECORD_ID = "arex-record-id";
+    private static final String AREX_REPLAY_PREPARE_DEPENDENCY = "arex_replay_prepare_dependency";
+    private static final String PINNED_PRE_FIX = "pinned_";
 
     @Value("${arex.ui.url}")
     private String arexUiUrl;
@@ -787,6 +789,13 @@ public class FileSystemService {
         KeyValuePairDto kvDto = new KeyValuePairDto();
         kvDto.setKey(AREX_RECORD_ID);
         kvDto.setValue(newRecordId);
+        kvDto.setActive(true);
+        interfaceDto.getHeaders().add(0, kvDto);
+
+        String configBatchNo = storageCase.getConfigBatchNo(newRecordId);
+        kvDto = new KeyValuePairDto();
+        kvDto.setKey(AREX_REPLAY_PREPARE_DEPENDENCY);
+        kvDto.setValue(PINNED_PRE_FIX + configBatchNo);
         kvDto.setActive(true);
         interfaceDto.getHeaders().add(0, kvDto);
 
