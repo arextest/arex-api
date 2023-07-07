@@ -74,17 +74,11 @@ public class StorageCase {
 
     public String getConfigBatchNo(String recordId) {
         AREXMocker arexMocker = getPinnedArexEntryPointMocker(recordId);
-        if (arexMocker == null) {
-            return null;
-        }
-        if (arexMocker.getTargetRequest() == null) {
-            return null;
-        }
-        Object configBatchNo = arexMocker.getTargetRequest().getAttribute(CONFIG_BATCH_NO);
-        if (configBatchNo == null) {
-            return null;
-        }
-        return configBatchNo.toString();
+        return  Optional.ofNullable(arexMocker)
+                .map(AREXMocker::getTargetRequest)
+                .map(request -> request.getAttribute(CONFIG_BATCH_NO))
+                .map(Object::toString)
+                .orElse(null);
     }
 
 

@@ -793,12 +793,13 @@ public class FileSystemService {
         interfaceDto.getHeaders().add(0, kvDto);
 
         String configBatchNo = storageCase.getConfigBatchNo(newRecordId);
-        kvDto = new KeyValuePairDto();
-        kvDto.setKey(AREX_REPLAY_PREPARE_DEPENDENCY);
-        kvDto.setValue(PINNED_PRE_FIX + configBatchNo);
-        kvDto.setActive(true);
-        interfaceDto.getHeaders().add(kvDto);
-
+        if (StringUtils.isNotBlank(configBatchNo)) {
+            kvDto = new KeyValuePairDto();
+            kvDto.setKey(AREX_REPLAY_PREPARE_DEPENDENCY);
+            kvDto.setValue(PINNED_PRE_FIX + configBatchNo);
+            kvDto.setActive(true);
+            interfaceDto.getHeaders().add(kvDto);
+        }
         itemInfo.saveItem(itemDto);
 
         // update tree
