@@ -1,7 +1,6 @@
 package com.arextest.web.core.business.config.application;
 
 import com.arextest.web.core.business.config.AbstractConfigurableHandler;
-import com.arextest.web.core.business.util.SchemaUtils;
 import com.arextest.web.core.repository.AppContractRepository;
 import com.arextest.web.core.repository.ConfigRepositoryProvider;
 import com.arextest.web.core.repository.mongo.ApplicationOperationConfigurationRepositoryImpl;
@@ -14,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -46,23 +44,6 @@ public final class ApplicationOperationConfigurableHandler extends AbstractConfi
         return super.insert(configuration);
     }
 
-    @Override
-    public boolean update(ApplicationOperationConfiguration configuration) {
-        // cover contract manually
-        if (configuration.getOperationResponse() != null) {
-            String contract = SchemaUtils.mergeJson(null, configuration.getOperationResponse());
-            if (contract != null) {
-                AppContractDto appContractDto = new AppContractDto();
-                appContractDto.setOperationId(configuration.getId());
-                appContractDto.setIsEntryPoint(true);
-                appContractDto.setOperationName(configuration.getOperationName());
-                appContractDto.setContract(contract);
-                appContractRepository.upsertAppContractList(Collections.singletonList(appContractDto));
-            }
-        }
-        return super.update(configuration);
-    }
-
     public ApplicationOperationConfiguration useResultByOperationId(String operationId) {
         ApplicationOperationConfiguration result =
                 applicationOperationConfigurationRepository.listByOperationId(operationId);
@@ -73,7 +54,7 @@ public final class ApplicationOperationConfigurableHandler extends AbstractConfi
         for (AppContractDto appContractDto : appContractDtoList) {
             if (result.getOperationTypes().contains(appContractDto.getOperationType())) {
                 // only match once
-                result.setResponseContract(appContractDto.getContract());
+                result.setEntryPointContractId(appContractDto.getId());
             } else {
                 Dependency dependency = new Dependency();
                 dependency.setDependencyId(appContractDto.getId());

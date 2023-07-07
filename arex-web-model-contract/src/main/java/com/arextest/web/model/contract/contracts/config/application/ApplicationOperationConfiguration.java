@@ -21,7 +21,7 @@ public class ApplicationOperationConfiguration extends AbstractConfiguration imp
     private Set<String> operationTypes;
     @Deprecated
     private String operationResponse;
-    private String responseContract;
     private Integer recordedCaseCount;
+    private String entryPointContractId;
     private List<Dependency> dependencyList;
 }

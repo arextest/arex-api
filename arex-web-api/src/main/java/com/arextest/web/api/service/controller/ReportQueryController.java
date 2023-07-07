@@ -19,6 +19,7 @@ import com.arextest.web.core.business.iosummary.SceneReportService;
 import com.arextest.web.model.contract.contracts.ChangeReplayStatusRequestType;
 import com.arextest.web.model.contract.contracts.ChangeReplayStatusResponseType;
 import com.arextest.web.model.contract.contracts.DownloadReplayMsgRequestType;
+import com.arextest.web.model.contract.contracts.OverwriteContractRequestType;
 import com.arextest.web.model.contract.contracts.PushCompareResultsRequestType;
 import com.arextest.web.model.contract.contracts.PushCompareResultsResponseType;
 import com.arextest.web.model.contract.contracts.QueryCategoryStatisticRequestType;
@@ -363,5 +364,13 @@ public class ReportQueryController {
     @ResponseBody
     public Response queryContract(@PathVariable String id) {
         return ResponseUtils.successResponse(schemaInferService.queryContract(id));
+    }
+
+    @PostMapping("/overwriteContract")
+    @ResponseBody
+    public Response syncResponse(@Valid @RequestBody OverwriteContractRequestType requestType) {
+        SuccessResponseType response = new SuccessResponseType();
+        response.setSuccess(schemaInferService.overwriteContract(requestType));
+        return ResponseUtils.successResponse(response);
     }
 }

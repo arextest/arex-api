@@ -64,6 +64,28 @@ public class AppContractRepositoryImpl implements AppContractRepository {
     }
 
     @Override
+    public boolean updateById(List<AppContractDto> appContractDtos) {
+        try {
+            BulkOperations bulkOperations = mongoTemplate.bulkOps(BulkOperations.BulkMode.UNORDERED,
+                    AppContractCollection.class);
+            List<org.springframework.data.util.Pair<Query, Update>> updates = new ArrayList<>();
+            for (AppContractDto appContractDto : appContractDtos) {
+                AppContractCollection collection = AppContractMapper.INSTANCE.daoFromDto(appContractDto);
+                Query query = new Query().addCriteria(Criteria.where(DASH_ID).is(collection.getId()));
+                Update update = MongoHelper.getUpdate();
+                MongoHelper.appendFullProperties(update, collection);
+                updates.add(org.springframework.data.util.Pair.of(query, update));
+            }
+            bulkOperations.updateMulti(updates);
+            bulkOperations.execute();
+        } catch (Exception e) {
+            LogUtils.error(LOGGER, "updateById failed! list:{}", appContractDtos, e);
+            return false;
+        }
+        return true;
+    }
+
+    @Override
     public List<AppContractDto> upsertAppContractListWithResult(List<AppContractDto> appContractDtos) {
         try {
             // query

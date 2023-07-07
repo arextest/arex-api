@@ -5,6 +5,7 @@ import com.arextest.web.core.business.util.SchemaUtils;
 import com.arextest.web.core.repository.AppContractRepository;
 import com.arextest.web.core.repository.ReplayCompareResultRepository;
 import com.arextest.web.core.repository.mongo.ApplicationOperationConfigurationRepositoryImpl;
+import com.arextest.web.model.contract.contracts.OverwriteContractRequestType;
 import com.arextest.web.model.contract.contracts.QueryMsgSchemaRequestType;
 import com.arextest.web.model.contract.contracts.QueryMsgSchemaResponseType;
 import com.arextest.web.model.contract.contracts.QuerySchemaForConfigRequestType;
@@ -32,6 +33,7 @@ import org.springframework.stereotype.Component;
 import javax.annotation.Resource;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -118,6 +120,14 @@ public class SchemaInferService {
 
     public AppContractDto queryContract(String id) {
         return appContractRepository.queryById(id);
+    }
+
+    public boolean overwriteContract(OverwriteContractRequestType request) {
+        AppContractDto appContractDto = new AppContractDto();
+        appContractDto.setId(request.getId());
+        String contract = SchemaUtils.mergeJson(null, request.getOperationResponse());
+        appContractDto.setContract(contract);
+        return appContractRepository.updateById(Collections.singletonList(appContractDto));
     }
 
     public SyncResponseContractResponseType syncResponseContract(SyncResponseContractRequestType request) {

@@ -6,7 +6,9 @@ import java.util.List;
 
 public interface AppContractRepository extends RepositoryProvider {
 
-    boolean upsertAppContractList(List<AppContractDto> applicationInfoDtos);
+    boolean upsertAppContractList(List<AppContractDto> appContractDtos);
+
+    boolean updateById(List<AppContractDto> appContractDtos);
 
     List<AppContractDto> upsertAppContractListWithResult(List<AppContractDto> appContractDtos);
 
