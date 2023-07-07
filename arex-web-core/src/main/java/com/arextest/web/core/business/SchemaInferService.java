@@ -136,10 +136,11 @@ public class SchemaInferService {
 
     public boolean overwriteContract(OverwriteContractRequestType request) {
         AppContractDto appContractDto = new AppContractDto();
-        appContractDto.setId(request.getId());
+        appContractDto.setId(request.getContractId());
+        appContractDto.setOperationId(request.getOperationId());
         String contract = SchemaUtils.mergeJson(null, request.getOperationResponse());
         appContractDto.setContract(contract);
-        return appContractRepository.updateById(Collections.singletonList(appContractDto));
+        return appContractRepository.update(Collections.singletonList(appContractDto));
     }
 
     public SyncResponseContractResponseType syncResponseContract(SyncResponseContractRequestType request) {
@@ -236,7 +237,7 @@ public class SchemaInferService {
             }
         }
         if (CollectionUtils.isNotEmpty(updates)) {
-            appContractRepository.updateById(updates);
+            appContractRepository.update(updates);
         }
         if (CollectionUtils.isNotEmpty(inserts)) {
             List<AppContractDto> insertResults = new ArrayList<>(appContractRepository.insert(inserts));

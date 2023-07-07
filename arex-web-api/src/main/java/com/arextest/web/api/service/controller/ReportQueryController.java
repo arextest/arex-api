@@ -361,7 +361,7 @@ public class ReportQueryController {
         return ResponseUtils.successResponse(schemaInferService.syncResponseContract(requestType));
     }
 
-    @PostMapping("/queryContract/{id}")
+    @PostMapping("/queryContract")
     @ResponseBody
     public Response queryContract(@Valid @RequestBody QueryContractRequestType requestType) {
         return ResponseUtils.successResponse(schemaInferService.queryContract(requestType));

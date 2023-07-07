@@ -32,14 +32,22 @@ public class AppContractRepositoryImpl implements AppContractRepository {
     private MongoTemplate mongoTemplate;
 
     @Override
-    public boolean updateById(List<AppContractDto> appContractDtos) {
+    public boolean update(List<AppContractDto> appContractDtos) {
         try {
             BulkOperations bulkOperations = mongoTemplate.bulkOps(BulkOperations.BulkMode.UNORDERED,
                     AppContractCollection.class);
             List<Pair<Query, Update>> updates = new ArrayList<>();
             for (AppContractDto appContractDto : appContractDtos) {
                 AppContractCollection collection = AppContractMapper.INSTANCE.daoFromDto(appContractDto);
-                Query query = new Query().addCriteria(Criteria.where(DASH_ID).is(collection.getId()));
+                Query query = new Query();
+                if (appContractDto.getId() != null) {
+                    query.addCriteria(Criteria.where(DASH_ID).is(collection.getId()));
+                }
+                if (appContractDto.getOperationId() != null) {
+                    query.addCriteria(Criteria.where(OPERATION_ID).is(appContractDto.getOperationId())
+                            .and(IS_ENTRY).is(true));
+                }
+
                 Update update = new Update();
                 MongoHelper.appendFullProperties(update, collection);
                 updates.add(Pair.of(query, update));
