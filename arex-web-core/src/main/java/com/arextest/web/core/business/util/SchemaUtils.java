@@ -17,6 +17,7 @@ public class SchemaUtils {
     private static final double DEFAULT_DOUBLE = 1.0;
     private static final char DEFAULT_CHAR = 'c';
     private static final String NULL_STR = "NULL";
+    private static final String VALUE_WITH_SYMBOL = "%value%";
 
     public static void mergeMap(Map<String, Object> contract, Map<String, Object> model) {
         model.forEach((key, value) -> mergeEntry(contract, key, value));
@@ -82,24 +83,23 @@ public class SchemaUtils {
 
         for (Object item : model) {
             if (item instanceof Map<?, ?>) {
-                Map<String, Object> mapContract;
-                if (contractItem instanceof Map<?, ?>) {
-                    mapContract = (Map<String, Object>) contractItem;
-                } else {
-                    mapContract = new HashMap<>();
+                if (contractItem == null) {
+                    contractItem = new HashMap<>();
                 }
-                mergeMap(mapContract, (Map<String, Object>) item);
+                mergeMap((Map<String, Object>)contractItem, (Map<String, Object>) item);
             } else if (item instanceof List) {
-                List<Object> listContract;
-                if (contractItem instanceof List) {
-                    listContract = (List<Object>) contractItem;
-                } else {
-                    listContract = new ArrayList<>();
+                if (contractItem == null) {
+                    contractItem = new ArrayList<>();
                 }
-                mergeList(listContract, (List<Object>) item);
+                mergeList((List<Object>) contractItem, (List<Object>) item);
             } else {
                 if (contractItem == null) {
-                    contractItem = handlePrimaryItem(item);
+                    Object primaryItem = handlePrimaryItem(item);
+                    contractItem = new HashMap<String, Object>() {
+                        {
+                            put(VALUE_WITH_SYMBOL, primaryItem);
+                        }
+                    };
                 }
             }
         }

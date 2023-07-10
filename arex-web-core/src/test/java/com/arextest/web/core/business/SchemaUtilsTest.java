@@ -69,6 +69,10 @@ public class SchemaUtilsTest {
             " ]\n" +
             "}";
 
+    private static final String JSON3 = "{\n" +
+            "\t\"singleList\":[111,222]\n" +
+            "}";
+
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     @Test
     public void test() throws JsonProcessingException {
@@ -82,5 +86,9 @@ public class SchemaUtilsTest {
         Map<String, Object> newModel = OBJECT_MAPPER.readValue(JSON2, Map.class);
         SchemaUtils.mergeMap(contractMap, newModel);
         Assert.assertEquals(5, ((Map)((List) contractMap.get("body")).get(0)).entrySet().size());
+
+        newModel = OBJECT_MAPPER.readValue(JSON3, Map.class);
+        SchemaUtils.mergeMap(contractMap, newModel);
+        Assert.assertEquals(1, ((Map)((List)contractMap.get("singleList")).get(0)).get("%value%"));
     }
 }
