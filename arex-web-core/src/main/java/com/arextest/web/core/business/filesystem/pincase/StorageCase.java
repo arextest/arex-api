@@ -31,6 +31,9 @@ public class StorageCase {
 
     private static final String STORAGE_VIEW_RECORD_URL = "/api/storage/replay/query/viewRecord";
     private static final String STORAGE_PIN_CASE_URL = "/api/storage/edit/pinned/";
+    private static final String CONFIG_BATCH_NO = "configBatchNo";
+    public static final String PINNED = "Pinned";
+    public static final String SOURCE_PROVIDER = "sourceProvider";
 
     @Value("${arex.storage.service.url}")
     private String storageServiceUrl;
@@ -67,6 +70,36 @@ public class StorageCase {
 
         return mockerConversion.mockerConvertToFsCase(entryPoint.get());
     }
+
+
+    public String getConfigBatchNo(String recordId) {
+        AREXMocker arexMocker = getPinnedArexEntryPointMocker(recordId);
+        return  Optional.ofNullable(arexMocker)
+                .map(AREXMocker::getTargetRequest)
+                .map(request -> request.getAttribute(CONFIG_BATCH_NO))
+                .map(Object::toString)
+                .orElse(null);
+    }
+
+
+    public AREXMocker getPinnedArexEntryPointMocker(String recordId) {
+        ObjectNode request = objectMapper.createObjectNode();
+        request.put(RECORD_ID, recordId);
+        request.put(SOURCE_PROVIDER, PINNED);
+        ResponseEntity<ViewRecordResponseType>
+            response =
+            HttpUtils.post(storageServiceUrl + STORAGE_VIEW_RECORD_URL,
+                request.toString(),
+                ViewRecordResponseType.class);
+        if (response == null || response.getBody() == null || response.getBody().getRecordResult() == null) {
+            return null;
+        }
+
+        List<AREXMocker> mockers = response.getBody().getRecordResult();
+        return mockers.stream().filter(m -> m.getCategoryType() != null && m.getCategoryType().isEntryPoint())
+            .findFirst().orElse(null);
+    }
+
 
     public String getNewRecordId(String recordId) {
         return recordId
