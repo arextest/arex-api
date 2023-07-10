@@ -36,7 +36,7 @@ public class SchemaUtils {
             mergeMap(contractMap, modelMap);
             return objectMapper.writeValueAsString(contractMap);
         } catch (JsonProcessingException e) {
-            LogUtils.warn(LOGGER, "objectMapper readValue failed! contract:{}, model:{}", contract, model);
+            LogUtils.error(LOGGER, "objectMapper readValue failed! contract:{}, model:{}", contract, model);
         }
         return null;
     }
@@ -129,7 +129,7 @@ public class SchemaUtils {
             }
         }
 
-        LogUtils.warn(LOGGER, "Unsupported Type, item:{}, class:{}", item, item == null ? NULL_STR : item.getClass());
+        LogUtils.error(LOGGER, "Unsupported Type, item:{}, class:{}", item, item == null ? NULL_STR : item.getClass());
         return null;
     }
 }
