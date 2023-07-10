@@ -16,6 +16,7 @@ public class SchemaUtils {
     private static final int DEFAULT_INT = 1;
     private static final double DEFAULT_DOUBLE = 1.0;
     private static final char DEFAULT_CHAR = 'c';
+    private static final String NULL_STR = "NULL";
 
     public static void mergeMap(Map<String, Object> contract, Map<String, Object> model) {
         model.forEach((key, value) -> mergeEntry(contract, key, value));
@@ -25,23 +26,45 @@ public class SchemaUtils {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             Map<String, Object> contractMap = contract == null ? new HashMap<>() : objectMapper.readValue(contract, Map.class);
-            if (model == null) return contract;
+            if (contractMap == null) {
+                contractMap = new HashMap<>();
+            }
+            if (model == null) {
+                return contract;
+            }
             Map<String, Object> modelMap = objectMapper.readValue(model, Map.class);
             mergeMap(contractMap, modelMap);
             return objectMapper.writeValueAsString(contractMap);
         } catch (JsonProcessingException e) {
-            LogUtils.error(LOGGER, "objectMapper readValue failed! contract:{}, model:{}", contract, model);
+            LogUtils.warn(LOGGER, "objectMapper readValue failed! contract:{}, model:{}", contract, model);
         }
         return null;
     }
 
     private static void mergeEntry(Map<String, Object> contract, String key, Object value) {
+        if (value == null) {
+            return;
+        }
+        if (contract == null) {
+            contract = new HashMap<>();
+        }
+        Object contractItem = contract.get(key);
         if (value instanceof Map<?, ?>) {
-            Map<String, Object> mapContract = (Map<String, Object>) contract.getOrDefault(key, new HashMap<>());
+            Map<String, Object> mapContract;
+            if (contractItem instanceof Map<?, ?>) {
+                mapContract = (Map<String, Object>) contractItem;
+            } else {
+                mapContract = new HashMap<>();
+            }
             mergeMap(mapContract, (Map<String, Object>) value);
             contract.put(key, mapContract);
         } else if (value instanceof List) {
-            List<Object> listContract = (List<Object>) contract.getOrDefault(key, new ArrayList<>());
+            List<Object> listContract;
+            if (contractItem instanceof List) {
+                listContract = (List<Object>) contractItem;
+            } else {
+                listContract = new ArrayList<>();
+            }
             mergeList(listContract, (List<Object>) value);
             contract.put(key, listContract);
         } else {
@@ -59,22 +82,30 @@ public class SchemaUtils {
 
         for (Object item : model) {
             if (item instanceof Map<?, ?>) {
-                if (contractItem == null) {
-                    contractItem = new HashMap<String, Object>();
+                Map<String, Object> mapContract;
+                if (contractItem instanceof Map<?, ?>) {
+                    mapContract = (Map<String, Object>) contractItem;
+                } else {
+                    mapContract = new HashMap<>();
                 }
-                mergeMap((Map<String, Object>) contractItem, (Map<String, Object>) item);
+                mergeMap(mapContract, (Map<String, Object>) item);
             } else if (item instanceof List) {
-                if (contractItem == null) {
-                    contractItem = new ArrayList<>();
+                List<Object> listContract;
+                if (contractItem instanceof List) {
+                    listContract = (List<Object>) contractItem;
+                } else {
+                    listContract = new ArrayList<>();
                 }
-                mergeList((List<Object>) contractItem, (List<Object>) item);
+                mergeList(listContract, (List<Object>) item);
             } else {
                 if (contractItem == null) {
                     contractItem = handlePrimaryItem(item);
                 }
             }
         }
-        contract.add(contractItem);
+        if (contractItem != null) {
+            contract.add(contractItem);
+        }
     }
 
     private static Object handlePrimaryItem(Object item) {
@@ -98,7 +129,7 @@ public class SchemaUtils {
             }
         }
 
-        LogUtils.error(LOGGER, "Unsupported Type, item:{}, class:{}", item, item.getClass());
+        LogUtils.warn(LOGGER, "Unsupported Type, item:{}, class:{}", item, item == null ? NULL_STR : item.getClass());
         return null;
     }
 }
