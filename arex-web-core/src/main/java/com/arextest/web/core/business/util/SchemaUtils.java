@@ -95,11 +95,8 @@ public class SchemaUtils {
             } else {
                 if (contractItem == null) {
                     Object primaryItem = handlePrimaryItem(item);
-                    contractItem = new HashMap<String, Object>() {
-                        {
-                            put(VALUE_WITH_SYMBOL, primaryItem);
-                        }
-                    };
+                    contractItem = new HashMap<String, Object>();
+                    ((Map<String, Object>) contractItem).put(VALUE_WITH_SYMBOL, primaryItem);
                 }
             }
         }
