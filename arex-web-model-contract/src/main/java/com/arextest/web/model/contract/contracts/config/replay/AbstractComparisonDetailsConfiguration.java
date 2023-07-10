@@ -1,13 +1,16 @@
 package com.arextest.web.model.contract.contracts.config.replay;
 
 
+import java.util.Date;
+
+import org.apache.logging.log4j.util.Strings;
+
 import com.arextest.web.model.contract.contracts.common.enums.CompareConfigType;
 import com.arextest.web.model.contract.contracts.common.enums.ExpirationType;
 import com.arextest.web.model.contract.contracts.config.AbstractConfiguration;
+
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.Date;
 
 @Getter
 @Setter
@@ -49,5 +52,11 @@ public abstract class AbstractComparisonDetailsConfiguration extends AbstractCon
      * This value is valid only when {compareConfigType} = 2
      */
     private String dependencyId;
+
+    public void validParameters() throws Exception {
+        if (Strings.isNotBlank(this.getDependencyId())){
+            this.setCompareConfigType(CompareConfigType.REPLAY_DEPENDENCY.getCodeValue());
+        }
+    }
 
 }

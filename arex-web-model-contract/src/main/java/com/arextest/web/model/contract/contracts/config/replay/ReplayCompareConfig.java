@@ -25,7 +25,6 @@ public class ReplayCompareConfig {
     @EqualsAndHashCode(callSuper = true)
     @ToString(callSuper = true)
     public static class DependencyComparisonItem extends ComparisonSummaryConfiguration{
-        private String operationId;
         private String dependencyId;
         private String dependencyType;
         private String dependencyName;
