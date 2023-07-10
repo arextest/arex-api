@@ -19,7 +19,9 @@ public class SchemaUtils {
     private static final String VALUE_WITH_SYMBOL = "%value%";
 
     public static void mergeMap(Map<String, Object> contract, Map<String, Object> model) {
-        model.forEach((key, value) -> mergeEntry(contract, key, value));
+        if (contract == null) contract = new HashMap<>();
+        Map<String, Object> finalContract = contract;
+        model.forEach((key, value) -> mergeEntry(finalContract, key, value));
     }
 
     public static String mergeJson(String contract, String model) {
@@ -39,9 +41,6 @@ public class SchemaUtils {
     }
 
     private static void mergeEntry(Map<String, Object> contract, String key, Object value) {
-        if (contract == null) {
-            contract = new HashMap<>();
-        }
         Object contractItem = contract.get(key);
         if (value instanceof Map<?, ?>) {
             Map<String, Object> mapContract;
@@ -76,12 +75,12 @@ public class SchemaUtils {
 
         for (Object item : model) {
             if (item instanceof Map<?, ?>) {
-                if (contractItem == null) {
+                if (!(contractItem instanceof Map<?, ?>)) {
                     contractItem = new HashMap<>();
                 }
                 mergeMap((Map<String, Object>)contractItem, (Map<String, Object>) item);
             } else if (item instanceof List) {
-                if (contractItem == null) {
+                if (!(contractItem instanceof List)) {
                     contractItem = new ArrayList<>();
                 }
                 mergeList((List<Object>) contractItem, (List<Object>) item);

@@ -267,31 +267,35 @@ public class SchemaInferService {
     }
 
     private String perceiveContract(List<CompareResultDto> compareResultDtoList) {
-
         Map<String, Object> contract = new HashMap<>();
         try {
             for (CompareResultDto compareResultDto : compareResultDtoList) {
-                try {
-                    if (compareResultDto.getBaseMsg() != null) {
+
+                if (compareResultDto.getBaseMsg() != null) {
+                    try {
                         SchemaUtils.mergeMap(contract, CONTRACT_OBJ_MAPPER.readValue(compareResultDto.getBaseMsg(),
                                 Map.class));
+                    } catch (JsonProcessingException e) {
+                        LogUtils.error(LOGGER, "ObjectMapper readValue failed, exception:{}, msg:{}", e,
+                                compareResultDto.getBaseMsg());
                     }
-                    if (compareResultDto.getTestMsg() != null) {
+                }
+                if (compareResultDto.getTestMsg() != null) {
+                    try {
                         SchemaUtils.mergeMap(contract, CONTRACT_OBJ_MAPPER.readValue(compareResultDto.getTestMsg(),
                                 Map.class));
+                    } catch (JsonProcessingException e) {
+                        LogUtils.error(LOGGER, "ObjectMapper readValue failed, exception:{}, msg:{}", e,
+                                compareResultDto.getTestMsg());
                     }
-                } catch (JsonProcessingException e1) {
-                    LogUtils.error(LOGGER, "ObjectMapper readValue failed, item:{}", e1, compareResultDto);
-                    return CONTRACT_OBJ_MAPPER.writeValueAsString(contract);
                 }
             }
             return CONTRACT_OBJ_MAPPER.writeValueAsString(contract);
         } catch (JsonProcessingException e2) {
-            LogUtils.error(LOGGER, "ObjectMapper writeValue failed, contract:{}", e2, contract);
+            LogUtils.error(LOGGER, "ObjectMapper writeValue failed, exception:{}, contract:{}", e2, contract);
             return null;
         }
     }
-
 
 
     private void adjustJsonNode(JsonNode node, boolean isArray) {

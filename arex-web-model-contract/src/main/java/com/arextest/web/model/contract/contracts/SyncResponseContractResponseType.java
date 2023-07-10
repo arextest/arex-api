@@ -8,6 +8,5 @@ import java.util.List;
 @Data
 public class SyncResponseContractResponseType {
     private String entryPointContractStr;
-    // key:applicationId
     private List<DependencyWithContract> dependencyList;
 }
