@@ -19,9 +19,7 @@ public class SchemaUtils {
     private static final String VALUE_WITH_SYMBOL = "%value%";
 
     public static void mergeMap(Map<String, Object> contract, Map<String, Object> model) {
-        if (contract == null) contract = new HashMap<>();
-        Map<String, Object> finalContract = contract;
-        model.forEach((key, value) -> mergeEntry(finalContract, key, value));
+        model.forEach((key, value) -> mergeEntry(contract, key, value));
     }
 
     public static String mergeJson(String contract, String model) {

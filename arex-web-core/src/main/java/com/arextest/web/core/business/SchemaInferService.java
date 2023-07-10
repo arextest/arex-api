@@ -33,7 +33,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -436,18 +435,4 @@ public class SchemaInferService {
         }
         return false;
     }
-
-
-    public static void main(String[] args) throws IOException {
-
-        String str = "{\"id\":null,\"record\":\"111-222\",\"messages\":[{\"title\":\"title description\"," +
-                "\"content\":[{\"p1\":\"cr\",\"p2\":17}]}],\"comment\":[[{\"approve\":false}]],\"visitors\":[]}";
-        ObjectMapper mapper = new ObjectMapper();
-        JsonNode jsonNode = mapper.readTree(str);
-        ObjectNode shema = INFERRER.inferForSample(jsonNode);
-        SchemaInferService schemaInferService = new SchemaInferService();
-        schemaInferService.getArray(shema);
-        System.out.println(mapper.writeValueAsString(shema));
-    }
-
 }
