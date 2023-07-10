@@ -15,8 +15,7 @@ public class SchemaUtils {
     private static final String DEFAULT_STR = "String";
     private static final int DEFAULT_INT = 1;
     private static final double DEFAULT_DOUBLE = 1.0;
-    private static final char DEFAULT_CHAR = 'c';
-    private static final String NULL_STR = "NULL";
+    private static final String NULL_STR = "null";
     private static final String VALUE_WITH_SYMBOL = "%value%";
 
     public static void mergeMap(Map<String, Object> contract, Map<String, Object> model) {
@@ -24,15 +23,12 @@ public class SchemaUtils {
     }
 
     public static String mergeJson(String contract, String model) {
+        if (model == null) {
+            return contract;
+        }
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             Map<String, Object> contractMap = contract == null ? new HashMap<>() : objectMapper.readValue(contract, Map.class);
-            if (contractMap == null) {
-                contractMap = new HashMap<>();
-            }
-            if (model == null) {
-                return contract;
-            }
             Map<String, Object> modelMap = objectMapper.readValue(model, Map.class);
             mergeMap(contractMap, modelMap);
             return objectMapper.writeValueAsString(contractMap);
@@ -43,9 +39,6 @@ public class SchemaUtils {
     }
 
     private static void mergeEntry(Map<String, Object> contract, String key, Object value) {
-        if (value == null) {
-            return;
-        }
         if (contract == null) {
             contract = new HashMap<>();
         }
@@ -106,6 +99,9 @@ public class SchemaUtils {
     }
 
     private static Object handlePrimaryItem(Object item) {
+        if (item == null) {
+            return NULL_STR;
+        }
         if (item instanceof Integer || item instanceof Long) {
             return DEFAULT_INT;
         }
@@ -118,15 +114,7 @@ public class SchemaUtils {
         if (item instanceof String) {
             return DEFAULT_STR;
         }
-        if (item instanceof char[]) {
-            if (((char[]) item).length == 1) {
-                return DEFAULT_CHAR;
-            } else {
-                return DEFAULT_STR;
-            }
-        }
-
-        LogUtils.error(LOGGER, "Unsupported Type, item:{}, class:{}", item, item == null ? NULL_STR : item.getClass());
+        LogUtils.error(LOGGER, "Unsupported Type, item:{}, class:{}", item, item.getClass());
         return null;
     }
 }
