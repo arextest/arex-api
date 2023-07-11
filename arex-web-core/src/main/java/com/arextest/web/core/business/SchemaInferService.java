@@ -141,6 +141,7 @@ public class SchemaInferService {
     }
 
     public boolean overwriteContract(OverwriteContractRequestType request) {
+        Long currentTimeMillis = System.currentTimeMillis();
         QueryContractRequestType queryContractRequestType = new QueryContractRequestType();
         queryContractRequestType.setContractId(request.getContractId());
         queryContractRequestType.setAppId(request.getAppId());
@@ -150,11 +151,14 @@ public class SchemaInferService {
         String contract = SchemaUtils.mergeJson(EMPTY_CONTRACT, request.getOperationResponse());
         if (appContractDto != null) {
             appContractDto.setContract(contract);
+            appContractDto.setDataChangeUpdateTime(currentTimeMillis);
             return appContractRepository.update(Collections.singletonList(appContractDto));
         } else {
             appContractDto = new AppContractDto();
             appContractDto.setContract(contract);
             appContractDto.setContractType(request.getContractType());
+            appContractDto.setDataChangeUpdateTime(currentTimeMillis);
+            appContractDto.setDataChangeCreateTime(currentTimeMillis);
             if (request.getAppId() != null) {
                 appContractDto.setAppId(request.getAppId());
             } else if (request.getOperationId() != null) {
