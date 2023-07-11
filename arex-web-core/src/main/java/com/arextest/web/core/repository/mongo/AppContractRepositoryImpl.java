@@ -38,8 +38,8 @@ public class AppContractRepositoryImpl implements AppContractRepository {
     @Override
     public boolean update(List<AppContractDto> appContractDtos) {
         try {
-            BulkOperations bulkOperations = mongoTemplate.bulkOps(BulkOperations.BulkMode.UNORDERED,
-                    AppContractCollection.class);
+            BulkOperations bulkOperations =
+                mongoTemplate.bulkOps(BulkOperations.BulkMode.UNORDERED, AppContractCollection.class);
             List<Pair<Query, Update>> updates = new ArrayList<>();
             for (AppContractDto appContractDto : appContractDtos) {
                 AppContractCollection collection = AppContractMapper.INSTANCE.daoFromDto(appContractDto);
@@ -82,19 +82,18 @@ public class AppContractRepositoryImpl implements AppContractRepository {
         }
         query.addCriteria(Criteria.where(CONTRACT_TYPE).is(appContractDto.getContractType()));
 
-        AppContractCollection dao = mongoTemplate.findAndModify(query,
-                update,
-                FindAndModifyOptions.options().returnNew(true).upsert(true),
-                AppContractCollection.class);
+        AppContractCollection dao = mongoTemplate.findAndModify(query, update,
+            FindAndModifyOptions.options().returnNew(true).upsert(true), AppContractCollection.class);
         return dao != null;
     }
 
     @Override
     public List<AppContractDto> insert(List<AppContractDto> appContractDtos) {
-        return mongoTemplate.insertAll(new ArrayList<>(appContractDtos.stream().map(AppContractMapper.INSTANCE::daoFromDto).collect(Collectors.toList())))
-                .stream().map(AppContractMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
+        return mongoTemplate
+            .insertAll(new ArrayList<>(
+                appContractDtos.stream().map(AppContractMapper.INSTANCE::daoFromDto).collect(Collectors.toList())))
+            .stream().map(AppContractMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
     }
-
 
     @Override
     public List<AppContractDto> queryAppContractListByOpId(List<String> operationList, List<String> filterFields) {
@@ -106,10 +105,8 @@ public class AppContractRepositoryImpl implements AppContractRepository {
             }
         }
 
-        return mongoTemplate.find(query, AppContractCollection.class)
-                .stream()
-                .map(AppContractMapper.INSTANCE::dtoFromDao)
-                .collect(Collectors.toList());
+        return mongoTemplate.find(query, AppContractCollection.class).stream()
+            .map(AppContractMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
     }
 
     @Override
@@ -121,10 +118,10 @@ public class AppContractRepositoryImpl implements AppContractRepository {
                 idFieldName = APP_ID;
                 break;
             case ENTRY:
-                idFieldName = DASH_ID;
+                idFieldName = OPERATION_ID;
                 break;
             case DEPENDENCY:
-                idFieldName = OPERATION_ID;
+                idFieldName = DASH_ID;
                 break;
             default:
                 return null;
