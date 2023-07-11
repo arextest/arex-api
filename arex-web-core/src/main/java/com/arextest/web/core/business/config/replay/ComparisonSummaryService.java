@@ -8,7 +8,9 @@ import java.util.stream.Stream;
 
 import javax.annotation.Resource;
 
+import com.arextest.web.core.business.filesystem.importexport.postmancollection.Collection;
 import com.arextest.web.core.repository.AppContractRepository;
+import com.arextest.web.model.dao.mongodb.AppContractCollection;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Component;
 
@@ -106,14 +108,11 @@ public class ComparisonSummaryService {
         List<String> operationIdList = getOperationIdList(appId);
 
         // appContractDtoList filter the operation and group by operationId
-        Map<String, List<AppContractDto>> appContractDtoMap = new HashMap<>();
-        // List<AppContractDto> appContractDtoList = new ArrayList<>();
-        // for (AppContractDto appContractDto : appContractDtoList) {
-        // if (appContractDto.getIsEntryPoint()) {
-        // continue;
-        // }
-        // appContractDtoMap.put(appContractDto.getOperationId(), appContractDto);
-        // }
+        List<AppContractDto> appContractDtos = appContractRepository.queryAppContractListByOpId(operationIdList,
+                Collections.singletonList(AppContractCollection.Fields.contract));
+        Map<String, List<AppContractDto>> appContractDtoMap = appContractDtos.stream()
+                .filter(item -> Objects.equals(item.getIsEntry(), Boolean.FALSE))
+                .collect(Collectors.groupingBy(AppContractDto::getOperationId));
 
         buildComparisonConfig(replayConfigurationMap, exclusionsConfigurableHandler.useResultAsList(appId),
                 (configurations, summaryConfiguration) -> {
@@ -165,7 +164,6 @@ public class ComparisonSummaryService {
             Set<List<String>> globalExclusionList = globalConfig.getExclusionList();
             Set<List<String>> globalInclusionList = globalConfig.getInclusionList();
 
-            // List<String> operationIdList = getOperationIdList(appId);
             for (String operationId : operationIdList) {
                 ReplayCompareConfig.ReplayComparisonItem tempReplayConfig =
                         replayConfigurationMap.getOrDefault(operationId, new ReplayCompareConfig.ReplayComparisonItem());
@@ -195,7 +193,7 @@ public class ComparisonSummaryService {
                             dependencyComparisonItem.setExclusionList(dependencyExclusionList);
                         } else {
                             ReplayCompareConfig.DependencyComparisonItem dependencyComparisonItem = new ReplayCompareConfig.DependencyComparisonItem();
-                            dependencyComparisonItem.setDependencyId(appContractDto.getId());
+                            dependencyComparisonItem.setDependencyId(dependencyId);
                             dependencyComparisonItem.setDependencyName(appContractDto.getOperationName());
                             dependencyComparisonItem.setDependencyType(appContractDto.getOperationType());
                             dependencyComparisonItem.setExclusionList(globalExclusionList);
@@ -222,7 +220,7 @@ public class ComparisonSummaryService {
                             dependencyComparisonItem.setInclusionList(dependencyInclusionList);
                         } else {
                             ReplayCompareConfig.DependencyComparisonItem dependencyComparisonItem = new ReplayCompareConfig.DependencyComparisonItem();
-                            dependencyComparisonItem.setDependencyId(appContractDto.getId());
+                            dependencyComparisonItem.setDependencyId(dependencyId);
                             dependencyComparisonItem.setDependencyName(appContractDto.getOperationName());
                             dependencyComparisonItem.setDependencyType(appContractDto.getOperationType());
                             dependencyComparisonItem.setInclusionList(globalInclusionList);
@@ -307,36 +305,4 @@ public class ComparisonSummaryService {
             }
         }
     }
-
-    public static void main(String[] args) {
-
-        ComparisonSummaryService comparisonSummaryService = new ComparisonSummaryService();
-
-        Map<String, ReplayCompareConfig.ReplayComparisonItem> replayConfigurationMap = new HashMap<>();
-
-        // appContractDtoList filter the operation and group by operationId
-        Map<String, List<AppContractDto>> appContractDtoMap = new HashMap<>();
-        appContractDtoMap.put("1", Arrays.asList(new AppContractDto()));
-
-        List<ComparisonExclusionsConfiguration> exclusionsConfigurationList = new ArrayList<>();
-        ComparisonExclusionsConfiguration comparisonExclusionsConfiguration = new ComparisonExclusionsConfiguration();
-        comparisonExclusionsConfiguration.setOperationId("1");
-        comparisonExclusionsConfiguration.setExclusions(Arrays.asList("1", "2"));
-        exclusionsConfigurationList.add(comparisonExclusionsConfiguration);
-
-        ComparisonExclusionsConfiguration comparisonExclusionsConfiguration1 = new ComparisonExclusionsConfiguration();
-        comparisonExclusionsConfiguration1.setOperationId("1");
-        comparisonExclusionsConfiguration1.setDependencyId("1_1");
-        comparisonExclusionsConfiguration1.setExclusions(Arrays.asList("1", "2"));
-        exclusionsConfigurationList.add(comparisonExclusionsConfiguration1);
-
-        comparisonSummaryService.buildComparisonConfig(replayConfigurationMap, exclusionsConfigurationList,
-                (configurations, summaryConfiguration) -> {
-                    Set<List<String>> operationExclusion = configurations.stream()
-                            .map(ComparisonExclusionsConfiguration::getExclusions).collect(Collectors.toSet());
-                    summaryConfiguration.setExclusionList(operationExclusion);
-                }, appContractDtoMap);
-        System.out.println();
-    }
-
 }

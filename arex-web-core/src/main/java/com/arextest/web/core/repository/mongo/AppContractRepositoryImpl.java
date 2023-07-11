@@ -9,6 +9,7 @@ import com.arextest.web.model.mapper.AppContractMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.data.mongodb.core.BulkOperations;
+import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -95,5 +96,23 @@ public class AppContractRepositoryImpl implements AppContractRepository {
     public AppContractDto queryById(String id) {
         Query query = new Query().addCriteria(Criteria.where(DASH_ID).is(id));
         return AppContractMapper.INSTANCE.dtoFromDao(mongoTemplate.findOne(query, AppContractCollection.class));
+    }
+
+    @Override
+    public AppContractDto findAndModifyAppContract(AppContractDto appContractDto) {
+
+        Query query = Query.query(Criteria.where(AppContractCollection.Fields.appId).is(appContractDto.getAppId())
+                .and(AppContractCollection.Fields.operationId).is(appContractDto.getOperationId())
+                .and(AppContractCollection.Fields.operationType).is(appContractDto.getOperationType())
+                .and(AppContractCollection.Fields.operationName).is(appContractDto.getOperationName())
+                .and(AppContractCollection.Fields.isEntry).is(appContractDto.getIsEntry())
+        );
+        Update update = MongoHelper.getUpdate();
+        MongoHelper.appendFullProperties(update, appContractDto);
+        AppContractCollection dao = mongoTemplate.findAndModify(query,
+                update,
+                FindAndModifyOptions.options().upsert(true).returnNew(true),
+                AppContractCollection.class);
+        return AppContractMapper.INSTANCE.dtoFromDao(dao);
     }
 }

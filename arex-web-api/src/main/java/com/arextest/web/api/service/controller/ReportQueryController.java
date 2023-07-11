@@ -14,7 +14,6 @@ import com.arextest.web.core.business.RecordService;
 import com.arextest.web.core.business.ReplayInfoService;
 import com.arextest.web.core.business.ReportService;
 import com.arextest.web.core.business.SchemaInferService;
-import com.arextest.web.core.business.appcontract.AppContractService;
 import com.arextest.web.core.business.iosummary.SceneReportService;
 import com.arextest.web.model.contract.contracts.ChangeReplayStatusRequestType;
 import com.arextest.web.model.contract.contracts.ChangeReplayStatusResponseType;
@@ -109,9 +108,6 @@ public class ReportQueryController {
     private SceneReportService sceneReportService;
     @Resource
     private RecordService recordService;
-
-    @Resource
-    private AppContractService appContractService;
 
     @Deprecated
     @PostMapping("/pushCompareResults")
@@ -377,7 +373,7 @@ public class ReportQueryController {
     @ResponseBody
     public Response queryReplayCase(@Valid @RequestBody AddDependencyToSystemRequestType request) {
         return ResponseUtils.successResponse(
-                appContractService.addDependencyToSystem(request)
+                schemaInferService.addDependencyToSystem(request)
         );
     }
 
