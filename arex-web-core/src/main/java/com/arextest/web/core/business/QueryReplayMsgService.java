@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.Array;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -150,7 +151,7 @@ public class QueryReplayMsgService {
             // build a map from ,
             // key:pair<AppContractDto.operationName,AppContractDto.AppContractDto.operationType>,
             // value:AppContractDto.id (AppContractDto.operationName is the same as CompareResultDto.operationName)
-            List<AppContractDto> appContractDtos = appContractRepository.queryAppContractList(operationId);
+            List<AppContractDto> appContractDtos = appContractRepository.queryAppContractListByOpId(Collections.singletonList(operationId), null);
             Map<Pair<String, String>, String> toDependencyIdMap = new HashMap<>();
             for (AppContractDto appContractDto : appContractDtos) {
                 toDependencyIdMap.put(Pair.of(appContractDto.getOperationName(), appContractDto.getOperationType()),
