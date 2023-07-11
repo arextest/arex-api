@@ -84,10 +84,23 @@ public class AppContractRepositoryImpl implements AppContractRepository {
     }
 
     @Override
-    public AppContractDto queryEntryPointContract(String operationId) {
-        Query query = new Query().addCriteria(Criteria.where(OPERATION_ID).is(operationId)
-                .and(CONTRACT_TYPE).is(ContractTypeEnum.ENTRY.getCode()));
-
+    public AppContractDto queryAppContractByType(String id, Integer contractType) {
+        Query query = new Query();
+        String idFieldName;
+        switch (ContractTypeEnum.from(contractType)) {
+            case GLOBAL:
+                idFieldName = APP_ID;
+                break;
+            case ENTRY:
+                idFieldName = DASH_ID;
+                break;
+            case DEPENDENCY:
+                idFieldName = OPERATION_ID;
+                break;
+            default:
+                return null;
+        }
+        query.addCriteria(Criteria.where(CONTRACT_TYPE).is(contractType).and(idFieldName).is(id));
         return AppContractMapper.INSTANCE.dtoFromDao(mongoTemplate.findOne(query, AppContractCollection.class));
     }
 

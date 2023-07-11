@@ -130,10 +130,14 @@ public class SchemaInferService {
     public AppContractDto queryContract(QueryContractRequestType requestType) {
         if (requestType.getContractId() != null) {
             return appContractRepository.queryById(requestType.getContractId());
-        } else {
-            return appContractRepository.queryEntryPointContract(requestType.getOperationId());
+        } else if (requestType.getOperationId() != null) {
+            return appContractRepository.queryAppContractByType(requestType.getOperationId(),
+                    ContractTypeEnum.ENTRY.getCode());
+        } else if (requestType.getAppId() != null){
+            return appContractRepository.queryAppContractByType(requestType.getAppId(),
+                    ContractTypeEnum.GLOBAL.getCode());
         }
-
+        return null;
     }
 
     public boolean overwriteContract(OverwriteContractRequestType request) {
