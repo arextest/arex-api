@@ -114,10 +114,10 @@ public class AppContractRepositoryImpl implements AppContractRepository {
                 idFieldName = APP_ID;
                 break;
             case ENTRY:
-                idFieldName = DASH_ID;
+                idFieldName = OPERATION_ID;
                 break;
             case DEPENDENCY:
-                idFieldName = OPERATION_ID;
+                idFieldName = DASH_ID;
                 break;
             default:
                 return null;
