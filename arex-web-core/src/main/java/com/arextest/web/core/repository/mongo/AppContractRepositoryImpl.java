@@ -28,8 +28,8 @@ public class AppContractRepositoryImpl implements AppContractRepository {
     private static final String OPERATION_NAME = "operationName";
     private static final String OPERATION_TYPE = "operationType";
     private static final String CONTRACT = "contract";
-    private static final String APP_ID = "app_id";
-    private static final String CONTRACT_TYPE = "contract_type";
+    private static final String APP_ID = "appId";
+    private static final String CONTRACT_TYPE = "contractType";
     @Resource
     private MongoTemplate mongoTemplate;
 
