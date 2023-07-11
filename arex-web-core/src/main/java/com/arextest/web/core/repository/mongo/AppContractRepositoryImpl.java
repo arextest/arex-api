@@ -43,15 +43,13 @@ public class AppContractRepositoryImpl implements AppContractRepository {
                 AppContractCollection collection = AppContractMapper.INSTANCE.daoFromDto(appContractDto);
                 Query query = new Query();
                 if (appContractDto.getId() != null) {
-                    query.addCriteria(Criteria.where(DASH_ID).is(collection.getId())
-                            .and(CONTRACT_TYPE).is(ContractTypeEnum.DEPENDENCY.getCode()));
+                    query.addCriteria(Criteria.where(DASH_ID).is(collection.getId()));
                 } else if (appContractDto.getOperationId() != null) {
-                    query.addCriteria(Criteria.where(OPERATION_ID).is(appContractDto.getOperationId())
-                            .and(CONTRACT_TYPE).is(ContractTypeEnum.ENTRY.getCode()));
+                    query.addCriteria(Criteria.where(OPERATION_ID).is(appContractDto.getOperationId()));
                 } else if (appContractDto.getAppId() != null) {
-                    query.addCriteria(Criteria.where(APP_ID).is(appContractDto.getAppId())
-                            .and(CONTRACT_TYPE).is(ContractTypeEnum.GLOBAL.getCode()));
+                    query.addCriteria(Criteria.where(APP_ID).is(appContractDto.getAppId()));
                 }
+                query.addCriteria(Criteria.where(CONTRACT_TYPE).is(appContractDto.getContractType()));
 
                 Update update = new Update();
                 MongoHelper.appendFullProperties(update, collection);
