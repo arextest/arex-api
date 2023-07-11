@@ -105,7 +105,7 @@ public class AppContractRepositoryImpl implements AppContractRepository {
                 .and(AppContractCollection.Fields.operationId).is(appContractDto.getOperationId())
                 .and(AppContractCollection.Fields.operationType).is(appContractDto.getOperationType())
                 .and(AppContractCollection.Fields.operationName).is(appContractDto.getOperationName())
-                .and(AppContractCollection.Fields.isEntry).is(appContractDto.getIsEntry())
+                .and(AppContractCollection.Fields.contractType).is(appContractDto.getContractType())
         );
         Update update = MongoHelper.getUpdate();
         MongoHelper.appendFullProperties(update, appContractDto);

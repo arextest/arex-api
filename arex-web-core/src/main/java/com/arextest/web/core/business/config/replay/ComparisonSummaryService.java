@@ -11,6 +11,7 @@ import javax.annotation.Resource;
 import com.arextest.web.core.business.filesystem.importexport.postmancollection.Collection;
 import com.arextest.web.core.repository.AppContractRepository;
 import com.arextest.web.model.dao.mongodb.AppContractCollection;
+import com.arextest.web.model.enums.ContractTypeEnum;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Component;
 
@@ -111,7 +112,7 @@ public class ComparisonSummaryService {
         List<AppContractDto> appContractDtos = appContractRepository.queryAppContractListByOpId(operationIdList,
                 Collections.singletonList(AppContractCollection.Fields.contract));
         Map<String, List<AppContractDto>> appContractDtoMap = appContractDtos.stream()
-                .filter(item -> Objects.equals(item.getIsEntry(), Boolean.FALSE))
+                .filter(item -> Objects.equals(item.getContractType(), ContractTypeEnum.DEPENDENCY.getCode()))
                 .collect(Collectors.groupingBy(AppContractDto::getOperationId));
 
         buildComparisonConfig(replayConfigurationMap, exclusionsConfigurableHandler.useResultAsList(appId),

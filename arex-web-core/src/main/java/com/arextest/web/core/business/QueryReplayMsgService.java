@@ -4,8 +4,15 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.lang.reflect.Array;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
@@ -21,7 +28,17 @@ import com.arextest.web.core.business.util.ListUtils;
 import com.arextest.web.core.repository.AppContractRepository;
 import com.arextest.web.core.repository.ReplayCompareResultRepository;
 import com.arextest.web.core.repository.mongo.ApplicationOperationConfigurationRepositoryImpl;
-import com.arextest.web.model.contract.contracts.*;
+import com.arextest.web.model.contract.contracts.CompareResultDetail;
+import com.arextest.web.model.contract.contracts.DownloadReplayMsgRequestType;
+import com.arextest.web.model.contract.contracts.FullLinkInfoItem;
+import com.arextest.web.model.contract.contracts.QueryDiffMsgByIdResponseType;
+import com.arextest.web.model.contract.contracts.QueryFullLinkInfoResponseType;
+import com.arextest.web.model.contract.contracts.QueryFullLinkMsgRequestType;
+import com.arextest.web.model.contract.contracts.QueryFullLinkMsgResponseType;
+import com.arextest.web.model.contract.contracts.QueryLogEntityRequestTye;
+import com.arextest.web.model.contract.contracts.QueryLogEntityResponseType;
+import com.arextest.web.model.contract.contracts.QueryReplayMsgRequestType;
+import com.arextest.web.model.contract.contracts.QueryReplayMsgResponseType;
 import com.arextest.web.model.contract.contracts.common.CompareResult;
 import com.arextest.web.model.contract.contracts.common.LogEntity;
 import com.arextest.web.model.contract.contracts.common.NodeEntity;
@@ -151,7 +168,8 @@ public class QueryReplayMsgService {
             // build a map from ,
             // key:pair<AppContractDto.operationName,AppContractDto.AppContractDto.operationType>,
             // value:AppContractDto.id (AppContractDto.operationName is the same as CompareResultDto.operationName)
-            List<AppContractDto> appContractDtos = appContractRepository.queryAppContractListByOpId(Collections.singletonList(operationId), null);
+            List<AppContractDto> appContractDtos =
+                appContractRepository.queryAppContractListByOpId(Collections.singletonList(operationId), null);
             Map<Pair<String, String>, String> toDependencyIdMap = new HashMap<>();
             for (AppContractDto appContractDto : appContractDtos) {
                 toDependencyIdMap.put(Pair.of(appContractDto.getOperationName(), appContractDto.getOperationType()),

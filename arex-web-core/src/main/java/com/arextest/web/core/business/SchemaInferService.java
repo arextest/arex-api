@@ -268,6 +268,7 @@ public class SchemaInferService {
         String appId = request.getAppId();
         String operationId = request.getOperationId();
         AppContractDto appContractDto = AppContractMapper.INSTANCE.dtoFromContract(request);
+        appContractDto.setContractType(ContractTypeEnum.DEPENDENCY.getCode());
         AppContractDto insertAppContractDto = appContractRepository.findAndModifyAppContract(appContractDto);
         if (insertAppContractDto != null) {
             response.setAppId(appId);
