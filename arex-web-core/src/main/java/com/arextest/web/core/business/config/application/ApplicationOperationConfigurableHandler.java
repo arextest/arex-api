@@ -7,6 +7,7 @@ import com.arextest.web.core.repository.mongo.ApplicationOperationConfigurationR
 import com.arextest.web.model.contract.contracts.common.Dependency;
 import com.arextest.web.model.contract.contracts.config.application.ApplicationOperationConfiguration;
 import com.arextest.web.model.dto.AppContractDto;
+import com.arextest.web.model.enums.ContractTypeEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author jmo
@@ -52,7 +54,7 @@ public final class ApplicationOperationConfigurableHandler extends AbstractConfi
         List<Dependency> dependencyList = new ArrayList<>();
 
         for (AppContractDto appContractDto : appContractDtoList) {
-            if (!appContractDto.getIsEntry()) {
+            if (Objects.equals(appContractDto.getContractType(), ContractTypeEnum.DEPENDENCY.getCode())) {
                 Dependency dependency = new Dependency();
                 dependency.setDependencyId(appContractDto.getId());
                 dependency.setDependencyType(appContractDto.getOperationType());
