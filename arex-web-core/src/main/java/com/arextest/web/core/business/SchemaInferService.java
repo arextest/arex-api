@@ -138,6 +138,7 @@ public class SchemaInferService {
 
     public boolean overwriteContract(OverwriteContractRequestType request) {
         AppContractDto appContractDto = new AppContractDto();
+        appContractDto.setAppId(request.getAppId());
         appContractDto.setId(request.getContractId());
         appContractDto.setOperationId(request.getOperationId());
         String contract = SchemaUtils.mergeJson(EMPTY_CONTRACT, request.getOperationResponse());

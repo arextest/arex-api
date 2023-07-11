@@ -5,6 +5,7 @@ import com.arextest.web.core.repository.AppContractRepository;
 import com.arextest.web.core.repository.mongo.util.MongoHelper;
 import com.arextest.web.model.dao.mongodb.AppContractCollection;
 import com.arextest.web.model.dto.AppContractDto;
+import com.arextest.web.model.enums.ContractTypeEnum;
 import com.arextest.web.model.mapper.AppContractMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.BulkOperations;
@@ -27,7 +28,8 @@ public class AppContractRepositoryImpl implements AppContractRepository {
     private static final String OPERATION_NAME = "operationName";
     private static final String OPERATION_TYPE = "operationType";
     private static final String CONTRACT = "contract";
-    private static final String IS_ENTRY = "isEntry";
+    private static final String APP_ID = "app_id";
+    private static final String CONTRACT_TYPE = "contract_type";
     @Resource
     private MongoTemplate mongoTemplate;
 
@@ -41,10 +43,14 @@ public class AppContractRepositoryImpl implements AppContractRepository {
                 AppContractCollection collection = AppContractMapper.INSTANCE.daoFromDto(appContractDto);
                 Query query = new Query();
                 if (appContractDto.getId() != null) {
-                    query.addCriteria(Criteria.where(DASH_ID).is(collection.getId()));
+                    query.addCriteria(Criteria.where(DASH_ID).is(collection.getId())
+                            .and(CONTRACT_TYPE).is(ContractTypeEnum.DEPENDENCY.getCode()));
                 } else if (appContractDto.getOperationId() != null) {
                     query.addCriteria(Criteria.where(OPERATION_ID).is(appContractDto.getOperationId())
-                            .and(IS_ENTRY).is(true));
+                            .and(CONTRACT_TYPE).is(ContractTypeEnum.ENTRY.getCode()));
+                } else if (appContractDto.getAppId() != null) {
+                    query.addCriteria(Criteria.where(APP_ID).is(appContractDto.getAppId())
+                            .and(CONTRACT_TYPE).is(ContractTypeEnum.GLOBAL.getCode()));
                 }
 
                 Update update = new Update();
@@ -79,7 +85,8 @@ public class AppContractRepositoryImpl implements AppContractRepository {
 
     @Override
     public AppContractDto queryEntryPointContract(String operationId) {
-        Query query = new Query().addCriteria(Criteria.where(OPERATION_ID).is(operationId).and(IS_ENTRY).is(true));
+        Query query = new Query().addCriteria(Criteria.where(OPERATION_ID).is(operationId)
+                .and(CONTRACT_TYPE).is(ContractTypeEnum.ENTRY.getCode()));
 
         return AppContractMapper.INSTANCE.dtoFromDao(mongoTemplate.findOne(query, AppContractCollection.class));
     }
