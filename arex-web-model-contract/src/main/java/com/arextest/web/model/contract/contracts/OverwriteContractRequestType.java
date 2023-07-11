@@ -9,6 +9,8 @@ public class OverwriteContractRequestType {
     private String contractId;
 
     private String operationId;
+    private String operationName;
+    private String operationType;
 
     private String operationResponse;
 }

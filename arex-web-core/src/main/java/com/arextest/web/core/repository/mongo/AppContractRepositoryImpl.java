@@ -9,6 +9,7 @@ import com.arextest.web.model.enums.ContractTypeEnum;
 import com.arextest.web.model.mapper.AppContractMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.BulkOperations;
+import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -62,6 +63,29 @@ public class AppContractRepositoryImpl implements AppContractRepository {
             return false;
         }
         return true;
+    }
+
+    @Override
+    public boolean upsert(AppContractDto appContractDto) {
+        Update update = MongoHelper.getUpdate();
+        MongoHelper.appendFullProperties(update, appContractDto);
+        AppContractCollection collection = AppContractMapper.INSTANCE.daoFromDto(appContractDto);
+
+        Query query = new Query();
+        if (appContractDto.getId() != null) {
+            query.addCriteria(Criteria.where(DASH_ID).is(collection.getId()));
+        } else if (appContractDto.getOperationId() != null) {
+            query.addCriteria(Criteria.where(OPERATION_ID).is(appContractDto.getOperationId()));
+        } else if (appContractDto.getAppId() != null) {
+            query.addCriteria(Criteria.where(APP_ID).is(appContractDto.getAppId()));
+        }
+        query.addCriteria(Criteria.where(CONTRACT_TYPE).is(appContractDto.getContractType()));
+
+        AppContractCollection dao = mongoTemplate.findAndModify(query,
+                update,
+                FindAndModifyOptions.options().returnNew(true).upsert(true),
+                AppContractCollection.class);
+        return dao != null;
     }
 
     @Override

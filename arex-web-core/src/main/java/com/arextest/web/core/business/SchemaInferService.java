@@ -35,7 +35,6 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -141,43 +140,21 @@ public class SchemaInferService {
     }
 
     public boolean overwriteContract(OverwriteContractRequestType request) {
-        Long currentTimeMillis = System.currentTimeMillis();
-        QueryContractRequestType queryContractRequestType = new QueryContractRequestType();
-        queryContractRequestType.setContractId(request.getContractId());
-        queryContractRequestType.setAppId(request.getAppId());
-        queryContractRequestType.setOperationId(request.getOperationId());
-
-        AppContractDto appContractDto = queryContract(queryContractRequestType);
-        String contract = SchemaUtils.mergeJson(EMPTY_CONTRACT, request.getOperationResponse());
-        if (appContractDto != null) {
-            appContractDto.setContract(contract);
-            appContractDto.setDataChangeUpdateTime(currentTimeMillis);
-            return appContractRepository.update(Collections.singletonList(appContractDto));
-        } else {
-            appContractDto = new AppContractDto();
-            appContractDto.setContract(contract);
-            appContractDto.setDataChangeUpdateTime(currentTimeMillis);
-            appContractDto.setDataChangeCreateTime(currentTimeMillis);
-            if (request.getOperationId() != null) {
-                ApplicationOperationConfiguration configuration =
-                        applicationOperationConfigurationRepository.listByOperationId(request.getOperationId());
-                appContractDto.setOperationId(request.getOperationId());
-                if (CollectionUtils.isNotEmpty(configuration.getOperationTypes())) {
-                    appContractDto.setOperationType((String) configuration.getOperationTypes().toArray()[0]);
-                } else {
-                    appContractDto.setOperationType(configuration.getOperationType());
-
-                }
-                appContractDto.setOperationName(configuration.getOperationName());
-                appContractDto.setAppId(configuration.getAppId());
-                appContractDto.setContractType(ContractTypeEnum.ENTRY.getCode());
-            } else if (request.getAppId() != null) {
-                appContractDto.setAppId(request.getAppId());
-                appContractDto.setContractType(ContractTypeEnum.GLOBAL.getCode());
-            }
-            appContractRepository.insert(Collections.singletonList(appContractDto));
-            return true;
+        AppContractDto appContractDto = new AppContractDto();
+        appContractDto.setContract(SchemaUtils.mergeJson(EMPTY_CONTRACT, request.getOperationResponse()));
+        appContractDto.setAppId(request.getAppId());
+        if (request.getContractId() != null) {
+            appContractDto.setId(request.getContractId());
+            appContractDto.setContractType(ContractTypeEnum.DEPENDENCY.getCode());
+        } else if (request.getOperationId() != null) {
+            appContractDto.setOperationId(request.getOperationId());
+            appContractDto.setOperationName(request.getOperationName());
+            appContractDto.setOperationType(request.getOperationType());
+            appContractDto.setContractType(ContractTypeEnum.ENTRY.getCode());
+        } else if (request.getAppId() != null) {
+            appContractDto.setContractType(ContractTypeEnum.GLOBAL.getCode());
         }
+        return appContractRepository.upsert(appContractDto);
     }
 
     public SyncResponseContractResponseType syncResponseContract(SyncResponseContractRequestType request) {
