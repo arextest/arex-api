@@ -132,22 +132,47 @@ public class SchemaInferService {
             return appContractRepository.queryById(requestType.getContractId());
         } else if (requestType.getOperationId() != null) {
             return appContractRepository.queryAppContractByType(requestType.getOperationId(),
-                    ContractTypeEnum.ENTRY.getCode());
-        } else if (requestType.getAppId() != null){
+                    requestType.getContractType());
+        } else if (requestType.getAppId() != null) {
             return appContractRepository.queryAppContractByType(requestType.getAppId(),
-                    ContractTypeEnum.GLOBAL.getCode());
+                    requestType.getContractType());
         }
         return null;
     }
 
     public boolean overwriteContract(OverwriteContractRequestType request) {
-        AppContractDto appContractDto = new AppContractDto();
-        appContractDto.setAppId(request.getAppId());
-        appContractDto.setId(request.getContractId());
-        appContractDto.setOperationId(request.getOperationId());
+        QueryContractRequestType queryContractRequestType = new QueryContractRequestType();
+        queryContractRequestType.setContractId(request.getContractId());
+        queryContractRequestType.setAppId(request.getAppId());
+        queryContractRequestType.setOperationId(request.getOperationId());
+
+        AppContractDto appContractDto = queryContract(queryContractRequestType);
         String contract = SchemaUtils.mergeJson(EMPTY_CONTRACT, request.getOperationResponse());
-        appContractDto.setContract(contract);
-        return appContractRepository.update(Collections.singletonList(appContractDto));
+        if (appContractDto != null) {
+            appContractDto.setContract(contract);
+            return appContractRepository.update(Collections.singletonList(appContractDto));
+        } else {
+            appContractDto = new AppContractDto();
+            appContractDto.setContract(contract);
+            appContractDto.setContractType(request.getContractType());
+            if (request.getAppId() != null) {
+                appContractDto.setAppId(request.getAppId());
+            } else if (request.getOperationId() != null) {
+                ApplicationOperationConfiguration configuration =
+                        applicationOperationConfigurationRepository.listByOperationId(request.getOperationId());
+                appContractDto.setOperationId(request.getOperationId());
+                if (CollectionUtils.isNotEmpty(configuration.getOperationTypes())) {
+                    appContractDto.setOperationType((String) configuration.getOperationTypes().toArray()[0]);
+                } else {
+                    appContractDto.setOperationType(configuration.getOperationType());
+
+                }
+                appContractDto.setOperationName(configuration.getOperationName());
+                appContractDto.setAppId(configuration.getAppId());
+            }
+            appContractRepository.insert(Collections.singletonList(appContractDto));
+            return true;
+        }
     }
 
     public SyncResponseContractResponseType syncResponseContract(SyncResponseContractRequestType request) {

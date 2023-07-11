@@ -10,4 +10,5 @@ public class QueryContractRequestType {
     private String operationId;
     // query dependency
     private String contractId;
+    private Integer contractType;
 }
