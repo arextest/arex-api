@@ -7,6 +7,7 @@ import com.arextest.web.core.repository.mongo.ApplicationOperationConfigurationR
 import com.arextest.web.model.contract.contracts.common.Dependency;
 import com.arextest.web.model.contract.contracts.config.application.ApplicationOperationConfiguration;
 import com.arextest.web.model.dto.AppContractDto;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -19,6 +20,7 @@ import java.util.List;
  * @since 2022/1/23
  */
 @Component
+@Slf4j
 public final class ApplicationOperationConfigurableHandler extends AbstractConfigurableHandler<ApplicationOperationConfiguration> {
 
     protected ApplicationOperationConfigurableHandler(@Autowired ConfigRepositoryProvider<ApplicationOperationConfiguration> repositoryProvider) {
@@ -45,15 +47,12 @@ public final class ApplicationOperationConfigurableHandler extends AbstractConfi
     public ApplicationOperationConfiguration useResultByOperationId(String operationId) {
         ApplicationOperationConfiguration result =
                 applicationOperationConfigurationRepository.listByOperationId(operationId);
-        List<AppContractDto> appContractDtoList = appContractRepository.queryAppContractList(operationId);
+        List<AppContractDto> appContractDtoList = appContractRepository.queryAppContractListByOpId(operationId);
 
         List<Dependency> dependencyList = new ArrayList<>();
 
         for (AppContractDto appContractDto : appContractDtoList) {
-            if (result.getOperationTypes().contains(appContractDto.getOperationType())) {
-                // only match once
-                result.setResponseContract(appContractDto.getContract());
-            } else {
+            if (!appContractDto.getIsEntry()) {
                 Dependency dependency = new Dependency();
                 dependency.setDependencyId(appContractDto.getId());
                 dependency.setDependencyType(appContractDto.getOperationType());

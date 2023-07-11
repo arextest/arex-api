@@ -19,10 +19,12 @@ import com.arextest.web.core.business.iosummary.SceneReportService;
 import com.arextest.web.model.contract.contracts.ChangeReplayStatusRequestType;
 import com.arextest.web.model.contract.contracts.ChangeReplayStatusResponseType;
 import com.arextest.web.model.contract.contracts.DownloadReplayMsgRequestType;
+import com.arextest.web.model.contract.contracts.OverwriteContractRequestType;
 import com.arextest.web.model.contract.contracts.PushCompareResultsRequestType;
 import com.arextest.web.model.contract.contracts.PushCompareResultsResponseType;
 import com.arextest.web.model.contract.contracts.QueryCategoryStatisticRequestType;
 import com.arextest.web.model.contract.contracts.QueryCategoryStatisticResponseType;
+import com.arextest.web.model.contract.contracts.QueryContractRequestType;
 import com.arextest.web.model.contract.contracts.QueryDiffAggInfoRequestType;
 import com.arextest.web.model.contract.contracts.QueryDiffAggInfoResponseType;
 import com.arextest.web.model.contract.contracts.QueryDiffMsgByIdResponseType;
@@ -355,6 +357,20 @@ public class ReportQueryController {
     @ResponseBody
     public Response syncResponse(@Valid @RequestBody SyncResponseContractRequestType requestType) {
         return ResponseUtils.successResponse(schemaInferService.syncResponseContract(requestType));
+    }
+
+    @PostMapping("/queryContract")
+    @ResponseBody
+    public Response queryContract(@Valid @RequestBody QueryContractRequestType requestType) {
+        return ResponseUtils.successResponse(schemaInferService.queryContract(requestType));
+    }
+
+    @PostMapping("/overwriteContract")
+    @ResponseBody
+    public Response syncResponse(@Valid @RequestBody OverwriteContractRequestType requestType) {
+        SuccessResponseType response = new SuccessResponseType();
+        response.setSuccess(schemaInferService.overwriteContract(requestType));
+        return ResponseUtils.successResponse(response);
     }
 
     @PostMapping("/addDependencyToSystem")
