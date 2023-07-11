@@ -132,10 +132,10 @@ public class SchemaInferService {
             return appContractRepository.queryById(requestType.getContractId());
         } else if (requestType.getOperationId() != null) {
             return appContractRepository.queryAppContractByType(requestType.getOperationId(),
-                    requestType.getContractType());
+                    ContractTypeEnum.ENTRY.getCode());
         } else if (requestType.getAppId() != null) {
             return appContractRepository.queryAppContractByType(requestType.getAppId(),
-                    requestType.getContractType());
+                    ContractTypeEnum.GLOBAL.getCode());
         }
         return null;
     }
@@ -156,12 +156,9 @@ public class SchemaInferService {
         } else {
             appContractDto = new AppContractDto();
             appContractDto.setContract(contract);
-            appContractDto.setContractType(request.getContractType());
             appContractDto.setDataChangeUpdateTime(currentTimeMillis);
             appContractDto.setDataChangeCreateTime(currentTimeMillis);
-            if (request.getAppId() != null) {
-                appContractDto.setAppId(request.getAppId());
-            } else if (request.getOperationId() != null) {
+            if (request.getOperationId() != null) {
                 ApplicationOperationConfiguration configuration =
                         applicationOperationConfigurationRepository.listByOperationId(request.getOperationId());
                 appContractDto.setOperationId(request.getOperationId());
@@ -173,6 +170,10 @@ public class SchemaInferService {
                 }
                 appContractDto.setOperationName(configuration.getOperationName());
                 appContractDto.setAppId(configuration.getAppId());
+                appContractDto.setContractType(ContractTypeEnum.ENTRY.getCode());
+            } else if (request.getAppId() != null) {
+                appContractDto.setAppId(request.getAppId());
+                appContractDto.setContractType(ContractTypeEnum.GLOBAL.getCode());
             }
             appContractRepository.insert(Collections.singletonList(appContractDto));
             return true;

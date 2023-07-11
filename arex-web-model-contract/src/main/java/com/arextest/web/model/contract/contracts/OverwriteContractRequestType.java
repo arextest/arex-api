@@ -11,6 +11,4 @@ public class OverwriteContractRequestType {
     private String operationId;
 
     private String operationResponse;
-
-    private Integer contractType;
 }
