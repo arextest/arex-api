@@ -6,10 +6,20 @@ import lombok.Getter;
 
 @AllArgsConstructor
 public enum ContractTypeEnum {
-    GLOBAL(1),
-    ENTRY(2),
-    DEPENDENCY(3);
+    UNKNOWN(-1),
+    GLOBAL(0),
+    ENTRY(1),
+    DEPENDENCY(2);
 
     @Getter
-    private final int code;
+    private final Integer code;
+
+    public static ContractTypeEnum from(int code) {
+        for (ContractTypeEnum type : ContractTypeEnum.values()) {
+            if (type.getCode() == code) {
+                return type;
+            }
+        }
+        return UNKNOWN;
+    }
 }
