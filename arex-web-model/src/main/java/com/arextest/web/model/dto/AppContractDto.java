@@ -9,7 +9,7 @@ import lombok.ToString;
 @EqualsAndHashCode(callSuper = true)
 public class AppContractDto extends BaseDto {
     private String appId;
-    private Boolean isEntry;
+    private Integer contractType;
     private String operationId;
     private String operationName;
     private String operationType;

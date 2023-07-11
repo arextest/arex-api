@@ -18,6 +18,7 @@ import com.arextest.web.model.contract.contracts.common.DependencyWithContract;
 import com.arextest.web.model.contract.contracts.config.application.ApplicationOperationConfiguration;
 import com.arextest.web.model.dto.AppContractDto;
 import com.arextest.web.model.dto.CompareResultDto;
+import com.arextest.web.model.enums.ContractTypeEnum;
 import com.arextest.web.model.mapper.AppContractMapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -192,7 +193,7 @@ public class SchemaInferService {
         entryPointApplication.setOperationType(latestEntryCompareResult.getCategoryName());
         entryPointApplication.setContract(perceiveContract(latestNEntryCompareResults));
         entryPointApplication.setAppId(applicationOperationConfiguration.getAppId());
-        entryPointApplication.setIsEntry(true);
+        entryPointApplication.setContractType(ContractTypeEnum.ENTRY.getCode());
         upserts.add(entryPointApplication);
 
         dependencyMap.values().forEach(list -> {
@@ -204,7 +205,7 @@ public class SchemaInferService {
                 dependencyApplication.setOperationName(compareResultDto.getOperationName());
                 dependencyApplication.setOperationType(compareResultDto.getCategoryName());
                 dependencyApplication.setAppId(applicationOperationConfiguration.getAppId());
-                dependencyApplication.setIsEntry(false);
+                dependencyApplication.setContractType(ContractTypeEnum.DEPENDENCY.getCode());
                 upserts.add(dependencyApplication);
             }
         });
@@ -213,7 +214,7 @@ public class SchemaInferService {
         List<AppContractDto> appContractDtoList = appContractRepository.queryAppContractListByOpId(Arrays.asList(operationId), null);
         // pair of <type,name>, entryPoint doesn't need type to identify
         Map<Pair<String, String>, AppContractDto> existedMap = appContractDtoList.stream().collect(Collectors.toMap(
-                item -> item.getIsEntry()
+                item -> Objects.equals(item.getContractType(), ContractTypeEnum.ENTRY.getCode())
                         ? new ImmutablePair<>(null, item.getOperationName())
                         : new ImmutablePair<>(item.getOperationType(), item.getOperationName()),
                 Function.identity()));
@@ -222,7 +223,7 @@ public class SchemaInferService {
         List<AppContractDto> inserts = new ArrayList<>();
         Long currentTimeMillis = System.currentTimeMillis();
         for (AppContractDto item : upserts) {
-            Pair<String, String> pair = item.getIsEntry()
+            Pair<String, String> pair = Objects.equals(item.getContractType(), ContractTypeEnum.ENTRY.getCode())
                     ? new ImmutablePair<>(null, item.getOperationName())
                     : new ImmutablePair<>(item.getOperationType(), item.getOperationName());
             if (existedMap.containsKey(pair)) {
@@ -252,7 +253,8 @@ public class SchemaInferService {
 
         List<DependencyWithContract> dependencyList = updates
                 .stream()
-                .filter(appContractDto -> !appContractDto.getIsEntry())
+                .filter(appContractDto -> !Objects.equals(appContractDto.getContractType(),
+                        ContractTypeEnum.ENTRY.getCode()))
                 .map(this::buildDependency)
                 .collect(Collectors.toList());
         responseType.setEntryPointContractStr(entryPointApplication.getContract());

@@ -11,7 +11,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document(collection = "AppContract")
 public class AppContractCollection extends ModelBase {
     private String appId;
-    private Boolean isEntry;
+    private Integer contractType;
     private String operationId;
     private String operationName;
     private String operationType;
