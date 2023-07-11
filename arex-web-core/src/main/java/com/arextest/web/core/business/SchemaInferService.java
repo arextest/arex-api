@@ -16,6 +16,7 @@ import com.arextest.web.model.contract.contracts.common.DependencyWithContract;
 import com.arextest.web.model.contract.contracts.config.application.ApplicationOperationConfiguration;
 import com.arextest.web.model.dto.AppContractDto;
 import com.arextest.web.model.dto.CompareResultDto;
+import com.arextest.web.model.enums.ContractTypeEnum;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -34,7 +35,6 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -129,19 +129,32 @@ public class SchemaInferService {
     public AppContractDto queryContract(QueryContractRequestType requestType) {
         if (requestType.getContractId() != null) {
             return appContractRepository.queryById(requestType.getContractId());
-        } else {
-            return appContractRepository.queryEntryPointContract(requestType.getOperationId());
+        } else if (requestType.getOperationId() != null) {
+            return appContractRepository.queryAppContractByType(requestType.getOperationId(),
+                    ContractTypeEnum.ENTRY.getCode());
+        } else if (requestType.getAppId() != null) {
+            return appContractRepository.queryAppContractByType(requestType.getAppId(),
+                    ContractTypeEnum.GLOBAL.getCode());
         }
-
+        return null;
     }
 
     public boolean overwriteContract(OverwriteContractRequestType request) {
         AppContractDto appContractDto = new AppContractDto();
-        appContractDto.setId(request.getContractId());
-        appContractDto.setOperationId(request.getOperationId());
-        String contract = SchemaUtils.mergeJson(EMPTY_CONTRACT, request.getOperationResponse());
-        appContractDto.setContract(contract);
-        return appContractRepository.update(Collections.singletonList(appContractDto));
+        appContractDto.setContract(SchemaUtils.mergeJson(EMPTY_CONTRACT, request.getOperationResponse()));
+        appContractDto.setAppId(request.getAppId());
+        if (request.getContractId() != null) {
+            appContractDto.setId(request.getContractId());
+            appContractDto.setContractType(ContractTypeEnum.DEPENDENCY.getCode());
+        } else if (request.getOperationId() != null) {
+            appContractDto.setOperationId(request.getOperationId());
+            appContractDto.setOperationName(request.getOperationName());
+            appContractDto.setOperationType(request.getOperationType());
+            appContractDto.setContractType(ContractTypeEnum.ENTRY.getCode());
+        } else if (request.getAppId() != null) {
+            appContractDto.setContractType(ContractTypeEnum.GLOBAL.getCode());
+        }
+        return appContractRepository.upsert(appContractDto);
     }
 
     public SyncResponseContractResponseType syncResponseContract(SyncResponseContractRequestType request) {
@@ -187,7 +200,7 @@ public class SchemaInferService {
         entryPointApplication.setOperationType(latestEntryCompareResult.getCategoryName());
         entryPointApplication.setContract(perceiveContract(latestNEntryCompareResults));
         entryPointApplication.setAppId(applicationOperationConfiguration.getAppId());
-        entryPointApplication.setIsEntry(true);
+        entryPointApplication.setContractType(ContractTypeEnum.ENTRY.getCode());
         upserts.add(entryPointApplication);
 
         dependencyMap.values().forEach(list -> {
@@ -199,7 +212,7 @@ public class SchemaInferService {
                 dependencyApplication.setOperationName(compareResultDto.getOperationName());
                 dependencyApplication.setOperationType(compareResultDto.getCategoryName());
                 dependencyApplication.setAppId(applicationOperationConfiguration.getAppId());
-                dependencyApplication.setIsEntry(false);
+                dependencyApplication.setContractType(ContractTypeEnum.DEPENDENCY.getCode());
                 upserts.add(dependencyApplication);
             }
         });
@@ -208,7 +221,7 @@ public class SchemaInferService {
         List<AppContractDto> appContractDtoList = appContractRepository.queryAppContractListByOpId(operationId);
         // pair of <type,name>, entryPoint doesn't need type to identify
         Map<Pair<String, String>, AppContractDto> existedMap = appContractDtoList.stream().collect(Collectors.toMap(
-                item -> item.getIsEntry()
+                item -> Objects.equals(item.getContractType(), ContractTypeEnum.ENTRY.getCode())
                         ? new ImmutablePair<>(null, item.getOperationName())
                         : new ImmutablePair<>(item.getOperationType(), item.getOperationName()),
                 Function.identity()));
@@ -217,7 +230,7 @@ public class SchemaInferService {
         List<AppContractDto> inserts = new ArrayList<>();
         Long currentTimeMillis = System.currentTimeMillis();
         for (AppContractDto item : upserts) {
-            Pair<String, String> pair = item.getIsEntry()
+            Pair<String, String> pair = Objects.equals(item.getContractType(), ContractTypeEnum.ENTRY.getCode())
                     ? new ImmutablePair<>(null, item.getOperationName())
                     : new ImmutablePair<>(item.getOperationType(), item.getOperationName());
             if (existedMap.containsKey(pair)) {
@@ -247,7 +260,8 @@ public class SchemaInferService {
 
         List<DependencyWithContract> dependencyList = updates
                 .stream()
-                .filter(appContractDto -> !appContractDto.getIsEntry())
+                .filter(appContractDto -> !Objects.equals(appContractDto.getContractType(),
+                        ContractTypeEnum.ENTRY.getCode()))
                 .map(this::buildDependency)
                 .collect(Collectors.toList());
         responseType.setEntryPointContractStr(entryPointApplication.getContract());
