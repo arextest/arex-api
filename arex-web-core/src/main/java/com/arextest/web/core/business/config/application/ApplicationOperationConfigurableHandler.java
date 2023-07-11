@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -47,7 +48,7 @@ public final class ApplicationOperationConfigurableHandler extends AbstractConfi
     public ApplicationOperationConfiguration useResultByOperationId(String operationId) {
         ApplicationOperationConfiguration result =
                 applicationOperationConfigurationRepository.listByOperationId(operationId);
-        List<AppContractDto> appContractDtoList = appContractRepository.queryAppContractListByOpId(operationId);
+        List<AppContractDto> appContractDtoList = appContractRepository.queryAppContractListByOpId(Arrays.asList(operationId), null);
 
         List<Dependency> dependencyList = new ArrayList<>();
 

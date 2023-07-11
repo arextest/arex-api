@@ -33,7 +33,9 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -205,7 +207,7 @@ public class SchemaInferService {
         });
 
 
-        List<AppContractDto> appContractDtoList = appContractRepository.queryAppContractListByOpId(operationId);
+        List<AppContractDto> appContractDtoList = appContractRepository.queryAppContractListByOpId(Arrays.asList(operationId),null);
         // pair of <type,name>, entryPoint doesn't need type to identify
         Map<Pair<String, String>, AppContractDto> existedMap = appContractDtoList.stream().collect(Collectors.toMap(
                 item -> item.getIsEntry()

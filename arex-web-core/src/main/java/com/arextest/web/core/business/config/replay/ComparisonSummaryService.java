@@ -8,6 +8,7 @@ import java.util.stream.Stream;
 
 import javax.annotation.Resource;
 
+import com.arextest.web.core.repository.AppContractRepository;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Component;
 
@@ -33,6 +34,8 @@ public class ComparisonSummaryService {
     ComparisonListSortConfigurableHandler listSortConfigurableHandler;
     @Resource
     ConfigurableHandler<ApplicationServiceConfiguration> applicationServiceConfigurationConfigurableHandler;
+    @Resource
+    AppContractRepository appContractRepository;
 
     public ComparisonSummaryConfiguration getComparisonDetailsSummary(String interfaceId) {
         ComparisonSummaryConfiguration comparisonSummaryConfiguration = new ComparisonSummaryConfiguration();
@@ -101,6 +104,7 @@ public class ComparisonSummaryService {
         Map<String, ReplayCompareConfig.ReplayComparisonItem> replayConfigurationMap = new HashMap<>();
 
         List<String> operationIdList = getOperationIdList(appId);
+
         // appContractDtoList filter the operation and group by operationId
         Map<String, List<AppContractDto>> appContractDtoMap = new HashMap<>();
         // List<AppContractDto> appContractDtoList = new ArrayList<>();
@@ -147,12 +151,12 @@ public class ComparisonSummaryService {
                     summaryConfiguration.setReferenceMap(operationReferenceMap);
                 }, appContractDtoMap);
 
-        mergeGlobalComparisonConfig(replayConfigurationMap, appId, operationIdList, appContractDtoMap);
+        mergeGlobalComparisonConfig(replayConfigurationMap, operationIdList, appContractDtoMap);
         return new ArrayList<>(replayConfigurationMap.values());
     }
 
     private void mergeGlobalComparisonConfig(
-            Map<String, ReplayCompareConfig.ReplayComparisonItem> replayConfigurationMap, String appId,
+            Map<String, ReplayCompareConfig.ReplayComparisonItem> replayConfigurationMap,
             List<String> operationIdList, Map<String, List<AppContractDto>> appContractDtoMap) {
 
         if (replayConfigurationMap.containsKey(null)) {
@@ -225,7 +229,6 @@ public class ComparisonSummaryService {
                             dependencyConfigMap.put(dependencyId, dependencyComparisonItem);
                         }
                     }
-
                 }
 
                 tempReplayConfig.setDependencyComparisonItems((List<ReplayCompareConfig.DependencyComparisonItem>) dependencyConfigMap.values());

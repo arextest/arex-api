@@ -7,6 +7,7 @@ import com.arextest.web.model.dao.mongodb.AppContractCollection;
 import com.arextest.web.model.dto.AppContractDto;
 import com.arextest.web.model.mapper.AppContractMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.data.mongodb.core.BulkOperations;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -68,8 +69,14 @@ public class AppContractRepositoryImpl implements AppContractRepository {
 
 
     @Override
-    public List<AppContractDto> queryAppContractListByOpId(String operationId) {
-        Query query = new Query().addCriteria(Criteria.where(OPERATION_ID).is(operationId));
+    public List<AppContractDto> queryAppContractListByOpId(List<String> operationList, List<String> filterFields) {
+        Query query = new Query().addCriteria(Criteria.where(OPERATION_ID).in(operationList));
+
+        if (CollectionUtils.isNotEmpty(filterFields)) {
+            for (String filterField : filterFields) {
+                query.fields().exclude(filterField);
+            }
+        }
 
         return mongoTemplate.find(query, AppContractCollection.class)
                 .stream()
