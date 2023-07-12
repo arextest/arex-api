@@ -51,7 +51,7 @@ public class ComparisonReferenceController extends AbstractConfigurableControlle
 
     @PostMapping("/queryComparisonConfig")
     @ResponseBody
-    public Response modify(@RequestBody QueryComparisonRequestType request) {
+    public Response queryComparisonConfig(@RequestBody QueryComparisonRequestType request) {
         return ResponseUtils.successResponse(this.comparisonReferenceConfigurableHandler.queryComparisonConfig(
                 request.getAppId(), request.getOperationId(), request.getDependencyId()
         ));
