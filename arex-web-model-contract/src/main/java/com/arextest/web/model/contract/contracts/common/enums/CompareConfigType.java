@@ -14,11 +14,7 @@ public enum CompareConfigType {
     /**
      * the config of comparison, which is collection
      */
-    COLLECTION(1),
-    /**
-     * the config of comparison, which is dependency
-     */
-    REPLAY_DEPENDENCY(2);
+    COLLECTION(1);
 
     @Getter
     private final int codeValue;

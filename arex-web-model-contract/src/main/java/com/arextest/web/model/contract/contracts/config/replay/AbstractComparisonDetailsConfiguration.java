@@ -49,14 +49,8 @@ public abstract class AbstractComparisonDetailsConfiguration extends AbstractCon
     private String fsInterfaceId;
 
     /**
-     * This value is valid only when {compareConfigType} = 2
+     * This value is valid only when {compareConfigType} = 0
      */
     private String dependencyId;
-
-    public void validParameters() throws Exception {
-        if (Strings.isNotBlank(this.getDependencyId())){
-            this.setCompareConfigType(CompareConfigType.REPLAY_DEPENDENCY.getCodeValue());
-        }
-    }
 
 }
