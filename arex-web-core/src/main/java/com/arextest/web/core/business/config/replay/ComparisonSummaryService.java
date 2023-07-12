@@ -109,10 +109,6 @@ public class ComparisonSummaryService {
         // appContractDtoList filter the operation and group by operationId
         List<AppContractDto> appContractDtos = appContractRepository.queryAppContractListByOpId(operationIdList,
             Collections.singletonList(AppContractCollection.Fields.contract));
-        // Map<String,
-        // List<AppContractDto>> appContractDtoMap = appContractDtos.stream()
-        // .filter(item -> Objects.equals(item.getContractType(), ContractTypeEnum.DEPENDENCY.getCode()))
-        // .collect(Collectors.groupingBy(AppContractDto::getOperationId));
 
         Map<String,
             Map<String, AppContractDto>> appContractDtoMap = appContractDtos.stream()
@@ -242,7 +238,6 @@ public class ComparisonSummaryService {
                 }
 
                 tempReplayConfig.setDependencyComparisonItems(new ArrayList<>(dependencyConfigMap.values()));
-                // (List<ReplayCompareConfig.DependencyComparisonItem>)dependencyConfigMap.values());
                 replayConfigurationMap.put(operationId, tempReplayConfig);
             }
             replayConfigurationMap.remove(null);
