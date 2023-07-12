@@ -107,7 +107,7 @@ public class ComparisonSummaryService {
         List<String> operationIdList = getOperationIdList(appId);
 
         // appContractDtoList filter the operation and group by operationId
-        List<AppContractDto> appContractDtos = appContractRepository.queryAppContractListByOpId(operationIdList,
+        List<AppContractDto> appContractDtos = appContractRepository.queryAppContractListByOpIds(operationIdList,
             Collections.singletonList(AppContractCollection.Fields.contract));
 
         Map<String,
@@ -270,10 +270,7 @@ public class ComparisonSummaryService {
             // comparisonExclusionsConfigurations group by operationId
             Map<String, List<T>> configurationsMap = new HashMap<>();
             for (T config : configurations) {
-                String operationId = config.getOperationId();
-                List<T> list = configurationsMap.getOrDefault(operationId, new ArrayList<>());
-                list.add(config);
-                configurationsMap.put(operationId, list);
+                configurationsMap.putIfAbsent(config.getOperationId(), new ArrayList<>()).add(config);
             }
 
             for (Map.Entry<String, List<T>> entry : configurationsMap.entrySet()) {
@@ -289,10 +286,7 @@ public class ComparisonSummaryService {
                 // operation. if key is not null, it means the configuration of dependency.
                 Map<String, List<T>> dependencyConfigurationsMap = new HashMap<>();
                 for (T config : configurationList) {
-                    String dependencyId = config.getDependencyId();
-                    List<T> list = dependencyConfigurationsMap.getOrDefault(dependencyId, new ArrayList<>());
-                    list.add(config);
-                    dependencyConfigurationsMap.put(dependencyId, list);
+                    dependencyConfigurationsMap.putIfAbsent(config.getDependencyId(), new ArrayList<>()).add(config);
                 }
 
                 // build the configuration of operation

@@ -169,7 +169,7 @@ public class QueryReplayMsgService {
             // key:pair<AppContractDto.operationName,AppContractDto.operationType>,
             // value:AppContractDto.id (AppContractDto.operationName is the same as CompareResultDto.operationName)
             List<AppContractDto> appContractDtos =
-                appContractRepository.queryAppContractListByOpId(Collections.singletonList(operationId), null);
+                appContractRepository.queryAppContractListByOpIds(Collections.singletonList(operationId), null);
             Map<Pair<String, String>, String> toDependencyIdMap = new HashMap<>();
             for (AppContractDto appContractDto : appContractDtos) {
                 toDependencyIdMap.put(Pair.of(appContractDto.getOperationName(), appContractDto.getOperationType()),

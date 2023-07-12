@@ -12,7 +12,7 @@ public interface AppContractRepository extends RepositoryProvider {
 
     List<AppContractDto> insert(List<AppContractDto> appContractDtos);
 
-    List<AppContractDto> queryAppContractListByOpId(List<String> operationList, List<String> filterFields);
+    List<AppContractDto> queryAppContractListByOpIds(List<String> operationList, List<String> filterFields);
 
     AppContractDto queryAppContractByType(String id, Integer contractType);
 

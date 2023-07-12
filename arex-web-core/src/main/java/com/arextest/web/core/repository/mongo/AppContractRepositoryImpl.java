@@ -96,7 +96,7 @@ public class AppContractRepositoryImpl implements AppContractRepository {
     }
 
     @Override
-    public List<AppContractDto> queryAppContractListByOpId(List<String> operationList, List<String> filterFields) {
+    public List<AppContractDto> queryAppContractListByOpIds(List<String> operationList, List<String> filterFields) {
         Query query = new Query().addCriteria(Criteria.where(OPERATION_ID).in(operationList));
 
         if (CollectionUtils.isNotEmpty(filterFields)) {
