@@ -48,7 +48,7 @@ public class ComparisonInclusionsController extends AbstractConfigurableControll
 
     @PostMapping("/queryComparisonConfig")
     @ResponseBody
-    public Response modify(@RequestBody QueryComparisonRequestType request) {
+    public Response queryComparisonConfig(@RequestBody QueryComparisonRequestType request) {
         return ResponseUtils.successResponse(this.comparisonInclusionsConfigurableHandler.queryComparisonConfig(
                 request.getAppId(), request.getOperationId(), request.getDependencyId()
         ));
