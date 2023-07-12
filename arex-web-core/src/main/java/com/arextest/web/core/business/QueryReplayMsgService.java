@@ -165,8 +165,8 @@ public class QueryReplayMsgService {
                 entranceCategoryNames.add(applicationOperationConfiguration.getOperationType());
             }
 
-            // build a map from ,
-            // key:pair<AppContractDto.operationName,AppContractDto.AppContractDto.operationType>,
+            // build a map from appContractRepository,
+            // key:pair<AppContractDto.operationName,AppContractDto.operationType>,
             // value:AppContractDto.id (AppContractDto.operationName is the same as CompareResultDto.operationName)
             List<AppContractDto> appContractDtos =
                 appContractRepository.queryAppContractListByOpId(Collections.singletonList(operationId), null);
