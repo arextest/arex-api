@@ -353,7 +353,7 @@ public class ReportQueryController {
 
     @PostMapping("/addDependencyToSystem")
     @ResponseBody
-    public Response queryReplayCase(@Valid @RequestBody AddDependencyToSystemRequestType request) {
+    public Response addDependencyToSystem(@Valid @RequestBody AddDependencyToSystemRequestType request) {
         return ResponseUtils.successResponse(schemaInferService.addDependencyToSystem(request));
     }
 
