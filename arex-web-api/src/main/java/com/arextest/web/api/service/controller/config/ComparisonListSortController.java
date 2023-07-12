@@ -5,12 +5,11 @@ import com.arextest.common.utils.ResponseUtils;
 import com.arextest.web.core.business.config.ConfigurableHandler;
 import com.arextest.web.core.business.config.replay.ComparisonListSortConfigurableHandler;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonListSortConfiguration;
+import com.arextest.web.model.contract.contracts.config.replay.QueryComparisonRequestType;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 
@@ -28,6 +27,7 @@ public class ComparisonListSortController extends AbstractConfigurableController
     @Resource
     ComparisonListSortConfigurableHandler comparisonListSortConfigurableHandler;
 
+    @Deprecated
     @RequestMapping("/useResultAsList")
     @ResponseBody
     public final Response useResultList(@RequestParam String appId, @RequestParam(required = false) String operationId) {
@@ -47,5 +47,13 @@ public class ComparisonListSortController extends AbstractConfigurableController
 
         return ResponseUtils.successResponse(
                 this.comparisonListSortConfigurableHandler.queryByInterfaceId(interfaceId));
+    }
+
+    @PostMapping("/queryComparisonConfig")
+    @ResponseBody
+    public Response queryComparisonConfig(@RequestBody QueryComparisonRequestType request) {
+        return ResponseUtils.successResponse(this.comparisonListSortConfigurableHandler.queryComparisonConfig(
+                request.getAppId(), request.getOperationId(), request.getDependencyId()
+        ));
     }
 }

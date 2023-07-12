@@ -8,6 +8,7 @@ import com.arextest.web.model.dto.AppContractDto;
 import com.arextest.web.model.enums.ContractTypeEnum;
 import com.arextest.web.model.mapper.AppContractMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.data.mongodb.core.BulkOperations;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -95,8 +96,14 @@ public class AppContractRepositoryImpl implements AppContractRepository {
     }
 
     @Override
-    public List<AppContractDto> queryAppContractListByOpId(String operationId) {
-        Query query = new Query().addCriteria(Criteria.where(OPERATION_ID).is(operationId));
+    public List<AppContractDto> queryAppContractListByOpIds(List<String> operationList, List<String> filterFields) {
+        Query query = new Query().addCriteria(Criteria.where(OPERATION_ID).in(operationList));
+
+        if (CollectionUtils.isNotEmpty(filterFields)) {
+            for (String filterField : filterFields) {
+                query.fields().exclude(filterField);
+            }
+        }
 
         return mongoTemplate.find(query, AppContractCollection.class).stream()
             .map(AppContractMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
@@ -127,5 +134,23 @@ public class AppContractRepositoryImpl implements AppContractRepository {
     public AppContractDto queryById(String id) {
         Query query = new Query().addCriteria(Criteria.where(DASH_ID).is(id));
         return AppContractMapper.INSTANCE.dtoFromDao(mongoTemplate.findOne(query, AppContractCollection.class));
+    }
+
+    @Override
+    public AppContractDto findAndModifyAppContract(AppContractDto appContractDto) {
+
+        Query query = Query.query(Criteria.where(AppContractCollection.Fields.appId).is(appContractDto.getAppId())
+                .and(AppContractCollection.Fields.operationId).is(appContractDto.getOperationId())
+                .and(AppContractCollection.Fields.operationType).is(appContractDto.getOperationType())
+                .and(AppContractCollection.Fields.operationName).is(appContractDto.getOperationName())
+                .and(AppContractCollection.Fields.contractType).is(appContractDto.getContractType())
+        );
+        Update update = MongoHelper.getUpdate();
+        MongoHelper.appendFullProperties(update, appContractDto);
+        AppContractCollection dao = mongoTemplate.findAndModify(query,
+                update,
+                FindAndModifyOptions.options().upsert(true).returnNew(true),
+                AppContractCollection.class);
+        return AppContractMapper.INSTANCE.dtoFromDao(dao);
     }
 }

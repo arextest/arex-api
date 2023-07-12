@@ -1,7 +1,31 @@
 package com.arextest.web.core.business;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.tuple.MutablePair;
+import org.apache.commons.lang3.tuple.Pair;
+import org.springframework.stereotype.Component;
+
 import com.arextest.web.common.LogUtils;
 import com.arextest.web.core.business.util.ListUtils;
+import com.arextest.web.core.repository.AppContractRepository;
 import com.arextest.web.core.repository.ReplayCompareResultRepository;
 import com.arextest.web.core.repository.mongo.ApplicationOperationConfigurationRepositoryImpl;
 import com.arextest.web.model.contract.contracts.CompareResultDetail;
@@ -20,30 +44,13 @@ import com.arextest.web.model.contract.contracts.common.LogEntity;
 import com.arextest.web.model.contract.contracts.common.NodeEntity;
 import com.arextest.web.model.contract.contracts.common.UnmatchedPairEntity;
 import com.arextest.web.model.contract.contracts.config.application.ApplicationOperationConfiguration;
+import com.arextest.web.model.dto.AppContractDto;
 import com.arextest.web.model.dto.CompareResultDto;
 import com.arextest.web.model.dto.iosummary.UnmatchedCategory;
 import com.arextest.web.model.enums.DiffResultCode;
 import com.arextest.web.model.mapper.CompareResultMapper;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.tuple.MutablePair;
-import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletResponse;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
@@ -53,6 +60,9 @@ public class QueryReplayMsgService {
     private ReplayCompareResultRepository replayCompareResultRepository;
     @Resource
     private ApplicationOperationConfigurationRepositoryImpl applicationOperationConfigurationRepository;
+
+    @Resource
+    private AppContractRepository appContractRepository;
 
     private static final int BIG_MESSAGE_THRESHOLD = 5 * 1024 * 1024;
 
@@ -125,24 +135,21 @@ public class QueryReplayMsgService {
     public QueryFullLinkMsgResponseType queryFullLinkMsg(QueryFullLinkMsgRequestType request) {
         QueryFullLinkMsgResponseType response = new QueryFullLinkMsgResponseType();
         List<CompareResultDto> dtos =
-                replayCompareResultRepository.queryCompareResultsByRecordId(request.getPlanItemId(),
-                        request.getRecordId());
+            replayCompareResultRepository.queryCompareResultsByRecordId(request.getPlanItemId(), request.getRecordId());
         if (dtos == null) {
             return response;
         }
         List<CompareResult> compareResults = dtos.stream()
-                .map(CompareResultMapper.INSTANCE::contractFromDtoLogsLimitDisplay)
-                .collect(Collectors.toList());
+            .map(CompareResultMapper.INSTANCE::contractFromDtoLogsLimitDisplay).collect(Collectors.toList());
         response.setCompareResults(compareResults);
         return response;
     }
 
     public QueryFullLinkInfoResponseType queryFullLinkInfo(String planItemId, String recordId) {
         QueryFullLinkInfoResponseType response = new QueryFullLinkInfoResponseType();
-        List<CompareResultDto> dtos =
-                replayCompareResultRepository.queryCompareResultsByRecordId(planItemId, recordId);
+        List<CompareResultDto> dtos = replayCompareResultRepository.queryCompareResultsByRecordId(planItemId, recordId);
         dtos.sort(Comparator.comparingLong(CompareResultDto::getReplayTime)
-                .thenComparingLong(CompareResultDto::getRecordTime));
+            .thenComparingLong(CompareResultDto::getRecordTime));
 
         if (CollectionUtils.isNotEmpty(dtos)) {
             // judge entrance type by operationId
@@ -150,12 +157,23 @@ public class QueryReplayMsgService {
             CompareResultDto compareResultDto = dtos.get(0);
             String operationId = compareResultDto.getOperationId();
             ApplicationOperationConfiguration applicationOperationConfiguration =
-                    applicationOperationConfigurationRepository.listByOperationId(operationId);
+                applicationOperationConfigurationRepository.listByOperationId(operationId);
             if (applicationOperationConfiguration != null) {
                 if (CollectionUtils.isNotEmpty(applicationOperationConfiguration.getOperationTypes())) {
                     entranceCategoryNames = applicationOperationConfiguration.getOperationTypes();
                 }
                 entranceCategoryNames.add(applicationOperationConfiguration.getOperationType());
+            }
+
+            // build a map from appContractRepository,
+            // key:pair<AppContractDto.operationName,AppContractDto.operationType>,
+            // value:AppContractDto.id (AppContractDto.operationName is the same as CompareResultDto.operationName)
+            List<AppContractDto> appContractDtos =
+                appContractRepository.queryAppContractListByOpIds(Collections.singletonList(operationId), null);
+            Map<Pair<String, String>, String> toDependencyIdMap = new HashMap<>();
+            for (AppContractDto appContractDto : appContractDtos) {
+                toDependencyIdMap.put(Pair.of(appContractDto.getOperationName(), appContractDto.getOperationType()),
+                    appContractDto.getId());
             }
 
             FullLinkInfoItem entrance = new FullLinkInfoItem();
@@ -167,14 +185,22 @@ public class QueryReplayMsgService {
                     entrance.setOperationName(dto.getOperationName());
                     entrance.setInstanceId(dto.getInstanceId());
                     entrance.setCode(computeItemStatus(dto));
+                    entrance.setFoundInSystem(true);
+                    entrance.setOperationId(operationId);
                 } else {
-                    FullLinkInfoItem fullLinkInfoItem = new FullLinkInfoItem();
-                    fullLinkInfoItem.setId(dto.getId());
-                    fullLinkInfoItem.setCategoryName(dto.getCategoryName());
-                    fullLinkInfoItem.setOperationName(dto.getOperationName());
-                    fullLinkInfoItem.setInstanceId(dto.getInstanceId());
-                    fullLinkInfoItem.setCode(computeItemStatus(dto));
-                    itemList.add(fullLinkInfoItem);
+                    FullLinkInfoItem dependencyItem = new FullLinkInfoItem();
+                    dependencyItem.setId(dto.getId());
+                    dependencyItem.setCategoryName(dto.getCategoryName());
+                    dependencyItem.setOperationName(dto.getOperationName());
+                    dependencyItem.setInstanceId(dto.getInstanceId());
+                    dependencyItem.setCode(computeItemStatus(dto));
+                    dependencyItem.setOperationId(operationId);
+                    Pair<String, String> dependencyKey = Pair.of(dto.getOperationName(), dto.getCategoryName());
+                    if (toDependencyIdMap.containsKey(dependencyKey)) {
+                        dependencyItem.setFoundInSystem(true);
+                        dependencyItem.setDependencyId(toDependencyIdMap.get(dependencyKey));
+                    }
+                    itemList.add(dependencyItem);
                 }
             }
             response.setEntrance(entrance);
@@ -234,9 +260,9 @@ public class QueryReplayMsgService {
                 int leftUnmatchedPathSize = leftUnmatchedPath == null ? 0 : leftUnmatchedPath.size();
                 int rightUnmatchedPathSize = rightUnmatchedPath == null ? 0 : rightUnmatchedPath.size();
                 List<NodeEntity> nodePath =
-                        leftUnmatchedPathSize >= rightUnmatchedPathSize ? leftUnmatchedPath : rightUnmatchedPath;
+                    leftUnmatchedPathSize >= rightUnmatchedPathSize ? leftUnmatchedPath : rightUnmatchedPath;
                 MutablePair<String, Integer> tempPair =
-                        new MutablePair<>(ListUtils.getFuzzyPathStr(nodePath), unmatchedType);
+                    new MutablePair<>(ListUtils.getFuzzyPathStr(nodePath), unmatchedType);
                 CompareResultDetail.LogInfo logInfo;
                 if (!logInfoMap.containsKey(tempPair)) {
                     logInfo = new CompareResultDetail.LogInfo();

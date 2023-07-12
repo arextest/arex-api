@@ -1,22 +1,31 @@
 package com.arextest.web.core.business;
 
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
+import org.springframework.stereotype.Component;
+
 import com.arextest.web.common.LogUtils;
 import com.arextest.web.core.business.util.SchemaUtils;
 import com.arextest.web.core.repository.AppContractRepository;
 import com.arextest.web.core.repository.ReplayCompareResultRepository;
 import com.arextest.web.core.repository.mongo.ApplicationOperationConfigurationRepositoryImpl;
-import com.arextest.web.model.contract.contracts.OverwriteContractRequestType;
-import com.arextest.web.model.contract.contracts.QueryContractRequestType;
-import com.arextest.web.model.contract.contracts.QueryMsgSchemaRequestType;
-import com.arextest.web.model.contract.contracts.QueryMsgSchemaResponseType;
-import com.arextest.web.model.contract.contracts.QuerySchemaForConfigRequestType;
-import com.arextest.web.model.contract.contracts.SyncResponseContractRequestType;
-import com.arextest.web.model.contract.contracts.SyncResponseContractResponseType;
+import com.arextest.web.model.contract.contracts.*;
+import com.arextest.web.model.contract.contracts.appcontract.AddDependencyToSystemRequestType;
+import com.arextest.web.model.contract.contracts.appcontract.AddDependencyToSystemResponseType;
 import com.arextest.web.model.contract.contracts.common.DependencyWithContract;
 import com.arextest.web.model.contract.contracts.config.application.ApplicationOperationConfiguration;
 import com.arextest.web.model.dto.AppContractDto;
 import com.arextest.web.model.dto.CompareResultDto;
 import com.arextest.web.model.enums.ContractTypeEnum;
+import com.arextest.web.model.mapper.AppContractMapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -26,23 +35,8 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.Lists;
 import com.saasquatch.jsonschemainferrer.JsonSchemaInferrer;
 import com.saasquatch.jsonschemainferrer.SpecVersion;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
-import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
@@ -214,7 +208,8 @@ public class SchemaInferService {
             }
         });
 
-        List<AppContractDto> appContractDtoList = appContractRepository.queryAppContractListByOpId(operationId);
+        List<AppContractDto> appContractDtoList =
+            appContractRepository.queryAppContractListByOpIds(Collections.singletonList(operationId), null);
         // pair of <type,name>, entryPoint doesn't need type to identify
         Map<Pair<String, String>,
             AppContractDto> existedMap =
@@ -265,6 +260,27 @@ public class SchemaInferService {
         responseType.setEntryPointContractStr(entryPointApplication.getContract());
         responseType.setDependencyList(dependencyList);
         return responseType;
+    }
+
+    public AddDependencyToSystemResponseType addDependencyToSystem(AddDependencyToSystemRequestType request) {
+        AddDependencyToSystemResponseType response = new AddDependencyToSystemResponseType();
+
+        String appId = request.getAppId();
+        String operationId = request.getOperationId();
+        AppContractDto appContractDto = AppContractMapper.INSTANCE.dtoFromContract(request);
+        appContractDto.setContractType(ContractTypeEnum.DEPENDENCY.getCode());
+        AppContractDto insertAppContractDto = appContractRepository.findAndModifyAppContract(appContractDto);
+        if (insertAppContractDto != null) {
+            response.setAppId(appId);
+            response.setOperationId(operationId);
+            response.setDependencyId(insertAppContractDto.getId());
+            if (insertAppContractDto.getContract() == null) {
+                String contract = SchemaUtils.mergeJson(EMPTY_CONTRACT, request.getMsg());
+                appContractDto.setContract(contract);
+                appContractRepository.findAndModifyAppContract(appContractDto);
+            }
+        }
+        return response;
     }
 
     private DependencyWithContract buildDependency(AppContractDto appContractDto) {

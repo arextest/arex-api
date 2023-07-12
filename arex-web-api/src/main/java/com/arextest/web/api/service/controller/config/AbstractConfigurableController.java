@@ -70,8 +70,12 @@ public abstract class AbstractConfigurableController<T extends AbstractConfigura
 
     @PostMapping("/batchModify/{modifyType}")
     @ResponseBody
-    public final Response batchModify(@PathVariable ModifyType modifyType, @RequestBody List<T> configuration) {
+    public final Response batchModify(@PathVariable ModifyType modifyType, @RequestBody List<T> configuration)
+        throws Exception {
         if (modifyType == ModifyType.INSERT) {
+            for (T item : configuration) {
+                item.validParameters();
+            }
             return ResponseUtils.successResponse(this.configurableHandler.insertList(configuration));
         }
         if (modifyType == ModifyType.REMOVE) {
