@@ -64,7 +64,7 @@ public class AccurateController {
         try {
             javaProject.setupJavaProject(request.getRepositoryURL(), request.getBranch());
             javaProject.scanWholeProject();
-            List<MethodTracing> result = javaProject.traceCallGraphInSpring();
+            List<MethodTracing> result = javaProject.searchCallGraphBasedSpringAnnotation();
 
             TracingResponse tracingResponse = new TracingResponse();
             tracingResponse.setStatusCode(10000);
@@ -93,7 +93,21 @@ public class AccurateController {
         String branch = request.getBranch();
         String latestCommit = request.getNewCommit();
         String oldCommit = request.getOldCommit();
-        return javaProject.DoListDiffMethods(url,latestCommit,oldCommit);
+
+        javaProject.setupJavaProject(url,branch);
+        List<JCodeMethod> result = javaProject.scanCodeDiffMethods(latestCommit, oldCommit);
+
+        GitBasicResponse response = new GitBasicResponse();
+        if (result.size() == 0) {
+            response.setErrorCode(10001);
+            response.setResult("null return");
+            return response;
+        }
+
+        response.setErrorCode(20000);
+        response.setResult("success");
+        response.setData(result);
+        return response;
     }
 
     /**
@@ -103,7 +117,7 @@ public class AccurateController {
      * @param callGraphRequest 请求参数
      * @return List<String>目前只是字符串List
      */
-    @PostMapping("/analysis/staticTrace")
+    @PostMapping("/analysis/staticTrace/method")
     @ResponseBody
     public CallGraphResponse queryCallGraph(@RequestBody CallGraphRequest callGraphRequest) {
         if (callGraphRequest == null) {
@@ -121,9 +135,11 @@ public class AccurateController {
         try {
             javaProject.setupJavaProject(reposURL, "");
             javaProject.scanWholeProject();
-            javaProject.tra
-
-            return CallTrace.traceRequest(reposURL, "", className, methodName);
+            List<MethodTracing> result = javaProject.findMethodCallGraph(className, methodName);
+            CallGraphResponse response = new CallGraphResponse();
+            response.setStacks(result);
+            response.setErrorCode(20000); //success;
+            return response;
         }catch (Exception e){
             LOGGER.info(e.toString());
             return CallGraphResponse.exceptionResponse(e.toString());

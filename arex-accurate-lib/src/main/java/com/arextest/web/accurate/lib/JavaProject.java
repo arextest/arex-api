@@ -323,16 +323,6 @@ public class JavaProject {
         buildMethodTable();
     }
 
-
-    /**
-     * trace by spring boot's annotation.
-     *
-     * @return lists
-     */
-    public List<MethodTracing> traceCallGraphInSpring() {
-        return searchCallGraphBasedSpringAnnotation();
-    }
-
     /**
      * 搜索和构建函数表
      * 第一轮编译结束后,应该是每个类都有了基础的函数表
@@ -368,7 +358,7 @@ public class JavaProject {
         classAnnotations.add("Controller");
         classAnnotations.add("RestController");
 
-        return findTracingsByAnnotation(classAnnotations, methodAnnotations);
+        return findMethodsCallGraphByAnnotation(classAnnotations, methodAnnotations);
     }
 
     /**
@@ -378,7 +368,7 @@ public class JavaProject {
      * @param methodAnnotations method annotation list
      * @return list tracing
      */
-    public List<MethodTracing> findTracingsByAnnotation(List<String> classAnnotations, HashSet<String> methodAnnotations) {
+    public List<MethodTracing> findMethodsCallGraphByAnnotation(List<String> classAnnotations, HashSet<String> methodAnnotations) {
         if (classAnnotations.size() == 0 || methodAnnotations.size() == 0) {
             return null;
         }
@@ -402,7 +392,13 @@ public class JavaProject {
         return results;
     }
 
-    public List<MethodTracing> findCallGraph(String className, String methodName) {
+    /**
+     * 根据类名和函数名,查询其静态调用链
+     * @param className 完整的类名
+     * @param methodName 完成的函数名
+     * @return List
+     */
+    public List<MethodTracing> findMethodCallGraph(String className, String methodName) {
         if (className.equals("") || methodName.equals(""))
             return null;
         if (!classes.containsKey(className))
@@ -419,24 +415,31 @@ public class JavaProject {
 
     /**
      * trace by classes, interfaces, methods
+     * 多个类名+接口名,查找其符合函数条件的函数, 再查询其静态调用链
+     * 外部调用未放开
      *
-     * @param classes    name of class
+     * @param classNames    name of class
      * @param interfaces name of interface
      * @param methods    name of method
      * @return lists
      */
-    public List<MethodTracing> DoBuildCallGraph(List<String> classes, List<String> interfaces, List<String> methods) {
+    public List<MethodTracing> findMethodsCallGraph(List<String> classNames, List<String> interfaces, List<String> methods) {
         List<MethodTracing> results = new LinkedList<>();
 
-        List<JCodeClass> result = findClass(classes);
+        List<JCodeClass> classList = new LinkedList<>();
+        for (String oneClass : classNames) {
+            if (classes.containsKey(oneClass))
+                classList.add(classes.get(oneClass));
+        }
+
         if (interfaces.size() > 0) {
             List<JCodeClass> interfaceClass = findClassByInterface(interfaces);
             if ((interfaceClass != null) && (!interfaceClass.isEmpty()))
-                result.addAll(interfaceClass);
+                classList.addAll(interfaceClass);
         }
 
         if (methods.size() != 0) {
-            for (JCodeClass aClass : result) {
+            for (JCodeClass aClass : classList) {
                 for (String method : methods) {
                     List<MethodDeclaration> methodList = aClass.getTypeDeclaration().getMethodsByName(method);
                     if (methodList == null || methodList.size() == 0)
@@ -449,7 +452,7 @@ public class JavaProject {
                 }
             }
         } else {
-            for (JCodeClass aClass : result) {
+            for (JCodeClass aClass : classList) {
                 HashMap<String, MethodDeclaration> methodList = aClass.getMethodTable();
                 for (MethodDeclaration methodDeclaration : methodList.values()) {
                     MethodTracing trace = traceMethod(aClass, methodDeclaration);
@@ -493,22 +496,24 @@ public class JavaProject {
 
     /**
      * 分析函数调用树的入口函数
+     * findMethodCallGraph和findMethodsCallGraph,调用它
      *
      * @param jCodeClass
      * @param methodDeclaration
      * @return
      */
-    public MethodTracing traceMethod(JCodeClass jCodeClass, MethodDeclaration methodDeclaration) {
+    private MethodTracing traceMethod(JCodeClass jCodeClass, MethodDeclaration methodDeclaration) {
         Queue<ImmutablePair<JCodeClass, MethodDeclaration>> declarationQueue = new LinkedList<>();
         LinkedList<String> allListCalls = new LinkedList<>();
         declarationQueue.add(new ImmutablePair(jCodeClass, methodDeclaration));
         String itemKey = generateMethodDeclarationKey(jCodeClass, methodDeclaration);
-
         HashMap<String, ImmutablePair<JCodeClass, MethodDeclaration>> needTraceMethods = new HashMap<>();
         needTraceMethods.put(itemKey, new ImmutablePair(jCodeClass, methodDeclaration));
 
+        // 查询调用树
         traceMethodCallExpr(declarationQueue, allListCalls, needTraceMethods);
 
+        // 查询结束填数据
         MethodTracing methodTracing = new MethodTracing();
         methodTracing.setClassName(jCodeClass.getFullName());
         methodTracing.setMethodName(methodDeclaration.getNameAsString());
@@ -553,12 +558,15 @@ public class JavaProject {
             resolveTypeName.append(".");
             resolveTypeName.append(oriDeclaration.getClassName());
             LOGGER.info(resolveTypeName.toString());
-            JCodeClass codeClass = findClass(resolveTypeName.toString());
+
+            JCodeClass codeClass = classes.getOrDefault(resolveTypeName.toString(), null);
             if (codeClass == null)
                 continue;
+
             List lists = codeClass.getTypeDeclaration().getMethodsByName(oriDeclaration.getName());
             if (lists.size() == 0)
                 continue;
+
             // 判断参数是否相同, 未完成
             MethodDeclaration oneMethod = null;
             if (lists.size() == 1) {
@@ -577,9 +585,16 @@ public class JavaProject {
         }
     }
 
-    public MethodDeclaration findMethodByMethodCall(JCodeClass codeClass, MethodCallExpr expr) {
+    /**
+     * 在codeClass里边,根据expr表达式查找实际的定义函数
+     * @param codeClass
+     * @param expr
+     * @return
+     */
+    private MethodDeclaration findMethodByMethodCall(JCodeClass codeClass, MethodCallExpr expr) {
         if (codeClass == null || expr == null)
             return null;
+
         List<MethodDeclaration> methods = codeClass.getTypeDeclaration().getMethodsByName(expr.getNameAsString());
         for (MethodDeclaration oneMethod : methods) {
             if (oneMethod.getParameters().size() != expr.getArguments().size())
@@ -594,23 +609,10 @@ public class JavaProject {
         return null;
     }
 
-    public List<JCodeClass> findClass(List<String> ces) {
-        List<JCodeClass> classList = new LinkedList<>();
-        for (String oneClass : ces) {
-            if (classes.containsKey(oneClass))
-                classList.add(classes.get(oneClass));
-        }
-        return classList;
-    }
-
-    public JCodeClass findClass(String ces) {
-        return classes.getOrDefault(ces, null);
-    }
-
     /**
-     * 通过接口查找类名
+     * 通过接口名查找类名
      *
-     * @param interfaces
+     * @param interfaces Interface类名
      * @return
      */
     public List<JCodeClass> findClassByInterface(List<String> interfaces) {
@@ -804,34 +806,6 @@ public class JavaProject {
     }
 
     /**
-     * 专门提供一个接口,供用户查询两个版本之间的变更函数
-     * 这个功能跟webhook中有点重复
-     *
-     * @param url 仓库地址
-     * @return
-     */
-    public GitBasicResponse DoListDiffMethods(String url, String latestCommitID, String oldCommitID) {
-        try {
-            setupJavaProject(url, "");
-            List<JCodeMethod> result = scanCodeDiffMethods(latestCommitID, oldCommitID);
-            GitBasicResponse response = new GitBasicResponse();
-            if (result.size() == 0) {
-                response.setErrorCode(10000);
-                response.setResult("null return");
-                return response;
-            }
-
-            response.setErrorCode(20000);
-            response.setResult("success");
-            response.setData(result);
-            return response;
-        } catch (Exception e) {
-            LOGGER.error(e.toString());
-            return GitBasicResponse.exceptionResponse(e.toString());
-        }
-    }
-
-    /**
      * 将类中的所有MethodDeclaration转到JCodeMethod,并返回
      *
      * @return
@@ -859,7 +833,7 @@ public class JavaProject {
             setupJavaProject(gitURL, branch);
             scanWholeProject();
             compileProject();
-            return traceCallGraphInSpring();
+            return searchCallGraphBasedSpringAnnotation();
         } catch (Exception e) {
             LOGGER.error(e.toString());
             e.printStackTrace();
@@ -867,34 +841,5 @@ public class JavaProject {
         return null;
     }
 
-    /**
-     * 根据被测试服务记录的CallStack分析
-     * 1. 老代码,实现CallStack合并
-     * 2. Agent实现Stack记录,存储在Redis里边
-     * 3. 这个函数吧这些数据从Redis拿出来, 合并到一个树上
-     *
-     * @param request json
-     * @return TracingResponse
-     */
-    public TracingResponse DoDynamicTrace(GitBasicRequest request) {
-        setupJavaProject(request.getRepositoryURL(), "");
-        HashMap<String, FileDiffContent> diffs = null;
-        try {
-            List<RevCommit> revCommitList = revCommits(user, token);
-            ImmutablePair<String, String> immutablePair = request.getCommits(request, revCommitList);
-            if (!(immutablePair == null || StringUtils.isEmpty(immutablePair.getLeft()) || StringUtils.isEmpty(immutablePair.getRight())))
-                diffs = findCodeDiffs(immutablePair.getLeft(), immutablePair.getRight());
-            setGitDiffs(diffs);
-            compileProject();
-
-            TracingResponse tracingResponse = new TracingResponse();
-            tracingResponse.setMessages(traceCallGraphInSpring());
-            tracingResponse.setResult("success");
-            return tracingResponse;
-        } catch (Exception e) {
-            LOGGER.error(e.toString());
-            return TracingResponse.exceptionResponse(e.toString());
-        }
-    }
 }
 
