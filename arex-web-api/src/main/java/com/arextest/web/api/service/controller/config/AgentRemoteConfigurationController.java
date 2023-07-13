@@ -6,15 +6,14 @@ import com.arextest.web.common.LogUtils;
 import com.arextest.web.core.business.config.ConfigurableHandler;
 import com.arextest.web.core.business.config.application.ApplicationInstancesConfigurableHandler;
 import com.arextest.web.core.business.config.application.ApplicationServiceConfigurableHandler;
-import com.arextest.web.model.contract.contracts.common.enums.StatusType;
 import com.arextest.web.model.contract.contracts.config.application.ApplicationConfiguration;
 import com.arextest.web.model.contract.contracts.config.application.InstancesConfiguration;
 import com.arextest.web.model.contract.contracts.config.instance.AgentRemoteConfigurationRequest;
 import com.arextest.web.model.contract.contracts.config.instance.AgentRemoteConfigurationResponse;
+import com.arextest.web.model.contract.contracts.config.instance.AgentStatusConfigurationResponse;
 import com.arextest.web.model.contract.contracts.config.record.DynamicClassConfiguration;
 import com.arextest.web.model.contract.contracts.config.record.ServiceCollectConfiguration;
 import com.arextest.web.model.mapper.InstancesMapper;
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,8 +25,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
+import java.sql.Timestamp;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -83,20 +83,57 @@ public final class AgentRemoteConfigurationController {
         body.setDynamicClassConfigurationList(dynamicClassHandler.useResultAsList(appId));
         body.setServiceCollectConfiguration(serviceCollectConfiguration);
         body.setStatus(applicationConfiguration.getStatus());
-        InstancesConfiguration instancesConfiguration = InstancesMapper.INSTANCE.dtoFromContract(request);
-        applicationInstancesConfigurableHandler.createOrUpdate(instancesConfiguration);
-        List<InstancesConfiguration> instances = applicationInstancesConfigurableHandler.useResultAsList(appId,
-                serviceCollectConfiguration.getRecordMachineCountLimit());
-        Set<String> recordingHosts =
-                instances.stream().map(InstancesConfiguration::getHost).collect(Collectors.toSet());
-        if (recordingHosts.contains(request.getHost())) {
-            body.setTargetAddress(request.getHost());
-        } else {
-            body.setTargetAddress(request.getHost() + NOT_RECORDING);
-        }
         return ResponseUtils.successResponse(body);
     }
+    @PostMapping("/agentStatus")
+    @ResponseBody
+    public Response reload(@RequestBody AgentRemoteConfigurationRequest request) {
+        //get requested appId
+        final String appId = request.getAppId();
+        //get requested host
+        final String host = request.getHost();
+        //a new response
+        AgentStatusConfigurationResponse body = new AgentStatusConfigurationResponse();
+        // find all working instances
+        List<InstancesConfiguration> instances = applicationInstancesConfigurableHandler.listOfWorking();
+        // obtain the set of hosts
+        Set<String> recordingHosts = instances.stream().map(InstancesConfiguration::getHost).collect(Collectors.toSet());
+        // obtain the count limit
+        ServiceCollectConfiguration serviceCollectConfiguration = serviceCollectHandler.useResult(appId);
+        int countLimit=serviceCollectConfiguration.getRecordMachineCountLimit();
+        // If the requested app ID and host of machine is already working or there is an available
+        // spot for the request, set the status to 1 (working). Else. set it to 2 (sleeping)
+        if (recordingHosts.contains(host) || recordingHosts.size()<countLimit){
+            body.setStatus(1);
+        }
+        else {
+            body.setStatus(2);
+        }
+        //set version to {the count of DynamicClass of appid + Math.max(RecordServiceConfig.dataChangeUpdateTime, DynamicClass.dataChangeUpdateTime)}
 
+            // 1. get RecordServiceConfig.dataChangeUpdateTime
+        Timestamp recordTime = serviceCollectConfiguration.getModifiedTime();
+            // 2. add RecordServiceConfig.dataChangeUpdateTime to the list and get max value in DynamicClass.dataChangeUpdateTime list
+        List<DynamicClassConfiguration> dynamicClassTime = dynamicClassHandler.useResultAsList(appId);
+        List<Timestamp> timeList= dynamicClassTime.stream().map(DynamicClassConfiguration::getModifiedTime).collect(Collectors.toList());
+        timeList.add(recordTime);
+        Timestamp latestTimestamp = Collections.max( timeList );
+        // set version as the sum of count and max time
+        body.setVersion(dynamicClassTime.size()+latestTimestamp.getTime());
+        //add/update the new request to the database
+        InstancesConfiguration instancesConfiguration = InstancesMapper.INSTANCE.dtoFromContract(request);
+        applicationInstancesConfigurableHandler.createOrUpdate(instancesConfiguration);
+//        List<InstancesConfiguration> instances = applicationInstancesConfigurableHandler.listOfWorking();
+//
+//        Set<String> recordingHosts =
+//                instances.stream().map(InstancesConfiguration::getHost).collect(Collectors.toSet());
+//        if (recordingHosts.contains(request.getHost())) {
+//            body.setTargetAddress(request.getHost());
+//        } else {
+//            body.setTargetAddress(request.getHost() + NOT_RECORDING);
+//        }
+        return ResponseUtils.successResponse(body);
+    }
     private void delayUpdateApplicationService(AgentRemoteConfigurationRequest request) {
         executorService.schedule(new UpdateApplicationRunnable(request), delayUpdateServiceSeconds, TimeUnit.SECONDS);
     }
@@ -119,7 +156,6 @@ public final class AgentRemoteConfigurationController {
     }
 
     private ApplicationConfiguration loadApplicationResult(AgentRemoteConfigurationRequest request) {
-        ApplicationConfiguration applicationConfiguration = applicationHandler.useResult(request.getAppId());
-        return applicationConfiguration;
+        return applicationHandler.useResult(request.getAppId());
     }
 }

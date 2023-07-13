@@ -9,7 +9,6 @@ import com.arextest.web.model.contract.contracts.config.application.InstancesCon
 import com.arextest.web.model.dao.mongodb.InstancesCollection;
 import com.arextest.web.model.mapper.InstancesMapper;
 import com.mongodb.client.result.DeleteResult;
-import com.mongodb.client.result.UpdateResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
@@ -34,6 +33,9 @@ public class InstancesConfigurationRepositoryImpl implements ConfigRepositoryPro
     private static final String HOST = "host";
 
     private static final String DATA_UPDATE_TIME = "dataUpdateTime";
+    private static final String AGENT_STATUS = "agentStatus";
+    private static final String WORKING = "working";
+
 
     @Autowired
     MongoTemplate mongoTemplate;
@@ -52,15 +54,20 @@ public class InstancesConfigurationRepositoryImpl implements ConfigRepositoryPro
         return instancesCollections.stream().map(InstancesMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
     }
 
-    public List<InstancesConfiguration> listBy(String appid, int top) {
+    public List<InstancesConfiguration> listBy(String appId, int top) {
         if (top == 0) {
             return Collections.emptyList();
         }
-        Query query = Query.query(Criteria.where(APP_ID).is(appid)).limit(top).with(Sort.by(DASH_ID).ascending());
+        Query query = Query.query(Criteria.where(APP_ID).is(appId)).limit(top).with(Sort.by(DASH_ID).ascending());
         List<InstancesCollection> instancesCollections = mongoTemplate.find(query, InstancesCollection.class);
         return instancesCollections.stream().map(InstancesMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
     }
 
+    public List<InstancesConfiguration> listOfWorking(){
+        Query query=Query.query(Criteria.where(AGENT_STATUS).is(WORKING));
+        List<InstancesCollection> instancesCollections = mongoTemplate.find(query, InstancesCollection.class);
+        return instancesCollections.stream().map(InstancesMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
+    }
     @Override
     public boolean update(InstancesConfiguration configuration) {
         Query query =
