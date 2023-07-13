@@ -394,7 +394,8 @@ public class JavaProject {
 
     /**
      * 根据类名和函数名,查询其静态调用链
-     * @param className 完整的类名
+     *
+     * @param className  完整的类名
      * @param methodName 完成的函数名
      * @return List
      */
@@ -418,7 +419,7 @@ public class JavaProject {
      * 多个类名+接口名,查找其符合函数条件的函数, 再查询其静态调用链
      * 外部调用未放开
      *
-     * @param classNames    name of class
+     * @param classNames name of class
      * @param interfaces name of interface
      * @param methods    name of method
      * @return lists
@@ -587,6 +588,7 @@ public class JavaProject {
 
     /**
      * 在codeClass里边,根据expr表达式查找实际的定义函数
+     *
      * @param codeClass
      * @param expr
      * @return
@@ -690,9 +692,9 @@ public class JavaProject {
     public List<JCodeMethod> scanCodeDiffMethods(final String theLatestCommitID) {
         List<RevCommit> revCommitList = revCommits(user, token);
         String prevCommit = "";
-        for (int i = 0; i < revCommitList.size()-1; i++) {
+        for (int i = 0; i < revCommitList.size() - 1; i++) {
             if (revCommitList.get(i).getName().equals(theLatestCommitID))
-                prevCommit = revCommitList.get(i+1).getName();
+                prevCommit = revCommitList.get(i + 1).getName();
         }
         if (prevCommit.equals(""))
             return null;
@@ -742,14 +744,13 @@ public class JavaProject {
 
     /**
      * Clone Git 代码仓库
-     * shell方式拉的代码
+     * shell方式拉的代码,能成功,但不保证,返回错误码也怪的很
      *
      * @param request
      * @return
      */
     public Response DoGitClone(GitBasicRequest request) {
-        String urlInfo = request.getRepositoryURL();
-        setupJavaProject(urlInfo, request.getBranch());
+        setupJavaProject(request.getRepositoryURL(), request.getBranch());
         if (gitRepository != null) {
             return Response.successResponse();
         }
@@ -758,13 +759,13 @@ public class JavaProject {
 
     /**
      * delete local git dir.
+     * 不要搞,目前
      *
      * @param url git repository url.
      * @return Response: success; false: failed;
      */
     public Response DoCleanProject(String url) {
-        Path path = Paths.get(gitConfig.getGitWorkspaceDir(),
-                com.arextest.web.accurate.lib.JGitRepository.getRepositoryDir(url));
+        Path path = Paths.get(gitConfig.getGitWorkspaceDir(), JGitRepository.getRepositoryDir(url));
 
         File dirProject = new File(path.toString());
         if (!dirProject.exists())
@@ -784,19 +785,19 @@ public class JavaProject {
      * @return CommitsResponse
      */
     public CommitsResponse DoListCommits(GitBasicRequest request) {
-        setupJavaProject(request.getRepositoryURL(), "");
-        List<RevCommit> lr = revCommits(user, token);
+        setupJavaProject(request.getRepositoryURL(), request.getBranch());
+        List<RevCommit> revCommitList = revCommits(user, token);
 
         List<CommitInfo> results = new LinkedList<>();
-        for (RevCommit rc : lr) {
-            if (rc == null)
+        for (RevCommit commit : revCommitList) {
+            if (commit == null)
                 continue;
-            CommitInfo rci = new CommitInfo();
-            rci.fullMessage = rc.getFullMessage();
-            rci.commitTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-                    .format(new Date(rc.getCommitTime() * 1000L));
-            rci.commitID = rc.getName();
-            results.add(rci);
+            CommitInfo commitInfo = new CommitInfo();
+            commitInfo.fullMessage = commit.getFullMessage();
+            commitInfo.commitTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+                    .format(new Date(commit.getCommitTime() * 1000L));
+            commitInfo.commitID = commit.getName();
+            results.add(commitInfo);
         }
 
         CommitsResponse commitsResponse = new CommitsResponse();

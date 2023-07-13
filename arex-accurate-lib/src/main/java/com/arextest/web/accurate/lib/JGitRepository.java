@@ -318,7 +318,7 @@ public class JGitRepository {
         try {
             StringBuilder strLogs = new StringBuilder();
             Runtime runtime = Runtime.getRuntime();
-            Process pro = runtime.exec(command, null, new File(rootDir));
+            Process pro = runtime.exec(command, null, new File(rootDir+"/.."));
             int status = pro.waitFor();
             strLogs.append(command);
             if (status != 0) {

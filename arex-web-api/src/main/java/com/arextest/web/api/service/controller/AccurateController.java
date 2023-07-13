@@ -1,6 +1,5 @@
 package com.arextest.web.api.service.controller;
 
-import com.arextest.web.accurate.lib.DynamicTracing;
 import com.arextest.web.accurate.lib.JCodeMethod;
 import com.arextest.web.accurate.lib.JavaProject;
 import com.arextest.web.accurate.model.*;
@@ -9,7 +8,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import redis.clients.jedis.Jedis;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -51,6 +49,7 @@ public class AccurateController {
     /**
      * 列出有变更的类名:函数名
      * 必须是在newCommit和oldCommit之间的差异
+     * 测试了两个,不太对
      *
      * @param request 参数url和两个commit
      * @return
@@ -115,6 +114,7 @@ public class AccurateController {
     /**
      * 查询指定的函数其调用图 Call Graph
      * 静态代码分析, 查询调用链
+     * 会出现单步执行是OK的,但常规运行的时候抛异常,问题未定位
      *
      * @param callGraphRequest 请求参数
      * @return List<String>目前只是字符串List
@@ -132,9 +132,10 @@ public class AccurateController {
         }
 
         try {
-            javaProject.setupJavaProject(reposURL, "");
+            javaProject.setupJavaProject(reposURL, callGraphRequest.getBranch());
             javaProject.scanWholeProject();
             List<MethodTracing> result = javaProject.findMethodCallGraph(className, methodName);
+
             CallGraphResponse response = new CallGraphResponse();
             response.setStacks(result);
             response.setErrorCode(20000); //success;
@@ -147,8 +148,10 @@ public class AccurateController {
 
     /**
      * git clone 命令
+     * 不能重复的clean clone操作, 会失败的, 提示目录有问题
      * @param baseRequest url
      * @return
+     *
      */
     @PostMapping(value = "/git/clone", produces = "application/json; charset=UTF-8")
     @ResponseBody
