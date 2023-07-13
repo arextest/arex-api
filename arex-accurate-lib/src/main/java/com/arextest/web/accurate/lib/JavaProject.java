@@ -804,13 +804,16 @@ public class JavaProject {
     }
 
     /**
-     * @param request
+     * 专门提供一个接口,供用户查询两个版本之间的变更函数
+     * 这个功能跟webhook中有点重复
+     *
+     * @param url 仓库地址
      * @return
      */
-    public GitBasicResponse DoListDiffMethods(GitBasicRequest request) {
+    public GitBasicResponse DoListDiffMethods(String url, String latestCommitID, String oldCommitID) {
         try {
-            setupJavaProject(request.getRepositoryURL(), "");
-            List<JCodeMethod> result = scanCodeDiffMethods(request.getNewCommit(), request.getOldCommit());
+            setupJavaProject(url, "");
+            List<JCodeMethod> result = scanCodeDiffMethods(latestCommitID, oldCommitID);
             GitBasicResponse response = new GitBasicResponse();
             if (result.size() == 0) {
                 response.setErrorCode(10000);
@@ -841,19 +844,6 @@ public class JavaProject {
             }
         }
         return listMethods;
-    }
-
-    /**
-     * 从源码解析并获取所有的函数信息
-     *
-     * @param request request json
-     * @return
-     */
-    public Response DoCodeScan(GitBasicRequest request) {
-        List<JCodeMethod> listMethods = getJCodeMethods();
-        Response response = new Response();
-        response.setData(listMethods);
-        return response;
     }
 
     /**

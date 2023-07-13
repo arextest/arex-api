@@ -3,8 +3,6 @@ package com.arextest.web.api.service.controller;
 import com.arextest.web.accurate.lib.JavaProject;
 import com.arextest.web.accurate.model.Response;
 import lombok.extern.slf4j.Slf4j;
-//import org.gitlab4j.api.webhook.EventMergeRequest;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
