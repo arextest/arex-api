@@ -1,11 +1,10 @@
 package com.arextest.web.api.service.controller;
 
-import com.arextest.accurate.biz.CallTrace;
-import com.arextest.accurate.biz.CodeAnalysis;
-import com.arextest.accurate.lib.DynamicTracing;
-import com.arextest.accurate.lib.JCodeMethod;
-import com.arextest.accurate.lib.JavaProject;
-import com.arextest.accurate.model.*;
+import com.arextest.web.accurate.biz.CallTrace;
+import com.arextest.web.accurate.biz.CodeAnalysis;
+import com.arextest.web.accurate.lib.DynamicTracing;
+import com.arextest.web.accurate.lib.JavaProject;
+import com.arextest.web.accurate.model.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Scope;
@@ -13,56 +12,40 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import redis.clients.jedis.Jedis;
 
+import javax.annotation.Resource;
 import java.util.List;
 
 @Slf4j
 @Controller
 @Scope("prototype")
-@RequestMapping("/api/analysis/")
+@RequestMapping("/api/")
 @CrossOrigin(origins = "*", maxAge = 3600)
 public class AccurateController {
+    @Resource
+    private JavaProject javaProject;
 
-    @PostMapping(value = "/scan", produces = "application/json; charset=UTF-8")
+    @PostMapping(value = "/analysis/scan", produces = "application/json; charset=UTF-8")
     @ResponseBody
     public Response scan(@RequestBody GitBasicRequest request) {
         if (request.requestNotPrepared("commit"))
             return Response.exceptionResponse("request is empty. ");
 
-        JavaProject javaProject = CodeAnalysis.ScanJava(request.getRepositoryURL(), "");
-        if (javaProject == null)
+        JavaProject jp = CodeAnalysis.ScanJava(javaProject,request.getRepositoryURL(), "");
+        if (jp == null)
             return Response.exceptionResponse("init Project failed");
 
-        return javaProject.DoCodeScan(request);
+        return jp.DoCodeScan(request);
     }
 
 
-    /**
-     * 获取变更的函数清单
-     *
-     * @param request
-     * @return
-     */
-    @PostMapping(value = "/diffMethods", produces = "application/json; charset=UTF-8")
-    @ResponseBody
-    public TracingResponse diffMethods(@RequestBody GitBasicRequest request) {
-        if (request.requestNotPrepared("listCommit")) {
-            return TracingResponse.exceptionResponse("git repository is empty or beginDate is empty. ");
-        }
-
-        List<JCodeMethod> methods = CodeAnalysis.ScanChangedMethods(request.getRepositoryURL(), request.getBranch(), request.getNewCommit(), request.getOldCommit());
-        TracingResponse tracingResponse = new TracingResponse();
-        tracingResponse.setData(methods);
-        return tracingResponse;
-    }
-
-    @PostMapping(value = "/spring", produces = "application/json; charset=UTF-8")
+    @PostMapping(value = "/analysis/spring", produces = "application/json; charset=UTF-8")
     @ResponseBody
     public TracingResponse traceSpring(@RequestBody GitBasicRequest request) {
         if (request.requestNotPrepared("listCommit")) {
             return TracingResponse.exceptionResponse("git repository is empty or beginDate is empty. ");
         }
 
-        JavaProject jp = CodeAnalysis.ScanJava(request.getRepositoryURL(), request.getBranch());
+        JavaProject jp = CodeAnalysis.ScanJava(javaProject, request.getRepositoryURL(), request.getBranch());
         if (jp == null) {
             TracingResponse tracingResponse = new TracingResponse();
             tracingResponse.setStatusCode(10001);
@@ -77,12 +60,28 @@ public class AccurateController {
     }
 
     /**
+     * 列出有变更的类名:函数名
+     * 必须是在newCommit和oldCommit之间的差异
+     *
+     * @param request
+     * @return
+     */
+    @PostMapping(value = "/analysis/DiffMethods", produces = "application/json; charset=UTF-8")
+    @ResponseBody
+    public GitBasicResponse listDiffMethods(@RequestBody GitBasicRequest request) {
+        if (request.requestNotPrepared("commit"))
+            return GitBasicResponse.exceptionResponse("git repository url is empty");
+
+        return javaProject.DoListDiffMethods(request);
+    }
+
+    /**
      * 查询指定的函数其调用图 Call Graph
      *
      * @param callGraphRequest 请求参数
      * @return List<String>目前只是字符串List
      */
-    @PostMapping("/staticTrace")
+    @PostMapping("/analysis/staticTrace")
     @ResponseBody
     public CallGraphResponse queryCallGraph(@RequestBody CallGraphRequest callGraphRequest) {
         if (callGraphRequest == null) {
@@ -100,17 +99,7 @@ public class AccurateController {
         return CallTrace.traceRequest(reposURL, "", className, methodName);
     }
 
-    @PostMapping(value = "/static", produces = "application/json; charset=UTF-8")
-    @ResponseBody
-    public TracingResponse diffsBySpringAnnotation(@RequestBody GitBasicRequest request) {
-        if (request.requestNotPrepared("replay"))
-            return TracingResponse.exceptionResponse("git repository is empty or beginDate is empty. ");
-
-        JavaProject project = new JavaProject();
-        return project.DoDynamicTrace(request);
-    }
-
-    @PostMapping(value = "/dynamic", produces = "application/json; charset=UTF-8")
+    @PostMapping(value = "/trace/dynamic", produces = "application/json; charset=UTF-8")
     @ResponseBody
     public TracingResponse StackTracing(@RequestBody GitBasicRequest request) {
         if (request.requestNotPrepared("replay"))
@@ -129,53 +118,34 @@ public class AccurateController {
         }
     }
 
-    @PostMapping(value = "/clone", produces = "application/json; charset=UTF-8")
+    @PostMapping(value = "/git/clone", produces = "application/json; charset=UTF-8")
     @ResponseBody
     public Response gitClone(@RequestBody GitBasicRequest baseRequest) {
         if (baseRequest.requestNotPrepared("clone")) {
             return Response.exceptionResponse(" url cannot be empty");
         }
 
-        return (new JavaProject()).DoGitClone(baseRequest);
+        return javaProject.DoGitClone(baseRequest);
     }
 
-    @PostMapping(value = "/clean", produces = "application/json; charset=UTF-8")
+    @PostMapping(value = "/git/clean", produces = "application/json; charset=UTF-8")
     @ResponseBody
     public Response gitClean(@RequestBody GitBasicRequest baseRequest) {
         if (baseRequest.requestNotPrepared("clean")) {
             return Response.exceptionResponse("url is empty");
         }
 
-        JavaProject codeProject = new JavaProject();
-        return codeProject.DoCleanProject(baseRequest.getRepositoryURL());
+        return javaProject.DoCleanProject(baseRequest.getRepositoryURL());
     }
 
-    @PostMapping(value = "/commits", produces = "application/json; charset=UTF-8")
+    @PostMapping(value = "/git/commits", produces = "application/json; charset=UTF-8")
     @ResponseBody
     public CommitsResponse listCommits(@RequestBody GitBasicRequest request) {
         if (request.requestNotPrepared("commits"))
             return CommitsResponse.exceptionResponse("git repository url is empty");
 
-        JavaProject project = new JavaProject();
-        return project.DoListCommits(request);
+        return javaProject.DoListCommits(request);
     }
-
-    /**
-     * 列出有变更的类名:函数名
-     * 必须是在newCommit和oldCommit之间的差异
-     * @param request
-     * @return
-     */
-    @PostMapping(value = "/diffMethods", produces = "application/json; charset=UTF-8")
-    @ResponseBody
-    public GitBasicResponse listDiffMethods(@RequestBody GitBasicRequest request) {
-        if (request.requestNotPrepared("commit"))
-            return GitBasicResponse.exceptionResponse("git repository url is empty");
-
-        JavaProject project = new JavaProject();
-        return project.DoListDiffMethods(request);
-    }
-
 
 
 }
