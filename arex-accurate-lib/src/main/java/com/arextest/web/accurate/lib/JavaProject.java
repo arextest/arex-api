@@ -735,7 +735,7 @@ public class JavaProject {
 
         Response res = new Response();
         res.setData(result);
-        res.setErrorCode(10000);
+        res.setErrorCode(20000);
         return res;
 
     }

@@ -28,7 +28,7 @@ public class AccurateController {
      * @param request
      * @return
      */
-    @PostMapping(value = "/analysis/scan", produces = "application/json; charset=UTF-8")
+    @PostMapping(value = "/scan/methods", produces = "application/json; charset=UTF-8")
     @ResponseBody
     public Response scan(@RequestBody GitBasicRequest request) {
         if (request.requestNotPrepared("commit"))
@@ -40,39 +40,11 @@ public class AccurateController {
             List<JCodeMethod> listMethods = javaProject.getJCodeMethods();
             Response response = new Response();
             response.setData(listMethods);
-            response.setErrorCode(10000);
+            response.setErrorCode(20000);
             return response;
         }catch (Exception e){
             LOGGER.error(e.toString());
             return Response.exceptionResponse(e.toString());
-        }
-    }
-
-    /**
-     * 提前准备好了Spring的Annotation,所有调用链
-     * 老代码实现
-     * @param request request info
-     * @return
-     */
-    @PostMapping(value = "/analysis/spring", produces = "application/json; charset=UTF-8")
-    @ResponseBody
-    public TracingResponse traceSpring(@RequestBody GitBasicRequest request) {
-        if (request.requestNotPrepared("listCommit")) {
-            return TracingResponse.exceptionResponse("git repository is empty or beginDate is empty. ");
-        }
-
-        try {
-            javaProject.setupJavaProject(request.getRepositoryURL(), request.getBranch());
-            javaProject.scanWholeProject();
-            List<MethodTracing> result = javaProject.searchCallGraphBasedSpringAnnotation();
-
-            TracingResponse tracingResponse = new TracingResponse();
-            tracingResponse.setStatusCode(10000);
-            tracingResponse.setData(result);
-            return tracingResponse;
-        }catch (Exception e){
-            LOGGER.error(e.toString());
-            return TracingResponse.exceptionResponse(e.toString());
         }
     }
 
@@ -83,7 +55,7 @@ public class AccurateController {
      * @param request 参数url和两个commit
      * @return
      */
-    @PostMapping(value = "/analysis/DiffMethods", produces = "application/json; charset=UTF-8")
+    @PostMapping(value = "/scan/changed-methods", produces = "application/json; charset=UTF-8")
     @ResponseBody
     public GitBasicResponse listDiffMethods(@RequestBody GitBasicRequest request) {
         if (request.requestNotPrepared("commit"))
@@ -111,18 +83,45 @@ public class AccurateController {
     }
 
     /**
+     * 提前准备好了Spring的Annotation,查询所有调用链
+     * 老代码实现
+     * @param request request info
+     * @return
+     */
+    @PostMapping(value = "/analysis/static/spring", produces = "application/json; charset=UTF-8")
+    @ResponseBody
+    public TracingResponse traceSpring(@RequestBody GitBasicRequest request) {
+        if (request.requestNotPrepared("listCommit")) {
+            return TracingResponse.exceptionResponse("git repository is empty or beginDate is empty. ");
+        }
+
+        try {
+            javaProject.setupJavaProject(request.getRepositoryURL(), request.getBranch());
+            javaProject.scanWholeProject();
+            List<MethodTracing> result = javaProject.searchCallGraphBasedSpringAnnotation();
+
+            TracingResponse tracingResponse = new TracingResponse();
+            tracingResponse.setStatusCode(20000);
+            tracingResponse.setData(result);
+            return tracingResponse;
+        }catch (Exception e){
+            LOGGER.error(e.toString());
+            return TracingResponse.exceptionResponse(e.toString());
+        }
+    }
+
+
+
+    /**
      * 查询指定的函数其调用图 Call Graph
      * 静态代码分析, 查询调用链
      *
      * @param callGraphRequest 请求参数
      * @return List<String>目前只是字符串List
      */
-    @PostMapping("/analysis/staticTrace/method")
+    @PostMapping("/analysis/static/method")
     @ResponseBody
     public CallGraphResponse queryCallGraph(@RequestBody CallGraphRequest callGraphRequest) {
-        if (callGraphRequest == null) {
-            return CallGraphResponse.exceptionResponse("request is null.");
-        }
         String reposURL = callGraphRequest.getRepositoryURL();
         String className = callGraphRequest.getClassName();
         String methodName = callGraphRequest.getMethodName();
@@ -146,25 +145,11 @@ public class AccurateController {
         }
     }
 
-    @PostMapping(value = "/trace/dynamic", produces = "application/json; charset=UTF-8")
-    @ResponseBody
-    public TracingResponse StackTracing(@RequestBody GitBasicRequest request) {
-        if (request.requestNotPrepared("replay"))
-            return TracingResponse.exceptionResponse("git repository is empty or beginDate is empty. ");
-
-        try (Jedis jedis = new Jedis("10.5.153.1", 6379)) {
-            String oneKey = "TRACE1:AREX-172-20-0-4-70338765707135";
-            List<String> list = jedis.lrange(oneKey, 0, -1);
-            DynamicTracing dynamicTracing = new DynamicTracing();
-            String result = dynamicTracing.StackTracesToCallGraph(list, "com.arextest.");
-            TracingResponse response = new TracingResponse();
-            response.setData(result);
-            return response;
-        } catch (Exception err) {
-            return TracingResponse.exceptionResponse(err.getMessage());
-        }
-    }
-
+    /**
+     * git clone 命令
+     * @param baseRequest url
+     * @return
+     */
     @PostMapping(value = "/git/clone", produces = "application/json; charset=UTF-8")
     @ResponseBody
     public Response gitClone(@RequestBody GitBasicRequest baseRequest) {
@@ -175,6 +160,11 @@ public class AccurateController {
         return javaProject.DoGitClone(baseRequest);
     }
 
+    /**
+     * 清除代码库本地的clone
+     * @param baseRequest url
+     * @return
+     */
     @PostMapping(value = "/git/clean", produces = "application/json; charset=UTF-8")
     @ResponseBody
     public Response gitClean(@RequestBody GitBasicRequest baseRequest) {
@@ -185,6 +175,11 @@ public class AccurateController {
         return javaProject.DoCleanProject(baseRequest.getRepositoryURL());
     }
 
+    /**
+     * 获取所有的commits
+     * @param request url
+     * @return
+     */
     @PostMapping(value = "/git/commits", produces = "application/json; charset=UTF-8")
     @ResponseBody
     public CommitsResponse listCommits(@RequestBody GitBasicRequest request) {
