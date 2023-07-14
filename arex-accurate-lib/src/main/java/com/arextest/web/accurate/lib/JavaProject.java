@@ -210,7 +210,7 @@ public class JavaProject {
             return null;
 
         // 新代码中找
-        HashMap<String, MethodDeclaration> mdSet = new HashMap<>();
+        HashMap<String, JCodeMethod> mdSet = new HashMap<>();
         cu.accept(new VoidVisitorAdapter<Void>() {
             @Override
             public void visit(MethodDeclaration mD, Void arg) {
@@ -220,30 +220,30 @@ public class JavaProject {
                 int endLine = mD.getEnd().get().line;
                 for (LineRange oneRange : ranges) {
                     if (oneRange.inRange(startLine, endLine)) {
-                        mdSet.put(JCodeMethod.getMethodFullName(mD), mD);
+                        JCodeMethod jCodeMethod = JCodeMethod.covertToJCodeMethod(mD);
+                        jCodeMethod.setChangedCode(oneRange.getLogs());
+                        mdSet.put(JCodeMethod.getMethodFullName(mD), jCodeMethod);
                         break;
                     }
                 }
                 super.visit(mD, arg);
             }
         }, null);
-        // 旧代码中找
-        List<JCodeMethod> result = new ArrayList<>();
+
+        // 旧代码中找, 存在问题: 如果是格式改了, 比如换行了, 这样获取代码,其实是没有变化的
         cu = compileJavaString(codeDiff.getOldContent());
         cu.accept(new VoidVisitorAdapter<Void>() {
             @Override
             public void visit(MethodDeclaration oldMD, Void arg) {
                 String queryName = JCodeMethod.getMethodFullName(oldMD);
                 if (mdSet.containsKey(queryName)) {
-                    JCodeMethod jcm = JCodeMethod.covertToJCodeMethod(mdSet.get(queryName));
-                    jcm.setOldDeclare(oldMD.toString());
-                    result.add(jcm);
+                    mdSet.get(queryName).setOldDeclare(oldMD.toString());
                 }
                 super.visit(oldMD, arg);
             }
         }, null);
 
-        return result;
+        return new LinkedList<>(mdSet.values());
     }
 
 

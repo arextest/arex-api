@@ -69,14 +69,16 @@ public class AccurateController {
         List<JCodeMethod> result = javaProject.scanCodeDiffMethods(latestCommit, oldCommit);
 
         GitBasicResponse response = new GitBasicResponse();
-        if (result.size() == 0) {
+        response.setNewCommit(latestCommit);
+        response.setOldCommit(oldCommit);
+        if (result == null || result.size() == 0) {
             response.setErrorCode(10001);
-            response.setResult("null return");
+            response.setResult("No different code between two commit.");
             return response;
         }
 
         response.setErrorCode(20000);
-        response.setResult("success");
+        response.setResult("success diff code");
         response.setData(result);
         return response;
     }

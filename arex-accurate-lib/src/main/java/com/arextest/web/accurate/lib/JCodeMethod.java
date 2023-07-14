@@ -17,6 +17,7 @@ public class JCodeMethod {
     String fullName;
     String declare;
     String oldDeclare;
+    String changedCode;
     String accessSpecifier;
     List<String> params = new ArrayList<>();
     List<String> annotations = new ArrayList<>();

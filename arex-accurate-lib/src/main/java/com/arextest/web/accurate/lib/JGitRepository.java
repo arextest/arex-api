@@ -9,10 +9,7 @@ import org.eclipse.jgit.api.CheckoutCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.LogCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.diff.DiffEntry;
-import org.eclipse.jgit.diff.DiffFormatter;
-import org.eclipse.jgit.diff.Edit;
-import org.eclipse.jgit.diff.RawTextComparator;
+import org.eclipse.jgit.diff.*;
 import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -67,7 +64,7 @@ public class JGitRepository {
             git = new Git(gitRepo);
             git.pull();
             return true;
-        }catch (Exception e){
+        } catch (Exception e) {
             LOGGER.error(e.toString());
             return false;
         }
@@ -270,9 +267,25 @@ public class JGitRepository {
                 byte[] oldBytes = reader.open(oldFileId, Constants.OBJ_BLOB).getBytes();
                 diffContent.setOldContent(new String(oldBytes));
 
+                RawText oldText = new RawText(oldBytes);
+                RawText newText = new RawText(bytes);
                 for (Edit edit : diffFormatter.toFileHeader(diff).toEditList()) {
-                    diffContent.appendRange(edit.getBeginB(), edit.getEndB(), edit.toString());
+                    StringBuilder sb = new StringBuilder();
+                    if (edit.getType() != Edit.Type.DELETE) {
+                        for (int i = edit.getBeginB(); i < edit.getEndB(); i++) {
+                            if (edit.getType() == Edit.Type.INSERT) {
+                                sb.append(" +").append(newText.getString(i)).append("\n");
+                            } else {
+                                sb.append(" +").append(newText.getString(i)).append("\n");
+                                sb.append(" *").append(oldText.getString(i)).append("\n");
+                            }
+                            //这里可以增加无效的判断,比如全部是空格, 修改的是注释,设置标志位判断是否都是无效,都是无效则抛弃
+                        }
+                    }
+
+                    diffContent.appendRange(edit.getBeginB(), edit.getEndB(), sb.toString());
                 }
+
                 diffs.put(fullName, diffContent);
             }
             return diffs;
@@ -318,7 +331,7 @@ public class JGitRepository {
         try {
             StringBuilder strLogs = new StringBuilder();
             Runtime runtime = Runtime.getRuntime();
-            Process pro = runtime.exec(command, null, new File(rootDir+"/.."));
+            Process pro = runtime.exec(command, null, new File(rootDir + "/.."));
             int status = pro.waitFor();
             strLogs.append(command);
             if (status != 0) {
@@ -425,6 +438,7 @@ public class JGitRepository {
 
     /**
      * reset到指定的commit
+     *
      * @param commitId
      */
     public void checkoutByCommit(String commitId) {
