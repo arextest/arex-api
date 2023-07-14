@@ -1,17 +1,19 @@
 package com.arextest.web.core.business.config.replay;
 
-import com.arextest.web.core.business.config.AbstractConfigurableHandler;
-import com.arextest.web.core.repository.ConfigRepositoryProvider;
-import com.arextest.web.model.contract.contracts.common.enums.CompareConfigType;
-import com.arextest.web.model.contract.contracts.common.enums.ExpirationType;
-import com.arextest.web.model.contract.contracts.config.replay.AbstractComparisonDetailsConfiguration;
-import com.arextest.web.model.contract.contracts.config.replay.ComparisonExclusionsConfiguration;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+
+import com.arextest.web.core.business.config.AbstractConfigurableHandler;
+import com.arextest.web.core.repository.AppContractRepository;
+import com.arextest.web.core.repository.ConfigRepositoryProvider;
+import com.arextest.web.model.contract.contracts.common.enums.ExpirationType;
+import com.arextest.web.model.contract.contracts.config.replay.AbstractComparisonDetailsConfiguration;
+import com.arextest.web.model.dto.AppContractDto;
+import com.arextest.web.model.enums.ContractTypeEnum;
 
 /**
  * @author jmo
@@ -20,8 +22,12 @@ import java.util.stream.Stream;
 public abstract class AbstractComparisonConfigurableHandler<T extends AbstractComparisonDetailsConfiguration>
     extends AbstractConfigurableHandler<T> {
 
-    protected AbstractComparisonConfigurableHandler(ConfigRepositoryProvider<T> repositoryProvider) {
+    private AppContractRepository appContractRepository;
+
+    protected AbstractComparisonConfigurableHandler(ConfigRepositoryProvider<T> repositoryProvider,
+        AppContractRepository appContractRepository) {
         super(repositoryProvider);
+        this.appContractRepository = appContractRepository;
     }
 
     @Override
@@ -90,6 +96,7 @@ public abstract class AbstractComparisonConfigurableHandler<T extends AbstractCo
         if (comparisonDetail.getExpirationDate() == null) {
             comparisonDetail.setExpirationDate(new Date());
         }
+        addDependencyId(Collections.singletonList(comparisonDetail));
         return repositoryProvider.insert(comparisonDetail);
     }
 
@@ -101,11 +108,38 @@ public abstract class AbstractComparisonConfigurableHandler<T extends AbstractCo
                     item.setExpirationDate(new Date());
                 }
             }).collect(Collectors.toList());
-
+        addDependencyId(configurations);
         return repositoryProvider.insertList(configurations);
     }
 
     public boolean removeByAppId(String appId) {
         return repositoryProvider.listBy(appId).isEmpty() || repositoryProvider.removeByAppId(appId);
+    }
+
+    private void addDependencyId(List<T> comparisonDetails) {
+        Map<AppContractDto, String> notFoundAppContractMap = new HashMap<>();
+        for (T comparisonDetail : comparisonDetails) {
+            if (comparisonDetail.getDependencyId() != null) {
+                continue;
+            }
+            if (comparisonDetail.getCategoryName() == null && comparisonDetail.getOperationName() == null) {
+                continue;
+            }
+
+            AppContractDto appContractDto = new AppContractDto();
+            appContractDto.setAppId(comparisonDetail.getAppId());
+            appContractDto.setOperationId(comparisonDetail.getOperationId());
+            appContractDto.setOperationType(comparisonDetail.getOperationName());
+            appContractDto.setOperationName(comparisonDetail.getCategoryName());
+            appContractDto.setContractType(ContractTypeEnum.DEPENDENCY.getCode());
+            if (notFoundAppContractMap.containsKey(appContractDto)) {
+                comparisonDetail.setDependencyId(notFoundAppContractMap.get(appContractDto));
+            } else {
+                AppContractDto andModifyAppContract = appContractRepository.findAndModifyAppContract(appContractDto);
+                String dependencyId = andModifyAppContract.getId();
+                notFoundAppContractMap.put(appContractDto, dependencyId);
+                comparisonDetail.setDependencyId(dependencyId);
+            }
+        }
     }
 }

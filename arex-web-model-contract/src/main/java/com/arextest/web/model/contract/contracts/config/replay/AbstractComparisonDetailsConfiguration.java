@@ -3,8 +3,6 @@ package com.arextest.web.model.contract.contracts.config.replay;
 
 import java.util.Date;
 
-import org.apache.logging.log4j.util.Strings;
-
 import com.arextest.web.model.contract.contracts.common.enums.CompareConfigType;
 import com.arextest.web.model.contract.contracts.common.enums.ExpirationType;
 import com.arextest.web.model.contract.contracts.config.AbstractConfiguration;
@@ -52,5 +50,8 @@ public abstract class AbstractComparisonDetailsConfiguration extends AbstractCon
      * This value is valid only when {compareConfigType} = 0
      */
     private String dependencyId;
+
+    private String categoryName;
+    private String operationName;
 
 }
