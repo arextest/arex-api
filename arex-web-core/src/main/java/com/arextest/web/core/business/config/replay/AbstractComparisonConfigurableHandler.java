@@ -129,8 +129,8 @@ public abstract class AbstractComparisonConfigurableHandler<T extends AbstractCo
             AppContractDto appContractDto = new AppContractDto();
             appContractDto.setAppId(comparisonDetail.getAppId());
             appContractDto.setOperationId(comparisonDetail.getOperationId());
-            appContractDto.setOperationType(comparisonDetail.getOperationName());
-            appContractDto.setOperationName(comparisonDetail.getCategoryName());
+            appContractDto.setOperationType(comparisonDetail.getCategoryName());
+            appContractDto.setOperationName(comparisonDetail.getOperationName());
             appContractDto.setContractType(ContractTypeEnum.DEPENDENCY.getCode());
             if (notFoundAppContractMap.containsKey(appContractDto)) {
                 comparisonDetail.setDependencyId(notFoundAppContractMap.get(appContractDto));
