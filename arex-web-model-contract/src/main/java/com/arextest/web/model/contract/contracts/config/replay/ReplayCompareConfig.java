@@ -34,8 +34,6 @@ public class ReplayCompareConfig {
     public static class DependencyComparisonItem extends ComparisonSummaryConfiguration {
         @JsonIgnore
         private String dependencyId;
-        private String dependencyType;
-        private String dependencyName;
 
     }
 }
