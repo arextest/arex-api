@@ -1,18 +1,8 @@
 package com.arextest.web.core.repository.mongo;
 
-import com.arextest.web.common.LogUtils;
-import com.arextest.web.core.repository.ConfigRepositoryField;
-import com.arextest.web.core.repository.ConfigRepositoryProvider;
-import com.arextest.web.core.repository.mongo.util.MongoHelper;
-import com.arextest.web.model.contract.contracts.config.replay.ComparisonInclusionsConfiguration;
-import com.arextest.web.model.dao.mongodb.ConfigComparisonExclusionsCollection;
-import com.arextest.web.model.dao.mongodb.ConfigComparisonInclusionsCollection;
-import com.arextest.web.model.dao.mongodb.entity.AbstractComparisonDetails;
-import com.arextest.web.model.mapper.ConfigComparisonExclusionsMapper;
-import com.arextest.web.model.mapper.ConfigComparisonInclusionsMapper;
-import com.mongodb.client.result.DeleteResult;
-import com.mongodb.client.result.UpdateResult;
-import lombok.extern.slf4j.Slf4j;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,9 +14,18 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Repository;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
+import com.arextest.web.common.LogUtils;
+import com.arextest.web.core.repository.ConfigRepositoryField;
+import com.arextest.web.core.repository.ConfigRepositoryProvider;
+import com.arextest.web.core.repository.mongo.util.MongoHelper;
+import com.arextest.web.model.contract.contracts.config.replay.ComparisonInclusionsConfiguration;
+import com.arextest.web.model.dao.mongodb.ConfigComparisonInclusionsCollection;
+import com.arextest.web.model.dao.mongodb.entity.AbstractComparisonDetails;
+import com.arextest.web.model.mapper.ConfigComparisonInclusionsMapper;
+import com.mongodb.client.result.DeleteResult;
+import com.mongodb.client.result.UpdateResult;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Repository
@@ -109,8 +108,8 @@ public class ComparisonInclusionsConfigurationRepositoryImpl
             .is(configComparisonInclusionsCollection.getCompareConfigType())
             .and(AbstractComparisonDetails.Fields.fsInterfaceId)
             .is(configComparisonInclusionsCollection.getFsInterfaceId())
-            .and(AbstractComparisonDetails.Fields.operationType).is(configuration.getOperationType())
-            .and(AbstractComparisonDetails.Fields.operationName).is(configuration.getOperationName())
+            .and(AbstractComparisonDetails.Fields.dependencyId)
+            .is(configComparisonInclusionsCollection.getDependencyId())
             .and(ConfigComparisonInclusionsCollection.Fields.inclusions)
             .is(configComparisonInclusionsCollection.getInclusions()));
 
@@ -137,9 +136,8 @@ public class ComparisonInclusionsConfigurationRepositoryImpl
                     .and(AbstractComparisonDetails.Fields.operationId).is(inclusionsCollection.getOperationId())
                     .and(AbstractComparisonDetails.Fields.compareConfigType)
                     .is(inclusionsCollection.getCompareConfigType()).and(AbstractComparisonDetails.Fields.fsInterfaceId)
-                    .is(inclusionsCollection.getFsInterfaceId()).and(AbstractComparisonDetails.Fields.operationType)
-                    .is(inclusionsCollection.getOperationType()).and(AbstractComparisonDetails.Fields.operationName)
-                    .is(inclusionsCollection.getOperationName())
+                    .is(inclusionsCollection.getFsInterfaceId()).and(AbstractComparisonDetails.Fields.dependencyId)
+                    .is(inclusionsCollection.getDependencyId())
                     .and(ConfigComparisonInclusionsCollection.Fields.inclusions)
                     .is(inclusionsCollection.getInclusions()));
                 bulkOperations.upsert(query, update);

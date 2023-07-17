@@ -66,18 +66,22 @@ public abstract class AbstractComparisonConfigurableHandler<T extends AbstractCo
 
         // query the config of dependency
         if (operationType != null || operationName != null) {
+            AppContractDto appContractDto =
+                appContractRepository.queryDependency(operationId, operationType, operationName);
+
             List<T> comparisonConfigList = this.useResultAsList(appId, operationId);
             return comparisonConfigList.stream()
-                .filter(config -> Objects.equals(config.getOperationType(), operationType)
-                    && Objects.equals(config.getOperationName(), operationName))
-                .collect(Collectors.toList());
+                .filter(config -> Objects.equals(config.getDependencyId(), appContractDto.getId())).peek(item -> {
+                    item.setOperationType(operationType);
+                    item.setOperationName(operationName);
+                    }).collect(Collectors.toList());
         }
 
         // query the config of operation
         if (operationId != null) {
             List<T> comparisonConfigList = this.useResultAsList(appId, operationId);
-            return comparisonConfigList.stream().filter(config -> Objects.equals(config.getOperationName(), null)
-                && Objects.equals(config.getOperationType(), null)).collect(Collectors.toList());
+            return comparisonConfigList.stream().filter(config -> Objects.equals(config.getDependencyId(), null))
+                .collect(Collectors.toList());
         }
 
         // query the config of app global
@@ -119,9 +123,8 @@ public abstract class AbstractComparisonConfigurableHandler<T extends AbstractCo
     }
 
     private void addDependencyId(List<T> comparisonDetails) {
-        Set<AppContractDto> notFoundAppContractMap = new HashSet<>();
+        Map<AppContractDto, String> notFoundAppContractMap = new HashMap<>();
         for (T comparisonDetail : comparisonDetails) {
-
             if (comparisonDetail.getOperationType() == null && comparisonDetail.getOperationName() == null) {
                 continue;
             }
@@ -132,12 +135,13 @@ public abstract class AbstractComparisonConfigurableHandler<T extends AbstractCo
             appContractDto.setOperationType(comparisonDetail.getOperationType());
             appContractDto.setOperationName(comparisonDetail.getOperationName());
             appContractDto.setContractType(ContractTypeEnum.DEPENDENCY.getCode());
-
-            if (!notFoundAppContractMap.contains(appContractDto)) {
+            if (notFoundAppContractMap.containsKey(appContractDto)) {
+                comparisonDetail.setDependencyId(notFoundAppContractMap.get(appContractDto));
+            } else {
                 AppContractDto andModifyAppContract = appContractRepository.findAndModifyAppContract(appContractDto);
-                if (andModifyAppContract != null) {
-                    notFoundAppContractMap.add(appContractDto);
-                }
+                String dependencyId = andModifyAppContract.getId();
+                notFoundAppContractMap.put(appContractDto, dependencyId);
+                comparisonDetail.setDependencyId(dependencyId);
             }
         }
     }

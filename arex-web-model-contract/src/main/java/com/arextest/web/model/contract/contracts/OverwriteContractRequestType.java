@@ -8,12 +8,11 @@ public class OverwriteContractRequestType {
 
     private String operationId;
 
+    /**
+     * the key of dependency
+     */
     private String operationName;
     private String operationType;
-    /**
-     * @See com.arextest.web.model.enums.ContractTypeEnum
-     */
-    private Integer contractType;
 
     private String operationResponse;
 }

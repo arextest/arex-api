@@ -21,15 +21,13 @@ import org.springframework.stereotype.Repository;
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Slf4j
 @Repository
 public class AppContractRepositoryImpl implements AppContractRepository {
     private static final String OPERATION_ID = "operationId";
-    private static final String OPERATION_NAME = "operationName";
-    private static final String OPERATION_TYPE = "operationType";
-    private static final String CONTRACT = "contract";
     private static final String APP_ID = "appId";
     private static final String CONTRACT_TYPE = "contractType";
     @Resource
@@ -138,19 +136,34 @@ public class AppContractRepositoryImpl implements AppContractRepository {
 
     @Override
     public AppContractDto findAndModifyAppContract(AppContractDto appContractDto) {
-
-        Query query = Query.query(Criteria.where(AppContractCollection.Fields.appId).is(appContractDto.getAppId())
-                .and(AppContractCollection.Fields.operationId).is(appContractDto.getOperationId())
-                .and(AppContractCollection.Fields.operationType).is(appContractDto.getOperationType())
-                .and(AppContractCollection.Fields.operationName).is(appContractDto.getOperationName())
-                .and(AppContractCollection.Fields.contractType).is(appContractDto.getContractType())
-        );
+        Query query = new Query();
+        if (Objects.equals(appContractDto.getContractType(), ContractTypeEnum.GLOBAL.getCode())) {
+            query.addCriteria(Criteria.where(AppContractCollection.Fields.appId).is(appContractDto.getAppId())
+                .and(AppContractCollection.Fields.contractType).is(appContractDto.getContractType()));
+        } else if (Objects.equals(appContractDto.getContractType(), ContractTypeEnum.ENTRY.getCode())) {
+            query.addCriteria(
+                Criteria.where(AppContractCollection.Fields.operationId).is(appContractDto.getOperationId())
+                    .and(AppContractCollection.Fields.contractType).is(appContractDto.getContractType()));
+        } else if (Objects.equals(appContractDto.getContractType(), ContractTypeEnum.DEPENDENCY.getCode())) {
+            query.addCriteria(
+                Criteria.where(AppContractCollection.Fields.operationId).is(appContractDto.getOperationId())
+                    .and(AppContractCollection.Fields.contractType).is(appContractDto.getContractType())
+                    .and(AppContractCollection.Fields.operationType).is(appContractDto.getOperationType())
+                    .and(AppContractCollection.Fields.operationName).is(appContractDto.getOperationName()));
+        }
         Update update = MongoHelper.getUpdate();
         MongoHelper.appendFullProperties(update, appContractDto);
-        AppContractCollection dao = mongoTemplate.findAndModify(query,
-                update,
-                FindAndModifyOptions.options().upsert(true).returnNew(true),
-                AppContractCollection.class);
+        AppContractCollection dao = mongoTemplate.findAndModify(query, update,
+            FindAndModifyOptions.options().upsert(true).returnNew(true), AppContractCollection.class);
+        return AppContractMapper.INSTANCE.dtoFromDao(dao);
+    }
+
+    @Override
+    public AppContractDto queryDependency(String operationId, String operationType, String operationName) {
+        Query query = Query.query(Criteria.where(AppContractCollection.Fields.operationId).is(operationId)
+            .and(AppContractCollection.Fields.operationType).is(operationType)
+            .and(AppContractCollection.Fields.operationName).is(operationName));
+        AppContractCollection dao = mongoTemplate.findOne(query, AppContractCollection.class);
         return AppContractMapper.INSTANCE.dtoFromDao(dao);
     }
 }

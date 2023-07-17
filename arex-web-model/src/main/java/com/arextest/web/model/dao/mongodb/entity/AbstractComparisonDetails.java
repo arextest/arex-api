@@ -28,6 +28,5 @@ public abstract class AbstractComparisonDetails extends ModelBase {
 
     private String fsInterfaceId;
 
-    private String operationName;
-    private String operationType;
+    private String dependencyId;
 }

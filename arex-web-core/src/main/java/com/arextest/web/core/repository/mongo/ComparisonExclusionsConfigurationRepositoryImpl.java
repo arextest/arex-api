@@ -1,22 +1,8 @@
 package com.arextest.web.core.repository.mongo;
 
-import cn.hutool.core.util.BooleanUtil;
-import com.arextest.web.common.LogUtils;
-import com.arextest.web.core.repository.ConfigRepositoryField;
-import com.arextest.web.core.repository.ConfigRepositoryProvider;
-import com.arextest.web.core.repository.mongo.util.MongoHelper;
-import com.arextest.web.model.contract.contracts.config.replay.ComparisonExclusionsConfiguration;
-import com.arextest.web.model.dao.mongodb.AppContractCollection;
-import com.arextest.web.model.dao.mongodb.ConfigComparisonExclusionsCollection;
-import com.arextest.web.model.dao.mongodb.entity.AbstractComparisonDetails;
-import com.arextest.web.model.dto.AppContractDto;
-import com.arextest.web.model.mapper.AppContractMapper;
-import com.arextest.web.model.mapper.ConfigComparisonExclusionsMapper;
-import com.mongodb.bulk.BulkWriteResult;
-import com.mongodb.bulk.BulkWriteUpsert;
-import com.mongodb.client.result.DeleteResult;
-import com.mongodb.client.result.UpdateResult;
-import lombok.extern.slf4j.Slf4j;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,9 +14,18 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Repository;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
+import com.arextest.web.common.LogUtils;
+import com.arextest.web.core.repository.ConfigRepositoryField;
+import com.arextest.web.core.repository.ConfigRepositoryProvider;
+import com.arextest.web.core.repository.mongo.util.MongoHelper;
+import com.arextest.web.model.contract.contracts.config.replay.ComparisonExclusionsConfiguration;
+import com.arextest.web.model.dao.mongodb.ConfigComparisonExclusionsCollection;
+import com.arextest.web.model.dao.mongodb.entity.AbstractComparisonDetails;
+import com.arextest.web.model.mapper.ConfigComparisonExclusionsMapper;
+import com.mongodb.client.result.DeleteResult;
+import com.mongodb.client.result.UpdateResult;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Created by rchen9 on 2022/9/16.
@@ -117,10 +112,8 @@ public class ComparisonExclusionsConfigurationRepositoryImpl
             .is(configComparisonExclusionsCollection.getCompareConfigType())
             .and(AbstractComparisonDetails.Fields.fsInterfaceId)
             .is(configComparisonExclusionsCollection.getFsInterfaceId())
-            .and(AbstractComparisonDetails.Fields.operationType)
-            .is(configComparisonExclusionsCollection.getOperationType())
-            .and(AbstractComparisonDetails.Fields.operationName)
-            .is(configComparisonExclusionsCollection.getOperationName())
+            .and(AbstractComparisonDetails.Fields.dependencyId)
+            .is(configComparisonExclusionsCollection.getDependencyId())
             .and(ConfigComparisonExclusionsCollection.Fields.exclusions)
             .is(configComparisonExclusionsCollection.getExclusions()));
 
@@ -147,9 +140,8 @@ public class ComparisonExclusionsConfigurationRepositoryImpl
                     .and(AbstractComparisonDetails.Fields.operationId).is(exclusionsCollection.getOperationId())
                     .and(AbstractComparisonDetails.Fields.compareConfigType)
                     .is(exclusionsCollection.getCompareConfigType()).and(AbstractComparisonDetails.Fields.fsInterfaceId)
-                    .is(exclusionsCollection.getFsInterfaceId()).and(AbstractComparisonDetails.Fields.operationType)
-                    .is(exclusionsCollection.getOperationType()).and(AbstractComparisonDetails.Fields.operationName)
-                    .is(exclusionsCollection.getOperationName())
+                    .is(exclusionsCollection.getFsInterfaceId()).and(AbstractComparisonDetails.Fields.dependencyId)
+                    .is(exclusionsCollection.getDependencyId())
                     .and(ConfigComparisonExclusionsCollection.Fields.exclusions)
                     .is(exclusionsCollection.getExclusions()));
                 bulkOperations.upsert(query, update);
