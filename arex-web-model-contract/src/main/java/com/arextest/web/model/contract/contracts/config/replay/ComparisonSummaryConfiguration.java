@@ -21,6 +21,9 @@ import java.util.Set;
  */
 @Data
 public class ComparisonSummaryConfiguration {
+
+    private String operationName;
+    private List<String> operationTypes;
     /**
      * ignore configuration
      * List<String> stores the absolute path of leaf node
