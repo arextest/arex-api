@@ -109,8 +109,8 @@ public class ComparisonInclusionsConfigurationRepositoryImpl
             .is(configComparisonInclusionsCollection.getCompareConfigType())
             .and(AbstractComparisonDetails.Fields.fsInterfaceId)
             .is(configComparisonInclusionsCollection.getFsInterfaceId())
-            .and(AbstractComparisonDetails.Fields.dependencyId)
-            .is(configComparisonInclusionsCollection.getDependencyId())
+            .and(AbstractComparisonDetails.Fields.operationType).is(configuration.getOperationType())
+            .and(AbstractComparisonDetails.Fields.operationName).is(configuration.getOperationName())
             .and(ConfigComparisonInclusionsCollection.Fields.inclusions)
             .is(configComparisonInclusionsCollection.getInclusions()));
 
@@ -137,8 +137,9 @@ public class ComparisonInclusionsConfigurationRepositoryImpl
                     .and(AbstractComparisonDetails.Fields.operationId).is(inclusionsCollection.getOperationId())
                     .and(AbstractComparisonDetails.Fields.compareConfigType)
                     .is(inclusionsCollection.getCompareConfigType()).and(AbstractComparisonDetails.Fields.fsInterfaceId)
-                    .is(inclusionsCollection.getFsInterfaceId()).and(AbstractComparisonDetails.Fields.dependencyId)
-                    .is(inclusionsCollection.getDependencyId())
+                    .is(inclusionsCollection.getFsInterfaceId()).and(AbstractComparisonDetails.Fields.operationType)
+                    .is(inclusionsCollection.getOperationType()).and(AbstractComparisonDetails.Fields.operationName)
+                    .is(inclusionsCollection.getOperationName())
                     .and(ConfigComparisonInclusionsCollection.Fields.inclusions)
                     .is(inclusionsCollection.getInclusions()));
                 bulkOperations.upsert(query, update);

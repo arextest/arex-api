@@ -6,11 +6,14 @@ import lombok.Data;
 public class OverwriteContractRequestType {
     private String appId;
 
-    private String contractId;
-
     private String operationId;
+
     private String operationName;
     private String operationType;
+    /**
+     * @See com.arextest.web.model.enums.ContractTypeEnum
+     */
+    private Integer contractType;
 
     private String operationResponse;
 }

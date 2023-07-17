@@ -20,7 +20,7 @@ import javax.annotation.Resource;
 @RequestMapping("/api/config/comparison/listsort")
 public class ComparisonListSortController extends AbstractConfigurableController<ComparisonListSortConfiguration> {
     public ComparisonListSortController(
-            @Autowired ConfigurableHandler<ComparisonListSortConfiguration> configurableHandler) {
+        @Autowired ConfigurableHandler<ComparisonListSortConfiguration> configurableHandler) {
         super(configurableHandler);
     }
 
@@ -30,12 +30,13 @@ public class ComparisonListSortController extends AbstractConfigurableController
     @Deprecated
     @RequestMapping("/useResultAsList")
     @ResponseBody
-    public final Response useResultList(@RequestParam String appId, @RequestParam(required = false) String operationId) {
+    public final Response useResultList(@RequestParam String appId,
+        @RequestParam(required = false) String operationId) {
         if (StringUtils.isEmpty(appId)) {
             return InvalidResponse.REQUESTED_APP_ID_IS_EMPTY;
         }
-        return ResponseUtils.successResponse(
-                this.comparisonListSortConfigurableHandler.useResultAsList(appId, operationId));
+        return ResponseUtils
+            .successResponse(this.comparisonListSortConfigurableHandler.useResultAsList(appId, operationId));
     }
 
     @RequestMapping("/queryByInterfaceId")
@@ -45,15 +46,14 @@ public class ComparisonListSortController extends AbstractConfigurableController
             return InvalidResponse.REQUESTED_INTERFACE_ID_IS_EMPTY;
         }
 
-        return ResponseUtils.successResponse(
-                this.comparisonListSortConfigurableHandler.queryByInterfaceId(interfaceId));
+        return ResponseUtils
+            .successResponse(this.comparisonListSortConfigurableHandler.queryByInterfaceId(interfaceId));
     }
 
     @PostMapping("/queryComparisonConfig")
     @ResponseBody
     public Response queryComparisonConfig(@RequestBody QueryComparisonRequestType request) {
         return ResponseUtils.successResponse(this.comparisonListSortConfigurableHandler.queryComparisonConfig(
-                request.getAppId(), request.getOperationId(), request.getDependencyId()
-        ));
+            request.getAppId(), request.getOperationId(), request.getOperationType(), request.getOperationName()));
     }
 }

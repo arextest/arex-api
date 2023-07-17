@@ -110,8 +110,8 @@ public class ComparisonReferenceConfigurationRepositoryImpl
             .is(configComparisonReferenceCollection.getCompareConfigType())
             .and(AbstractComparisonDetails.Fields.fsInterfaceId)
             .is(configComparisonReferenceCollection.getFsInterfaceId())
-            .and(AbstractComparisonDetails.Fields.dependencyId)
-            .is(configComparisonReferenceCollection.getDependencyId())
+            .and(AbstractComparisonDetails.Fields.operationType).is(configuration.getOperationType())
+            .and(AbstractComparisonDetails.Fields.operationName).is(configuration.getOperationName())
             .and(ConfigComparisonReferenceCollection.Fields.pkPath).is(configComparisonReferenceCollection.getPkPath())
             .and(ConfigComparisonReferenceCollection.Fields.fkPath)
             .is(configComparisonReferenceCollection.getFkPath()));
@@ -140,8 +140,9 @@ public class ComparisonReferenceConfigurationRepositoryImpl
                     .and(AbstractComparisonDetails.Fields.operationId).is(referenceCollection.getOperationId())
                     .and(AbstractComparisonDetails.Fields.compareConfigType)
                     .is(referenceCollection.getCompareConfigType()).and(AbstractComparisonDetails.Fields.fsInterfaceId)
-                    .is(referenceCollection.getFsInterfaceId()).and(AbstractComparisonDetails.Fields.dependencyId)
-                    .is(referenceCollection.getDependencyId()).and(ConfigComparisonReferenceCollection.Fields.pkPath)
+                    .is(referenceCollection.getFsInterfaceId()).and(AbstractComparisonDetails.Fields.operationType)
+                    .is(referenceCollection.getOperationType()).and(AbstractComparisonDetails.Fields.operationName)
+                    .is(referenceCollection.getOperationName()).and(ConfigComparisonReferenceCollection.Fields.pkPath)
                     .is(referenceCollection.getPkPath()).and(ConfigComparisonReferenceCollection.Fields.fkPath)
                     .is(referenceCollection.getFkPath()));
                 bulkOperations.upsert(query, update);

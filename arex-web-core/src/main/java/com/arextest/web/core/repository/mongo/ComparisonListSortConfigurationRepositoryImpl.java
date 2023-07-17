@@ -111,7 +111,8 @@ public class ComparisonListSortConfigurationRepositoryImpl
             .is(configComparisonListSortCollection.getCompareConfigType())
             .and(AbstractComparisonDetails.Fields.fsInterfaceId)
             .is(configComparisonListSortCollection.getFsInterfaceId())
-            .and(AbstractComparisonDetails.Fields.dependencyId).is(configComparisonListSortCollection.getDependencyId())
+            .and(AbstractComparisonDetails.Fields.operationType).is(configuration.getOperationType())
+            .and(AbstractComparisonDetails.Fields.operationName).is(configuration.getOperationName())
             .and(ConfigComparisonListSortCollection.Fields.listPath)
             .is(configComparisonListSortCollection.getListPath()));
 
@@ -138,8 +139,9 @@ public class ComparisonListSortConfigurationRepositoryImpl
                     .and(AbstractComparisonDetails.Fields.operationId).is(listSortCollection.getOperationId())
                     .and(AbstractComparisonDetails.Fields.compareConfigType)
                     .is(listSortCollection.getCompareConfigType()).and(AbstractComparisonDetails.Fields.fsInterfaceId)
-                    .is(listSortCollection.getFsInterfaceId()).and(AbstractComparisonDetails.Fields.dependencyId)
-                    .is(listSortCollection.getDependencyId()).and(ConfigComparisonListSortCollection.Fields.listPath)
+                    .is(listSortCollection.getFsInterfaceId()).and(AbstractComparisonDetails.Fields.operationType)
+                    .is(listSortCollection.getOperationType()).and(AbstractComparisonDetails.Fields.operationName)
+                    .is(listSortCollection.getOperationName()).and(ConfigComparisonListSortCollection.Fields.listPath)
                     .is(listSortCollection.getListPath()));
                 bulkOperations.upsert(query, update);
             }

@@ -286,7 +286,7 @@ public class ComparisonSummaryService {
                 // operation. if key is not null, it means the configuration of dependency.
                 Map<String, List<T>> dependencyConfigurationsMap = new HashMap<>();
                 for (T config : configurationList) {
-                    dependencyConfigurationsMap.putIfAbsent(config.getDependencyId(), new ArrayList<>()).add(config);
+                    dependencyConfigurationsMap.putIfAbsent(null, new ArrayList<>()).add(config);
                 }
 
                 // build the configuration of operation

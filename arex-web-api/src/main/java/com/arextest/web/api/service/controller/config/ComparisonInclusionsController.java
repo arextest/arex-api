@@ -1,6 +1,5 @@
 package com.arextest.web.api.service.controller.config;
 
-
 import com.arextest.common.model.response.Response;
 import com.arextest.common.utils.ResponseUtils;
 import com.arextest.web.core.business.config.ConfigurableHandler;
@@ -18,7 +17,7 @@ import javax.annotation.Resource;
 @RequestMapping("/api/config/comparison/inclusions")
 public class ComparisonInclusionsController extends AbstractConfigurableController<ComparisonInclusionsConfiguration> {
     public ComparisonInclusionsController(
-            @Autowired ConfigurableHandler<ComparisonInclusionsConfiguration> configurableHandler) {
+        @Autowired ConfigurableHandler<ComparisonInclusionsConfiguration> configurableHandler) {
         super(configurableHandler);
     }
 
@@ -28,12 +27,13 @@ public class ComparisonInclusionsController extends AbstractConfigurableControll
     @Deprecated
     @RequestMapping("/useResultAsList")
     @ResponseBody
-    public final Response useResultList(@RequestParam String appId, @RequestParam(required = false) String operationId) {
+    public final Response useResultList(@RequestParam String appId,
+        @RequestParam(required = false) String operationId) {
         if (StringUtils.isEmpty(appId)) {
             return InvalidResponse.REQUESTED_APP_ID_IS_EMPTY;
         }
-        return ResponseUtils.successResponse(
-                this.comparisonInclusionsConfigurableHandler.useResultAsList(appId, operationId));
+        return ResponseUtils
+            .successResponse(this.comparisonInclusionsConfigurableHandler.useResultAsList(appId, operationId));
     }
 
     @RequestMapping("/queryByInterfaceId")
@@ -42,16 +42,15 @@ public class ComparisonInclusionsController extends AbstractConfigurableControll
         if (StringUtils.isEmpty(interfaceId)) {
             return InvalidResponse.REQUESTED_INTERFACE_ID_IS_EMPTY;
         }
-        return ResponseUtils.successResponse(
-                this.comparisonInclusionsConfigurableHandler.queryByInterfaceId(interfaceId));
+        return ResponseUtils
+            .successResponse(this.comparisonInclusionsConfigurableHandler.queryByInterfaceId(interfaceId));
     }
 
     @PostMapping("/queryComparisonConfig")
     @ResponseBody
     public Response queryComparisonConfig(@RequestBody QueryComparisonRequestType request) {
         return ResponseUtils.successResponse(this.comparisonInclusionsConfigurableHandler.queryComparisonConfig(
-                request.getAppId(), request.getOperationId(), request.getDependencyId()
-        ));
+            request.getAppId(), request.getOperationId(), request.getOperationType(), request.getOperationName()));
     }
 
 }

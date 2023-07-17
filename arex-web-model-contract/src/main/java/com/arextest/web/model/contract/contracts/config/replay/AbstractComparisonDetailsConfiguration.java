@@ -46,12 +46,12 @@ public abstract class AbstractComparisonDetailsConfiguration extends AbstractCon
      */
     private String fsInterfaceId;
 
-    /**
-     * This value is valid only when {compareConfigType} = 0
-     */
-    private String dependencyId;
+//    /**
+//     * This value is valid only when {compareConfigType} = 0
+//     */
+//    private String dependencyId;
 
-    private String categoryName;
+    private String operationType;
     private String operationName;
 
 }

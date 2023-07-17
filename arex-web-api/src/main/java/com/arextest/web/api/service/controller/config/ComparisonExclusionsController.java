@@ -56,8 +56,8 @@ public class ComparisonExclusionsController extends AbstractConfigurableControll
     @PostMapping("/queryComparisonConfig")
     @ResponseBody
     public Response queryComparisonConfig(@RequestBody QueryComparisonRequestType request) {
-        return ResponseUtils.successResponse(this.comparisonExclusionsConfigurableHandler
-            .queryComparisonConfig(request.getAppId(), request.getOperationId(), request.getDependencyId()));
+        return ResponseUtils.successResponse(this.comparisonExclusionsConfigurableHandler.queryComparisonConfig(
+            request.getAppId(), request.getOperationId(), request.getOperationType(), request.getOperationName()));
     }
 
 }

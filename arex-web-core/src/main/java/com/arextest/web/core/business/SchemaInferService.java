@@ -130,22 +130,15 @@ public class SchemaInferService {
         return null;
     }
 
-    public boolean overwriteContract(OverwriteContractRequestType request) {
+    public AppContractDto overwriteContract(OverwriteContractRequestType request) {
         AppContractDto appContractDto = new AppContractDto();
         appContractDto.setContract(SchemaUtils.mergeJson(EMPTY_CONTRACT, request.getOperationResponse()));
         appContractDto.setAppId(request.getAppId());
-        if (request.getContractId() != null) {
-            appContractDto.setId(request.getContractId());
-            appContractDto.setContractType(ContractTypeEnum.DEPENDENCY.getCode());
-        } else if (request.getOperationId() != null) {
-            appContractDto.setOperationId(request.getOperationId());
-            appContractDto.setOperationName(request.getOperationName());
-            appContractDto.setOperationType(request.getOperationType());
-            appContractDto.setContractType(ContractTypeEnum.ENTRY.getCode());
-        } else if (request.getAppId() != null) {
-            appContractDto.setContractType(ContractTypeEnum.GLOBAL.getCode());
-        }
-        return appContractRepository.upsert(appContractDto);
+        appContractDto.setOperationId(request.getOperationId());
+        appContractDto.setOperationName(request.getOperationName());
+        appContractDto.setOperationType(request.getOperationType());
+        appContractDto.setContractType(request.getContractType());
+        return appContractRepository.findAndModifyAppContract(appContractDto);
     }
 
     public SyncResponseContractResponseType syncResponseContract(SyncResponseContractRequestType request) {
@@ -260,27 +253,6 @@ public class SchemaInferService {
         responseType.setEntryPointContractStr(entryPointApplication.getContract());
         responseType.setDependencyList(dependencyList);
         return responseType;
-    }
-
-    public AddDependencyToSystemResponseType addDependencyToSystem(AddDependencyToSystemRequestType request) {
-        AddDependencyToSystemResponseType response = new AddDependencyToSystemResponseType();
-
-        String appId = request.getAppId();
-        String operationId = request.getOperationId();
-        AppContractDto appContractDto = AppContractMapper.INSTANCE.dtoFromContract(request);
-        appContractDto.setContractType(ContractTypeEnum.DEPENDENCY.getCode());
-        AppContractDto insertAppContractDto = appContractRepository.findAndModifyAppContract(appContractDto);
-        if (insertAppContractDto != null) {
-            response.setAppId(appId);
-            response.setOperationId(operationId);
-            response.setDependencyId(insertAppContractDto.getId());
-            if (insertAppContractDto.getContract() == null) {
-                String contract = SchemaUtils.mergeJson(EMPTY_CONTRACT, request.getMsg());
-                appContractDto.setContract(contract);
-                appContractRepository.findAndModifyAppContract(appContractDto);
-            }
-        }
-        return response;
     }
 
     private DependencyWithContract buildDependency(AppContractDto appContractDto) {
