@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Resource;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Component;
 
 import com.arextest.web.core.business.config.ConfigurableHandler;
@@ -49,7 +50,15 @@ public class ComparisonSummaryService {
 
     public ReplayCompareConfig getReplayComparisonConfig(String appId) {
         ReplayCompareConfig replayCompareConfig = new ReplayCompareConfig();
-        replayCompareConfig.setReplayComparisonItems(getReplayComparisonItems(appId));
+        Map<String, ReplayCompareConfig.ReplayComparisonItem> replayComparisonItemMap = getReplayComparisonItems(appId);
+        // build global config
+        ReplayCompareConfig.GlobalComparisonItem globalComparisonItem = new ReplayCompareConfig.GlobalComparisonItem();
+        ReplayCompareConfig.ReplayComparisonItem replayComparisonItem = replayComparisonItemMap.get(null);
+        BeanUtils.copyProperties(replayComparisonItem, globalComparisonItem);
+        replayCompareConfig.setGlobalComparisonItem(globalComparisonItem);
+        replayComparisonItemMap.remove(null);
+        // build operation config
+        replayCompareConfig.setReplayComparisonItems(new ArrayList<>(replayComparisonItemMap.values()));
         return replayCompareConfig;
     }
 
@@ -101,15 +110,15 @@ public class ComparisonSummaryService {
         comparisonSummaryConfiguration.setReferenceMap(referenceMap);
     }
 
-    private List<ReplayCompareConfig.ReplayComparisonItem> getReplayComparisonItems(String appId) {
+    private Map<String, ReplayCompareConfig.ReplayComparisonItem> getReplayComparisonItems(String appId) {
         Map<String, ReplayCompareConfig.ReplayComparisonItem> replayConfigurationMap = new HashMap<>();
 
         List<String> operationIdList = getOperationIdList(appId);
 
         // appContractDtoList filter the operation and group by operationId
+        // Map<operationId, Map<dependencyId, AppContractDto>>
         List<AppContractDto> appContractDtos = appContractRepository.queryAppContractListByOpIds(operationIdList,
             Collections.singletonList(AppContractCollection.Fields.contract));
-
         Map<String,
             Map<String, AppContractDto>> appContractDtoMap = appContractDtos.stream()
                 .filter(item -> Objects.equals(item.getContractType(), ContractTypeEnum.DEPENDENCY.getCode()))
@@ -151,9 +160,7 @@ public class ComparisonSummaryService {
                             ComparisonReferenceConfiguration::getPkPath));
                 summaryConfiguration.setReferenceMap(operationReferenceMap);
             }, appContractDtoMap);
-
-        mergeGlobalComparisonConfig(replayConfigurationMap, operationIdList, appContractDtoMap);
-        return new ArrayList<>(replayConfigurationMap.values());
+        return replayConfigurationMap;
     }
 
     private void mergeGlobalComparisonConfig(
@@ -286,7 +293,7 @@ public class ComparisonSummaryService {
                 // operation. if key is not null, it means the configuration of dependency.
                 Map<String, List<T>> dependencyConfigurationsMap = new HashMap<>();
                 for (T config : configurationList) {
-                    dependencyConfigurationsMap.putIfAbsent(null, new ArrayList<>()).add(config);
+                    dependencyConfigurationsMap.putIfAbsent(config.getDependencyId(), new ArrayList<>()).add(config);
                 }
 
                 // build the configuration of operation
