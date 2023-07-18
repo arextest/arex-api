@@ -9,5 +9,10 @@ public class QueryComparisonRequestType {
     @NotNull(message = "appid cannot be null")
     private String appId;
     private String operationId;
-    private String dependencyId;
+
+    /**
+     * operationName and operationType are the key of dependency
+     */
+    private String operationName;
+    private String operationType;
 }

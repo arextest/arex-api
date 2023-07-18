@@ -346,15 +346,7 @@ public class ReportQueryController {
     @PostMapping("/overwriteContract")
     @ResponseBody
     public Response syncResponse(@Valid @RequestBody OverwriteContractRequestType requestType) {
-        SuccessResponseType response = new SuccessResponseType();
-        response.setSuccess(schemaInferService.overwriteContract(requestType));
-        return ResponseUtils.successResponse(response);
-    }
-
-    @PostMapping("/addDependencyToSystem")
-    @ResponseBody
-    public Response addDependencyToSystem(@Valid @RequestBody AddDependencyToSystemRequestType request) {
-        return ResponseUtils.successResponse(schemaInferService.addDependencyToSystem(request));
+        return ResponseUtils.successResponse(schemaInferService.overwriteContract(requestType));
     }
 
 }

@@ -165,17 +165,6 @@ public class QueryReplayMsgService {
                 entranceCategoryNames.add(applicationOperationConfiguration.getOperationType());
             }
 
-            // build a map from appContractRepository,
-            // key:pair<AppContractDto.operationName,AppContractDto.operationType>,
-            // value:AppContractDto.id (AppContractDto.operationName is the same as CompareResultDto.operationName)
-            List<AppContractDto> appContractDtos =
-                appContractRepository.queryAppContractListByOpIds(Collections.singletonList(operationId), null);
-            Map<Pair<String, String>, String> toDependencyIdMap = new HashMap<>();
-            for (AppContractDto appContractDto : appContractDtos) {
-                toDependencyIdMap.put(Pair.of(appContractDto.getOperationName(), appContractDto.getOperationType()),
-                    appContractDto.getId());
-            }
-
             FullLinkInfoItem entrance = new FullLinkInfoItem();
             List<FullLinkInfoItem> itemList = new ArrayList<>();
             for (CompareResultDto dto : dtos) {
@@ -185,8 +174,6 @@ public class QueryReplayMsgService {
                     entrance.setOperationName(dto.getOperationName());
                     entrance.setInstanceId(dto.getInstanceId());
                     entrance.setCode(computeItemStatus(dto));
-                    entrance.setFoundInSystem(true);
-                    entrance.setOperationId(operationId);
                 } else {
                     FullLinkInfoItem dependencyItem = new FullLinkInfoItem();
                     dependencyItem.setId(dto.getId());
@@ -194,12 +181,6 @@ public class QueryReplayMsgService {
                     dependencyItem.setOperationName(dto.getOperationName());
                     dependencyItem.setInstanceId(dto.getInstanceId());
                     dependencyItem.setCode(computeItemStatus(dto));
-                    dependencyItem.setOperationId(operationId);
-                    Pair<String, String> dependencyKey = Pair.of(dto.getOperationName(), dto.getCategoryName());
-                    if (toDependencyIdMap.containsKey(dependencyKey)) {
-                        dependencyItem.setFoundInSystem(true);
-                        dependencyItem.setDependencyId(toDependencyIdMap.get(dependencyKey));
-                    }
                     itemList.add(dependencyItem);
                 }
             }

@@ -1,18 +1,18 @@
 package com.arextest.web.api.service.controller.config;
 
-import com.arextest.common.model.response.Response;
-import com.arextest.common.utils.ResponseUtils;
-import com.arextest.web.core.business.config.ConfigurableHandler;
-import com.arextest.web.core.business.config.replay.ComparisonExclusionsConfigurableHandler;
-import com.arextest.web.model.contract.contracts.common.enums.ModifyType;
-import com.arextest.web.model.contract.contracts.config.replay.ComparisonExclusionsConfiguration;
-import com.arextest.web.model.contract.contracts.config.replay.QueryComparisonRequestType;
+import javax.annotation.Resource;
+
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.Resource;
+import com.arextest.common.model.response.Response;
+import com.arextest.common.utils.ResponseUtils;
+import com.arextest.web.core.business.config.ConfigurableHandler;
+import com.arextest.web.core.business.config.replay.ComparisonExclusionsConfigurableHandler;
+import com.arextest.web.model.contract.contracts.config.replay.ComparisonExclusionsConfiguration;
+import com.arextest.web.model.contract.contracts.config.replay.QueryComparisonRequestType;
 
 @Controller
 @RequestMapping("/api/config/comparison/exclusions")
@@ -56,8 +56,8 @@ public class ComparisonExclusionsController extends AbstractConfigurableControll
     @PostMapping("/queryComparisonConfig")
     @ResponseBody
     public Response queryComparisonConfig(@RequestBody QueryComparisonRequestType request) {
-        return ResponseUtils.successResponse(this.comparisonExclusionsConfigurableHandler
-            .queryComparisonConfig(request.getAppId(), request.getOperationId(), request.getDependencyId()));
+        return ResponseUtils.successResponse(this.comparisonExclusionsConfigurableHandler.queryComparisonConfig(
+            request.getAppId(), request.getOperationId(), request.getOperationType(), request.getOperationName()));
     }
 
 }

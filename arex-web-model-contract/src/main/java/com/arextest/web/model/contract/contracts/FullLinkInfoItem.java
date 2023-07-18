@@ -16,11 +16,4 @@ public class FullLinkInfoItem {
     private String categoryName;
     private String operationName;
     private String instanceId;
-
-    /**
-     * the operationName can be positioned in the system
-     */
-    private boolean foundInSystem;
-    private String operationId;
-    private String dependencyId;
 }

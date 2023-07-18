@@ -6,9 +6,11 @@ import lombok.Data;
 public class OverwriteContractRequestType {
     private String appId;
 
-    private String contractId;
-
     private String operationId;
+
+    /**
+     * the key of dependency
+     */
     private String operationName;
     private String operationType;
 

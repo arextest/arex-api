@@ -19,7 +19,8 @@ import javax.annotation.Resource;
 @Controller
 @RequestMapping("/api/config/comparison/reference")
 public class ComparisonReferenceController extends AbstractConfigurableController<ComparisonReferenceConfiguration> {
-    protected ComparisonReferenceController(@Autowired ConfigurableHandler<ComparisonReferenceConfiguration> configurableHandler) {
+    protected ComparisonReferenceController(
+        @Autowired ConfigurableHandler<ComparisonReferenceConfiguration> configurableHandler) {
         super(configurableHandler);
     }
 
@@ -29,14 +30,14 @@ public class ComparisonReferenceController extends AbstractConfigurableControlle
     @Deprecated
     @RequestMapping("/useResultAsList")
     @ResponseBody
-    public final Response useResultList(@RequestParam String appId, @RequestParam(required = false) String operationId) {
+    public final Response useResultList(@RequestParam String appId,
+        @RequestParam(required = false) String operationId) {
         if (StringUtils.isEmpty(appId)) {
             return InvalidResponse.REQUESTED_APP_ID_IS_EMPTY;
         }
-        return ResponseUtils.successResponse(
-                this.comparisonReferenceConfigurableHandler.useResultAsList(appId, operationId));
+        return ResponseUtils
+            .successResponse(this.comparisonReferenceConfigurableHandler.useResultAsList(appId, operationId));
     }
-
 
     @RequestMapping("/queryByInterfaceId")
     @ResponseBody
@@ -45,16 +46,15 @@ public class ComparisonReferenceController extends AbstractConfigurableControlle
             return InvalidResponse.REQUESTED_INTERFACE_ID_IS_EMPTY;
         }
 
-        return ResponseUtils.successResponse(
-                this.comparisonReferenceConfigurableHandler.queryByInterfaceId(interfaceId));
+        return ResponseUtils
+            .successResponse(this.comparisonReferenceConfigurableHandler.queryByInterfaceId(interfaceId));
     }
 
     @PostMapping("/queryComparisonConfig")
     @ResponseBody
     public Response queryComparisonConfig(@RequestBody QueryComparisonRequestType request) {
         return ResponseUtils.successResponse(this.comparisonReferenceConfigurableHandler.queryComparisonConfig(
-                request.getAppId(), request.getOperationId(), request.getDependencyId()
-        ));
+            request.getAppId(), request.getOperationId(), request.getOperationType(), request.getOperationName()));
     }
 
 }

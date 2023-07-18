@@ -1,13 +1,8 @@
 package com.arextest.web.core.repository.mongo;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.arextest.web.common.LogUtils;
-import com.arextest.web.model.dao.mongodb.ConfigComparisonInclusionsCollection;
-import com.arextest.web.model.dao.mongodb.entity.AbstractComparisonDetails;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,14 +14,18 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Repository;
 
+import com.arextest.web.common.LogUtils;
 import com.arextest.web.core.repository.ConfigRepositoryField;
 import com.arextest.web.core.repository.ConfigRepositoryProvider;
 import com.arextest.web.core.repository.mongo.util.MongoHelper;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonListSortConfiguration;
 import com.arextest.web.model.dao.mongodb.ConfigComparisonListSortCollection;
+import com.arextest.web.model.dao.mongodb.entity.AbstractComparisonDetails;
 import com.arextest.web.model.mapper.ConfigComparisonListSortMapper;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Created by rchen9 on 2022/9/16.

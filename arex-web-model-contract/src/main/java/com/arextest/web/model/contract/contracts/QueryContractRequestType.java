@@ -9,5 +9,6 @@ public class QueryContractRequestType {
     // query entryPointContract
     private String operationId;
     // query dependency
-    private String contractId;
+    private String operationType;
+    private String operationName;
 }
