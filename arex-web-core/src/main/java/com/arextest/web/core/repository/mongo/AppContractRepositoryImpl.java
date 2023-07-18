@@ -138,19 +138,20 @@ public class AppContractRepositoryImpl implements AppContractRepository {
     public AppContractDto findAndModifyAppContract(AppContractDto appContractDto) {
         Query query = new Query();
         if (Objects.equals(appContractDto.getContractType(), ContractTypeEnum.GLOBAL.getCode())) {
-            query.addCriteria(Criteria.where(AppContractCollection.Fields.appId).is(appContractDto.getAppId())
-                .and(AppContractCollection.Fields.contractType).is(appContractDto.getContractType()));
+            query.addCriteria(Criteria.where(AppContractCollection.Fields.appId).is(appContractDto.getAppId()));
         } else if (Objects.equals(appContractDto.getContractType(), ContractTypeEnum.ENTRY.getCode())) {
             query.addCriteria(
-                Criteria.where(AppContractCollection.Fields.operationId).is(appContractDto.getOperationId())
-                    .and(AppContractCollection.Fields.contractType).is(appContractDto.getContractType()));
+                Criteria.where(AppContractCollection.Fields.operationId).is(appContractDto.getOperationId()));
         } else if (Objects.equals(appContractDto.getContractType(), ContractTypeEnum.DEPENDENCY.getCode())) {
             query.addCriteria(
                 Criteria.where(AppContractCollection.Fields.operationId).is(appContractDto.getOperationId())
-                    .and(AppContractCollection.Fields.contractType).is(appContractDto.getContractType())
                     .and(AppContractCollection.Fields.operationType).is(appContractDto.getOperationType())
                     .and(AppContractCollection.Fields.operationName).is(appContractDto.getOperationName()));
+        } else {
+            return null;
         }
+        query.addCriteria(
+            Criteria.where(AppContractCollection.Fields.contractType).is(appContractDto.getContractType()));
         Update update = MongoHelper.getUpdate();
         MongoHelper.appendFullProperties(update, appContractDto);
         AppContractCollection dao = mongoTemplate.findAndModify(query, update,
