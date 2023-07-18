@@ -68,13 +68,16 @@ public abstract class AbstractComparisonConfigurableHandler<T extends AbstractCo
         if (operationType != null || operationName != null) {
             AppContractDto appContractDto =
                 appContractRepository.queryDependency(operationId, operationType, operationName);
+            if (appContractDto == null) {
+                return Collections.emptyList();
+            }
 
             List<T> comparisonConfigList = this.useResultAsList(appId, operationId);
             return comparisonConfigList.stream()
                 .filter(config -> Objects.equals(config.getDependencyId(), appContractDto.getId())).peek(item -> {
                     item.setOperationType(operationType);
                     item.setOperationName(operationName);
-                    }).collect(Collectors.toList());
+                }).collect(Collectors.toList());
         }
 
         // query the config of operation

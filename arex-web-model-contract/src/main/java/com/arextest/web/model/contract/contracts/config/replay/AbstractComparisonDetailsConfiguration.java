@@ -43,7 +43,7 @@ public abstract class AbstractComparisonDetailsConfiguration extends AbstractCon
     private String fsInterfaceId;
 
     /**
-     * fo bo
+     * for bo
      */
     private String dependencyId;
 
