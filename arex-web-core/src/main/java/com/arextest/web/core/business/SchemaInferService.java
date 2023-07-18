@@ -262,8 +262,8 @@ public class SchemaInferService {
     private DependencyWithContract buildDependency(AppContractDto appContractDto) {
         DependencyWithContract dependency = new DependencyWithContract();
         dependency.setDependencyId(appContractDto.getId());
-        dependency.setDependencyName(appContractDto.getOperationName());
-        dependency.setDependencyType(appContractDto.getOperationType());
+        dependency.setOperationName(appContractDto.getOperationName());
+        dependency.setOperationType(appContractDto.getOperationType());
         dependency.setContract(appContractDto.getContract());
         return dependency;
     }

@@ -5,6 +5,6 @@ import lombok.Data;
 @Data
 public class Dependency {
     private String dependencyId;
-    private String dependencyName;
-    private String dependencyType;
+    private String operationName;
+    private String operationType;
 }

@@ -7,6 +7,6 @@ import lombok.ToString;
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-public class DependencyWithContract extends Dependency{
+public class DependencyWithContract extends Dependency {
     private String contract;
 }
