@@ -92,7 +92,7 @@ public class ServletMockerConversionImpl implements MockerConversion {
                 } else {
                     BodyDto bodyDto = new BodyDto();
                     bodyDto.setContentType(contentType);
-                    if (StringUtils.equalsIgnoreCase(contentType, NetworkConstants.APPLICATION_JSON)) {
+                    if (contentType.toLowerCase().contains(NetworkConstants.APPLICATION_JSON)) {
                         try {
                             bodyDto.setBody(new String(Base64.getDecoder().decode(targetRequest.getBody())));
                         } catch (Exception e) {
