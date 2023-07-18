@@ -1,13 +1,12 @@
 package com.arextest.web.core.repository.mongo;
 
-import com.arextest.web.common.LogUtils;
-import com.arextest.web.core.repository.AppContractRepository;
-import com.arextest.web.core.repository.mongo.util.MongoHelper;
-import com.arextest.web.model.dao.mongodb.AppContractCollection;
-import com.arextest.web.model.dto.AppContractDto;
-import com.arextest.web.model.enums.ContractTypeEnum;
-import com.arextest.web.model.mapper.AppContractMapper;
-import lombok.extern.slf4j.Slf4j;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
+import javax.annotation.Resource;
+
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.data.mongodb.core.BulkOperations;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
@@ -18,11 +17,15 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Repository;
 
-import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
+import com.arextest.web.common.LogUtils;
+import com.arextest.web.core.repository.AppContractRepository;
+import com.arextest.web.core.repository.mongo.util.MongoHelper;
+import com.arextest.web.model.dao.mongodb.AppContractCollection;
+import com.arextest.web.model.dto.AppContractDto;
+import com.arextest.web.model.enums.ContractTypeEnum;
+import com.arextest.web.model.mapper.AppContractMapper;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Repository
