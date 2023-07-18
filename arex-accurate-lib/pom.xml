@@ -157,6 +157,11 @@
             <artifactId>gitlab4j-api</artifactId>
             <version>5.3.0</version>
         </dependency>
+        <dependency>
+            <groupId>com.spotify</groupId>
+            <artifactId>github-client</artifactId>
+            <version>0.1.51</version>
+        </dependency>
     </dependencies>
 
     <profiles>
