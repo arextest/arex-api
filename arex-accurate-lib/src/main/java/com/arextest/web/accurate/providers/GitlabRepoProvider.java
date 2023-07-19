@@ -13,6 +13,7 @@ import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Created by Qzmo on 2023/7/18
@@ -36,12 +37,12 @@ public class GitlabRepoProvider implements JavaCodeContentProvider {
     }
 
     @Override
-    public String getJavaCode(String projectPath, String filePath, String sha) {
+    public Optional<String> getJavaCode(String projectPath, String filePath, String sha) {
         try {
-            return gitLabApi.getRepositoryFileApi().getFile(projectPath, filePath, sha).getDecodedContentAsString();
+            return Optional.ofNullable(gitLabApi.getRepositoryFileApi().getFile(projectPath, filePath, sha).getDecodedContentAsString());
         } catch (GitLabApiException e) {
             LOGGER.error("get java code error", e);
-            return null;
+            return Optional.empty();
         }
     }
 

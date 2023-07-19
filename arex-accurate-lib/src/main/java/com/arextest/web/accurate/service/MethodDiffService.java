@@ -2,6 +2,7 @@ package com.arextest.web.accurate.service;
 
 import com.arextest.web.accurate.differs.MethodDifferImpl;
 import com.arextest.web.accurate.model.BaseDiffReq;
+import com.arextest.web.accurate.model.BaseDiffRes;
 import com.arextest.web.accurate.model.JavaCodeFile;
 import com.arextest.web.accurate.providers.JavaCodeContentProvider;
 import com.arextest.web.accurate.providers.ProviderFactory;
@@ -35,9 +36,10 @@ public class MethodDiffService {
                 continue;
             }
 
-            String oldFile = provider.getJavaCode(request.getRepoPath(), modifiedFile.getFilePath(), request.getOldCommitSha());
-            String newFile = provider.getJavaCode(request.getRepoPath(), modifiedFile.getFilePath(), request.getNewCommitSha());
-            Set<String> diffMethodsOfFile = new MethodDifferImpl().diff(oldFile, newFile);
+            Optional<String> oldFile = provider.getJavaCode(request.getRepoPath(), modifiedFile.getFilePath(), request.getOldCommitSha());
+            Optional<String> newFile = provider.getJavaCode(request.getRepoPath(), modifiedFile.getFilePath(), request.getNewCommitSha());
+
+            Set<String> diffMethodsOfFile = new MethodDifferImpl().diff(oldFile.orElse(""), newFile.orElse(""));
             if (!diffMethodsOfFile.isEmpty()) {
                 diffMethods.put(modifiedFile.getFilePath(), diffMethodsOfFile);
             }

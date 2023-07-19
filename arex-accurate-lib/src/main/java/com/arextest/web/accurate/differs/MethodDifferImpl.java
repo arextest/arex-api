@@ -8,17 +8,16 @@ import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.ConstructorDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.comments.Comment;
-import com.github.javaparser.printer.configuration.PrettyPrinterConfiguration;
+import com.github.javaparser.printer.configuration.DefaultPrinterConfiguration;
+import com.github.javaparser.printer.configuration.PrinterConfiguration;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
 
-/**
- * Created by Loren Klingman on 10/19/17.
- * Finds Changes Between Methods of Two Java Source Files
- */
+@Slf4j
 public class MethodDifferImpl implements MethodDiffer {
 
-    private static PrettyPrinterConfiguration ppc = null;
+    private static PrinterConfiguration ppc = null;
 
     public Set<String> diff(String file1, String file2) {
         HashSet<String> changedMethods = new HashSet<>();
@@ -38,7 +37,7 @@ public class MethodDifferImpl implements MethodDiffer {
                 if (m.getBody().isPresent()) {
                     methods.put(methodSignature, m.getBody().get().toString(getPPC()));
                 } else {
-                    System.out.println("Warning: No Body for "+file1+" "+methodSignature);
+                    LOGGER.warn("Warning: No Body for "+file1+" " + methodSignature);
                 }
             }
             for (ConstructorDeclaration con : conList) {
@@ -63,7 +62,7 @@ public class MethodDifferImpl implements MethodDiffer {
                         changedMethods.add(methodSignature.replace(" ", ""));
                     }
                 } else {
-                    System.out.println("Warning: No Body for "+file2+" "+methodSignature);
+                    LOGGER.warn("Warning: No Body for "+file2+" " + methodSignature);
                 }
             }
             for (ConstructorDeclaration con : conList) {
@@ -90,7 +89,7 @@ public class MethodDifferImpl implements MethodDiffer {
         }
     }
 
-    class ClassPair {
+    static class ClassPair {
         final ClassOrInterfaceDeclaration clazz;
         final String name;
         ClassPair(ClassOrInterfaceDeclaration c, String n) {
@@ -99,19 +98,8 @@ public class MethodDifferImpl implements MethodDiffer {
         }
     }
 
-    public static PrettyPrinterConfiguration getPPC() {
-        if (ppc != null) {
-            return ppc;
-        }
-        PrettyPrinterConfiguration localPpc = new PrettyPrinterConfiguration();
-        localPpc.setColumnAlignFirstMethodChain(false);
-        localPpc.setColumnAlignParameters(false);
-        localPpc.setEndOfLineCharacter("");
-        localPpc.setPrintComments(false);
-        localPpc.setPrintJavadoc(false);
-
-        ppc = localPpc;
-        return ppc;
+    public static PrinterConfiguration getPPC() {
+        return new DefaultPrinterConfiguration();
     }
 
     public static <N extends Node> List<N> getChildNodesNotInClass(Node n, Class<N> clazz) {
@@ -135,11 +123,10 @@ public class MethodDifferImpl implements MethodDiffer {
             if (child instanceof ClassOrInterfaceDeclaration) {
                 ClassOrInterfaceDeclaration c = (ClassOrInterfaceDeclaration)child;
                 String cName = parents+c.getNameAsString();
+
+                // todo 匿名类
                 if (inMethod) {
-                    System.out.println(
-                            "WARNING: Class "+cName+" is located inside a method. We cannot predict its name at"
-                                    + " compile time so it will not be diffed."
-                    );
+                    LOGGER.info("Warning: Nested Class "+cName+" in Method");
                 } else {
                     pairList.add(new ClassPair(c, cName));
                     pairList.addAll(getClasses(c, cName + "$", inMethod));
