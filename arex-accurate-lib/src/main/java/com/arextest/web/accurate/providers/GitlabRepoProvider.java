@@ -8,6 +8,8 @@ import org.gitlab4j.api.GitLabApiException;
 import org.gitlab4j.api.models.CompareResults;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -18,7 +20,15 @@ import java.util.List;
 @Slf4j
 @Component
 public class GitlabRepoProvider implements JavaCodeContentProvider {
-    private static final GitLabApi gitLabApi = new GitLabApi("http://git.dev.sh.ctripcorp.com", "FGx2sgW_4zsMAQojCfz5");
+    @Resource
+    RepoSecretProvider repoSecretProvider;
+
+    private GitLabApi gitLabApi;
+
+    @PostConstruct
+    public void init() {
+        gitLabApi = new GitLabApi("http://git.dev.sh.ctripcorp.com", repoSecretProvider.getGitlabToken());
+    }
 
     @Override
     public CodeHostType getCodeHostType() {
