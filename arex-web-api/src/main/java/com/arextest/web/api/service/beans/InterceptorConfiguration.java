@@ -64,6 +64,9 @@ public class InterceptorConfiguration implements WebMvcConfigurer {
         // invite to workspace
         defaultPatterns.add("/api/filesystem/validInvitation");
 
+        // todo: remove this
+        defaultPatterns.add("/api/accurate/**");
+
         // add custom patterns
         if (StringUtils.isNotBlank(interceptorPatterns)) {
             String[] patterns = interceptorPatterns.split(",");

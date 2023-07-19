@@ -1,7 +1,7 @@
 package com.arextest.web.accurate.providers;
 
 import com.arextest.web.accurate.util.HttpDownload;
-import com.arextest.web.accurate.differs.MethodDiff;
+import com.arextest.web.accurate.differs.MethodDifferImpl;
 import com.spotify.github.v3.clients.GitHubClient;
 import com.spotify.github.v3.clients.RepositoryClient;
 import com.spotify.github.v3.repos.Commit;
@@ -10,7 +10,6 @@ import com.spotify.github.v3.repos.File;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -52,7 +51,7 @@ public class GithubRepoProvider {
             // download uri to file
             String oldFile = HttpDownload.downloadFile(oldFileContent.downloadUrl(), oldFileContent.name());
             String newFile = HttpDownload.downloadFile(modifiedFile.rawUrl().get(), modifiedFile.filename());
-            Set<String> diff = new MethodDiff().diff(oldFile, newFile);
+            Set<String> diff = new MethodDifferImpl().diff(oldFile, newFile);
             System.out.println("DONE");
         }
     }

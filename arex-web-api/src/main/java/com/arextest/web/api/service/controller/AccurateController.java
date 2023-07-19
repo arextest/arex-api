@@ -1,5 +1,8 @@
 package com.arextest.web.api.service.controller;
 
+import com.arextest.common.model.response.Response;
+import com.arextest.common.model.response.ResponseCode;
+import com.arextest.common.utils.ResponseUtils;
 import com.arextest.web.accurate.lib.JCodeMethod;
 import com.arextest.web.accurate.lib.JavaProject;
 import com.arextest.web.accurate.model.*;
@@ -30,19 +33,16 @@ public class AccurateController {
     @ResponseBody
     public Response scan(@RequestBody GitBasicRequest request) {
         if (request.requestNotPrepared("commit"))
-            return Response.exceptionResponse("request is empty. ");
+            return ResponseUtils.exceptionResponse("request is empty. ");
 
         try {
             javaProject.setupJavaProject(request.getRepositoryURL(),request.getBranch());
             javaProject.scanWholeProject();
             List<JCodeMethod> listMethods = javaProject.getJCodeMethods();
-            Response response = new Response();
-            response.setData(listMethods);
-            response.setErrorCode(20000);
-            return response;
+            return ResponseUtils.successResponse(listMethods);
         }catch (Exception e){
             LOGGER.error(e.toString());
-            return Response.exceptionResponse(e.toString());
+            return ResponseUtils.exceptionResponse(e.toString());
         }
     }
 
@@ -56,9 +56,9 @@ public class AccurateController {
      */
     @PostMapping(value = "/scan/changed-methods", produces = "application/json; charset=UTF-8")
     @ResponseBody
-    public GitBasicResponse listDiffMethods(@RequestBody GitBasicRequest request) {
+    public Response listDiffMethods(@RequestBody GitBasicRequest request) {
         if (request.requestNotPrepared("commit"))
-            return GitBasicResponse.exceptionResponse("git repository url is empty");
+            return ResponseUtils.exceptionResponse("git repository url is empty");
 
         String url = request.getRepositoryURL();
         String branch = request.getBranch();
@@ -68,19 +68,11 @@ public class AccurateController {
         javaProject.setupJavaProject(url,branch);
         List<JCodeMethod> result = javaProject.scanCodeDiffMethods(latestCommit, oldCommit);
 
-        GitBasicResponse response = new GitBasicResponse();
-        response.setNewCommit(latestCommit);
-        response.setOldCommit(oldCommit);
         if (result == null || result.size() == 0) {
-            response.setErrorCode(10001);
-            response.setResult("No different code between two commit.");
-            return response;
+            return ResponseUtils.errorResponse("no diff code", ResponseCode.REQUESTED_PARAMETER_INVALID);
         }
 
-        response.setErrorCode(20000);
-        response.setResult("success diff code");
-        response.setData(result);
-        return response;
+        return ResponseUtils.successResponse(result);
     }
 
     /**
@@ -91,9 +83,9 @@ public class AccurateController {
      */
     @PostMapping(value = "/analysis/static/spring", produces = "application/json; charset=UTF-8")
     @ResponseBody
-    public TracingResponse traceSpring(@RequestBody GitBasicRequest request) {
+    public Response traceSpring(@RequestBody GitBasicRequest request) {
         if (request.requestNotPrepared("listCommit")) {
-            return TracingResponse.exceptionResponse("git repository is empty or beginDate is empty. ");
+            return ResponseUtils.errorResponse("git repository is empty or beginDate is empty. ", ResponseCode.REQUESTED_PARAMETER_INVALID);
         }
 
         try {
@@ -104,10 +96,10 @@ public class AccurateController {
             TracingResponse tracingResponse = new TracingResponse();
             tracingResponse.setStatusCode(20000);
             tracingResponse.setData(result);
-            return tracingResponse;
+            return ResponseUtils.successResponse(tracingResponse);
         }catch (Exception e){
             LOGGER.error(e.toString());
-            return TracingResponse.exceptionResponse(e.toString());
+            return ResponseUtils.exceptionResponse(e.toString());
         }
     }
 
@@ -123,14 +115,14 @@ public class AccurateController {
      */
     @PostMapping("/analysis/static/method")
     @ResponseBody
-    public CallGraphResponse queryCallGraph(@RequestBody CallGraphRequest callGraphRequest) {
+    public Response queryCallGraph(@RequestBody CallGraphRequest callGraphRequest) {
         String reposURL = callGraphRequest.getRepositoryURL();
         String className = callGraphRequest.getClassName();
         String methodName = callGraphRequest.getMethodName();
         if (StringUtils.isEmpty(reposURL)
                 || StringUtils.isEmpty(className)
                 || StringUtils.isEmpty(methodName)) {
-            return CallGraphResponse.exceptionResponse("request url or className or methodName is empty.");
+            return ResponseUtils.errorResponse("request url or className or methodName is empty.", ResponseCode.REQUESTED_PARAMETER_INVALID);
         }
 
         try {
@@ -138,13 +130,10 @@ public class AccurateController {
             javaProject.scanWholeProject();
             List<MethodTracing> result = javaProject.findMethodCallGraph(className, methodName);
 
-            CallGraphResponse response = new CallGraphResponse();
-            response.setStacks(result);
-            response.setErrorCode(20000); //success;
-            return response;
+            return ResponseUtils.successResponse(result);
         }catch (Exception e){
             LOGGER.info(e.toString());
-            return CallGraphResponse.exceptionResponse(e.toString());
+            return ResponseUtils.exceptionResponse(e.toString());
         }
     }
 
@@ -159,10 +148,10 @@ public class AccurateController {
     @ResponseBody
     public Response gitClone(@RequestBody GitBasicRequest baseRequest) {
         if (baseRequest.requestNotPrepared("clone")) {
-            return Response.exceptionResponse(" url cannot be empty");
+            return ResponseUtils.exceptionResponse(" url cannot be empty");
         }
 
-        return javaProject.DoGitClone(baseRequest);
+        return ResponseUtils.successResponse(javaProject.DoGitClone(baseRequest));
     }
 
     /**
@@ -174,10 +163,10 @@ public class AccurateController {
     @ResponseBody
     public Response gitClean(@RequestBody GitBasicRequest baseRequest) {
         if (baseRequest.requestNotPrepared("clean")) {
-            return Response.exceptionResponse("url is empty");
+            return ResponseUtils.exceptionResponse("url is empty");
         }
 
-        return javaProject.DoCleanProject(baseRequest.getRepositoryURL());
+        return ResponseUtils.successResponse(javaProject.DoCleanProject(baseRequest.getRepositoryURL()));
     }
 
     /**
@@ -187,12 +176,10 @@ public class AccurateController {
      */
     @PostMapping(value = "/git/commits", produces = "application/json; charset=UTF-8")
     @ResponseBody
-    public CommitsResponse listCommits(@RequestBody GitBasicRequest request) {
+    public Response listCommits(@RequestBody GitBasicRequest request) {
         if (request.requestNotPrepared("commits"))
-            return CommitsResponse.exceptionResponse("git repository url is empty");
+            return ResponseUtils.exceptionResponse("git repository url is empty");
 
-        return javaProject.DoListCommits(request);
+        return ResponseUtils.successResponse(javaProject.DoListCommits(request));
     }
-
-
 }

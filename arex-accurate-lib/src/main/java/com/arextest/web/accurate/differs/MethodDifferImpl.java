@@ -16,7 +16,7 @@ import java.util.*;
  * Created by Loren Klingman on 10/19/17.
  * Finds Changes Between Methods of Two Java Source Files
  */
-public class MethodDiff implements MethodDiffer {
+public class MethodDifferImpl implements MethodDiffer {
 
     private static PrettyPrinterConfiguration ppc = null;
 
@@ -24,7 +24,7 @@ public class MethodDiff implements MethodDiffer {
         HashSet<String> changedMethods = new HashSet<>();
         HashMap<String, String> methods = new HashMap<>();
 
-        MethodDiff md = new MethodDiff();
+        MethodDifferImpl md = new MethodDifferImpl();
 
         // Load all the method and constructor values into a Hashmap from File1
         List<ClassPair> cList = md.getClasses(file1);

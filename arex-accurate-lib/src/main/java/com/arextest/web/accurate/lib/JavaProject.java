@@ -1,5 +1,8 @@
 package com.arextest.web.accurate.lib;
 
+import com.arextest.common.model.response.Response;
+import com.arextest.common.model.response.ResponseCode;
+import com.arextest.common.utils.ResponseUtils;
 import com.arextest.web.accurate.model.*;
 import com.arextest.web.accurate.util.Utils;
 import com.github.javaparser.JavaParser;
@@ -713,34 +716,34 @@ public class JavaProject {
     }
 
 
-    /**
-     * webhook接收gitlab的EventMergeRequest
-     * 1 没有代码下载代码
-     * 2 有代码, 则拉取最新代码 git pull
-     * 2. 有历史merge, 则新旧两个commit比较变更函数
-     * 3. 分析新commit的函数(是否记录再说)
-     * TODO : 异步实现, 当检查查询符合要求后就返回success
-     *
-     * @param gitURL git url
-     * @param
-     * @return SUCCESS OR FAIL MESSAGE
-     */
-    public Response DoEventMergeRequestOfGitlab(String gitURL, String commitID, String branch) throws GitAPIException, IOException, ArtifactNotFoundException, XmlPullParserException, ArtifactResolutionException {
-        setupJavaProject(gitURL, branch);
-        gitRepository.buildJGitRepository(user, token);
-
-        List<JCodeMethod> result = scanCodeDiffMethods(commitID);
-        // just for walk not compile
-        // HashMap<String, JCodeClass> allClasses = scanWholeProject();
-        // List<JCodeMethod> allMethods = getJCodeMethods();
-        // TODO: save class and method code  to DB
-
-        Response res = new Response();
-        res.setData(result);
-        res.setErrorCode(20000);
-        return res;
-
-    }
+    // /**
+    //  * webhook接收gitlab的EventMergeRequest
+    //  * 1 没有代码下载代码
+    //  * 2 有代码, 则拉取最新代码 git pull
+    //  * 2. 有历史merge, 则新旧两个commit比较变更函数
+    //  * 3. 分析新commit的函数(是否记录再说)
+    //  * TODO : 异步实现, 当检查查询符合要求后就返回success
+    //  *
+    //  * @param gitURL git url
+    //  * @param
+    //  * @return SUCCESS OR FAIL MESSAGE
+    //  */
+    // public Response DoEventMergeRequestOfGitlab(String gitURL, String commitID, String branch) throws GitAPIException, IOException, ArtifactNotFoundException, XmlPullParserException, ArtifactResolutionException {
+    //     setupJavaProject(gitURL, branch);
+    //     gitRepository.buildJGitRepository(user, token);
+    //
+    //     List<JCodeMethod> result = scanCodeDiffMethods(commitID);
+    //     // just for walk not compile
+    //     // HashMap<String, JCodeClass> allClasses = scanWholeProject();
+    //     // List<JCodeMethod> allMethods = getJCodeMethods();
+    //     // TODO: save class and method code  to DB
+    //
+    //     Response res = new Response();
+    //     res.setData(result);
+    //     res.setErrorCode(20000);
+    //     return res;
+    //
+    // }
 
     /**
      * Clone Git 代码仓库
@@ -752,9 +755,9 @@ public class JavaProject {
     public Response DoGitClone(GitBasicRequest request) {
         setupJavaProject(request.getRepositoryURL(), request.getBranch());
         if (gitRepository != null) {
-            return Response.successResponse();
+            return ResponseUtils.successResponse("Done");
         }
-        return Response.exceptionResponse("clone failed");
+        return ResponseUtils.exceptionResponse("clone failed");
     }
 
     /**
@@ -769,12 +772,12 @@ public class JavaProject {
 
         File dirProject = new File(path.toString());
         if (!dirProject.exists())
-            return Response.successResponse();
+            return ResponseUtils.errorResponse("project not exist", ResponseCode.REQUESTED_PARAMETER_INVALID);
 
         if (Utils.deleteFileOrDirectory(dirProject)) {
-            return Response.successResponse();
+            return ResponseUtils.successResponse("done");
         } else {
-            return Response.exceptionResponse("delete failed");
+            return ResponseUtils.exceptionResponse("delete failed");
         }
     }
 
