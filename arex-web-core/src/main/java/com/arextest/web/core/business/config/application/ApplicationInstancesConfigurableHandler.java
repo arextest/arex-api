@@ -2,7 +2,6 @@ package com.arextest.web.core.business.config.application;
 
 import com.arextest.web.core.business.config.AbstractConfigurableHandler;
 import com.arextest.web.core.repository.ConfigRepositoryProvider;
-import com.arextest.web.core.repository.mongo.DynamicClassConfigurationRepositoryImpl;
 import com.arextest.web.core.repository.mongo.InstancesConfigurationRepositoryImpl;
 import com.arextest.web.model.contract.contracts.config.application.InstancesConfiguration;
 import lombok.extern.slf4j.Slf4j;
@@ -42,9 +41,5 @@ public final class ApplicationInstancesConfigurableHandler extends AbstractConfi
 
     public List<InstancesConfiguration> useResultAsList(String appId) {
         return instancesConfigurationRepository.listBy(appId);
-    }
-    
-    public List<InstancesConfiguration> listOfWorking(){
-        return instancesConfigurationRepository.listOfWorking();
     }
 }

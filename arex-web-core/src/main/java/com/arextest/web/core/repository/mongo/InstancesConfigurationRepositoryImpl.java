@@ -63,12 +63,6 @@ public class InstancesConfigurationRepositoryImpl implements ConfigRepositoryPro
         return instancesCollections.stream().map(InstancesMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
     }
 
-    public List<InstancesConfiguration> listOfWorking() {
-        Query query = Query.query(Criteria.where(STATUS).is(WORKING));
-        List<InstancesCollection> instancesCollections = mongoTemplate.find(query, InstancesCollection.class);
-        return instancesCollections.stream().map(InstancesMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
-    }
-
     @Override
     public boolean update(InstancesConfiguration configuration) {
         Query query =
