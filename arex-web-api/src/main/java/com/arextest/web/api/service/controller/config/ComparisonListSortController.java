@@ -5,12 +5,11 @@ import com.arextest.common.utils.ResponseUtils;
 import com.arextest.web.core.business.config.ConfigurableHandler;
 import com.arextest.web.core.business.config.replay.ComparisonListSortConfigurableHandler;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonListSortConfiguration;
+import com.arextest.web.model.contract.contracts.config.replay.QueryComparisonRequestType;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 
@@ -21,21 +20,23 @@ import javax.annotation.Resource;
 @RequestMapping("/api/config/comparison/listsort")
 public class ComparisonListSortController extends AbstractConfigurableController<ComparisonListSortConfiguration> {
     public ComparisonListSortController(
-            @Autowired ConfigurableHandler<ComparisonListSortConfiguration> configurableHandler) {
+        @Autowired ConfigurableHandler<ComparisonListSortConfiguration> configurableHandler) {
         super(configurableHandler);
     }
 
     @Resource
     ComparisonListSortConfigurableHandler comparisonListSortConfigurableHandler;
 
+    @Deprecated
     @RequestMapping("/useResultAsList")
     @ResponseBody
-    public final Response useResultList(@RequestParam String appId, @RequestParam(required = false) String operationId) {
+    public final Response useResultList(@RequestParam String appId,
+        @RequestParam(required = false) String operationId) {
         if (StringUtils.isEmpty(appId)) {
             return InvalidResponse.REQUESTED_APP_ID_IS_EMPTY;
         }
-        return ResponseUtils.successResponse(
-                this.comparisonListSortConfigurableHandler.useResultAsList(appId, operationId));
+        return ResponseUtils
+            .successResponse(this.comparisonListSortConfigurableHandler.useResultAsList(appId, operationId));
     }
 
     @RequestMapping("/queryByInterfaceId")
@@ -45,7 +46,14 @@ public class ComparisonListSortController extends AbstractConfigurableController
             return InvalidResponse.REQUESTED_INTERFACE_ID_IS_EMPTY;
         }
 
-        return ResponseUtils.successResponse(
-                this.comparisonListSortConfigurableHandler.queryByInterfaceId(interfaceId));
+        return ResponseUtils
+            .successResponse(this.comparisonListSortConfigurableHandler.queryByInterfaceId(interfaceId));
+    }
+
+    @PostMapping("/queryComparisonConfig")
+    @ResponseBody
+    public Response queryComparisonConfig(@RequestBody QueryComparisonRequestType request) {
+        return ResponseUtils.successResponse(this.comparisonListSortConfigurableHandler.queryComparisonConfig(
+            request.getAppId(), request.getOperationId(), request.getOperationType(), request.getOperationName()));
     }
 }

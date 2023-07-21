@@ -8,11 +8,17 @@ public interface AppContractRepository extends RepositoryProvider {
 
     boolean update(List<AppContractDto> appContractDtos);
 
+    boolean upsert(AppContractDto appContractDto);
+
     List<AppContractDto> insert(List<AppContractDto> appContractDtos);
 
-    List<AppContractDto> queryAppContractListByOpId(String operationId);
+    List<AppContractDto> queryAppContractListByOpIds(List<String> operationList, List<String> filterFields);
 
-    AppContractDto queryEntryPointContract(String operationId);
+    AppContractDto queryAppContractByType(String id, Integer contractType);
 
     AppContractDto queryById(String id);
+
+    AppContractDto findAndModifyAppContract(AppContractDto appContractDto);
+
+    AppContractDto queryDependency(String operationId, String operationType, String operationName);
 }

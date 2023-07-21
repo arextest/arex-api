@@ -4,6 +4,7 @@ import com.arextest.web.model.dao.mongodb.ModelBase;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
+import lombok.experimental.FieldNameConstants;
 
 import java.util.Date;
 
@@ -12,6 +13,7 @@ import java.util.Date;
  */
 @Getter
 @Setter
+@FieldNameConstants
 public abstract class AbstractComparisonDetails extends ModelBase {
 
     private String appId;
@@ -25,4 +27,6 @@ public abstract class AbstractComparisonDetails extends ModelBase {
     private int compareConfigType;
 
     private String fsInterfaceId;
+
+    private String dependencyId;
 }

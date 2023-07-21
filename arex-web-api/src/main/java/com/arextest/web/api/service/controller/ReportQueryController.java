@@ -1,5 +1,19 @@
 package com.arextest.web.api.service.controller;
 
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
 import com.arextest.common.model.response.Response;
 import com.arextest.common.model.response.ResponseCode;
 import com.arextest.common.utils.ResponseUtils;
@@ -56,27 +70,15 @@ import com.arextest.web.model.contract.contracts.ReportInitialRequestType;
 import com.arextest.web.model.contract.contracts.ReportInitialResponseType;
 import com.arextest.web.model.contract.contracts.SuccessResponseType;
 import com.arextest.web.model.contract.contracts.SyncResponseContractRequestType;
+import com.arextest.web.model.contract.contracts.appcontract.AddDependencyToSystemRequestType;
 import com.arextest.web.model.contract.contracts.record.CountRecordRequestType;
 import com.arextest.web.model.contract.contracts.record.ListRecordRequestType;
 import com.arextest.web.model.contract.contracts.replay.AnalyzeCompareResultsRequestType;
 import com.arextest.web.model.contract.contracts.replay.AnalyzeCompareResultsResponseType;
 import com.arextest.web.model.contract.contracts.replay.UpdateReportInfoRequestType;
 import com.arextest.web.model.contract.contracts.replay.UpdateReportInfoResponseType;
+
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
-
 
 @Slf4j
 @Controller
@@ -125,7 +127,6 @@ public class ReportQueryController {
         return ResponseUtils.successResponse(response);
     }
 
-
     @PostMapping("/init")
     @ResponseBody
     public Response reportInitial(@RequestBody ReportInitialRequestType request) {
@@ -145,7 +146,6 @@ public class ReportQueryController {
         return ResponseUtils.successResponse(response);
     }
 
-
     @PostMapping("/pushReplayStatus")
     @ResponseBody
     public Response changeReplayStatus(@Valid @RequestBody ChangeReplayStatusRequestType request) {
@@ -154,13 +154,11 @@ public class ReportQueryController {
         return ResponseUtils.successResponse(response);
     }
 
-
     @PostMapping("/queryPlanStatistics")
     @ResponseBody
     public Response queryPlanStatistics(@RequestBody QueryPlanStatisticsRequestType request) {
         if (request == null || !request.checkPaging()) {
-            return ResponseUtils.errorResponse("invalid paging parameter",
-                    ResponseCode.REQUESTED_PARAMETER_INVALID);
+            return ResponseUtils.errorResponse("invalid paging parameter", ResponseCode.REQUESTED_PARAMETER_INVALID);
         }
         QueryPlanStatisticsResponseType response = queryPlanStatisticsService.planStatistic(request);
         return ResponseUtils.successResponse(response);
@@ -179,8 +177,7 @@ public class ReportQueryController {
     @PostMapping("/queryResponseTypeStatistic")
     @ResponseBody
     public Response queryResponseTypeStatistic(@Valid @RequestBody QueryCategoryStatisticRequestType request) {
-        QueryCategoryStatisticResponseType response =
-                queryResponseTypeStatisticService.categoryStatistic(request);
+        QueryCategoryStatisticResponseType response = queryResponseTypeStatisticService.categoryStatistic(request);
         return ResponseUtils.successResponse(response);
     }
 
@@ -188,8 +185,7 @@ public class ReportQueryController {
     @ResponseBody
     public Response queryReplayCase(@Valid @RequestBody QueryReplayCaseRequestType request) {
         if (request == null || !request.checkPaging()) {
-            return ResponseUtils.errorResponse("invalid paging parameter",
-                    ResponseCode.REQUESTED_PARAMETER_INVALID);
+            return ResponseUtils.errorResponse("invalid paging parameter", ResponseCode.REQUESTED_PARAMETER_INVALID);
         }
         QueryReplayCaseResponseType response = queryReplayCaseService.replayCaseStatistic(request);
         return ResponseUtils.successResponse(response);
@@ -216,14 +212,12 @@ public class ReportQueryController {
         return ResponseUtils.successResponse(response);
     }
 
-
     @PostMapping("/queryDifferences")
     @ResponseBody
     public Response queryDifferences(@Valid @RequestBody QueryDifferencesRequestType request) {
         QueryDifferencesResponseType response = diffSceneService.queryDifferences(request);
         return ResponseUtils.successResponse(response);
     }
-
 
     @PostMapping("/queryScenes")
     @ResponseBody
@@ -232,14 +226,12 @@ public class ReportQueryController {
         return ResponseUtils.successResponse(response);
     }
 
-
     @PostMapping("/queryFullLinkMsg")
     @ResponseBody
     public Response queryFullLinkMsg(@Valid @RequestBody QueryFullLinkMsgRequestType request) {
         QueryFullLinkMsgResponseType response = queryReplayMsgService.queryFullLinkMsg(request);
         return ResponseUtils.successResponse(response);
     }
-
 
     @PostMapping("/queryReplayMsg")
     @ResponseBody
@@ -248,21 +240,18 @@ public class ReportQueryController {
         return ResponseUtils.successResponse(response);
     }
 
-
     @PostMapping("/downloadReplayMsg")
     @ResponseBody
     public void downloadReplayMsg(@Valid @RequestBody DownloadReplayMsgRequestType request,
-                                  HttpServletResponse response) {
+        HttpServletResponse response) {
         queryReplayMsgService.downloadReplayMsg(request, response);
     }
-
 
     @PostMapping("/queryMsgSchema")
     @ResponseBody
     public Response queryMsgSchema(@RequestBody QueryMsgSchemaRequestType request) {
         if (StringUtils.isEmpty(request.getId()) && StringUtils.isEmpty(request.getMsg())) {
-            return ResponseUtils.errorResponse("queryMsgSchema id is empty",
-                    ResponseCode.REQUESTED_PARAMETER_INVALID);
+            return ResponseUtils.errorResponse("queryMsgSchema id is empty", ResponseCode.REQUESTED_PARAMETER_INVALID);
         }
         QueryMsgSchemaResponseType response = schemaInferService.schemaInfer(request);
         return ResponseUtils.successResponse(response);
@@ -293,12 +282,10 @@ public class ReportQueryController {
         return ResponseUtils.successResponse(response);
     }
 
-
     @GetMapping("/queryFullLinkInfo/{planItemId}/{recordId}")
     @ResponseBody
     public Response queryFullLinkInfo(@PathVariable String planItemId, @PathVariable String recordId) {
-        QueryFullLinkInfoResponseType response =
-                queryReplayMsgService.queryFullLinkInfo(planItemId, recordId);
+        QueryFullLinkInfoResponseType response = queryReplayMsgService.queryFullLinkInfo(planItemId, recordId);
         return ResponseUtils.successResponse(response);
     }
 
@@ -314,17 +301,13 @@ public class ReportQueryController {
     @PostMapping("/queryLogEntity")
     @ResponseBody
     public Response queryLogEntity(@Valid @RequestBody QueryLogEntityRequestTye request) {
-        return ResponseUtils.successResponse(
-                queryReplayMsgService.queryLogEntity(request)
-        );
+        return ResponseUtils.successResponse(queryReplayMsgService.queryLogEntity(request));
     }
 
     @PostMapping("/queryPlanFailCase")
     @ResponseBody
     public Response queryPlanFailCase(@Valid @RequestBody QueryPlanFailCaseRequestType request) {
-        return ResponseUtils.successResponse(
-                queryReplayCaseService.queryPlanFailCase(request)
-        );
+        return ResponseUtils.successResponse(queryReplayCaseService.queryPlanFailCase(request));
     }
 
     @PostMapping("/countRecord")
@@ -363,8 +346,7 @@ public class ReportQueryController {
     @PostMapping("/overwriteContract")
     @ResponseBody
     public Response syncResponse(@Valid @RequestBody OverwriteContractRequestType requestType) {
-        SuccessResponseType response = new SuccessResponseType();
-        response.setSuccess(schemaInferService.overwriteContract(requestType));
-        return ResponseUtils.successResponse(response);
+        return ResponseUtils.successResponse(schemaInferService.overwriteContract(requestType));
     }
+
 }
