@@ -21,4 +21,6 @@ public class AgentRemoteConfigurationResponse {
      * see {@link  StatusType }
      */
     private Integer status;
+
+    private String targetAddress;
 }

@@ -140,7 +140,7 @@ public class ComparisonSummaryService {
         List<String> operationIdList = new ArrayList<>();
 
         List<ApplicationServiceConfiguration> applicationServiceConfigurations =
-                applicationServiceConfigurationConfigurableHandler.useResultAsList(appId);
+                applicationServiceConfigurationConfigurableHandler. useResultAsList(appId);
 
         Optional.ofNullable(applicationServiceConfigurations)
                 .orElse(Collections.emptyList())

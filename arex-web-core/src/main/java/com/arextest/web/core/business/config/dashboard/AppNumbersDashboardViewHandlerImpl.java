@@ -32,6 +32,7 @@ final class AppNumbersDashboardViewHandlerImpl implements ViewHandler<AppDashboa
         return Collections.singletonList(newDashboardView(application));
     }
 
+
     @Override
     public List<AppDashboardView> useResultAsList() {
         List<ApplicationConfiguration> applicationList = applicationViewHandler.useResultAsList();

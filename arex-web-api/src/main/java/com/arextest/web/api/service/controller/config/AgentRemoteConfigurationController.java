@@ -1,5 +1,4 @@
 package com.arextest.web.api.service.controller.config;
-
 import com.arextest.common.model.response.Response;
 import com.arextest.common.utils.ResponseUtils;
 import com.arextest.web.common.LogUtils;
@@ -10,23 +9,25 @@ import com.arextest.web.model.contract.contracts.config.application.ApplicationC
 import com.arextest.web.model.contract.contracts.config.application.InstancesConfiguration;
 import com.arextest.web.model.contract.contracts.config.instance.AgentRemoteConfigurationRequest;
 import com.arextest.web.model.contract.contracts.config.instance.AgentRemoteConfigurationResponse;
-import com.arextest.web.model.contract.contracts.config.instance.AgentStatusConfigurationResponse;
+import com.arextest.web.model.contract.contracts.config.instance.AgentStatusRequest;
 import com.arextest.web.model.contract.contracts.config.record.DynamicClassConfiguration;
 import com.arextest.web.model.contract.contracts.config.record.ServiceCollectConfiguration;
 import com.arextest.web.model.mapper.InstancesMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.client.utils.DateUtils;
+import org.apache.tomcat.util.http.FastHttpDateFormat;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
-import java.sql.Timestamp;
-import java.util.Collections;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executors;
@@ -83,56 +84,47 @@ public final class AgentRemoteConfigurationController {
         body.setDynamicClassConfigurationList(dynamicClassHandler.useResultAsList(appId));
         body.setServiceCollectConfiguration(serviceCollectConfiguration);
         body.setStatus(applicationConfiguration.getStatus());
+        InstancesConfiguration instancesConfiguration = InstancesMapper.INSTANCE.dtoFromContract(request);
+        applicationInstancesConfigurableHandler.createOrUpdate(instancesConfiguration);
+        List<InstancesConfiguration> instances = applicationInstancesConfigurableHandler.useResultAsList(appId,
+                serviceCollectConfiguration.getRecordMachineCountLimit());
+        Set<String> recordingHosts =
+                instances.stream().map(InstancesConfiguration::getHost).collect(Collectors.toSet());
+        if (recordingHosts.contains(request.getHost())) {
+            body.setTargetAddress(request.getHost());
+        } else {
+            body.setTargetAddress(request.getHost() + NOT_RECORDING);
+        }
         return ResponseUtils.successResponse(body);
     }
     @PostMapping("/agentStatus")
     @ResponseBody
-    public Response reload(@RequestBody AgentRemoteConfigurationRequest request) {
-        //get requested appId
-        final String appId = request.getAppId();
-        //get requested host
-        final String host = request.getHost();
-        //a new response
-        AgentStatusConfigurationResponse body = new AgentStatusConfigurationResponse();
-        // find all working instances
-        List<InstancesConfiguration> instances = applicationInstancesConfigurableHandler.listOfWorking();
-        // obtain the set of hosts
-        Set<String> recordingHosts = instances.stream().map(InstancesConfiguration::getHost).collect(Collectors.toSet());
-        // obtain the count limit
-        ServiceCollectConfiguration serviceCollectConfiguration = serviceCollectHandler.useResult(appId);
-        int countLimit=serviceCollectConfiguration.getRecordMachineCountLimit();
-        // If the requested app ID and host of machine is already working or there is an available
-        // spot for the request, set the status to 1 (working). Else. set it to 2 (sleeping)
-        if (recordingHosts.contains(host) || recordingHosts.size()<countLimit){
-            body.setStatus(1);
-        }
-        else {
-            body.setStatus(2);
-        }
-        //set version to {the count of DynamicClass of appid + Math.max(RecordServiceConfig.dataChangeUpdateTime, DynamicClass.dataChangeUpdateTime)}
-
-            // 1. get RecordServiceConfig.dataChangeUpdateTime
-        Timestamp recordTime = serviceCollectConfiguration.getModifiedTime();
-            // 2. add RecordServiceConfig.dataChangeUpdateTime to the list and get max value in DynamicClass.dataChangeUpdateTime list
-        List<DynamicClassConfiguration> dynamicClassTime = dynamicClassHandler.useResultAsList(appId);
-        List<Timestamp> timeList= dynamicClassTime.stream().map(DynamicClassConfiguration::getModifiedTime).collect(Collectors.toList());
-        timeList.add(recordTime);
-        Timestamp latestTimestamp = Collections.max( timeList );
-        // set version as the sum of count and max time
-        body.setVersion(dynamicClassTime.size()+latestTimestamp.getTime());
-        //add/update the new request to the database
+    public ResponseEntity<String> agentStatus(HttpServletRequest httpServletRequest, HttpServletResponse response,
+                                              @RequestBody AgentStatusRequest request) {
+        // update the instance
         InstancesConfiguration instancesConfiguration = InstancesMapper.INSTANCE.dtoFromContract(request);
         applicationInstancesConfigurableHandler.createOrUpdate(instancesConfiguration);
-//        List<InstancesConfiguration> instances = applicationInstancesConfigurableHandler.listOfWorking();
-//
-//        Set<String> recordingHosts =
-//                instances.stream().map(InstancesConfiguration::getHost).collect(Collectors.toSet());
-//        if (recordingHosts.contains(request.getHost())) {
-//            body.setTargetAddress(request.getHost());
-//        } else {
-//            body.setTargetAddress(request.getHost() + NOT_RECORDING);
-//        }
-        return ResponseUtils.successResponse(body);
+
+        // get requested appId
+        final String appId = request.getAppId();
+
+        // get the latest time
+        ServiceCollectConfiguration serviceConfig = serviceCollectHandler.useResult(appId);
+        if (serviceConfig == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        String modifiedTime = DateUtils.formatDate(serviceConfig.getModifiedTime());
+        HttpStatus httpStatus = HttpStatus.OK;
+
+        String ifModifiedSinceValue = httpServletRequest.getHeader("If-Modified-Since");
+        if (StringUtils.equals(ifModifiedSinceValue, modifiedTime)) {
+            // 304 response
+            httpStatus = HttpStatus.NOT_MODIFIED;
+        }
+
+            // 200 OK response
+        response.setHeader("Last-Modified", modifiedTime);
+        return new ResponseEntity<>(httpStatus);
     }
     private void delayUpdateApplicationService(AgentRemoteConfigurationRequest request) {
         executorService.schedule(new UpdateApplicationRunnable(request), delayUpdateServiceSeconds, TimeUnit.SECONDS);

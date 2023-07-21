@@ -33,8 +33,8 @@ public class InstancesConfigurationRepositoryImpl implements ConfigRepositoryPro
     private static final String HOST = "host";
 
     private static final String DATA_UPDATE_TIME = "dataUpdateTime";
-    private static final String AGENT_STATUS = "agentStatus";
-    private static final String WORKING = "working";
+    private static final String STATUS = "status";
+    private static final Integer WORKING = 1;
 
 
     @Autowired
@@ -63,11 +63,12 @@ public class InstancesConfigurationRepositoryImpl implements ConfigRepositoryPro
         return instancesCollections.stream().map(InstancesMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
     }
 
-    public List<InstancesConfiguration> listOfWorking(){
-        Query query=Query.query(Criteria.where(AGENT_STATUS).is(WORKING));
+    public List<InstancesConfiguration> listOfWorking() {
+        Query query = Query.query(Criteria.where(STATUS).is(WORKING));
         List<InstancesCollection> instancesCollections = mongoTemplate.find(query, InstancesCollection.class);
         return instancesCollections.stream().map(InstancesMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
     }
+
     @Override
     public boolean update(InstancesConfiguration configuration) {
         Query query =
@@ -76,10 +77,7 @@ public class InstancesConfigurationRepositoryImpl implements ConfigRepositoryPro
         InstancesCollection dao = InstancesMapper.INSTANCE.daoFromDto(configuration);
         MongoHelper.appendFullProperties(update, dao);
         update.setOnInsert(RepositoryProvider.DATA_CHANGE_CREATE_TIME, System.currentTimeMillis());
-        if (configuration.getDataUpdateTime() == null) {
-            update.set(DATA_UPDATE_TIME, new Date());
-        }
-
+        update.set(DATA_UPDATE_TIME, new Date());
         try {
             mongoTemplate.findAndModify(query,
                     update,
