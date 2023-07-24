@@ -38,8 +38,4 @@ public final class ApplicationInstancesConfigurableHandler extends AbstractConfi
     public List<InstancesConfiguration> useResultAsList(String appId, int top) {
         return instancesConfigurationRepository.listBy(appId, top);
     }
-
-    public List<InstancesConfiguration> useResultAsList(String appId) {
-        return instancesConfigurationRepository.listBy(appId);
-    }
 }

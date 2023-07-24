@@ -10,5 +10,5 @@ import lombok.Data;
 public class AgentStatusRequest {
     String appId;
     String host;
-    String status;
+    String agentStatus;
 }

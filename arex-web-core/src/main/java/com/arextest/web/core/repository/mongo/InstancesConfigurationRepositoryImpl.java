@@ -31,10 +31,7 @@ public class InstancesConfigurationRepositoryImpl implements ConfigRepositoryPro
 
     private static final String APP_ID = "appId";
     private static final String HOST = "host";
-
     private static final String DATA_UPDATE_TIME = "dataUpdateTime";
-    private static final String STATUS = "status";
-    private static final Integer WORKING = 1;
 
 
     @Autowired
