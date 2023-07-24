@@ -684,7 +684,9 @@ public class JavaProject {
 
     /**
      * 只传一个commit, 获取其上一个commitid
-     * 然后去比对, 已经减去1,但总觉得不是很严谨, parents就是指向上一个吗, 没有分支信息呢
+     * 然后去比对
+     * 边界已经减去1,但总觉得不是很严谨
+     * parents就是指向上一个吗, 没有分支信息,待研究确认
      *
      * @param theLatestCommitID 传入的ID
      * @return
@@ -720,6 +722,7 @@ public class JavaProject {
      * 2. 有历史merge, 则新旧两个commit比较变更函数
      * 3. 分析新commit的函数(是否记录再说)
      * TODO : 异步实现, 当检查查询符合要求后就返回success
+     * 4. 读根目录下的.arex配置文件
      *
      * @param gitURL git url
      * @param
@@ -730,10 +733,14 @@ public class JavaProject {
         gitRepository.buildJGitRepository(user, token);
 
         List<JCodeMethod> result = scanCodeDiffMethods(commitID);
+
         // just for walk not compile
         // HashMap<String, JCodeClass> allClasses = scanWholeProject();
         // List<JCodeMethod> allMethods = getJCodeMethods();
         // TODO: save class and method code  to DB
+
+        String yamlContent = gitRepository.readGitSpecialConfig("arex.yaml", commitID);
+        LOGGER.info(yamlContent);
 
         Response res = new Response();
         res.setData(result);

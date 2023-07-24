@@ -13,12 +13,14 @@ import org.eclipse.jgit.diff.*;
 import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jgit.treewalk.TreeWalk;
+import org.eclipse.jgit.treewalk.filter.PathFilter;
 import org.eclipse.jgit.util.io.DisabledOutputStream;
 
 import java.io.*;
@@ -69,7 +71,6 @@ public class JGitRepository {
             return false;
         }
     }
-
 
     private RevCommit commitChanges() throws GitAPIException {
         git.add().addFilepattern(".").call();
@@ -456,13 +457,37 @@ public class JGitRepository {
     }
 
     /**
+     * 读取某个commitId下的某个文件, 因为直接读某个文件, 对应的commitDd不对应
+     * @param fileName filename e.g. .arex yaml file
+     * @param commitID
+     */
+    public String readGitSpecialConfig(String fileName, String commitID) throws IOException {
+        ObjectId commitId = ObjectId.fromString(commitID); // 指定 commit 的 ID
+        RevWalk revWalk = new RevWalk(gitRepo);
+        RevCommit commit = revWalk.parseCommit(commitId);
+
+        RevTree tree = commit.getTree();
+        TreeWalk treeWalk = new TreeWalk(gitRepo);
+        treeWalk.addTree(tree);
+        treeWalk.setRecursive(true);
+        treeWalk.setFilter(PathFilter.create(fileName)); // 指定文件的路径
+        ObjectId objectId = treeWalk.getObjectId(0);
+        ObjectLoader loader = gitRepo.open(objectId);
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        loader.copyTo(outputStream);
+        String content = new String(outputStream.toByteArray(), StandardCharsets.UTF_8);
+        return content;
+    }
+
+    /**
      * TEST CODE
      *
      * @throws IOException
      * @throws GitAPIException
      */
-    public void getDiffDemo() throws IOException, GitAPIException {
-        File file = new File(git.getRepository().getWorkTree(), "ab.txt");
+    public void TestCode(String fileName) throws IOException, GitAPIException {
+        File file = new File(git.getRepository().getWorkTree(), fileName);
+
         writeFile(file, "line1\n");
         RevCommit oldCommit = commitChanges();
         writeFile(file, "line1\nline2\n");
