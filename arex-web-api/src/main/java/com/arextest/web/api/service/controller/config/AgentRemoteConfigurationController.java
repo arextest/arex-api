@@ -108,12 +108,15 @@ public final class AgentRemoteConfigurationController {
 
         // get the latest time
         ServiceCollectConfiguration serviceConfig = serviceCollectHandler.useResult(appId);
+
         if (serviceConfig == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        String modifiedTime = DateUtils.formatDate(serviceConfig.getModifiedTime());
+        String modifiedTime="0";
+        if (serviceConfig.getModifiedTime()!=null) {
+            modifiedTime = DateUtils.formatDate(serviceConfig.getModifiedTime());
+        }
         HttpStatus httpStatus = HttpStatus.OK;
-
         String ifModifiedSinceValue = httpServletRequest.getHeader("If-Modified-Since");
         if (StringUtils.equals(ifModifiedSinceValue, modifiedTime)) {
             // 304 response
