@@ -44,6 +44,7 @@ public class GithubRepoProvider implements JavaCodeContentProvider {
         Pair<String, String> ownerAndProject = ownerAndProject(projectPath);
         try {
             Content res = githubClient.createRepositoryClient(ownerAndProject.getLeft(), ownerAndProject.getRight())
+                    .getRepository().get().blobsUrl()
                     .getFileContent(filePath, sha).get();
             return Optional.ofNullable(res.content())
                     .map(source -> source.replace("\n", ""))
