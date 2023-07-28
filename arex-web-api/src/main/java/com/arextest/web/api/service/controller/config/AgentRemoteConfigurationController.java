@@ -44,6 +44,9 @@ import java.util.stream.Collectors;
 public final class AgentRemoteConfigurationController {
 
     private static final String NOT_RECORDING = "(not recording)";
+
+    private static final String EMPTY_TIME = "0";
+    private static final String LAST_MODIFY_TIME = "If-Modified-Since";
     @Resource
     private ConfigurableHandler<DynamicClassConfiguration> dynamicClassHandler;
     @Resource
@@ -112,12 +115,12 @@ public final class AgentRemoteConfigurationController {
         if (serviceConfig == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        String modifiedTime="0";
+        String modifiedTime = EMPTY_TIME;
         if (serviceConfig.getModifiedTime()!=null) {
             modifiedTime = DateUtils.formatDate(serviceConfig.getModifiedTime());
         }
         HttpStatus httpStatus = HttpStatus.OK;
-        String ifModifiedSinceValue = httpServletRequest.getHeader("If-Modified-Since");
+        String ifModifiedSinceValue = httpServletRequest.getHeader(LAST_MODIFY_TIME);
         if (StringUtils.equals(ifModifiedSinceValue, modifiedTime)) {
             // 304 response
             httpStatus = HttpStatus.NOT_MODIFIED;
