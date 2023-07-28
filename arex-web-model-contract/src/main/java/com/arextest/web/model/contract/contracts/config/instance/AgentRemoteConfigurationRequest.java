@@ -14,6 +14,7 @@ public class AgentRemoteConfigurationRequest {
     private String host;
     private String recordVersion;
     private String agentStatus;
+    private Integer status;
     private Map<String, String> systemEnv;
     private Map<String, String> systemProperties;
 }

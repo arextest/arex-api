@@ -9,7 +9,6 @@ import com.arextest.web.model.contract.contracts.config.application.InstancesCon
 import com.arextest.web.model.dao.mongodb.InstancesCollection;
 import com.arextest.web.model.mapper.InstancesMapper;
 import com.mongodb.client.result.DeleteResult;
-import com.mongodb.client.result.UpdateResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
@@ -32,8 +31,8 @@ public class InstancesConfigurationRepositoryImpl implements ConfigRepositoryPro
 
     private static final String APP_ID = "appId";
     private static final String HOST = "host";
-
     private static final String DATA_UPDATE_TIME = "dataUpdateTime";
+
 
     @Autowired
     MongoTemplate mongoTemplate;
@@ -52,11 +51,11 @@ public class InstancesConfigurationRepositoryImpl implements ConfigRepositoryPro
         return instancesCollections.stream().map(InstancesMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
     }
 
-    public List<InstancesConfiguration> listBy(String appid, int top) {
+    public List<InstancesConfiguration> listBy(String appId, int top) {
         if (top == 0) {
             return Collections.emptyList();
         }
-        Query query = Query.query(Criteria.where(APP_ID).is(appid)).limit(top).with(Sort.by(DASH_ID).ascending());
+        Query query = Query.query(Criteria.where(APP_ID).is(appId)).limit(top).with(Sort.by(DASH_ID).ascending());
         List<InstancesCollection> instancesCollections = mongoTemplate.find(query, InstancesCollection.class);
         return instancesCollections.stream().map(InstancesMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
     }
@@ -69,10 +68,7 @@ public class InstancesConfigurationRepositoryImpl implements ConfigRepositoryPro
         InstancesCollection dao = InstancesMapper.INSTANCE.daoFromDto(configuration);
         MongoHelper.appendFullProperties(update, dao);
         update.setOnInsert(RepositoryProvider.DATA_CHANGE_CREATE_TIME, System.currentTimeMillis());
-        if (configuration.getDataUpdateTime() == null) {
-            update.set(DATA_UPDATE_TIME, new Date());
-        }
-
+        update.set(DATA_UPDATE_TIME, new Date());
         try {
             mongoTemplate.findAndModify(query,
                     update,

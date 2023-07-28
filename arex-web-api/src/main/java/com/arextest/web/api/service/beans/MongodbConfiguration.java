@@ -77,11 +77,10 @@ public class MongodbConfiguration {
         // indexs for InstancesCollection
         try {
             mongoTemplate.indexOps(InstancesCollection.class)
-                .ensureIndex(new Index(DATE_UPDATE_TIME, Sort.Direction.DESC).expire(16, TimeUnit.MINUTES));
+                    .ensureIndex(new Index(DATE_UPDATE_TIME, Sort.Direction.DESC).expire(65, TimeUnit.SECONDS));
         } catch (Throwable throwable) {
             mongoTemplate.indexOps(InstancesCollection.class).dropIndex("dataUpdateTime_-1");
-            mongoTemplate.indexOps(InstancesCollection.class)
-                .ensureIndex(new Index(DATE_UPDATE_TIME, Sort.Direction.DESC).expire(16, TimeUnit.MINUTES));
+            mongoTemplate.indexOps(InstancesCollection.class).ensureIndex(new Index(DATE_UPDATE_TIME, Sort.Direction.DESC).expire(65, TimeUnit.SECONDS));
         }
 
         // indexs for AppContractCollection

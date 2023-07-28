@@ -5,14 +5,11 @@ import com.arextest.web.core.repository.ConfigRepositoryProvider;
 import com.arextest.web.core.repository.mongo.InstancesConfigurationRepositoryImpl;
 import com.arextest.web.model.contract.contracts.config.application.InstancesConfiguration;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
-import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * @author jmo
