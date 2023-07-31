@@ -276,7 +276,7 @@ public class ReportQueryController {
     public Response deleteReport(@PathVariable String planId) {
         try {
             SuccessResponseType response = new SuccessResponseType();
-            HttpUtils.get(stopPlanUrl + "/" + planId, Response.class);
+            HttpUtils.get(stopPlanUrl + "/?planId=" + planId, Response.class);
             response.setSuccess(reportService.deleteReport(planId));
             return ResponseUtils.successResponse(response);
         } catch (Throwable t) {
