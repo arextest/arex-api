@@ -4,10 +4,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
-import com.arextest.web.common.HttpUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -112,8 +109,6 @@ public class ReportQueryController {
     private SceneReportService sceneReportService;
     @Resource
     private RecordService recordService;
-    @Value("${arex.schedule.stop.url}")
-    private String stopPlanUrl;
 
     @Deprecated
     @PostMapping("/pushCompareResults")
@@ -275,20 +270,9 @@ public class ReportQueryController {
     @GetMapping("/delete/{planId}")
     @ResponseBody
     public Response deleteReport(@PathVariable String planId) {
-        try {
-            SuccessResponseType response = new SuccessResponseType();
-            ResponseEntity<String> stopRes = HttpUtils.get(stopPlanUrl + "/?planId=" + planId, String.class);
-            if (!stopRes.hasBody() || StringUtils.isEmpty(stopRes.getBody())) {
-                LOGGER.error("stop plan error, planId:{}", planId);
-                return ResponseUtils.errorResponse("stop plan error", ResponseCode.REQUESTED_HANDLE_EXCEPTION);
-            }
-            LOGGER.info("stop plan success, {}", stopRes.getBody());
-            response.setSuccess(reportService.deleteReport(planId));
-            return ResponseUtils.successResponse(response);
-        } catch (Throwable t) {
-            LOGGER.error("delete plan error", t);
-            return ResponseUtils.errorResponse(t.getMessage(), ResponseCode.REQUESTED_HANDLE_EXCEPTION);
-        }
+        SuccessResponseType response = new SuccessResponseType();
+        response.setSuccess(reportService.deleteReport(planId));
+        return ResponseUtils.successResponse(response);
     }
 
     @GetMapping("/querySceneInfo/{planId}/{planItemId}")

@@ -8,7 +8,7 @@ import java.util.List;
  * @author jmo
  * @since 2022/1/25
  */
-public interface ConfigRepositoryProvider<T> {
+public interface  ConfigRepositoryProvider<T> {
     List<T> list();
 
     List<T> listBy(String appId);
