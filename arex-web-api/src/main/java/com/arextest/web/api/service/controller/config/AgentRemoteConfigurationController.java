@@ -111,7 +111,8 @@ public final class AgentRemoteConfigurationController {
     @ResponseBody
     public ResponseEntity<String> agentStatus(HttpServletRequest httpServletRequest, HttpServletResponse response,
         @RequestBody AgentStatusRequest request) {
-        LogUtils.info(LOGGER, ImmutableMap.of("appId", request.getAppId()), "agentStatus request: {}", request);
+        LogUtils.info(LOGGER, ImmutableMap.of("appId", request.getAppId()), "from appId: {}, load agentStatus",
+            request.getAppId());
         // update the instance
         InstancesConfiguration instancesConfiguration = InstancesMapper.INSTANCE.dtoFromContract(request);
         applicationInstancesConfigurableHandler.createOrUpdate(instancesConfiguration);
