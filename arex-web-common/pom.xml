@@ -50,8 +50,8 @@
             <artifactId>hutool-all</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.github.luben</groupId>
-            <artifactId>zstd-jni</artifactId>
+            <groupId>com.arextest</groupId>
+            <artifactId>arex-common</artifactId>
         </dependency>
     </dependencies>
 </project>
