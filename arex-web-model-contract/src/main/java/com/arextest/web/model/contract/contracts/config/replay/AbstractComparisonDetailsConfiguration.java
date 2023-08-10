@@ -2,6 +2,8 @@ package com.arextest.web.model.contract.contracts.config.replay;
 
 import java.util.Date;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.arextest.web.model.contract.contracts.common.enums.CompareConfigType;
 import com.arextest.web.model.contract.contracts.common.enums.ExpirationType;
 import com.arextest.web.model.contract.contracts.config.AbstractConfiguration;
@@ -13,44 +15,54 @@ import lombok.Setter;
 @Setter
 public abstract class AbstractComparisonDetailsConfiguration extends AbstractConfiguration {
 
-    private String id;
+    String id;
 
     /**
      * optional when compareConfigType = 1, appId is empty
      */
-    private String appId;
+    String appId;
 
     /**
-     * optional The value limit to special operation should be used, else,couldn't apply for it. empty,means is
-     * unlimited.
+     * optional The value limit to special operation should be used, else,couldn't apply for it. if it is empty, it
+     * means is the global configuration of app That the configuration of app have the meaning of global is "Exclusion"
      */
-    private String operationId;
+    String operationId;
 
     /**
      * the value from {@link ExpirationType} indicate which type should be used.
      */
-    private int expirationType;
-    private Date expirationDate;
+    int expirationType;
+    Date expirationDate;
 
     /**
      * the source of the configuration. {@link CompareConfigType}
      */
-    private int compareConfigType;
+    int compareConfigType;
 
     /**
      * This value is valid only when {compareConfigType} = 1
      */
-    private String fsInterfaceId;
+    String fsInterfaceId;
 
     /**
      * for bo
      */
-    private String dependencyId;
+    String dependencyId;
 
     /**
      * for vo
      */
-    private String operationType;
-    private String operationName;
+    String operationType;
+    String operationName;
+
+    @Override
+    public void validParameters() throws Exception {
+        super.validParameters();
+
+        // not allow operationId and interfaceId all be empty
+        if (StringUtils.isEmpty(operationId) && StringUtils.isEmpty(fsInterfaceId)) {
+            throw new Exception("operationId and interfaceId cannot be empty at the same time");
+        }
+    }
 
 }
