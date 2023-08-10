@@ -5,7 +5,6 @@ import com.arextest.web.core.repository.ConfigRepositoryField;
 import com.arextest.web.core.repository.ConfigRepositoryProvider;
 import com.arextest.web.core.repository.mongo.util.MongoHelper;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonReferenceConfiguration;
-import com.arextest.web.model.dao.mongodb.ConfigComparisonListSortCollection;
 import com.arextest.web.model.dao.mongodb.ConfigComparisonReferenceCollection;
 import com.arextest.web.model.dao.mongodb.entity.AbstractComparisonDetails;
 import com.arextest.web.model.mapper.ConfigComparisonReferenceMapper;
