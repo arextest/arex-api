@@ -38,6 +38,8 @@ public class ComparisonSummaryConfiguration {
      */
     private Set<List<String>> inclusionList;
 
+    @JsonDeserialize(keyUsing = MapKeyDeserializerUtils.class)
+    @JsonSerialize(keyUsing = MapKeySerializerUtils.class)
     private Map<List<String>,String> encryptionMap;
     /**
      * reference relationship

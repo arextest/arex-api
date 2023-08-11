@@ -52,7 +52,6 @@ public class ComparisonSummaryService {
         getComparisonInclusionsConfiguration(interfaceId, comparisonSummaryConfiguration);
         getComparisonListSortConfiguration(interfaceId, comparisonSummaryConfiguration);
         getComparisonReferenceConfiguration(interfaceId, comparisonSummaryConfiguration);
-        getComparisonEncryptionConfiguration(interfaceId, comparisonSummaryConfiguration);
         return comparisonSummaryConfiguration;
     }
 
@@ -72,18 +71,6 @@ public class ComparisonSummaryService {
         return replayCompareConfig;
     }
 
-    private void getComparisonEncryptionConfiguration(String interfaceId,
-        ComparisonSummaryConfiguration comparisonSummaryConfiguration) {
-        Map<List<String>,String> encryptionMap = new HashMap<>();
-        List<ComparisonEncryptionConfiguration> comparisonEncryptionConfigurationList =
-                encryptionConfigurableHandler.queryByInterfaceId(interfaceId);
-        Optional.ofNullable(comparisonEncryptionConfigurationList).orElse(Collections.emptyList()).forEach(item -> {
-            if (CollectionUtils.isNotEmpty(item.getPath())) {
-                encryptionMap.put(item.getPath(), item.getMethodName());
-            }
-        });
-        comparisonSummaryConfiguration.setEncryptionMap(encryptionMap);
-    }
     private void getComparisonExclusionsConfiguration(String interfaceId,
         ComparisonSummaryConfiguration comparisonSummaryConfiguration) {
         Set<List<String>> exclusionSet = new HashSet<>();
