@@ -36,6 +36,8 @@ public class ComparisonSummaryService {
     @Resource
     ComparisonInclusionsConfigurableHandler inclusionsConfigurableHandler;
     @Resource
+    ComparisonEncryptionConfigurableHandler encryptionConfigurableHandler;
+    @Resource
     ComparisonReferenceConfigurableHandler referenceConfigurableHandler;
     @Resource
     ComparisonListSortConfigurableHandler listSortConfigurableHandler;
@@ -50,6 +52,7 @@ public class ComparisonSummaryService {
         getComparisonInclusionsConfiguration(interfaceId, comparisonSummaryConfiguration);
         getComparisonListSortConfiguration(interfaceId, comparisonSummaryConfiguration);
         getComparisonReferenceConfiguration(interfaceId, comparisonSummaryConfiguration);
+        getComparisonEncryptionConfiguration(interfaceId, comparisonSummaryConfiguration);
         return comparisonSummaryConfiguration;
     }
 
@@ -69,6 +72,18 @@ public class ComparisonSummaryService {
         return replayCompareConfig;
     }
 
+    private void getComparisonEncryptionConfiguration(String interfaceId,
+        ComparisonSummaryConfiguration comparisonSummaryConfiguration) {
+        Map<List<String>,String> encryptionMap = new HashMap<>();
+        List<ComparisonEncryptionConfiguration> comparisonEncryptionConfigurationList =
+                encryptionConfigurableHandler.queryByInterfaceId(interfaceId);
+        Optional.ofNullable(comparisonEncryptionConfigurationList).orElse(Collections.emptyList()).forEach(item -> {
+            if (CollectionUtils.isNotEmpty(item.getPath())) {
+                encryptionMap.put(item.getPath(), item.getMethodName());
+            }
+        });
+        comparisonSummaryConfiguration.setEncryptionMap(encryptionMap);
+    }
     private void getComparisonExclusionsConfiguration(String interfaceId,
         ComparisonSummaryConfiguration comparisonSummaryConfiguration) {
         Set<List<String>> exclusionSet = new HashSet<>();
@@ -147,6 +162,20 @@ public class ComparisonSummaryService {
                     .map(ComparisonInclusionsConfiguration::getInclusions).collect(Collectors.toSet());
                 summaryConfiguration.setInclusionList(operationInclusion);
             }, appContractDtoMap, operationInfoMap);
+
+        buildComparisonConfig(replayConfigurationMap, encryptionConfigurableHandler.useResultAsList(appId),
+                (configurations, summaryConfiguration) -> {
+                    Map<List<String>,String> operationEncryption = configurations.stream()
+                            .filter(item -> CollectionUtils.isNotEmpty(item.getPath())
+                            && !item.getMethodName().isEmpty())
+                            .collect(Collectors.toMap(ComparisonEncryptionConfiguration::getPath,
+                                    ComparisonEncryptionConfiguration::getMethodName, (r1,r2) -> {
+                                        LogUtils.warn(LOGGER,"Encryption duplicate key", ImmutableMap.of("appId",appId));
+                                        return r2;
+                                    }));
+                    summaryConfiguration.setEncryptionMap(operationEncryption);
+                }, appContractDtoMap, operationInfoMap);
+
 
         buildComparisonConfig(replayConfigurationMap, listSortConfigurableHandler.useResultAsList(appId),
             (configurations, summaryConfiguration) -> {

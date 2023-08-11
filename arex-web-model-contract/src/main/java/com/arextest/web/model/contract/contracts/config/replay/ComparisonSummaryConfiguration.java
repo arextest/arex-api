@@ -38,6 +38,7 @@ public class ComparisonSummaryConfiguration {
      */
     private Set<List<String>> inclusionList;
 
+    private Map<List<String>,String> encryptionMap;
     /**
      * reference relationship
      *
