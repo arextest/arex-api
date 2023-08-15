@@ -13,11 +13,10 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 public class ComparisonEncryptionConfiguration extends AbstractComparisonDetailsConfiguration {
     List<String> path;
-    String methodName;
     @Override
     public void validParameters() throws Exception {
         super.validParameters();
-        if (CollectionUtils.isEmpty(path) || methodName.isEmpty()) {
+        if (CollectionUtils.isEmpty(path)) {
             throw new Exception("path or methodName cannot be empty");
         }
     }

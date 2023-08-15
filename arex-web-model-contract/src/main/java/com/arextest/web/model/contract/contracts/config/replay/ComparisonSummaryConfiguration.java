@@ -38,9 +38,13 @@ public class ComparisonSummaryConfiguration {
      */
     private Set<List<String>> inclusionList;
 
-    @JsonDeserialize(keyUsing = MapKeyDeserializerUtils.class)
-    @JsonSerialize(keyUsing = MapKeySerializerUtils.class)
-    private Map<List<String>,String> encryptionMap;
+    /**
+     * only compare which leaf nodes
+     * List<String> stores the absolute path of leaf node
+     * Set stores multiple leaf nodes
+     */
+    private Set<List<String>> encryptionList;
+
     /**
      * reference relationship
      *

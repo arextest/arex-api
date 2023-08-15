@@ -18,5 +18,4 @@ import java.util.List;
 @Document(collection = "ConfigComparisonEncryption")
 public class ConfigComparisonEncryptionCollection extends AbstractComparisonDetails {
     private List<String> path;
-    private String methodName;
 }

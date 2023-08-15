@@ -152,16 +152,11 @@ public class ComparisonSummaryService {
 
         buildComparisonConfig(replayConfigurationMap, encryptionConfigurableHandler.useResultAsList(appId),
                 (configurations, summaryConfiguration) -> {
-                    Map<List<String>,String> operationEncryption = configurations.stream()
-                            .filter(item -> CollectionUtils.isNotEmpty(item.getPath())
-                            && !item.getMethodName().isEmpty())
-                            .collect(Collectors.toMap(ComparisonEncryptionConfiguration::getPath,
-                                    ComparisonEncryptionConfiguration::getMethodName, (r1,r2) -> {
-                                        LogUtils.warn(LOGGER,"Encryption duplicate key", ImmutableMap.of("appId",appId));
-                                        return r2;
-                                    }));
-                    summaryConfiguration.setEncryptionMap(operationEncryption);
+                    Set<List<String>> operationEncryption = configurations.stream()
+                            .map(ComparisonEncryptionConfiguration::getPath).collect(Collectors.toSet());
+                    summaryConfiguration.setEncryptionList(operationEncryption);
                 }, appContractDtoMap, operationInfoMap);
+
 
 
         buildComparisonConfig(replayConfigurationMap, listSortConfigurableHandler.useResultAsList(appId),

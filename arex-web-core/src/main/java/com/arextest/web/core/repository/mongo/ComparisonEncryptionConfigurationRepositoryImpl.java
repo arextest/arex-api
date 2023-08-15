@@ -53,7 +53,7 @@ public class ComparisonEncryptionConfigurationRepositoryImpl
         Query query = Query.query(Criteria.where(DASH_ID).is(configuration.getId()));
         Update update = MongoHelper.getConfigUpdate();
         MongoHelper.appendSpecifiedProperties(update, configuration, ConfigComparisonEncryptionCollection.Fields.path,
-                ConfigComparisonEncryptionCollection.Fields.methodName, AbstractComparisonDetails.Fields.expirationType,
+                AbstractComparisonDetails.Fields.expirationType,
                 AbstractComparisonDetails.Fields.expirationDate);
         UpdateResult updateResult =
                 mongoTemplate.updateMulti(query, update, ConfigComparisonEncryptionCollection.class);
