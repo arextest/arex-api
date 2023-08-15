@@ -14,6 +14,7 @@ import javax.annotation.Resource;
 import java.net.URI;
 import java.util.Base64;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -44,7 +45,6 @@ public class GithubRepoProvider implements JavaCodeContentProvider {
         Pair<String, String> ownerAndProject = ownerAndProject(projectPath);
         try {
             Content res = githubClient.createRepositoryClient(ownerAndProject.getLeft(), ownerAndProject.getRight())
-                    .getRepository().get().blobsUrl()
                     .getFileContent(filePath, sha).get();
             return Optional.ofNullable(res.content())
                     .map(source -> source.replace("\n", ""))
@@ -60,9 +60,9 @@ public class GithubRepoProvider implements JavaCodeContentProvider {
     public List<JavaCodeFile> getModifiedFiles(String projectPath, String oldCommit, String newCommit) {
         Pair<String, String> ownerAndProject = ownerAndProject(projectPath);
         try {
-            return githubClient.createRepositoryClient(ownerAndProject.getLeft(), ownerAndProject.getRight())
-                    .compareCommits(oldCommit, newCommit).get()
-                    .files()
+            return Objects.requireNonNull(githubClient.createRepositoryClient(ownerAndProject.getLeft(), ownerAndProject.getRight())
+                            .compareCommits(oldCommit, newCommit).get()
+                            .files())
                     .stream()
                     .filter(fileDto -> StringUtils.isNotBlank(fileDto.filename())
                             && fileDto.filename().endsWith(".java"))
