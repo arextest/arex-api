@@ -5,6 +5,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import com.arextest.web.common.HttpUtils;
+import com.arextest.web.model.contract.contracts.RemoveRecordsRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -73,7 +74,6 @@ import com.arextest.web.model.contract.contracts.ReportInitialRequestType;
 import com.arextest.web.model.contract.contracts.ReportInitialResponseType;
 import com.arextest.web.model.contract.contracts.SuccessResponseType;
 import com.arextest.web.model.contract.contracts.SyncResponseContractRequestType;
-import com.arextest.web.model.contract.contracts.appcontract.AddDependencyToSystemRequestType;
 import com.arextest.web.model.contract.contracts.record.CountRecordRequestType;
 import com.arextest.web.model.contract.contracts.record.ListRecordRequestType;
 import com.arextest.web.model.contract.contracts.replay.AnalyzeCompareResultsRequestType;
@@ -157,6 +157,12 @@ public class ReportQueryController {
         ChangeReplayStatusResponseType response = new ChangeReplayStatusResponseType();
         response.setUpdateSuccess(reportService.changeReportStatus(request));
         return ResponseUtils.successResponse(response);
+    }
+
+    @PostMapping("/planItemStatistics/removeRecords")
+    @ResponseBody
+    public Response removeFailedCases(@Valid @RequestBody RemoveRecordsRequest request) {
+        return ResponseUtils.successResponse(reportService.removeRecords(request));
     }
 
     @PostMapping("/queryPlanStatistics")

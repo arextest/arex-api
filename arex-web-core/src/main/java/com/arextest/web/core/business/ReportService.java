@@ -10,20 +10,24 @@ import com.arextest.web.core.repository.ReportPlanItemStatisticRepository;
 import com.arextest.web.core.repository.ReportPlanStatisticRepository;
 import com.arextest.web.model.contract.contracts.ChangeReplayStatusRequestType;
 import com.arextest.web.model.contract.contracts.PushCompareResultsRequestType;
+import com.arextest.web.model.contract.contracts.RemoveRecordsRequest;
 import com.arextest.web.model.contract.contracts.common.CompareResult;
 import com.arextest.web.model.contract.contracts.replay.AnalyzeCompareResultsRequestType;
 import com.arextest.web.model.dto.CompareResultDto;
+import com.arextest.web.model.dto.PlanItemDto;
 import com.arextest.web.model.dto.ReportPlanStatisticDto;
 import com.arextest.web.model.enums.ReplayStatusType;
 import com.arextest.web.model.mapper.CompareResultMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -134,5 +138,21 @@ public class ReportService {
         reportDiffAggStatisticRepository.deleteDiffAggByPlanId(planId);
         replayCompareResultRepository.deleteCompareResultsByPlanId(planId);
         return planStatisticRepository.deletePlan(planId);
+    }
+
+    public boolean removeRecords(RemoveRecordsRequest request) {
+        if (MapUtils.isEmpty(request.getActionIdAndRecordIdsMap())) {
+            return false;
+        }
+        request.getActionIdAndRecordIdsMap().forEach((actionId, recordIds) -> {
+            PlanItemDto planItemDto = planItemStatisticRepository.findByPlanItemId(actionId);
+            recordIds.forEach(recordId -> {
+                planItemDto.getCases().remove(recordId);
+                planItemDto.getFailCases().remove(recordId);
+                planItemDto.getErrorCases().remove(recordId);
+            });
+            planItemStatisticRepository.findAndModifyCaseMap(planItemDto);
+        });
+        return true;
     }
 }
