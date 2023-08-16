@@ -12,7 +12,6 @@ import java.util.List;
 public interface DesensitizationJarRepository extends RepositoryProvider {
     boolean saveJar(DesensitizationJarDto dto);
     boolean deleteJar(String jarId);
-
     boolean deleteAll();
     List<DesensitizationJarDto> queryAll();
 }

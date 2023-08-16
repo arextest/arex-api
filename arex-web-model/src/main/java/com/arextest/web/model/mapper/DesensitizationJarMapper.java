@@ -1,6 +1,7 @@
 package com.arextest.web.model.mapper;
 
 
+import com.arextest.web.model.contract.contracts.datadesensitization.DesensitizationJar;
 import com.arextest.web.model.dao.mongodb.DesensitizationJarCollection;
 import com.arextest.web.model.dto.DesensitizationJarDto;
 import org.mapstruct.Mapper;
@@ -25,4 +26,6 @@ public interface DesensitizationJarMapper {
             @Mapping(target = "uploadDate", expression = "java(new java.util.Date())"),
     })
     DesensitizationJarCollection daoFromDto(DesensitizationJarDto dto);
+
+    DesensitizationJar contractFromDto(DesensitizationJarDto dao);
 }
