@@ -39,6 +39,13 @@ public class ComparisonSummaryConfiguration {
     private Set<List<String>> inclusionList;
 
     /**
+     * only compare which leaf nodes
+     * List<String> stores the absolute path of leaf node
+     * Set stores multiple leaf nodes
+     */
+    private Set<List<String>> encryptionList;
+
+    /**
      * reference relationship
      *
      * List<String> stores the absolute path of leaf node

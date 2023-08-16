@@ -36,6 +36,8 @@ public class ComparisonSummaryService {
     @Resource
     ComparisonInclusionsConfigurableHandler inclusionsConfigurableHandler;
     @Resource
+    ComparisonEncryptionConfigurableHandler encryptionConfigurableHandler;
+    @Resource
     ComparisonReferenceConfigurableHandler referenceConfigurableHandler;
     @Resource
     ComparisonListSortConfigurableHandler listSortConfigurableHandler;
@@ -147,6 +149,15 @@ public class ComparisonSummaryService {
                     .map(ComparisonInclusionsConfiguration::getInclusions).collect(Collectors.toSet());
                 summaryConfiguration.setInclusionList(operationInclusion);
             }, appContractDtoMap, operationInfoMap);
+
+        buildComparisonConfig(replayConfigurationMap, encryptionConfigurableHandler.useResultAsList(appId),
+                (configurations, summaryConfiguration) -> {
+                    Set<List<String>> operationEncryption = configurations.stream()
+                            .map(ComparisonEncryptionConfiguration::getPath).collect(Collectors.toSet());
+                    summaryConfiguration.setEncryptionList(operationEncryption);
+                }, appContractDtoMap, operationInfoMap);
+
+
 
         buildComparisonConfig(replayConfigurationMap, listSortConfigurableHandler.useResultAsList(appId),
             (configurations, summaryConfiguration) -> {
