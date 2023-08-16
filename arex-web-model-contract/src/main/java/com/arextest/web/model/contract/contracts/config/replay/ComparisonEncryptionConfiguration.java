@@ -17,7 +17,7 @@ public class ComparisonEncryptionConfiguration extends AbstractComparisonDetails
     public void validParameters() throws Exception {
         super.validParameters();
         if (CollectionUtils.isEmpty(path)) {
-            throw new Exception("path or methodName cannot be empty");
+            throw new Exception("path cannot be empty");
         }
     }
 }
