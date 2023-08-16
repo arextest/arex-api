@@ -16,6 +16,7 @@ import javax.validation.Valid;
 /**
  * Created by Qzmo on 2023/8/16
  */
+@SuppressWarnings("squid:S5122")
 @Controller
 @Slf4j
 @CrossOrigin(origins = "*", maxAge = 3600)
