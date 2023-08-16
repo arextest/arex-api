@@ -38,7 +38,6 @@ public class StatisticService {
             for (CompareResultDto r : results) {
                 statisticCase(planItemMap, r, StatisticType.CASE_COUNT);
                 if (r.getDiffResultCode() == DiffResultCode.COMPARED_WITHOUT_DIFFERENCE) {
-                    statisticCase(planItemMap, r, StatisticType.SUCCEEDED);
                     continue;
                 }
                 if (r.getDiffResultCode() == DiffResultCode.COMPARED_WITH_DIFFERENCE) {
@@ -89,10 +88,6 @@ public class StatisticService {
             case FAILED:
                 inc(item.getFailCases(), result.getRecordId());
                 break;
-            case SUCCEEDED:
-                item.getFailCases().remove(result.getRecordId());
-                item.getErrorCases().remove(result.getRecordId());
-                break;
             default:
                 LogUtils.error(LOGGER, String.format("unhandled StatisticType:%s", type.toString()));
         }
@@ -113,9 +108,7 @@ public class StatisticService {
 
         FAILED,
 
-        ERROR,
-
-        SUCCEEDED;
+        ERROR;
     }
 
 
