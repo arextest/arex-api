@@ -15,7 +15,7 @@ import java.util.ServiceLoader;
  * Created by Qzmo on 2023/8/15
  */
 public class RemoteJarLoader {
-    public static SecureClassLoader loadJar(String jarUrl) throws MalformedURLException {
+    public static URLClassLoader loadJar(String jarUrl) throws MalformedURLException {
         URL resource;
         if (jarUrl.startsWith("http")) {
             resource = new URL(jarUrl);

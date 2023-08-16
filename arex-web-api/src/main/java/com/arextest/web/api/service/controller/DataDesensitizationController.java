@@ -38,7 +38,7 @@ public class DataDesensitizationController {
         }
     }
 
-    @PostMapping("/saveJar")
+    @PostMapping("/deleteJar")
     @ResponseBody
     public Response deleteJar(@Valid @RequestBody DeleteDesensitizationJarRequestType request) {
         try {

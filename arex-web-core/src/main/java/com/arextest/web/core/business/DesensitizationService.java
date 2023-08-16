@@ -3,14 +3,18 @@ package com.arextest.web.core.business;
 import com.arextest.desensitization.extension.DataDesensitization;
 import com.arextest.web.core.business.util.RemoteJarLoader;
 import com.arextest.web.core.repository.DesensitizationJarRepository;
+import com.arextest.web.model.contract.contracts.datadesensitization.DesensitizationJar;
 import com.arextest.web.model.dto.DesensitizationJarDto;
+import com.arextest.web.model.mapper.DesensitizationJarMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.net.MalformedURLException;
 import java.security.SecureClassLoader;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by Qzmo on 2023/8/16
@@ -52,13 +56,18 @@ public class DesensitizationService {
         jarRepository.deleteJar(jarId);
     }
 
-    public List<DesensitizationJarDto> listAllJars() {
-        return jarRepository.queryAll();
+    public List<DesensitizationJar> listAllJars() {
+        return jarRepository.queryAll().stream().map(DesensitizationJarMapper.INSTANCE::contractFromDto).collect(Collectors.toList());
     }
 
     private void validateJar(String uri) throws DesensitizationJarValidationException {
         try {
+            if (!uri.startsWith("http")) {
+                throw new DesensitizationJarValidationException(ErrType.URL_MALFORMED);
+            }
+
             SecureClassLoader classLoader = RemoteJarLoader.loadJar(uri);
+
             List<DataDesensitization> service = RemoteJarLoader.loadService(DataDesensitization.class, classLoader);
             if (service.isEmpty()) {
                 throw new DesensitizationJarValidationException(ErrType.SERVICE_NOTFOUND);
