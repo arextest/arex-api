@@ -6,6 +6,7 @@ import com.arextest.web.core.business.LoginService;
 import com.arextest.web.core.business.oauth.OauthHandler;
 import com.arextest.web.model.contract.contracts.SuccessResponseType;
 import com.arextest.web.model.contract.contracts.common.enums.ModifyType;
+import com.arextest.web.model.contract.contracts.login.GetOauthClientIdResponseType;
 import com.arextest.web.model.contract.contracts.login.LoginAsGuestRequestType;
 import com.arextest.web.model.contract.contracts.login.LoginAsGuestResponseType;
 import com.arextest.web.model.contract.contracts.login.ModifyUserFavoriteAppRequestType;
@@ -110,8 +111,11 @@ public class LoginController {
     }
 
     @GetMapping("/oauthClientId/{oauthType}")
+    @ResponseBody
     public Response getOauthClientId(@PathVariable String oauthType) {
-        return ResponseUtils.successResponse(oauthHandler.getOauthClientId(oauthType));
+        GetOauthClientIdResponseType response = new GetOauthClientIdResponseType();
+        response.setClientId(oauthHandler.getOauthClientId(oauthType));
+        return ResponseUtils.successResponse(response);
 
     }
 }
