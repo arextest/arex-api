@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -95,7 +96,7 @@ public class SceneInfoRepositoryImpl implements SceneInfoRepository {
     }
 
     @Override
-    public boolean removeByPlanItemId(List<String> planItemIds) {
+    public boolean removeByPlanItemId(Set<String> planItemIds) {
         Query query = Query.query(Criteria.where(SceneInfoCollection.Fields.planItemId).in(planItemIds));
         return mongoTemplate.remove(query, SceneInfoCollection.class).getDeletedCount() > 0;
     }

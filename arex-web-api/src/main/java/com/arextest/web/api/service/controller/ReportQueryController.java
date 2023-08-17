@@ -5,8 +5,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import com.arextest.web.common.HttpUtils;
-import com.arextest.web.model.contract.contracts.RemoveRecordsRequest;
-import com.arextest.web.model.contract.contracts.RemoveSceneRequest;
+import com.arextest.web.model.contract.contracts.RemoveRecordsAndScenesRequest;
 import com.arextest.web.model.contract.contracts.SuccessResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -161,19 +160,11 @@ public class ReportQueryController {
         return ResponseUtils.successResponse(response);
     }
 
-    @PostMapping("/planItemStatistics/removeRecords")
+    @PostMapping("/removeRecordsAndScenes")
     @ResponseBody
-    public Response removeFailedCases(@Valid @RequestBody RemoveRecordsRequest request) {
+    public Response removeFailedCases(@Valid @RequestBody RemoveRecordsAndScenesRequest request) {
         SuccessResponse response = new SuccessResponse();;
-        response.setSuccess(reportService.removeRecords(request));
-        return ResponseUtils.successResponse(response);
-    }
-
-    @PostMapping("/removeScenes")
-    @ResponseBody
-    public Response removeScenes(@Valid @RequestBody RemoveSceneRequest request) {
-        SuccessResponse response = new SuccessResponse();;
-        response.setSuccess(sceneReportService.removeScene(request));
+        response.setSuccess(reportService.removeRecords(request) && sceneReportService.removeScene(request));
         return ResponseUtils.successResponse(response);
     }
 

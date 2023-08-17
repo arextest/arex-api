@@ -4,7 +4,7 @@ import com.arextest.web.core.repository.CaseSummaryRepository;
 import com.arextest.web.core.repository.ReplayCompareResultRepository;
 import com.arextest.web.core.repository.SceneInfoRepository;
 import com.arextest.web.model.contract.contracts.QuerySceneInfoResponseType;
-import com.arextest.web.model.contract.contracts.RemoveSceneRequest;
+import com.arextest.web.model.contract.contracts.RemoveRecordsAndScenesRequest;
 import com.arextest.web.model.dto.CompareResultDto;
 import com.arextest.web.model.dto.iosummary.CaseSummary;
 import com.arextest.web.model.dto.iosummary.SceneInfo;
@@ -91,7 +91,7 @@ public class SceneReportService {
     }
 
 
-    public boolean removeScene(RemoveSceneRequest request) {
-        return sceneInfoRepository.removeByPlanItemId(request.getPlanItemIdList());
+    public boolean removeScene(RemoveRecordsAndScenesRequest request) {
+        return sceneInfoRepository.removeByPlanItemId(request.getActionIdAndRecordIdsMap().keySet());
     }
 }

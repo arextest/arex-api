@@ -10,7 +10,7 @@ import java.util.Map;
  * @create 2023/8/16 16:43
  */
 @Data
-public class RemoveRecordsRequest {
+public class RemoveRecordsAndScenesRequest {
     // key: actionId, value: recordIds
     private Map<String, List<String>> actionIdAndRecordIdsMap;
 }

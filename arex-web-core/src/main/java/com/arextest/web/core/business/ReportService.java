@@ -10,8 +10,7 @@ import com.arextest.web.core.repository.ReportPlanItemStatisticRepository;
 import com.arextest.web.core.repository.ReportPlanStatisticRepository;
 import com.arextest.web.model.contract.contracts.ChangeReplayStatusRequestType;
 import com.arextest.web.model.contract.contracts.PushCompareResultsRequestType;
-import com.arextest.web.model.contract.contracts.RemoveRecordsRequest;
-import com.arextest.web.model.contract.contracts.RemoveSceneRequest;
+import com.arextest.web.model.contract.contracts.RemoveRecordsAndScenesRequest;
 import com.arextest.web.model.contract.contracts.common.CompareResult;
 import com.arextest.web.model.contract.contracts.replay.AnalyzeCompareResultsRequestType;
 import com.arextest.web.model.dto.CompareResultDto;
@@ -28,7 +27,6 @@ import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -141,7 +139,7 @@ public class ReportService {
         return planStatisticRepository.deletePlan(planId);
     }
 
-    public boolean removeRecords(RemoveRecordsRequest request) {
+    public boolean removeRecords(RemoveRecordsAndScenesRequest request) {
         if (MapUtils.isEmpty(request.getActionIdAndRecordIdsMap())) {
             return false;
         }
