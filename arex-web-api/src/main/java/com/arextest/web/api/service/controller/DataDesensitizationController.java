@@ -28,37 +28,20 @@ public class DataDesensitizationController {
     @PostMapping("/saveJar")
     @ResponseBody
     public Response saveJar(@Valid @RequestBody UploadDesensitizationJarRequestType request) {
-        try {
-            desensitizationService.saveJar(request.getJarUrl(), request.getRemark());
-            return ResponseUtils.successResponse(true);
-        } catch (DesensitizationService.DesensitizationJarValidationException e) {
-            return ResponseUtils.errorResponse(e.getMessage(), ResponseCode.REQUESTED_HANDLE_EXCEPTION);
-        } catch (Exception e) {
-            LOGGER.error("saveJar error", e);
-            return ResponseUtils.errorResponse("Internal server err", ResponseCode.REQUESTED_HANDLE_EXCEPTION);
-        }
+        desensitizationService.saveJar(request.getJarUrl(), request.getRemark());
+        return ResponseUtils.successResponse(true);
     }
 
     @PostMapping("/deleteJar")
     @ResponseBody
     public Response deleteJar(@Valid @RequestBody DeleteDesensitizationJarRequestType request) {
-        try {
-            desensitizationService.deleteJar(request.getId());
-            return ResponseUtils.successResponse(true);
-        } catch (Exception e) {
-            LOGGER.error("delete jar error", e);
-            return ResponseUtils.errorResponse("Internal server err", ResponseCode.REQUESTED_HANDLE_EXCEPTION);
-        }
+        desensitizationService.deleteJar(request.getId());
+        return ResponseUtils.successResponse(true);
     }
 
     @PostMapping("/listJar")
     @ResponseBody
     public Response listJar() {
-        try {
-            return ResponseUtils.successResponse(desensitizationService.listAllJars());
-        } catch (Exception e) {
-            LOGGER.error("delete jar error", e);
-            return ResponseUtils.errorResponse("Internal server err", ResponseCode.REQUESTED_HANDLE_EXCEPTION);
-        }
+        return ResponseUtils.successResponse(desensitizationService.listAllJars());
     }
 }

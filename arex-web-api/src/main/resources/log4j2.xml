@@ -20,9 +20,6 @@
                       connection="${sys:arex.report.mongo.uri}.logs"
             />
         </NoSql>
-        <Console name="STDOUT" target="SYSTEM_OUT">
-            <PatternLayout pattern="%m%n"/>
-        </Console>
     </Appenders>
 
     <Loggers>
@@ -32,8 +29,5 @@
         <Logger name="com.arextest" level="INFO">
             <AppenderRef ref="Mongo4"/>
         </Logger>
-        <Root level="error">
-            <AppenderRef ref="STDOUT"/>
-        </Root>
     </Loggers>
 </Configuration>
