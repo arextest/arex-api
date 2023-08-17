@@ -122,7 +122,6 @@ public class ReportPlanItemStatisticRepositoryImpl implements ReportPlanItemStat
             return false;
         }
         Update update = MongoHelper.getUpdate();
-        update.setOnInsert(DATA_CHANGE_CREATE_TIME, System.currentTimeMillis());
         if (result.getCases() != null) {
             update.set(CASES, result.getCases());
         }

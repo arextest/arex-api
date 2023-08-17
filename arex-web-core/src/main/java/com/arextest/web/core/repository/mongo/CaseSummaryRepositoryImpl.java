@@ -47,7 +47,7 @@ public class CaseSummaryRepositoryImpl implements CaseSummaryRepository {
             .and(RECORD_ID).is(summary.getRecordId()));
 
         Update update = MongoHelper.getUpdate();
-        MongoHelper.appendFullProperties(new Update(), caseSummaryCollection);
+        MongoHelper.appendFullProperties(update, caseSummaryCollection);
 
         CaseSummaryCollection dao = mongoTemplate.findAndModify(query, update,
             FindAndModifyOptions.options().returnNew(true).upsert(true), CaseSummaryCollection.class);

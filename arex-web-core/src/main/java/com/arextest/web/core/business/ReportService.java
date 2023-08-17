@@ -146,12 +146,20 @@ public class ReportService {
         }
         request.getActionIdAndRecordIdsMap().forEach((actionId, recordIds) -> {
             PlanItemDto planItemDto = planItemStatisticRepository.findByPlanItemId(actionId);
-            recordIds.forEach(recordId -> {
-                planItemDto.getCases().remove(recordId);
-                planItemDto.getFailCases().remove(recordId);
-                planItemDto.getErrorCases().remove(recordId);
-            });
-            planItemStatisticRepository.findAndModifyCaseMap(planItemDto);
+            if (planItemDto != null) {
+                recordIds.forEach(recordId -> {
+                    if (planItemDto.getCases() != null) {
+                        planItemDto.getCases().remove(recordId);
+                    }
+                    if (planItemDto.getFailCases() != null) {
+                        planItemDto.getFailCases().remove(recordId);
+                    }
+                    if (planItemDto.getErrorCases() != null) {
+                        planItemDto.getErrorCases().remove(recordId);
+                    }
+                });
+                planItemStatisticRepository.findAndModifyCaseMap(planItemDto);
+            }
         });
         return true;
     }
