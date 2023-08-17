@@ -94,6 +94,12 @@ public class SceneInfoRepositoryImpl implements SceneInfoRepository {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public boolean removeByPlanItemId(List<String> planItemIds) {
+        Query query = Query.query(Criteria.where(SceneInfoCollection.Fields.planItemId).in(planItemIds));
+        return mongoTemplate.remove(query, SceneInfoCollection.class).getDeletedCount() > 0;
+    }
+
     private String toColumnName(String groupKeyName, String columnName) {
         return groupKeyName + DOT + columnName;
     }

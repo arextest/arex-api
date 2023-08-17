@@ -13,4 +13,6 @@ public interface SceneInfoRepository extends RepositoryProvider {
     SceneInfo save(SceneInfo sceneInfo);
 
     List<SceneInfo> querySceneInfo(String planId, String planItemId);
+
+    boolean removeByPlanItemId(List<String> planItemIds);
 }
