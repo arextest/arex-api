@@ -97,7 +97,8 @@ public class SceneInfoRepositoryImpl implements SceneInfoRepository {
 
     @Override
     public boolean removeByPlanItemId(Set<String> planItemIds) {
-        Query query = Query.query(Criteria.where(SceneInfoCollection.Fields.planItemId).in(planItemIds));
+        Query query = Query.query(Criteria.where(SceneInfoCollection.Fields.planItemId).in(planItemIds)
+            .and(SceneInfoCollection.Fields.code).ne(0));
         return mongoTemplate.remove(query, SceneInfoCollection.class).getDeletedCount() > 0;
     }
 
