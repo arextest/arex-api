@@ -8,8 +8,6 @@ import java.util.stream.Collectors;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.stereotype.Component;
 
 import com.arextest.web.common.LogUtils;
 import com.arextest.web.core.business.config.ConfigurableHandler;
@@ -28,9 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * Created by rchen9 on 2023/2/7.
  */
-@ConditionalOnMissingBean
 @Slf4j
-@Component
 public class ComparisonSummaryService {
 
     ComparisonExclusionsConfigurableHandler exclusionsConfigurableHandler;
