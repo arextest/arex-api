@@ -28,7 +28,7 @@ import java.util.Collections;
 @Component("GoogleOauth")
 public class GoogleOauthServiceImpl implements OauthService {
 
-    @Value("${arex.oauth.google.clientId}")
+    @Value("${arex.oauth.google.clientid}")
     private String clientId;
     @Value("${arex.oauth.google.secret}")
     private String secret;

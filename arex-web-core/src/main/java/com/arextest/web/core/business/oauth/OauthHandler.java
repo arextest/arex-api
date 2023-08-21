@@ -20,16 +20,17 @@ public class OauthHandler {
         OauthService oauthService = oauthServiceFactory.getOauthService(oauthType);
         VerifyResponseType response = new VerifyResponseType();
 
-        String githubUser = oauthService.getUser(code);
-        if (StringUtils.isBlank(githubUser)) {
+        String userName = oauthService.getUser(code);
+        if (StringUtils.isBlank(userName)) {
             response.setSuccess(false);
             response.setReason("oauth login failed");
             return response;
         }
 
         response.setSuccess(true);
-        response.setAccessToken(JwtUtil.makeAccessToken(githubUser));
-        response.setRefreshToken(JwtUtil.makeRefreshToken(githubUser));
+        response.setUserName(userName);
+        response.setAccessToken(JwtUtil.makeAccessToken(userName));
+        response.setRefreshToken(JwtUtil.makeRefreshToken(userName));
 
         return response;
     }

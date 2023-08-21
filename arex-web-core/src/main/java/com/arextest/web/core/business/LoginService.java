@@ -74,6 +74,7 @@ public class LoginService {
         }
         if (exist) {
             responseType.setSuccess(true);
+            responseType.setUserName(request.getUserName());
             responseType.setAccessToken(JwtUtil.makeAccessToken(request.getUserName()));
             responseType.setRefreshToken(JwtUtil.makeRefreshToken(request.getUserName()));
         } else {
@@ -94,6 +95,7 @@ public class LoginService {
     public VerifyResponseType refresh(String userName) {
         VerifyResponseType responseType = new VerifyResponseType();
         responseType.setSuccess(true);
+        responseType.setUserName(userName);
         responseType.setAccessToken(JwtUtil.makeAccessToken(userName));
         responseType.setRefreshToken(JwtUtil.makeRefreshToken(userName));
         return responseType;
