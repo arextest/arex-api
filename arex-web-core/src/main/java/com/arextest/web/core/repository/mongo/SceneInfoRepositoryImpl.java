@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -92,6 +93,13 @@ public class SceneInfoRepositoryImpl implements SceneInfoRepository {
         return sceneInfoCollections.stream()
                 .map(SceneInfoMapper.INSTANCE::dtoFromDao)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public boolean removeByPlanItemId(Set<String> planItemIds) {
+        Query query = Query.query(Criteria.where(SceneInfoCollection.Fields.planItemId).in(planItemIds)
+            .and(SceneInfoCollection.Fields.code).ne(0));
+        return mongoTemplate.remove(query, SceneInfoCollection.class).getDeletedCount() > 0;
     }
 
     private String toColumnName(String groupKeyName, String columnName) {

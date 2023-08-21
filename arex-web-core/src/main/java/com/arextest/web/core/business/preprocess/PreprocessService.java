@@ -1,6 +1,5 @@
 package com.arextest.web.core.business.preprocess;
 
-import com.arextest.common.utils.CompressionUtils;
 import com.arextest.web.common.LogUtils;
 import com.arextest.web.common.ZstdUtils;
 import com.arextest.web.core.repository.MessagePreprocessRepository;
@@ -9,12 +8,13 @@ import com.arextest.web.core.repository.ServletMockerRepository;
 import com.arextest.web.model.dto.MessagePreprocessDto;
 import com.arextest.web.model.dto.PreprocessConfigDto;
 import com.arextest.web.model.dto.ServletMockerDto;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.benmanes.caffeine.cache.LoadingCache;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -42,6 +42,9 @@ public class PreprocessService {
 
     @Resource(name = "schemaCache")
     private LoadingCache schemaCache;
+
+    @Resource
+    private ObjectMapper objectMapper;
 
     public void updateServletSchema() {
         LogUtils.info(LOGGER, "starting update servlet schema");
@@ -89,7 +92,7 @@ public class PreprocessService {
         LogUtils.info(LOGGER, "finish updating servlet schema");
     }
 
-    public Boolean updateSchema(String key, String message) throws JSONException {
+    public Boolean updateSchema(String key, String message) {
         Object json = parseJson(message);
         if (json == null) {
             return false;
@@ -103,10 +106,10 @@ public class PreprocessService {
         Set<String> newPaths = new HashSet<>();
         List<String> currentPath = new ArrayList<>();
 
-        if (json instanceof JSONObject) {
-            JsonObjectIter((JSONObject) json, currentPath, newPaths, root);
+        if (json instanceof ObjectNode) {
+            JsonObjectIter((ObjectNode) json, currentPath, newPaths, root);
         } else {
-            JsonArrayIter((JSONArray) json, currentPath, newPaths, root);
+            JsonArrayIter((ArrayNode) json, currentPath, newPaths, root);
         }
 
         saveNewNodes(key, newPaths);
@@ -114,24 +117,24 @@ public class PreprocessService {
         return true;
     }
 
-    private void JsonObjectIter(JSONObject obj,
-            List<String> currentPath,
-            Set<String> newPaths,
-            PreprocessTreeNode root) throws JSONException {
+    private void JsonObjectIter(ObjectNode obj,
+                                List<String> currentPath,
+                                Set<String> newPaths,
+                                PreprocessTreeNode root) {
         if (obj == null) {
             return;
         }
 
-        Iterator<String> keys = obj.keys();
+        Iterator<String> keys = obj.fieldNames();
         while (keys.hasNext()) {
             String key = keys.next();
             Object value = obj.get(key);
             currentPath.add(key);
 
-            if (value instanceof JSONObject) {
-                JsonObjectIter((JSONObject) value, currentPath, newPaths, root);
-            } else if (value instanceof JSONArray) {
-                JsonArrayIter((JSONArray) value, currentPath, newPaths, root);
+            if (value instanceof ObjectNode) {
+                JsonObjectIter((ObjectNode) value, currentPath, newPaths, root);
+            } else if (value instanceof ArrayNode) {
+                JsonArrayIter((ArrayNode) value, currentPath, newPaths, root);
             } else {
                 String path = getPathString(currentPath);
                 if (!newPaths.contains(path) && !isExistInTree(root, currentPath)) {
@@ -142,19 +145,19 @@ public class PreprocessService {
         }
     }
 
-    private void JsonArrayIter(JSONArray array,
-            List<String> currentPath,
-            Set<String> newPaths,
-            PreprocessTreeNode root) throws JSONException {
-        if (array == null || array.length() == 0) {
+    private void JsonArrayIter(ArrayNode array,
+                               List<String> currentPath,
+                               Set<String> newPaths,
+                               PreprocessTreeNode root) {
+        if (array == null || array.size() == 0) {
             return;
         }
-        for (int i = 0; i < array.length(); i++) {
+        for (int i = 0; i < array.size(); i++) {
             Object item = array.get(i);
-            if (item instanceof JSONObject) {
-                JsonObjectIter((JSONObject) item, currentPath, newPaths, root);
-            } else if (item instanceof JSONArray) {
-                JsonArrayIter((JSONArray) item, currentPath, newPaths, root);
+            if (item instanceof ObjectNode) {
+                JsonObjectIter((ObjectNode) item, currentPath, newPaths, root);
+            } else if (item instanceof ArrayNode) {
+                JsonArrayIter((ArrayNode) item, currentPath, newPaths, root);
             } else {
                 currentPath.add("%value%");
                 String path = getPathString(currentPath);
@@ -169,15 +172,15 @@ public class PreprocessService {
     private Object parseJson(String message) {
         if (message.startsWith("{")) {
             try {
-                return new JSONObject(message);
-            } catch (JSONException e) {
+                return objectMapper.readValue(message, ObjectNode.class);
+            } catch (JsonProcessingException e) {
                 return null;
             }
         }
         if (message.startsWith("[")) {
             try {
-                return new JSONArray(message);
-            } catch (JSONException e) {
+                return objectMapper.readValue(message, ArrayNode.class);
+            } catch (JsonProcessingException e) {
                 return null;
             }
         }

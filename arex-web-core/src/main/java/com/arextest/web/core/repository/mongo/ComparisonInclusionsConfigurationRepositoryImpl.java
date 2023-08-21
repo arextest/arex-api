@@ -1,17 +1,12 @@
 package com.arextest.web.core.repository.mongo;
 
+import java.util.List;
+import java.util.stream.Collectors;
 
-import com.arextest.web.core.repository.ConfigRepositoryField;
-import com.arextest.web.core.repository.ConfigRepositoryProvider;
-import com.arextest.web.core.repository.mongo.util.MongoHelper;
-import com.arextest.web.model.contract.contracts.config.replay.ComparisonInclusionsConfiguration;
-import com.arextest.web.model.dao.mongodb.ConfigComparisonInclusionsCollection;
-import com.arextest.web.model.mapper.ConfigComparisonInclusionsMapper;
-import com.mongodb.client.result.DeleteResult;
-import com.mongodb.client.result.UpdateResult;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.BulkOperations;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -19,23 +14,23 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Repository;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
+import com.arextest.web.common.LogUtils;
+import com.arextest.web.core.repository.ConfigRepositoryField;
+import com.arextest.web.core.repository.ConfigRepositoryProvider;
+import com.arextest.web.core.repository.mongo.util.MongoHelper;
+import com.arextest.web.model.contract.contracts.config.replay.ComparisonInclusionsConfiguration;
+import com.arextest.web.model.dao.mongodb.ConfigComparisonInclusionsCollection;
+import com.arextest.web.model.dao.mongodb.entity.AbstractComparisonDetails;
+import com.arextest.web.model.mapper.ConfigComparisonInclusionsMapper;
+import com.mongodb.client.result.DeleteResult;
+import com.mongodb.client.result.UpdateResult;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Repository
-public class ComparisonInclusionsConfigurationRepositoryImpl implements
-        ConfigRepositoryProvider<ComparisonInclusionsConfiguration>,
-        ConfigRepositoryField {
-
-    private static final String APP_ID = "appId";
-    private static final String OPERATION_ID = "operationId";
-    private static final String INCLUSIONS = "inclusions";
-    private static final String EXPIRATION_TYPE = "expirationType";
-    private static final String EXPIRATION_DATE = "expirationDate";
-    private static final String FS_INTERFACE_ID = "fsInterfaceId";
-    private static final String COMPARE_CONFIG_TYPE = "compareConfigType";
-
+public class ComparisonInclusionsConfigurationRepositoryImpl
+    implements ConfigRepositoryProvider<ComparisonInclusionsConfiguration>, ConfigRepositoryField {
 
     @Autowired
     MongoTemplate mongoTemplate;
@@ -48,38 +43,47 @@ public class ComparisonInclusionsConfigurationRepositoryImpl implements
     @Override
     public List<ComparisonInclusionsConfiguration> listBy(String appId) {
         Query query = Query.query(Criteria.where(APP_ID).is(appId));
-        List<ConfigComparisonInclusionsCollection> configComparisonInclusionsCollections = mongoTemplate.find(query, ConfigComparisonInclusionsCollection.class);
-        return configComparisonInclusionsCollections.stream().map(ConfigComparisonInclusionsMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
+        List<ConfigComparisonInclusionsCollection> configComparisonInclusionsCollections =
+            mongoTemplate.find(query, ConfigComparisonInclusionsCollection.class);
+        return configComparisonInclusionsCollections.stream().map(ConfigComparisonInclusionsMapper.INSTANCE::dtoFromDao)
+            .collect(Collectors.toList());
     }
 
     public List<ComparisonInclusionsConfiguration> listBy(String appId, String operationId) {
-        Query query = Query.query(Criteria.where(APP_ID).is(appId).and(OPERATION_ID).is(operationId));
-        List<ConfigComparisonInclusionsCollection> configComparisonInclusionsCollections = mongoTemplate.find(query, ConfigComparisonInclusionsCollection.class);
-        return configComparisonInclusionsCollections.stream().map(ConfigComparisonInclusionsMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
+        Query query = Query
+            .query(Criteria.where(APP_ID).is(appId).and(AbstractComparisonDetails.Fields.operationId).is(operationId));
+        List<ConfigComparisonInclusionsCollection> configComparisonInclusionsCollections =
+            mongoTemplate.find(query, ConfigComparisonInclusionsCollection.class);
+        return configComparisonInclusionsCollections.stream().map(ConfigComparisonInclusionsMapper.INSTANCE::dtoFromDao)
+            .collect(Collectors.toList());
     }
 
     @Override
     public List<ComparisonInclusionsConfiguration> queryByInterfaceIdAndOperationId(String interfaceId,
-                                                                                    String operationId) {
+        String operationId) {
         Query query = new Query();
         if (StringUtils.isNotBlank(operationId)) {
-            query.addCriteria(new Criteria().orOperator(Criteria.where(FS_INTERFACE_ID).is(interfaceId),
-                    Criteria.where(OPERATION_ID).is(operationId)));
+            query.addCriteria(new Criteria().orOperator(
+                Criteria.where(AbstractComparisonDetails.Fields.fsInterfaceId).is(interfaceId),
+                Criteria.where(AbstractComparisonDetails.Fields.operationId).is(operationId)));
         } else {
-            query.addCriteria(Criteria.where(FS_INTERFACE_ID).is(interfaceId));
+            query.addCriteria(Criteria.where(AbstractComparisonDetails.Fields.fsInterfaceId).is(interfaceId));
         }
         List<ConfigComparisonInclusionsCollection> comparisonInclusionsConfigurations =
-                mongoTemplate.find(query, ConfigComparisonInclusionsCollection.class);
-        return comparisonInclusionsConfigurations.stream()
-                .map(ConfigComparisonInclusionsMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
+            mongoTemplate.find(query, ConfigComparisonInclusionsCollection.class);
+        return comparisonInclusionsConfigurations.stream().map(ConfigComparisonInclusionsMapper.INSTANCE::dtoFromDao)
+            .collect(Collectors.toList());
     }
 
     @Override
     public boolean update(ComparisonInclusionsConfiguration configuration) {
         Query query = Query.query(Criteria.where(DASH_ID).is(configuration.getId()));
         Update update = MongoHelper.getConfigUpdate();
-        MongoHelper.appendSpecifiedProperties(update, configuration, INCLUSIONS, EXPIRATION_TYPE, EXPIRATION_DATE);
-        UpdateResult updateResult = mongoTemplate.updateMulti(query, update, ConfigComparisonInclusionsCollection.class);
+        MongoHelper.appendSpecifiedProperties(update, configuration,
+            ConfigComparisonInclusionsCollection.Fields.inclusions, AbstractComparisonDetails.Fields.expirationType,
+            AbstractComparisonDetails.Fields.expirationDate);
+        UpdateResult updateResult =
+            mongoTemplate.updateMulti(query, update, ConfigComparisonInclusionsCollection.class);
         return updateResult.getModifiedCount() > 0;
     }
 
@@ -93,23 +97,24 @@ public class ComparisonInclusionsConfigurationRepositoryImpl implements
     @Override
     public boolean insert(ComparisonInclusionsConfiguration configuration) {
         ConfigComparisonInclusionsCollection configComparisonInclusionsCollection =
-                ConfigComparisonInclusionsMapper.INSTANCE.daoFromDto(configuration);
+            ConfigComparisonInclusionsMapper.INSTANCE.daoFromDto(configuration);
 
         Update update = new Update();
         MongoHelper.appendFullProperties(update, configComparisonInclusionsCollection);
 
-        Query query = Query.query(
-                Criteria.where(APP_ID).is(configComparisonInclusionsCollection.getAppId())
-                        .and(OPERATION_ID).is(configComparisonInclusionsCollection.getOperationId())
-                        .and(COMPARE_CONFIG_TYPE).is(configComparisonInclusionsCollection.getCompareConfigType())
-                        .and(FS_INTERFACE_ID).is(configComparisonInclusionsCollection.getFsInterfaceId())
-                        .and(INCLUSIONS).is(configComparisonInclusionsCollection.getInclusions())
-        );
+        Query query = Query.query(Criteria.where(APP_ID).is(configComparisonInclusionsCollection.getAppId())
+            .and(AbstractComparisonDetails.Fields.operationId).is(configComparisonInclusionsCollection.getOperationId())
+            .and(AbstractComparisonDetails.Fields.compareConfigType)
+            .is(configComparisonInclusionsCollection.getCompareConfigType())
+            .and(AbstractComparisonDetails.Fields.fsInterfaceId)
+            .is(configComparisonInclusionsCollection.getFsInterfaceId())
+            .and(AbstractComparisonDetails.Fields.dependencyId)
+            .is(configComparisonInclusionsCollection.getDependencyId())
+            .and(ConfigComparisonInclusionsCollection.Fields.inclusions)
+            .is(configComparisonInclusionsCollection.getInclusions()));
 
-        ConfigComparisonInclusionsCollection dao = mongoTemplate.findAndModify(query,
-                update,
-                FindAndModifyOptions.options().returnNew(true).upsert(true),
-                ConfigComparisonInclusionsCollection.class);
+        ConfigComparisonInclusionsCollection dao = mongoTemplate.findAndModify(query, update,
+            FindAndModifyOptions.options().returnNew(true).upsert(true), ConfigComparisonInclusionsCollection.class);
         return dao != null;
     }
 
@@ -118,11 +123,31 @@ public class ComparisonInclusionsConfigurationRepositoryImpl implements
         if (CollectionUtils.isEmpty(configurationList)) {
             return false;
         }
-        List<ConfigComparisonInclusionsCollection> configComparisonInclusionsCollections = configurationList.stream()
-                .map(ConfigComparisonInclusionsMapper.INSTANCE::daoFromDto)
-                .collect(Collectors.toList());
-        Collection<ConfigComparisonInclusionsCollection> insertAll = mongoTemplate.insertAll(configComparisonInclusionsCollections);
-        return CollectionUtils.isNotEmpty(insertAll);
+        List<ConfigComparisonInclusionsCollection> inclusionsCollections = configurationList.stream()
+            .map(ConfigComparisonInclusionsMapper.INSTANCE::daoFromDto).collect(Collectors.toList());
+        try {
+            BulkOperations bulkOperations =
+                mongoTemplate.bulkOps(BulkOperations.BulkMode.UNORDERED, ConfigComparisonInclusionsCollection.class);
+            for (ConfigComparisonInclusionsCollection inclusionsCollection : inclusionsCollections) {
+                Update update = new Update();
+                MongoHelper.appendFullProperties(update, inclusionsCollection);
+
+                Query query = Query.query(Criteria.where(APP_ID).is(inclusionsCollection.getAppId())
+                    .and(AbstractComparisonDetails.Fields.operationId).is(inclusionsCollection.getOperationId())
+                    .and(AbstractComparisonDetails.Fields.compareConfigType)
+                    .is(inclusionsCollection.getCompareConfigType()).and(AbstractComparisonDetails.Fields.fsInterfaceId)
+                    .is(inclusionsCollection.getFsInterfaceId()).and(AbstractComparisonDetails.Fields.dependencyId)
+                    .is(inclusionsCollection.getDependencyId())
+                    .and(ConfigComparisonInclusionsCollection.Fields.inclusions)
+                    .is(inclusionsCollection.getInclusions()));
+                bulkOperations.upsert(query, update);
+            }
+            bulkOperations.execute();
+        } catch (Exception e) {
+            LogUtils.error(LOGGER, "exclusion insertList failed! list:{}, exception:{}", configurationList, e);
+            return false;
+        }
+        return true;
     }
 
     @Override

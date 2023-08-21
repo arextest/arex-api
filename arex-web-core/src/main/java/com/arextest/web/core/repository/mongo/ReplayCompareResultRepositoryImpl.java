@@ -22,6 +22,8 @@ import org.springframework.stereotype.Component;
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 
@@ -96,7 +98,8 @@ public class ReplayCompareResultRepositoryImpl implements ReplayCompareResultRep
     // @Override
     // public Pair<List<CompareResultDto>, Long> pageQueryWithoutMsg(Long planId, Long planItemId, String categoryName,
     //                                                               Integer resultType, String keyWord,
-    //                                                               Integer pageIndex, Integer pageSize, Boolean needTotal) {
+    //                                                               Integer pageIndex, Integer pageSize, Boolean
+    //                                                               needTotal) {
     //     Query query = fillFilterConditions(planId, planItemId, categoryName, resultType, keyWord);
     //
     //     query.fields().include(PLAN_ITEM_ID);
@@ -227,6 +230,51 @@ public class ReplayCompareResultRepositoryImpl implements ReplayCompareResultRep
                 map(CompareResultMapper.INSTANCE::dtoFromDao)
                 .collect(Collectors.toList());
 
+    }
+
+    @Override
+    public List<CompareResultDto> queryCompareResults(List<String> planItemIdList, List<String> recordIdList) {
+        Query query = new Query();
+        Criteria criteria = new Criteria();
+        List<Criteria> orCriteriaList = new ArrayList<>();
+        for (int i = 0; i < planItemIdList.size(); i++) {
+            orCriteriaList.add(Criteria.where(PLAN_ITEM_ID).is(planItemIdList.get(i)).and(RECORD_ID).is(recordIdList.get(i)));
+        }
+        criteria.orOperator(orCriteriaList);
+        query.addCriteria(criteria);
+        List<ReplayCompareResultCollection> daos = mongoTemplate.find(query, ReplayCompareResultCollection.class);
+        return daos.stream().map(CompareResultMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<CompareResultDto> queryLatestEntryPointCompareResult(String operationId, Set<String> operationTypes,
+                                                                     int limit) {
+        Sort sort = Sort.by(Sort.Direction.DESC, DATA_CHANGE_UPDATE_TIME);
+        Query query = Query.query(Criteria.where(OPERATION_ID).is(operationId))
+                .addCriteria(Criteria.where(CATEGORY_NAME).in(operationTypes))
+                .with(sort)
+                .limit(limit);
+        return mongoTemplate.find(query, ReplayCompareResultCollection.class)
+                .stream()
+                .map(CompareResultMapper.INSTANCE::dtoFromDao)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public Map<String, List<CompareResultDto>> queryLatestCompareResultMap(String operationId,
+                                                                           List<String> operationNames,
+                                                                           List<String> operationTypes) {
+        Criteria criteria = new Criteria();
+        List<Criteria> orCriteriaList = new ArrayList<>();
+        for (int i = 0; i < operationNames.size(); i++) {
+            orCriteriaList.add(Criteria.where(OPERATION_NAME).is(operationNames.get(i)).and(CATEGORY_NAME).is(operationTypes.get(i)));
+        }
+        criteria.orOperator(orCriteriaList).andOperator(Criteria.where(OPERATION_ID).is(operationId));
+
+        Query query = Query.query(criteria).with(Sort.by(Sort.Direction.DESC, DATA_CHANGE_UPDATE_TIME));
+        return mongoTemplate.find(query, ReplayCompareResultCollection.class).stream()
+                .map(CompareResultMapper.INSTANCE::dtoFromDao)
+                .collect(Collectors.groupingBy(CompareResultDto::getOperationName));
     }
 
     private Query fillFilterConditions(String planId, String planItemId, String categoryName, Integer resultType,

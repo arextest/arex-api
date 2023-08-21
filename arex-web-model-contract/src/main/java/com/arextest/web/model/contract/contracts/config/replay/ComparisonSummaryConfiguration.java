@@ -21,6 +21,9 @@ import java.util.Set;
  */
 @Data
 public class ComparisonSummaryConfiguration {
+
+    private String operationName;
+    private List<String> operationTypes;
     /**
      * ignore configuration
      * List<String> stores the absolute path of leaf node
@@ -34,6 +37,13 @@ public class ComparisonSummaryConfiguration {
      * Set stores multiple leaf nodes
      */
     private Set<List<String>> inclusionList;
+
+    /**
+     * only compare which leaf nodes
+     * List<String> stores the absolute path of leaf node
+     * Set stores multiple leaf nodes
+     */
+    private Set<List<String>> encryptionList;
 
     /**
      * reference relationship

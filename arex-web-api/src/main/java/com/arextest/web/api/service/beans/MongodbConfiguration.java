@@ -1,12 +1,7 @@
 package com.arextest.web.api.service.beans;
 
 import com.arextest.web.common.LogUtils;
-import com.arextest.web.model.dao.mongodb.AppCollection;
-import com.arextest.web.model.dao.mongodb.InstancesCollection;
-import com.arextest.web.model.dao.mongodb.LogsCollection;
-import com.arextest.web.model.dao.mongodb.RecordServiceConfigCollection;
-import com.arextest.web.model.dao.mongodb.ReplayScheduleConfigCollection;
-import com.arextest.web.model.dao.mongodb.ServiceOperationCollection;
+import com.arextest.web.model.dao.mongodb.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -24,7 +19,6 @@ import org.springframework.data.mongodb.core.index.Index;
 import org.springframework.data.mongodb.core.mapping.MongoMappingContext;
 
 import java.util.concurrent.TimeUnit;
-
 
 @Slf4j
 @Configuration
@@ -60,26 +54,40 @@ public class MongodbConfiguration {
     }
 
     public void initIndicesAfterStartup(MongoTemplate mongoTemplate) {
-        mongoTemplate.indexOps(AppCollection.class).ensureIndex(new Index().on(APP_ID, Sort.Direction.ASC).unique());
-        mongoTemplate.indexOps(RecordServiceConfigCollection.class)
-                .ensureIndex(new Index().on(APP_ID, Sort.Direction.ASC).unique());
-        mongoTemplate.indexOps(ReplayScheduleConfigCollection.class)
-                .ensureIndex(new Index().on(APP_ID, Sort.Direction.ASC).unique());
-        mongoTemplate.indexOps(ServiceOperationCollection.class)
-                .ensureIndex(new Index().on(APP_ID, Sort.Direction.ASC)
-                        .on(SERVICE_ID, Sort.Direction.ASC)
-                        .on(OPERATION_NAME, Sort.Direction.ASC)
-                        .unique());
-        mongoTemplate.indexOps(LogsCollection.class)
-                .ensureIndex(new Index(DATE, Sort.Direction.DESC).expire(10, TimeUnit.DAYS));
 
+        // indexs for AppCollection
+        mongoTemplate.indexOps(AppCollection.class).ensureIndex(new Index().on(APP_ID, Sort.Direction.ASC).unique());
+
+        // indexs for RecordServiceConfigCollection
+        mongoTemplate.indexOps(RecordServiceConfigCollection.class)
+            .ensureIndex(new Index().on(APP_ID, Sort.Direction.ASC).unique());
+
+        // indexs for ReplayScheduleConfigCollection
+        mongoTemplate.indexOps(ReplayScheduleConfigCollection.class)
+            .ensureIndex(new Index().on(APP_ID, Sort.Direction.ASC).unique());
+
+        // indexs for ServiceOperationCollection
+        mongoTemplate.indexOps(ServiceOperationCollection.class).ensureIndex(new Index().on(APP_ID, Sort.Direction.ASC)
+            .on(SERVICE_ID, Sort.Direction.ASC).on(OPERATION_NAME, Sort.Direction.ASC).unique());
+
+        // indexs for LogsCollection
+        mongoTemplate.indexOps(LogsCollection.class)
+            .ensureIndex(new Index(DATE, Sort.Direction.DESC).expire(10, TimeUnit.DAYS));
+
+        // indexs for InstancesCollection
         try {
             mongoTemplate.indexOps(InstancesCollection.class)
-                    .ensureIndex(new Index(DATE_UPDATE_TIME, Sort.Direction.DESC).expire(16, TimeUnit.MINUTES));
+                    .ensureIndex(new Index(DATE_UPDATE_TIME, Sort.Direction.DESC).expire(65, TimeUnit.SECONDS));
         } catch (Throwable throwable) {
             mongoTemplate.indexOps(InstancesCollection.class).dropIndex("dataUpdateTime_-1");
-            mongoTemplate.indexOps(InstancesCollection.class).ensureIndex(new Index(DATE_UPDATE_TIME, Sort.Direction.DESC).expire(16, TimeUnit.MINUTES));
+            mongoTemplate.indexOps(InstancesCollection.class).ensureIndex(new Index(DATE_UPDATE_TIME, Sort.Direction.DESC).expire(65, TimeUnit.SECONDS));
         }
+
+        // indexs for AppContractCollection
+        mongoTemplate.indexOps(AppContractCollection.class)
+            .ensureIndex(new Index().on(AppContractCollection.Fields.appId, Sort.Direction.ASC));
+        mongoTemplate.indexOps(AppContractCollection.class)
+            .ensureIndex(new Index().on(AppContractCollection.Fields.operationId, Sort.Direction.ASC));
 
     }
 }

@@ -117,6 +117,28 @@ public class ReportPlanItemStatisticRepositoryImpl implements ReportPlanItemStat
     }
 
     @Override
+    public boolean findAndModifyCaseMap(PlanItemDto result) {
+        if (result.getPlanItemId() == null) {
+            return false;
+        }
+        Update update = MongoHelper.getUpdate();
+        if (result.getCases() != null) {
+            update.set(CASES, result.getCases());
+        }
+        if (result.getFailCases() != null) {
+            update.set(FAIL_CASES, result.getFailCases());
+        }
+        if (result.getErrorCases() != null) {
+            update.set(ERROR_CASES, result.getErrorCases());
+        }
+        mongoTemplate.findAndModify(
+            Query.query(Criteria.where(PLAN_ITEM_ID).is(result.getPlanItemId())),
+            update, FindAndModifyOptions.options().upsert(true),
+            ReportPlanItemStatisticCollection.class);
+        return true;
+    }
+
+    @Override
     public List<PlanItemDto> findByPlanIdAndPlanItemId(String planId, String planItemId) {
         if (planId == null && planItemId == null) {
             return new ArrayList<>();
@@ -131,6 +153,17 @@ public class ReportPlanItemStatisticRepositoryImpl implements ReportPlanItemStat
         List<ReportPlanItemStatisticCollection> result =
                 mongoTemplate.find(query, ReportPlanItemStatisticCollection.class);
         return result.stream().map(PlanItemMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
+    }
+
+    @Override
+    public PlanItemDto findByPlanItemId(String planItemId) {
+        if (planItemId == null) {
+            return null;
+        }
+        ReportPlanItemStatisticCollection result =
+                mongoTemplate.findOne(Query.query(Criteria.where(PLAN_ITEM_ID).is(planItemId)),
+                        ReportPlanItemStatisticCollection.class);
+        return PlanItemMapper.INSTANCE.dtoFromDao(result);
     }
 
     @Override

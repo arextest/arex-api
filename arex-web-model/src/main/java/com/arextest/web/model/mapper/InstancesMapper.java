@@ -3,6 +3,7 @@ package com.arextest.web.model.mapper;
 
 import com.arextest.web.model.contract.contracts.config.application.InstancesConfiguration;
 import com.arextest.web.model.contract.contracts.config.instance.AgentRemoteConfigurationRequest;
+import com.arextest.web.model.contract.contracts.config.instance.AgentStatusRequest;
 import com.arextest.web.model.dao.mongodb.InstancesCollection;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -23,4 +24,6 @@ public interface InstancesMapper {
     InstancesCollection daoFromDto(InstancesConfiguration dto);
 
     InstancesConfiguration dtoFromContract(AgentRemoteConfigurationRequest contract);
+
+    InstancesConfiguration dtoFromContract(AgentStatusRequest request);
 }

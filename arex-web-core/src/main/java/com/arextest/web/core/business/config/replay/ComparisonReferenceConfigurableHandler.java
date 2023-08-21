@@ -1,6 +1,7 @@
 package com.arextest.web.core.business.config.replay;
 
 import com.arextest.web.core.business.config.application.ApplicationOperationConfigurableHandler;
+import com.arextest.web.core.repository.AppContractRepository;
 import com.arextest.web.core.repository.ConfigRepositoryProvider;
 import com.arextest.web.core.repository.FSInterfaceRepository;
 import com.arextest.web.model.contract.contracts.config.application.ApplicationOperationConfiguration;
@@ -17,10 +18,12 @@ import java.util.List;
  * Created by rchen9 on 2022/9/16.
  */
 @Component
-public class ComparisonReferenceConfigurableHandler extends AbstractComparisonConfigurableHandler<ComparisonReferenceConfiguration> {
-    protected ComparisonReferenceConfigurableHandler(@Autowired
-                                                             ConfigRepositoryProvider<ComparisonReferenceConfiguration> repositoryProvider) {
-        super(repositoryProvider);
+public class ComparisonReferenceConfigurableHandler
+    extends AbstractComparisonConfigurableHandler<ComparisonReferenceConfiguration> {
+    protected ComparisonReferenceConfigurableHandler(
+        @Autowired ConfigRepositoryProvider<ComparisonReferenceConfiguration> repositoryProvider,
+        @Autowired AppContractRepository appContractRepository) {
+        super(repositoryProvider, appContractRepository);
     }
 
     @Resource
@@ -36,14 +39,13 @@ public class ComparisonReferenceConfigurableHandler extends AbstractComparisonCo
         FSInterfaceDto fsInterfaceDto = fsInterfaceRepository.queryInterface(interfaceId);
         String operationId = fsInterfaceDto == null ? null : fsInterfaceDto.getOperationId();
 
-        List<ComparisonReferenceConfiguration> result =
-                this.queryByOperationIdAndInterfaceId(interfaceId, operationId);
+        List<ComparisonReferenceConfiguration> result = this.queryByOperationIdAndInterfaceId(interfaceId, operationId);
         if (StringUtils.isNotEmpty(operationId)) {
             ApplicationOperationConfiguration applicationOperationConfiguration =
-                    applicationOperationConfigurableHandler.useResultById(operationId);
+                applicationOperationConfigurableHandler.useResultByOperationId(operationId);
             if (applicationOperationConfiguration != null) {
                 List<ComparisonReferenceConfiguration> globalConfig =
-                        this.useResultAsList(applicationOperationConfiguration.getAppId(), null);
+                    this.useResultAsList(applicationOperationConfiguration.getAppId(), null);
                 result.addAll(globalConfig);
             }
         }

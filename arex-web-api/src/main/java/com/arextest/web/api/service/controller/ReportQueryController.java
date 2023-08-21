@@ -1,9 +1,27 @@
 package com.arextest.web.api.service.controller;
 
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
+
+import com.arextest.web.common.HttpUtils;
+import com.arextest.web.model.contract.contracts.RemoveRecordsAndScenesRequest;
+import com.arextest.web.model.contract.contracts.SuccessResponse;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
 import com.arextest.common.model.response.Response;
 import com.arextest.common.model.response.ResponseCode;
 import com.arextest.common.utils.ResponseUtils;
-import com.arextest.web.common.LogUtils;
 import com.arextest.web.core.business.DiffSceneService;
 import com.arextest.web.core.business.MsgShowService;
 import com.arextest.web.core.business.QueryPlanItemStatisticService;
@@ -19,10 +37,12 @@ import com.arextest.web.core.business.iosummary.SceneReportService;
 import com.arextest.web.model.contract.contracts.ChangeReplayStatusRequestType;
 import com.arextest.web.model.contract.contracts.ChangeReplayStatusResponseType;
 import com.arextest.web.model.contract.contracts.DownloadReplayMsgRequestType;
+import com.arextest.web.model.contract.contracts.OverwriteContractRequestType;
 import com.arextest.web.model.contract.contracts.PushCompareResultsRequestType;
 import com.arextest.web.model.contract.contracts.PushCompareResultsResponseType;
 import com.arextest.web.model.contract.contracts.QueryCategoryStatisticRequestType;
 import com.arextest.web.model.contract.contracts.QueryCategoryStatisticResponseType;
+import com.arextest.web.model.contract.contracts.QueryContractRequestType;
 import com.arextest.web.model.contract.contracts.QueryDiffAggInfoRequestType;
 import com.arextest.web.model.contract.contracts.QueryDiffAggInfoResponseType;
 import com.arextest.web.model.contract.contracts.QueryDiffMsgByIdResponseType;
@@ -54,28 +74,15 @@ import com.arextest.web.model.contract.contracts.QuerySchemaForConfigRequestType
 import com.arextest.web.model.contract.contracts.ReportInitialRequestType;
 import com.arextest.web.model.contract.contracts.ReportInitialResponseType;
 import com.arextest.web.model.contract.contracts.SuccessResponseType;
+import com.arextest.web.model.contract.contracts.SyncResponseContractRequestType;
 import com.arextest.web.model.contract.contracts.record.CountRecordRequestType;
 import com.arextest.web.model.contract.contracts.record.ListRecordRequestType;
 import com.arextest.web.model.contract.contracts.replay.AnalyzeCompareResultsRequestType;
 import com.arextest.web.model.contract.contracts.replay.AnalyzeCompareResultsResponseType;
 import com.arextest.web.model.contract.contracts.replay.UpdateReportInfoRequestType;
 import com.arextest.web.model.contract.contracts.replay.UpdateReportInfoResponseType;
+
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
-import org.json.JSONException;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
-
 
 @Slf4j
 @Controller
@@ -106,6 +113,8 @@ public class ReportQueryController {
     private SceneReportService sceneReportService;
     @Resource
     private RecordService recordService;
+    @Value("${arex.schedule.stop.url}")
+    private String stopPlanUrl;
 
     @Deprecated
     @PostMapping("/pushCompareResults")
@@ -123,7 +132,6 @@ public class ReportQueryController {
         response.setSuccess(reportService.analyzeCompareResults(request));
         return ResponseUtils.successResponse(response);
     }
-
 
     @PostMapping("/init")
     @ResponseBody
@@ -144,7 +152,6 @@ public class ReportQueryController {
         return ResponseUtils.successResponse(response);
     }
 
-
     @PostMapping("/pushReplayStatus")
     @ResponseBody
     public Response changeReplayStatus(@Valid @RequestBody ChangeReplayStatusRequestType request) {
@@ -153,13 +160,20 @@ public class ReportQueryController {
         return ResponseUtils.successResponse(response);
     }
 
+    @PostMapping("/removeRecordsAndScenes")
+    @ResponseBody
+    public Response removeFailedCases(@Valid @RequestBody RemoveRecordsAndScenesRequest request) {
+        SuccessResponse response = new SuccessResponse();;
+        response.setSuccess(reportService.removeRecords(request) && sceneReportService.removeScene(request));
+        return ResponseUtils.successResponse(response);
+    }
+
 
     @PostMapping("/queryPlanStatistics")
     @ResponseBody
     public Response queryPlanStatistics(@RequestBody QueryPlanStatisticsRequestType request) {
         if (request == null || !request.checkPaging()) {
-            return ResponseUtils.errorResponse("invalid paging parameter",
-                    ResponseCode.REQUESTED_PARAMETER_INVALID);
+            return ResponseUtils.errorResponse("invalid paging parameter", ResponseCode.REQUESTED_PARAMETER_INVALID);
         }
         QueryPlanStatisticsResponseType response = queryPlanStatisticsService.planStatistic(request);
         return ResponseUtils.successResponse(response);
@@ -178,8 +192,7 @@ public class ReportQueryController {
     @PostMapping("/queryResponseTypeStatistic")
     @ResponseBody
     public Response queryResponseTypeStatistic(@Valid @RequestBody QueryCategoryStatisticRequestType request) {
-        QueryCategoryStatisticResponseType response =
-                queryResponseTypeStatisticService.categoryStatistic(request);
+        QueryCategoryStatisticResponseType response = queryResponseTypeStatisticService.categoryStatistic(request);
         return ResponseUtils.successResponse(response);
     }
 
@@ -187,8 +200,7 @@ public class ReportQueryController {
     @ResponseBody
     public Response queryReplayCase(@Valid @RequestBody QueryReplayCaseRequestType request) {
         if (request == null || !request.checkPaging()) {
-            return ResponseUtils.errorResponse("invalid paging parameter",
-                    ResponseCode.REQUESTED_PARAMETER_INVALID);
+            return ResponseUtils.errorResponse("invalid paging parameter", ResponseCode.REQUESTED_PARAMETER_INVALID);
         }
         QueryReplayCaseResponseType response = queryReplayCaseService.replayCaseStatistic(request);
         return ResponseUtils.successResponse(response);
@@ -204,12 +216,7 @@ public class ReportQueryController {
     @PostMapping("/queryMsgWithDiff")
     @ResponseBody
     public Response queryMsgWithDiff(@RequestBody QueryMsgWithDiffRequestType request) {
-        QueryMsgWithDiffResponseType response = null;
-        try {
-            response = msgShowService.queryMsgWithDiff(request);
-        } catch (JSONException e) {
-            LogUtils.error(LOGGER, "queryMsgWithDiff", e);
-        }
+        QueryMsgWithDiffResponseType response = msgShowService.queryMsgWithDiff(request);
         return ResponseUtils.successResponse(response);
     }
 
@@ -220,14 +227,12 @@ public class ReportQueryController {
         return ResponseUtils.successResponse(response);
     }
 
-
     @PostMapping("/queryDifferences")
     @ResponseBody
     public Response queryDifferences(@Valid @RequestBody QueryDifferencesRequestType request) {
         QueryDifferencesResponseType response = diffSceneService.queryDifferences(request);
         return ResponseUtils.successResponse(response);
     }
-
 
     @PostMapping("/queryScenes")
     @ResponseBody
@@ -236,14 +241,12 @@ public class ReportQueryController {
         return ResponseUtils.successResponse(response);
     }
 
-
     @PostMapping("/queryFullLinkMsg")
     @ResponseBody
     public Response queryFullLinkMsg(@Valid @RequestBody QueryFullLinkMsgRequestType request) {
         QueryFullLinkMsgResponseType response = queryReplayMsgService.queryFullLinkMsg(request);
         return ResponseUtils.successResponse(response);
     }
-
 
     @PostMapping("/queryReplayMsg")
     @ResponseBody
@@ -252,21 +255,18 @@ public class ReportQueryController {
         return ResponseUtils.successResponse(response);
     }
 
-
     @PostMapping("/downloadReplayMsg")
     @ResponseBody
     public void downloadReplayMsg(@Valid @RequestBody DownloadReplayMsgRequestType request,
-                                  HttpServletResponse response) {
+        HttpServletResponse response) {
         queryReplayMsgService.downloadReplayMsg(request, response);
     }
-
 
     @PostMapping("/queryMsgSchema")
     @ResponseBody
     public Response queryMsgSchema(@RequestBody QueryMsgSchemaRequestType request) {
         if (StringUtils.isEmpty(request.getId()) && StringUtils.isEmpty(request.getMsg())) {
-            return ResponseUtils.errorResponse("queryMsgSchema id is empty",
-                    ResponseCode.REQUESTED_PARAMETER_INVALID);
+            return ResponseUtils.errorResponse("queryMsgSchema id is empty", ResponseCode.REQUESTED_PARAMETER_INVALID);
         }
         QueryMsgSchemaResponseType response = schemaInferService.schemaInfer(request);
         return ResponseUtils.successResponse(response);
@@ -285,9 +285,20 @@ public class ReportQueryController {
     @GetMapping("/delete/{planId}")
     @ResponseBody
     public Response deleteReport(@PathVariable String planId) {
-        SuccessResponseType response = new SuccessResponseType();
-        response.setSuccess(reportService.deleteReport(planId));
-        return ResponseUtils.successResponse(response);
+        try {
+            SuccessResponseType response = new SuccessResponseType();
+            ResponseEntity<String> stopRes = HttpUtils.get(stopPlanUrl + "/?planId=" + planId, String.class);
+            if (!stopRes.hasBody() || StringUtils.isEmpty(stopRes.getBody())) {
+                LOGGER.error("stop plan error, planId:{}", planId);
+                return ResponseUtils.errorResponse("stop plan error", ResponseCode.REQUESTED_HANDLE_EXCEPTION);
+            }
+            LOGGER.info("stop plan success, {}", stopRes.getBody());
+            response.setSuccess(reportService.deleteReport(planId));
+            return ResponseUtils.successResponse(response);
+        } catch (Throwable t) {
+            LOGGER.error("delete plan error", t);
+            return ResponseUtils.errorResponse(t.getMessage(), ResponseCode.REQUESTED_HANDLE_EXCEPTION);
+        }
     }
 
     @GetMapping("/querySceneInfo/{planId}/{planItemId}")
@@ -297,12 +308,10 @@ public class ReportQueryController {
         return ResponseUtils.successResponse(response);
     }
 
-
     @GetMapping("/queryFullLinkInfo/{planItemId}/{recordId}")
     @ResponseBody
     public Response queryFullLinkInfo(@PathVariable String planItemId, @PathVariable String recordId) {
-        QueryFullLinkInfoResponseType response =
-                queryReplayMsgService.queryFullLinkInfo(planItemId, recordId);
+        QueryFullLinkInfoResponseType response = queryReplayMsgService.queryFullLinkInfo(planItemId, recordId);
         return ResponseUtils.successResponse(response);
     }
 
@@ -318,28 +327,24 @@ public class ReportQueryController {
     @PostMapping("/queryLogEntity")
     @ResponseBody
     public Response queryLogEntity(@Valid @RequestBody QueryLogEntityRequestTye request) {
-        return ResponseUtils.successResponse(
-                queryReplayMsgService.queryLogEntity(request)
-        );
+        return ResponseUtils.successResponse(queryReplayMsgService.queryLogEntity(request));
     }
 
     @PostMapping("/queryPlanFailCase")
     @ResponseBody
     public Response queryPlanFailCase(@Valid @RequestBody QueryPlanFailCaseRequestType request) {
-        return ResponseUtils.successResponse(
-                queryReplayCaseService.queryPlanFailCase(request)
-        );
+        return ResponseUtils.successResponse(queryReplayCaseService.queryPlanFailCase(request));
     }
 
     @PostMapping("/countRecord")
     @ResponseBody
-    public Response countRecord(@RequestBody CountRecordRequestType requestType) {
+    public Response countRecord(@Valid @RequestBody CountRecordRequestType requestType) {
         return ResponseUtils.successResponse(recordService.countRecord(requestType));
     }
 
     @PostMapping("/listRecord")
     @ResponseBody
-    public Response countRecord(@RequestBody ListRecordRequestType requestType) {
+    public Response countRecord(@Valid @RequestBody ListRecordRequestType requestType) {
         if (requestType.getOperationType() == null) {
             return ResponseUtils.errorResponse("no operationType", ResponseCode.REQUESTED_PARAMETER_INVALID);
         }
@@ -348,7 +353,26 @@ public class ReportQueryController {
 
     @PostMapping("/aggCount")
     @ResponseBody
-    public Response aggCountRecord(@RequestBody CountRecordRequestType requestType) {
+    public Response aggCountRecord(@Valid @RequestBody CountRecordRequestType requestType) {
         return ResponseUtils.successResponse(recordService.aggCountRecord(requestType));
     }
+
+    @PostMapping("/syncResponseContract")
+    @ResponseBody
+    public Response syncResponse(@Valid @RequestBody SyncResponseContractRequestType requestType) {
+        return ResponseUtils.successResponse(schemaInferService.syncResponseContract(requestType));
+    }
+
+    @PostMapping("/queryContract")
+    @ResponseBody
+    public Response queryContract(@Valid @RequestBody QueryContractRequestType requestType) {
+        return ResponseUtils.successResponse(schemaInferService.queryContract(requestType));
+    }
+
+    @PostMapping("/overwriteContract")
+    @ResponseBody
+    public Response syncResponse(@Valid @RequestBody OverwriteContractRequestType requestType) {
+        return ResponseUtils.successResponse(schemaInferService.overwriteContract(requestType));
+    }
+
 }

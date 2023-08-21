@@ -80,6 +80,8 @@ import com.arextest.web.model.mapper.FSInterfaceMapper;
 import com.arextest.web.model.mapper.FSTreeMapper;
 import com.arextest.web.model.mapper.UserWorkspaceMapper;
 import com.arextest.web.model.mapper.WorkspaceMapper;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -87,7 +89,6 @@ import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.internal.Base64;
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -120,6 +121,8 @@ public class FileSystemService {
     private static final String LINK_PLACEHOLDER = "{{link}}";
     private static final String GET_METHOD = "GET";
     private static final String AREX_RECORD_ID = "arex-record-id";
+    private static final String AREX_REPLAY_PREPARE_DEPENDENCY = "arex_replay_prepare_dependency";
+    private static final String PINNED_PRE_FIX = "pinned_";
 
     @Value("${arex.ui.url}")
     private String arexUiUrl;
@@ -174,6 +177,9 @@ public class FileSystemService {
 
     @Resource
     private ReportPlanStatisticRepository reportPlanStatisticRepository;
+
+    @Resource
+    private ObjectMapper objectMapper;
 
 
     public FSAddItemResponseType addItem(FSAddItemRequestType request) {
@@ -786,6 +792,11 @@ public class FileSystemService {
         kvDto.setActive(true);
         interfaceDto.getHeaders().add(0, kvDto);
 
+        String configBatchNo = storageCase.getConfigBatchNo(newRecordId);
+        if (StringUtils.isNotBlank(configBatchNo)) {
+            interfaceDto.getHeaders()
+                .add(new KeyValuePairDto(AREX_REPLAY_PREPARE_DEPENDENCY, PINNED_PRE_FIX + configBatchNo, true));
+        }
         itemInfo.saveItem(itemDto);
 
         // update tree
@@ -957,9 +968,15 @@ public class FileSystemService {
         final String INVITATION_MAIL_SUBJECT = "[ArexTest]You are invited to '%s' workspace";
 
         InviteObject inviteObject = new InviteObject(invitee, workspaceId, token);
-        JSONObject obj = new JSONObject(inviteObject);
+        String message;
+        try {
+            message = objectMapper.writeValueAsString(inviteObject);
+        } catch (JsonProcessingException e) {
+            LogUtils.error(LOGGER, String.format("sendInviteEmail writeValueAsString fail, invitor: %s", invitor));
+            return false;
+        }
 
-        String address = arexUiUrl + "/click/?upn=" + Base64.encode(obj.toString().getBytes());
+        String address = arexUiUrl + "/click/?upn=" + Base64.encode(message.getBytes());
 
         String context = loadResource.getResource(INVITATION_EMAIL_TEMPLATE);
         context = context.replace(SOMEBODY_PLACEHOLDER, invitor)

@@ -4,6 +4,8 @@ import com.arextest.web.model.dto.CompareResultDto;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public interface ReplayCompareResultRepository extends RepositoryProvider {
     boolean saveResults(List<CompareResultDto> results);
@@ -35,4 +37,13 @@ public interface ReplayCompareResultRepository extends RepositoryProvider {
                                                List<String> recordIdList,
                                                List<Integer> diffResultCodeList,
                                                List<String> showFields);
+
+    List<CompareResultDto> queryCompareResults(List<String> planItemIdList,
+                                               List<String> recordIdList);
+
+
+    List<CompareResultDto> queryLatestEntryPointCompareResult(String operationId, Set<String> operationTypes, int limit);
+
+    Map<String, List<CompareResultDto>> queryLatestCompareResultMap(String operationId, List<String> operationNames,
+                                                                    List<String> operationTypes);
 }
