@@ -33,7 +33,7 @@
         <shema.inferer.version>0.1.4</shema.inferer.version>
         <snakeyaml.version>1.29</snakeyaml.version>
         <arex-common.version>0.1.5</arex-common.version>
-        <arex-desensitization-interface.version>0.0.1-SNAPSHOT</arex-desensitization-interface.version>
+        <arex-desensitization-interface.version>0.0.1</arex-desensitization-interface.version>
         <caffeine.version>2.8.0</caffeine.version>
         <shedlock-spring.version>4.34.0</shedlock-spring.version>
         <springfox-boot-starter.version>3.0.0</springfox-boot-starter.version>
