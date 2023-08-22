@@ -1,28 +1,42 @@
 package com.arextest.web.core.business.config.replay;
 
-import java.util.*;
-import java.util.function.BiConsumer;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import javax.annotation.Resource;
-
-import org.apache.commons.collections4.CollectionUtils;
-import org.springframework.beans.BeanUtils;
-import org.springframework.stereotype.Component;
-
 import com.arextest.web.common.LogUtils;
 import com.arextest.web.core.business.config.ConfigurableHandler;
 import com.arextest.web.core.repository.AppContractRepository;
 import com.arextest.web.model.contract.contracts.config.application.ApplicationOperationConfiguration;
 import com.arextest.web.model.contract.contracts.config.application.ApplicationServiceConfiguration;
-import com.arextest.web.model.contract.contracts.config.replay.*;
+import com.arextest.web.model.contract.contracts.config.replay.AbstractComparisonDetailsConfiguration;
+import com.arextest.web.model.contract.contracts.config.replay.ComparisonEncryptionConfiguration;
+import com.arextest.web.model.contract.contracts.config.replay.ComparisonExclusionsCategoryConfiguration;
+import com.arextest.web.model.contract.contracts.config.replay.ComparisonExclusionsConfiguration;
+import com.arextest.web.model.contract.contracts.config.replay.ComparisonInclusionsConfiguration;
+import com.arextest.web.model.contract.contracts.config.replay.ComparisonListSortConfiguration;
+import com.arextest.web.model.contract.contracts.config.replay.ComparisonReferenceConfiguration;
+import com.arextest.web.model.contract.contracts.config.replay.ComparisonSummaryConfiguration;
+import com.arextest.web.model.contract.contracts.config.replay.ReplayCompareConfig;
 import com.arextest.web.model.dao.mongodb.AppContractCollection;
 import com.arextest.web.model.dto.AppContractDto;
 import com.arextest.web.model.enums.ContractTypeEnum;
 import com.google.common.collect.ImmutableMap;
-
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.beans.BeanUtils;
+import org.springframework.stereotype.Component;
+
+import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * Created by rchen9 on 2023/2/7.
@@ -41,6 +55,8 @@ public class ComparisonSummaryService {
     ComparisonReferenceConfigurableHandler referenceConfigurableHandler;
     @Resource
     ComparisonListSortConfigurableHandler listSortConfigurableHandler;
+    @Resource
+    ComparisonExclusionsCategoryConfigurableHandler exclusionsCategoryConfigurableHandler;
     @Resource
     ConfigurableHandler<ApplicationServiceConfiguration> applicationServiceConfigurationConfigurableHandler;
     @Resource
@@ -143,6 +159,14 @@ public class ComparisonSummaryService {
                 summaryConfiguration.setExclusionList(operationExclusion);
             }, appContractDtoMap, operationInfoMap);
 
+        buildComparisonConfig(replayConfigurationMap, exclusionsCategoryConfigurableHandler.useResultAsList(appId),
+            (configurations,  summaryConfiguration) -> {
+                summaryConfiguration.setExclusionCategoryTypes(configurations.stream()
+                    .map(ComparisonExclusionsCategoryConfiguration::getExclusionsCategory)
+                    .flatMap(Collection::stream)
+                    .collect(Collectors.toList()));
+            }, appContractDtoMap, operationInfoMap);
+
         buildComparisonConfig(replayConfigurationMap, inclusionsConfigurableHandler.useResultAsList(appId),
             (configurations, summaryConfiguration) -> {
                 Set<List<String>> operationInclusion = configurations.stream()
@@ -186,6 +210,9 @@ public class ComparisonSummaryService {
                             }));
                 summaryConfiguration.setReferenceMap(operationReferenceMap);
             }, appContractDtoMap, operationInfoMap);
+
+
+
 
         mergeGlobalComparisonConfig(replayConfigurationMap, operationIdList, appContractDtoMap, operationInfoMap);
         return replayConfigurationMap;
@@ -306,6 +333,7 @@ public class ComparisonSummaryService {
         ReplayCompareConfig.ReplayComparisonItem globalConfig = replayConfigurationMap.get(null);
         Set<List<String>> globalExclusionList = globalConfig.getExclusionList();
         Set<List<String>> globalInclusionList = globalConfig.getInclusionList();
+        List<String> globalExclusionCategoryList = globalConfig.getExclusionCategoryTypes();
 
         for (String operationId : operationIdList) {
             ReplayCompareConfig.ReplayComparisonItem tempReplayConfig =
@@ -384,10 +412,40 @@ public class ComparisonSummaryService {
                 }
             }
 
+            if (globalExclusionCategoryList != null) {
+                List<String> exclusionCategoryList = tempReplayConfig.getExclusionCategoryTypes() == null
+                    ? new ArrayList<>() : tempReplayConfig.getExclusionCategoryTypes();
+                exclusionCategoryList.addAll(globalExclusionCategoryList);
+                tempReplayConfig.setExclusionCategoryTypes(exclusionCategoryList);
+
+                Collection<AppContractDto> appContractDtoList =
+                    appContractDtoMap.getOrDefault(operationId, Collections.emptyMap()).values();
+                for (AppContractDto appContractDto : appContractDtoList) {
+                    String dependencyId = appContractDto.getId();
+                    if (dependencyConfigMap.containsKey(dependencyId)) {
+                        ReplayCompareConfig.DependencyComparisonItem dependencyComparisonItem =
+                            dependencyConfigMap.get(dependencyId);
+                        List<String> previousDependencyExclusionCategories = dependencyComparisonItem.getExclusionCategoryTypes();
+                        List<String> dependencyExclusionCategories = previousDependencyExclusionCategories == null
+                            ? new ArrayList<>() : dependencyComparisonItem.getExclusionCategoryTypes();
+                        dependencyExclusionCategories.addAll(globalExclusionCategoryList);
+                        dependencyComparisonItem.setExclusionCategoryTypes(dependencyExclusionCategories);
+                    } else {
+                        ReplayCompareConfig.DependencyComparisonItem dependencyComparisonItem =
+                            new ReplayCompareConfig.DependencyComparisonItem();
+                        dependencyComparisonItem.setDependencyId(dependencyId);
+                        dependencyComparisonItem.setOperationName(appContractDto.getOperationName());
+                        dependencyComparisonItem
+                            .setOperationTypes(Collections.singletonList(appContractDto.getOperationType()));
+                        dependencyComparisonItem.setExclusionCategoryTypes(globalExclusionCategoryList);
+                        dependencyConfigMap.put(dependencyId, dependencyComparisonItem);
+                    }
+                }
+            }
+
             tempReplayConfig.setDependencyComparisonItems(new ArrayList<>(dependencyConfigMap.values()));
             replayConfigurationMap.put(operationId, tempReplayConfig);
         }
-
     }
 
 }

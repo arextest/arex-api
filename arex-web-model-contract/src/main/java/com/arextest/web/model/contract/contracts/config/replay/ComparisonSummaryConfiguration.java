@@ -31,6 +31,8 @@ public class ComparisonSummaryConfiguration {
      */
     private Set<List<String>> exclusionList;
 
+    private List<String> exclusionCategoryTypes;
+
     /**
      * only compare which leaf nodes
      * List<String> stores the absolute path of leaf node
