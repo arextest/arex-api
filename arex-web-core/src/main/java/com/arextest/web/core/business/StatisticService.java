@@ -2,7 +2,6 @@ package com.arextest.web.core.business;
 
 import com.arextest.web.common.LogUtils;
 import com.arextest.web.core.repository.ReportPlanItemStatisticRepository;
-import com.arextest.web.core.repository.ReportPlanStatisticRepository;
 import com.arextest.web.model.dto.CompareResultDto;
 import com.arextest.web.model.dto.PlanItemDto;
 import com.arextest.web.model.dto.ReportPlanStatisticDto;
@@ -11,7 +10,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StopWatch;
 
 import javax.annotation.Resource;
 import java.util.HashMap;

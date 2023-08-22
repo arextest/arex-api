@@ -1,19 +1,15 @@
 package com.arextest.web.core.business.iosummary;
 
-import com.arextest.web.common.LogUtils;
 import com.arextest.web.core.repository.CaseSummaryRepository;
 import com.arextest.web.core.repository.ReplayCompareResultRepository;
 import com.arextest.web.core.repository.SceneInfoRepository;
 import com.arextest.web.model.contract.contracts.QuerySceneInfoResponseType;
-import com.arextest.web.model.dao.mongodb.ReplayCompareResultCollection;
+import com.arextest.web.model.contract.contracts.RemoveRecordsAndScenesRequest;
 import com.arextest.web.model.dto.CompareResultDto;
 import com.arextest.web.model.dto.iosummary.CaseSummary;
 import com.arextest.web.model.dto.iosummary.SceneInfo;
-import com.arextest.web.model.dto.iosummary.SubSceneInfo;
 import com.arextest.web.model.mapper.SceneInfoMapper;
-import com.google.common.collect.ImmutableMap;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -92,5 +88,10 @@ public class SceneReportService {
         }
         response.setSceneInfos(sceneInfoTypes);
         return response;
+    }
+
+
+    public boolean removeScene(RemoveRecordsAndScenesRequest request) {
+        return sceneInfoRepository.removeByPlanItemId(request.getActionIdAndRecordIdsMap().keySet());
     }
 }
