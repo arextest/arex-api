@@ -7,7 +7,7 @@
     <groupId>com.arextest</groupId>
     <artifactId>arex-web</artifactId>
     <packaging>pom</packaging>
-    <version>0.4.3.3-SNAPSHOT</version>
+    <version>0.4.3.3</version>
     <modules>
         <module>arex-web-api</module>
         <module>arex-web-common</module>
@@ -371,8 +371,8 @@
         <profile>
             <id>jar-local</id>
             <properties>
-                <releases.repo>http://maven.release.ctripcorp.com/nexus/content/repositories/flightrelease</releases.repo>
-                <snapshots.repo>http://maven.release.ctripcorp.com/nexus/content/repositories/flightsnapshot</snapshots.repo>
+                <releases.repo></releases.repo>
+                <snapshots.repo></snapshots.repo>
             </properties>
         </profile>
     </profiles>

@@ -61,6 +61,10 @@ public class MongoHelper {
         Map<String, Field> fieldMap = new HashMap<>();
         while (clazz != null) {
             for (Field field : clazz.getDeclaredFields()) {
+                // ignore static and synthetic field such as $jacocoData
+                if (field.isSynthetic()) {
+                    continue;
+                }
                 if (!fieldMap.containsKey(field.getName())) {
                     fieldMap.put(field.getName(), field);
                 }
