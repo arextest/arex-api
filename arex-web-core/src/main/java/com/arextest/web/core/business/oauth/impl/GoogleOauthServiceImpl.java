@@ -26,7 +26,7 @@ import java.util.Collections;
  */
 @Slf4j
 @Component("GoogleOauth")
-public class GoogleOauthServiceImpl implements OauthService {
+public class GoogleOauthServiceImpl extends AbstractOauthServiceImpl {
 
     @Value("${arex.oauth.google.clientid}")
     private String clientId;
@@ -42,6 +42,13 @@ public class GoogleOauthServiceImpl implements OauthService {
     }
     @Override
     public String getUser(String code) {
+        if (!checkOauth(clientId, secret, code)) {
+            return null;
+        }
+        if (StringUtils.isBlank(redirectUri)) {
+            LogUtils.error(LOGGER, "google redirect uri is blank");
+            return null;
+        }
         try {
             HttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();
             JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();

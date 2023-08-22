@@ -2,9 +2,7 @@ package com.arextest.web.core.business.oauth.impl;
 
 import com.arextest.web.common.HttpUtils;
 import com.arextest.web.common.LogUtils;
-import com.arextest.web.core.business.oauth.OauthService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -19,7 +17,7 @@ import java.util.Objects;
  */
 @Slf4j
 @Component("GithubOauth")
-public class GithubOauthServiceImpl implements OauthService {
+public class GithubOauthServiceImpl extends AbstractOauthServiceImpl {
     private static final String GITHUB_ACCESS_TOKEN_URL =
             "https://github.com/login/oauth/access_token?client_id=%s&client_secret=%s&code=%s";
     private static final String GITHUB_USER_URL = "https://api.github.com/user";
@@ -37,12 +35,7 @@ public class GithubOauthServiceImpl implements OauthService {
 
     @Override
     public String getUser(String code) {
-        if (StringUtils.isBlank(clientId)) {
-            LogUtils.error(LOGGER, "github clientId is null");
-            return null;
-        }
-        if (StringUtils.isBlank(secret)) {
-            LogUtils.error(LOGGER, "github secret is null");
+        if (!checkOauth(clientId, secret, code)) {
             return null;
         }
         try {

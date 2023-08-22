@@ -2,7 +2,6 @@ package com.arextest.web.core.business.oauth.impl;
 
 import com.arextest.web.common.HttpUtils;
 import com.arextest.web.common.LogUtils;
-import com.arextest.web.core.business.oauth.OauthService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,7 +18,7 @@ import java.util.Objects;
  */
 @Slf4j
 @Component("GitlabOauth")
-public class GitlabOauthServiceImpl implements OauthService {
+public class GitlabOauthServiceImpl extends AbstractOauthServiceImpl {
     @Value("${arex.oauth.gitlab.clientid}")
     private String clientId;
     @Value("${arex.oauth.gitlab.secret}")
@@ -40,12 +39,15 @@ public class GitlabOauthServiceImpl implements OauthService {
     }
     @Override
     public String getUser(String code) {
-        if (StringUtils.isBlank(clientId)) {
-            LogUtils.error(LOGGER, "gitlab clientId is null");
+        if (!checkOauth(clientId, secret, code)) {
             return null;
         }
-        if (StringUtils.isBlank(secret)) {
-            LogUtils.error(LOGGER, "gitlab secret is null");
+        if (StringUtils.isBlank(gitlabUri)) {
+            LogUtils.error(LOGGER, "gitlab uri is blank");
+            return null;
+        }
+        if (StringUtils.isBlank(redirectUri)) {
+            LogUtils.error(LOGGER, "gitlab redirect uri is blank");
             return null;
         }
         String tokenUrl = String.format(gitlabUri + TOKEN_SUFFIX, clientId, secret, code, redirectUri);
