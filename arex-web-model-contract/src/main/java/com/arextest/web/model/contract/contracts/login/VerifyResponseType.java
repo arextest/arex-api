@@ -8,6 +8,8 @@ import lombok.Data;
 @Data
 public class VerifyResponseType {
     private boolean success;
+    private String reason;
+    private String userName;
     private String accessToken;
     private String refreshToken;
 }

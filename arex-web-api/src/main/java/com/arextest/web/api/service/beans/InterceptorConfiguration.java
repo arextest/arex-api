@@ -47,6 +47,8 @@ public class InterceptorConfiguration implements WebMvcConfigurer {
         defaultPatterns.add("/api/login/verify");
         defaultPatterns.add("/api/login/getVerificationCode/**");
         defaultPatterns.add("/api/login/loginAsGuest");
+        defaultPatterns.add("/api/login/oauthLogin");
+        defaultPatterns.add("/api/login/oauthClientId/**");
         defaultPatterns.add("/api/login/refresh/**");
         // healthCheck
         defaultPatterns.add("/vi/health");
