@@ -1,5 +1,6 @@
 package com.arextest.web.common;
 
+import com.arextest.common.utils.NetworkInterfaceManager;
 import lombok.SneakyThrows;
 import org.apache.commons.collections4.MapUtils;
 import org.slf4j.Logger;
@@ -25,7 +26,7 @@ public class LogUtils {
     @SneakyThrows
     public static void init() {
         MDC.put(APP_TYPE, AREX_WEB_API);
-        MDC.put(IP, InetAddress.getLocalHost().getHostAddress());
+        MDC.put(IP, NetworkInterfaceManager.INSTANCE.getLocalHostAddress());
     }
 
     public static void clear() {
