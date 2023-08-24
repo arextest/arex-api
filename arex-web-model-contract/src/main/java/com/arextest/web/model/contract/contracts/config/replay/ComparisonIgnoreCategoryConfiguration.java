@@ -18,7 +18,6 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 public class ComparisonIgnoreCategoryConfiguration extends AbstractComparisonDetailsConfiguration {
     List<String> ignoreCategory;
-    List<String> candidateCategories;
 
     @Override
     public void validParameters() throws Exception {

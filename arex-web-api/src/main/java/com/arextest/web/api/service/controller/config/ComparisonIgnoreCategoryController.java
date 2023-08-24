@@ -23,7 +23,7 @@ import javax.annotation.Resource;
  */
 
 @Controller
-@RequestMapping("/api/config/comparison/exclusions/category")
+@RequestMapping("/api/config/comparison/ignoreCategory")
 public class ComparisonIgnoreCategoryController extends
     AbstractConfigurableController<ComparisonIgnoreCategoryConfiguration> {
 

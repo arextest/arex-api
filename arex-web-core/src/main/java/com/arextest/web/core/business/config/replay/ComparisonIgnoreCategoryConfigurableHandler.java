@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -71,39 +70,5 @@ public class ComparisonIgnoreCategoryConfigurableHandler
             }
         }
         return super.insert(comparisonDetail);
-    }
-
-
-    @Override
-    public List<ComparisonIgnoreCategoryConfiguration> queryComparisonConfig(
-        String appId, String operationId, String operationType, String operationName) {
-        List<ComparisonIgnoreCategoryConfiguration> result =
-            super.queryComparisonConfig(appId, operationId, operationType, operationName);
-
-
-        List<String> candidateCategories = new ArrayList<>();
-        // add candidateCategories
-        // for dependency
-        if (operationType != null || operationName != null) {
-            for (ComparisonIgnoreCategoryConfiguration configuration : result) {
-                candidateCategories.add(configuration.getOperationType());
-            }
-        }
-        // for interface
-        else if (operationId != null) {
-            ApplicationOperationConfiguration applicationOperationConfiguration =
-                applicationOperationConfigurationRepository.listByOperationId(operationId);
-            candidateCategories.addAll(applicationOperationConfiguration.getOperationTypes());
-        }
-        // global
-        else {
-            applicationOperationConfigurationRepository.listBy(appId).forEach(applicationOperationConfiguration ->
-                candidateCategories.addAll(applicationOperationConfiguration.getOperationTypes()));
-        }
-
-        for (ComparisonIgnoreCategoryConfiguration configuration : result) {
-            configuration.setCandidateCategories(candidateCategories);
-        }
-        return result;
     }
 }
