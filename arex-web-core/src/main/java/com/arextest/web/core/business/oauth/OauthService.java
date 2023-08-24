@@ -14,5 +14,6 @@ public interface OauthService {
     String EMAIL = "email";
 
     String getClientId();
+    String getRedirectUri();
     String getUser(String code);
 }
