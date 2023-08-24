@@ -1,6 +1,7 @@
 package com.arextest.web.core.business.oauth;
 
 import com.arextest.web.common.JwtUtil;
+import com.arextest.web.model.contract.contracts.login.GetOauthInfoResponseType;
 import com.arextest.web.model.contract.contracts.login.VerifyResponseType;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
@@ -35,8 +36,11 @@ public class OauthHandler {
         return response;
     }
 
-    public String getOauthClientId(String oauthType) {
+    public GetOauthInfoResponseType getOauthInfo(String oauthType) {
+        GetOauthInfoResponseType response = new GetOauthInfoResponseType();
         OauthService oauthService = oauthServiceFactory.getOauthService(oauthType);
-        return oauthService.getClientId();
+        response.setClientId(oauthService.getClientId());
+        response.setRedirectUri(oauthService.getRedirectUri());
+        return response;
     }
 }
