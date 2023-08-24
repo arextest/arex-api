@@ -19,7 +19,7 @@ import java.util.List;
 @FieldNameConstants
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-@Document(collection = "ConfigComparisonExclusionsCategory")
-public class ConfigComparisonExclusionsCategoryCollection extends AbstractComparisonDetails {
-    private List<String> exclusionsCategory;
+@Document(collection = "ConfigComparisonIgnoreCategory")
+public class ConfigComparisonIgnoreCategoryCollection extends AbstractComparisonDetails {
+    private List<String> ignoreCategory;
 }

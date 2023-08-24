@@ -31,7 +31,7 @@ public class ComparisonSummaryConfiguration {
      */
     private Set<List<String>> exclusionList;
 
-    private List<String> exclusionCategoryTypes;
+    private List<String> ignoreCategoryTypes;
 
     /**
      * only compare which leaf nodes

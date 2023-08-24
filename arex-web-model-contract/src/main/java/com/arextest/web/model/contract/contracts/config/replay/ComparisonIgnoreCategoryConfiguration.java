@@ -16,15 +16,15 @@ import java.util.List;
 @NoArgsConstructor
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-public class ComparisonExclusionsCategoryConfiguration extends AbstractComparisonDetailsConfiguration {
-    List<String> exclusionsCategory;
+public class ComparisonIgnoreCategoryConfiguration extends AbstractComparisonDetailsConfiguration {
+    List<String> ignoreCategory;
     List<String> candidateCategories;
 
     @Override
     public void validParameters() throws Exception {
         super.validParameters();
-        if (CollectionUtils.isEmpty(exclusionsCategory)) {
-            throw new Exception("exclusionsCategory cannot be empty");
+        if (CollectionUtils.isEmpty(ignoreCategory)) {
+            throw new Exception("ignoreCategory cannot be empty");
         }
     }
 }

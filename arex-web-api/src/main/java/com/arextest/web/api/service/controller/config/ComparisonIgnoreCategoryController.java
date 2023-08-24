@@ -3,8 +3,8 @@ package com.arextest.web.api.service.controller.config;
 import com.arextest.common.model.response.Response;
 import com.arextest.common.utils.ResponseUtils;
 import com.arextest.web.core.business.config.ConfigurableHandler;
-import com.arextest.web.core.business.config.replay.ComparisonExclusionsCategoryConfigurableHandler;
-import com.arextest.web.model.contract.contracts.config.replay.ComparisonExclusionsCategoryConfiguration;
+import com.arextest.web.core.business.config.replay.ComparisonIgnoreCategoryConfigurableHandler;
+import com.arextest.web.model.contract.contracts.config.replay.ComparisonIgnoreCategoryConfiguration;
 import com.arextest.web.model.contract.contracts.config.replay.QueryComparisonRequestType;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,16 +24,16 @@ import javax.annotation.Resource;
 
 @Controller
 @RequestMapping("/api/config/comparison/exclusions/category")
-public class ComparisonExclusionsCategoryController extends
-    AbstractConfigurableController<ComparisonExclusionsCategoryConfiguration> {
+public class ComparisonIgnoreCategoryController extends
+    AbstractConfigurableController<ComparisonIgnoreCategoryConfiguration> {
 
-    protected ComparisonExclusionsCategoryController(
-        @Autowired  ConfigurableHandler<ComparisonExclusionsCategoryConfiguration> configurableHandler) {
+    protected ComparisonIgnoreCategoryController(
+        @Autowired  ConfigurableHandler<ComparisonIgnoreCategoryConfiguration> configurableHandler) {
         super(configurableHandler);
     }
 
     @Resource
-    ComparisonExclusionsCategoryConfigurableHandler configurableHandler;
+    ComparisonIgnoreCategoryConfigurableHandler configurableHandler;
 
     /**
      * query config which is compareConfig =1

@@ -7,7 +7,7 @@ import com.arextest.web.model.contract.contracts.config.application.ApplicationO
 import com.arextest.web.model.contract.contracts.config.application.ApplicationServiceConfiguration;
 import com.arextest.web.model.contract.contracts.config.replay.AbstractComparisonDetailsConfiguration;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonEncryptionConfiguration;
-import com.arextest.web.model.contract.contracts.config.replay.ComparisonExclusionsCategoryConfiguration;
+import com.arextest.web.model.contract.contracts.config.replay.ComparisonIgnoreCategoryConfiguration;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonExclusionsConfiguration;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonInclusionsConfiguration;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonListSortConfiguration;
@@ -56,7 +56,7 @@ public class ComparisonSummaryService {
     @Resource
     ComparisonListSortConfigurableHandler listSortConfigurableHandler;
     @Resource
-    ComparisonExclusionsCategoryConfigurableHandler exclusionsCategoryConfigurableHandler;
+    ComparisonIgnoreCategoryConfigurableHandler ignoreCategoryConfigurableHandler;
     @Resource
     ConfigurableHandler<ApplicationServiceConfiguration> applicationServiceConfigurationConfigurableHandler;
     @Resource
@@ -159,10 +159,10 @@ public class ComparisonSummaryService {
                 summaryConfiguration.setExclusionList(operationExclusion);
             }, appContractDtoMap, operationInfoMap);
 
-        buildComparisonConfig(replayConfigurationMap, exclusionsCategoryConfigurableHandler.useResultAsList(appId),
+        buildComparisonConfig(replayConfigurationMap, ignoreCategoryConfigurableHandler.useResultAsList(appId),
             (configurations,  summaryConfiguration) -> {
-                summaryConfiguration.setExclusionCategoryTypes(configurations.stream()
-                    .map(ComparisonExclusionsCategoryConfiguration::getExclusionsCategory)
+                summaryConfiguration.setIgnoreCategoryTypes(configurations.stream()
+                    .map(ComparisonIgnoreCategoryConfiguration::getIgnoreCategory)
                     .flatMap(Collection::stream)
                     .collect(Collectors.toList()));
             }, appContractDtoMap, operationInfoMap);
@@ -333,7 +333,7 @@ public class ComparisonSummaryService {
         ReplayCompareConfig.ReplayComparisonItem globalConfig = replayConfigurationMap.get(null);
         Set<List<String>> globalExclusionList = globalConfig.getExclusionList();
         Set<List<String>> globalInclusionList = globalConfig.getInclusionList();
-        List<String> globalExclusionCategoryList = globalConfig.getExclusionCategoryTypes();
+        List<String> globalIgnoreCategoryList = globalConfig.getIgnoreCategoryTypes();
 
         for (String operationId : operationIdList) {
             ReplayCompareConfig.ReplayComparisonItem tempReplayConfig =
@@ -412,11 +412,11 @@ public class ComparisonSummaryService {
                 }
             }
 
-            if (globalExclusionCategoryList != null) {
-                List<String> exclusionCategoryList = tempReplayConfig.getExclusionCategoryTypes() == null
-                    ? new ArrayList<>() : tempReplayConfig.getExclusionCategoryTypes();
-                exclusionCategoryList.addAll(globalExclusionCategoryList);
-                tempReplayConfig.setExclusionCategoryTypes(exclusionCategoryList);
+            if (globalIgnoreCategoryList != null) {
+                List<String> ignoreCategoryList = tempReplayConfig.getIgnoreCategoryTypes() == null
+                    ? new ArrayList<>() : tempReplayConfig.getIgnoreCategoryTypes();
+                ignoreCategoryList.addAll(globalIgnoreCategoryList);
+                tempReplayConfig.setIgnoreCategoryTypes(ignoreCategoryList);
 
                 Collection<AppContractDto> appContractDtoList =
                     appContractDtoMap.getOrDefault(operationId, Collections.emptyMap()).values();
@@ -425,11 +425,11 @@ public class ComparisonSummaryService {
                     if (dependencyConfigMap.containsKey(dependencyId)) {
                         ReplayCompareConfig.DependencyComparisonItem dependencyComparisonItem =
                             dependencyConfigMap.get(dependencyId);
-                        List<String> previousDependencyExclusionCategories = dependencyComparisonItem.getExclusionCategoryTypes();
+                        List<String> previousDependencyExclusionCategories = dependencyComparisonItem.getIgnoreCategoryTypes();
                         List<String> dependencyExclusionCategories = previousDependencyExclusionCategories == null
-                            ? new ArrayList<>() : dependencyComparisonItem.getExclusionCategoryTypes();
-                        dependencyExclusionCategories.addAll(globalExclusionCategoryList);
-                        dependencyComparisonItem.setExclusionCategoryTypes(dependencyExclusionCategories);
+                            ? new ArrayList<>() : dependencyComparisonItem.getIgnoreCategoryTypes();
+                        dependencyExclusionCategories.addAll(globalIgnoreCategoryList);
+                        dependencyComparisonItem.setIgnoreCategoryTypes(dependencyExclusionCategories);
                     } else {
                         ReplayCompareConfig.DependencyComparisonItem dependencyComparisonItem =
                             new ReplayCompareConfig.DependencyComparisonItem();
@@ -437,7 +437,7 @@ public class ComparisonSummaryService {
                         dependencyComparisonItem.setOperationName(appContractDto.getOperationName());
                         dependencyComparisonItem
                             .setOperationTypes(Collections.singletonList(appContractDto.getOperationType()));
-                        dependencyComparisonItem.setExclusionCategoryTypes(globalExclusionCategoryList);
+                        dependencyComparisonItem.setIgnoreCategoryTypes(globalIgnoreCategoryList);
                         dependencyConfigMap.put(dependencyId, dependencyComparisonItem);
                     }
                 }

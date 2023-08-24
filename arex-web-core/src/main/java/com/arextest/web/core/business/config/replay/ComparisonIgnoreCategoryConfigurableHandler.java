@@ -7,7 +7,7 @@ import com.arextest.web.core.repository.ConfigRepositoryProvider;
 import com.arextest.web.core.repository.FSInterfaceRepository;
 import com.arextest.web.core.repository.mongo.ApplicationOperationConfigurationRepositoryImpl;
 import com.arextest.web.model.contract.contracts.config.application.ApplicationOperationConfiguration;
-import com.arextest.web.model.contract.contracts.config.replay.ComparisonExclusionsCategoryConfiguration;
+import com.arextest.web.model.contract.contracts.config.replay.ComparisonIgnoreCategoryConfiguration;
 import com.arextest.web.model.dto.filesystem.FSInterfaceDto;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,11 +23,11 @@ import java.util.Set;
  * @create 2023/8/18 14:57
  */
 @Component
-public class ComparisonExclusionsCategoryConfigurableHandler
-    extends AbstractComparisonConfigurableHandler<ComparisonExclusionsCategoryConfiguration> {
+public class ComparisonIgnoreCategoryConfigurableHandler
+    extends AbstractComparisonConfigurableHandler<ComparisonIgnoreCategoryConfiguration> {
 
-    protected ComparisonExclusionsCategoryConfigurableHandler(
-        @Autowired ConfigRepositoryProvider<ComparisonExclusionsCategoryConfiguration> repositoryProvider,
+    protected ComparisonIgnoreCategoryConfigurableHandler(
+        @Autowired ConfigRepositoryProvider<ComparisonIgnoreCategoryConfiguration> repositoryProvider,
         @Autowired AppContractRepository appContractRepository) {
         super(repositoryProvider, appContractRepository);
     }
@@ -46,17 +46,17 @@ public class ComparisonExclusionsCategoryConfigurableHandler
     private ApplicationOperationConfigurationRepositoryImpl applicationOperationConfigurationRepository;
 
     @Override
-    public List<ComparisonExclusionsCategoryConfiguration> queryByInterfaceId(String interfaceId) {
+    public List<ComparisonIgnoreCategoryConfiguration> queryByInterfaceId(String interfaceId) {
         // get operationId
         FSInterfaceDto fsInterfaceDto = fsInterfaceRepository.queryInterface(interfaceId);
         String operationId = fsInterfaceDto == null ? null : fsInterfaceDto.getOperationId();
 
-        List<ComparisonExclusionsCategoryConfiguration> result =
+        List<ComparisonIgnoreCategoryConfiguration> result =
             this.queryByOperationIdAndInterfaceId(interfaceId, operationId);
         if (StringUtils.isNotEmpty(operationId)) {
             ApplicationOperationConfiguration applicationOperationConfiguration =
                 applicationOperationConfigurableHandler.useResultByOperationId(operationId);
-            List<ComparisonExclusionsCategoryConfiguration> globalConfig =
+            List<ComparisonIgnoreCategoryConfiguration> globalConfig =
                 this.useResultAsList(applicationOperationConfiguration.getAppId(), null);
             result.addAll(globalConfig);
         }
@@ -64,8 +64,8 @@ public class ComparisonExclusionsCategoryConfigurableHandler
     }
 
     @Override
-    public boolean insert(ComparisonExclusionsCategoryConfiguration comparisonDetail) {
-        for (String category : comparisonDetail.getExclusionsCategory()) {
+    public boolean insert(ComparisonIgnoreCategoryConfiguration comparisonDetail) {
+        for (String category : comparisonDetail.getIgnoreCategory()) {
             if (!CATEGORIES.contains(category)) {
                 throw new IllegalArgumentException("Invalid category: " + category);
             }
@@ -75,9 +75,9 @@ public class ComparisonExclusionsCategoryConfigurableHandler
 
 
     @Override
-    public List<ComparisonExclusionsCategoryConfiguration> queryComparisonConfig(
+    public List<ComparisonIgnoreCategoryConfiguration> queryComparisonConfig(
         String appId, String operationId, String operationType, String operationName) {
-        List<ComparisonExclusionsCategoryConfiguration> result =
+        List<ComparisonIgnoreCategoryConfiguration> result =
             super.queryComparisonConfig(appId, operationId, operationType, operationName);
 
 
@@ -85,7 +85,7 @@ public class ComparisonExclusionsCategoryConfigurableHandler
         // add candidateCategories
         // for dependency
         if (operationType != null || operationName != null) {
-            for (ComparisonExclusionsCategoryConfiguration configuration : result) {
+            for (ComparisonIgnoreCategoryConfiguration configuration : result) {
                 candidateCategories.add(configuration.getOperationType());
             }
         }
@@ -101,7 +101,7 @@ public class ComparisonExclusionsCategoryConfigurableHandler
                 candidateCategories.addAll(applicationOperationConfiguration.getOperationTypes()));
         }
 
-        for (ComparisonExclusionsCategoryConfiguration configuration : result) {
+        for (ComparisonIgnoreCategoryConfiguration configuration : result) {
             configuration.setCandidateCategories(candidateCategories);
         }
         return result;
