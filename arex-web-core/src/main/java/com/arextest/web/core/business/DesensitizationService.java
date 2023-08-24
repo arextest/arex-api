@@ -1,18 +1,15 @@
 package com.arextest.web.core.business;
 
+import com.arextest.common.utils.PluginClassLoaderUtils;
 import com.arextest.desensitization.extension.DataDesensitization;
-import com.arextest.web.core.business.util.RemoteJarLoader;
 import com.arextest.web.core.repository.DesensitizationJarRepository;
 import com.arextest.web.model.contract.contracts.datadesensitization.DesensitizationJar;
 import com.arextest.web.model.dto.DesensitizationJarDto;
 import com.arextest.web.model.mapper.DesensitizationJarMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.net.MalformedURLException;
-import java.security.SecureClassLoader;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -61,21 +58,17 @@ public class DesensitizationService {
     }
 
     private void validateJar(String uri) throws DesensitizationJarValidationException {
-        try {
-            if (!uri.startsWith("http")) {
-                throw new DesensitizationJarValidationException(ErrType.URL_MALFORMED);
-            }
-
-            SecureClassLoader classLoader = RemoteJarLoader.loadJar(uri);
-
-            List<DataDesensitization> service = RemoteJarLoader.loadService(DataDesensitization.class, classLoader);
-            if (service.isEmpty()) {
-                throw new DesensitizationJarValidationException(ErrType.SERVICE_NOTFOUND);
-            } else if (service.size() != 1) {
-                throw new DesensitizationJarValidationException(ErrType.SERVICE_OVERLOAD);
-            }
-        } catch (MalformedURLException e) {
+        if (!uri.startsWith("http")) {
             throw new DesensitizationJarValidationException(ErrType.URL_MALFORMED);
+        }
+
+        PluginClassLoaderUtils.loadJar(uri);
+        List<DataDesensitization> service = PluginClassLoaderUtils.loadService(DataDesensitization.class);
+
+        if (service.isEmpty()) {
+            throw new DesensitizationJarValidationException(ErrType.SERVICE_NOTFOUND);
+        } else if (service.size() != 1) {
+            throw new DesensitizationJarValidationException(ErrType.SERVICE_OVERLOAD);
         }
     }
 }
