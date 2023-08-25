@@ -2,7 +2,7 @@ package com.arextest.web.core.business;
 
 import com.arextest.common.model.classloader.RemoteJarClassLoader;
 import com.arextest.common.utils.RemoteJarLoaderUtils;
-import com.arextest.desensitization.extension.DataDesensitization;
+import com.arextest.extension.desensitization.DataDesensitization;
 import com.arextest.web.core.repository.DesensitizationJarRepository;
 import com.arextest.web.model.contract.contracts.datadesensitization.DesensitizationJar;
 import com.arextest.web.model.dto.DesensitizationJarDto;
