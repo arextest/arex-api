@@ -32,7 +32,10 @@ public class GithubOauthServiceImpl extends AbstractOauthServiceImpl {
     public String getClientId() {
         return clientId;
     }
-
+    @Override
+    public String getRedirectUri() {
+        return null;
+    }
     @Override
     public String getUser(String code) {
         if (!checkOauth(clientId, secret, code)) {

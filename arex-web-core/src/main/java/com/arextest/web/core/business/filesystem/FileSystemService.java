@@ -687,6 +687,25 @@ public class FileSystemService {
         return response;
     }
 
+    public FSQueryCaseResponseType queryDebuggingCase(String recordId) {
+        if (StringUtils.isBlank(recordId)) {
+            return new FSQueryCaseResponseType();
+        }
+        FSCaseDto caseDto = storageCase.getViewRecord(recordId);
+        if (caseDto == null) {
+            return new FSQueryCaseResponseType();
+        }
+        if (caseDto.getHeaders() == null) {
+            caseDto.setHeaders(new ArrayList<>());
+        }
+        KeyValuePairDto header = new KeyValuePairDto();
+        header.setKey(AREX_RECORD_ID);
+        header.setValue(recordId);
+        header.setActive(true);
+        caseDto.getHeaders().add(0, header);
+        return FSCaseMapper.INSTANCE.contractFromDto(caseDto);
+    }
+
     /**
      * @return : Tuple<workspaceId,InfoId>
      */
@@ -795,7 +814,7 @@ public class FileSystemService {
         String configBatchNo = storageCase.getConfigBatchNo(newRecordId);
         if (StringUtils.isNotBlank(configBatchNo)) {
             interfaceDto.getHeaders()
-                .add(new KeyValuePairDto(AREX_REPLAY_PREPARE_DEPENDENCY, PINNED_PRE_FIX + configBatchNo, true));
+                    .add(new KeyValuePairDto(AREX_REPLAY_PREPARE_DEPENDENCY, PINNED_PRE_FIX + configBatchNo, true));
         }
         itemInfo.saveItem(itemDto);
 
@@ -890,9 +909,9 @@ public class FileSystemService {
     }
 
     private Map<Integer, Set<String>> removeItems(FSNodeDto fsNodeDto,
-                                                  String userName,
-                                                  String parentId,
-                                                  String workspaceId) {
+            String userName,
+            String parentId,
+            String workspaceId) {
         if (fsNodeDto == null) {
             return null;
         }

@@ -7,6 +7,7 @@ import lombok.Data;
  * @since 2023/8/17
  */
 @Data
-public class GetOauthClientIdResponseType {
+public class GetOauthInfoResponseType {
     private String clientId;
+    private String redirectUri;
 }
