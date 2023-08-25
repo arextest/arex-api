@@ -17,7 +17,7 @@
         </RollingFile>
         <NoSql name="Mongo4">
             <MongoDb4 capped="true" collectionSize="104857600"
-                      connection="${sys:arex.report.mongo.uri}.logs"
+                      connection="${sys:arex.report.mongo.uri}"
             />
         </NoSql>
     </Appenders>
@@ -26,7 +26,7 @@
         <Root level="info">
             <AppenderRef ref="RollingFile"/>
         </Root>
-        <Logger name="com.arextest" level="INFO">
+        <Logger name="com.arextest" level="ERROR">
             <AppenderRef ref="Mongo4"/>
         </Logger>
     </Loggers>
