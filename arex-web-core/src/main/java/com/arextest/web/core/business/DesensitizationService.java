@@ -42,17 +42,17 @@ public class DesensitizationService {
         }
     }
 
-    public void saveJar(String uri, String remark) throws DesensitizationJarValidationException {
+    public boolean saveJar(String uri, String remark) throws DesensitizationJarValidationException {
         validateJar(uri);
         jarRepository.deleteAll();
         DesensitizationJarDto jarDto = new DesensitizationJarDto();
         jarDto.setJarUrl(uri);
         jarDto.setRemark(remark);
-        jarRepository.saveJar(jarDto);
+        return jarRepository.saveJar(jarDto);
     }
 
-    public void deleteJar(String jarId) {
-        jarRepository.deleteJar(jarId);
+    public boolean deleteJar(String jarId) {
+        return jarRepository.deleteJar(jarId);
     }
 
     public List<DesensitizationJar> listAllJars() {
