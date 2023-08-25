@@ -1,5 +1,6 @@
 package com.arextest.web.core.business;
 
+import com.arextest.model.mock.MockCategoryType;
 import com.arextest.web.common.LogUtils;
 import com.arextest.web.core.business.iosummary.SceneReportService;
 import com.arextest.web.core.business.iosummary.SummaryService;
@@ -161,5 +162,9 @@ public class ReportService {
             }
         });
         return true;
+    }
+
+    public List<MockCategoryType> listCategoryType() {
+        return new ArrayList<>(MockCategoryType.DEFAULTS);
     }
 }

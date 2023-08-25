@@ -68,6 +68,9 @@ public class ComparisonIgnoreCategoryConfigurableHandler
             if (!CATEGORIES.contains(category)) {
                 throw new IllegalArgumentException("Invalid category: " + category);
             }
+            if (MockCategoryType.create(category).isEntryPoint()) {
+                throw new IllegalArgumentException("Cannot ignore entrypoint category: " + category);
+            }
         }
         return super.insert(comparisonDetail);
     }
