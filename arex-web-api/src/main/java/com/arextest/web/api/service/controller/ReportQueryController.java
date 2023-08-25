@@ -339,6 +339,15 @@ public class ReportQueryController {
     @PostMapping("/countRecord")
     @ResponseBody
     public Response countRecord(@Valid @RequestBody CountRecordRequestType requestType) {
+        // add default time
+        long currentTime = System.currentTimeMillis();
+
+        if (requestType.getBeginTime() == null) {
+            requestType.setBeginTime(currentTime - 4 * 24 * 60 * 60 * 1000L);
+        }
+        if (requestType.getEndTime() == null) {
+            requestType.setEndTime(currentTime);
+        }
         return ResponseUtils.successResponse(recordService.countRecord(requestType));
     }
 
@@ -347,6 +356,15 @@ public class ReportQueryController {
     public Response countRecord(@Valid @RequestBody ListRecordRequestType requestType) {
         if (requestType.getOperationType() == null) {
             return ResponseUtils.errorResponse("no operationType", ResponseCode.REQUESTED_PARAMETER_INVALID);
+        }
+        // add default time
+        long currentTime = System.currentTimeMillis();
+
+        if (requestType.getBeginTime() == null) {
+            requestType.setBeginTime(currentTime - 4 * 24 * 60 * 60 * 1000L);
+        }
+        if (requestType.getEndTime() == null) {
+            requestType.setEndTime(currentTime);
         }
         return ResponseUtils.successResponse(recordService.listRecord(requestType));
     }
