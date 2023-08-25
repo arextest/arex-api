@@ -1,6 +1,7 @@
 package com.arextest.web.core.business;
 
-import com.arextest.common.utils.PluginClassLoaderUtils;
+import com.arextest.common.model.classloader.RemoteJarClassLoader;
+import com.arextest.common.utils.RemoteJarLoaderUtils;
 import com.arextest.desensitization.extension.DataDesensitization;
 import com.arextest.web.core.repository.DesensitizationJarRepository;
 import com.arextest.web.model.contract.contracts.datadesensitization.DesensitizationJar;
@@ -10,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.net.MalformedURLException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -62,13 +64,17 @@ public class DesensitizationService {
             throw new DesensitizationJarValidationException(ErrType.URL_MALFORMED);
         }
 
-        PluginClassLoaderUtils.loadJar(uri);
-        List<DataDesensitization> service = PluginClassLoaderUtils.loadService(DataDesensitization.class);
-
-        if (service.isEmpty()) {
-            throw new DesensitizationJarValidationException(ErrType.SERVICE_NOTFOUND);
-        } else if (service.size() != 1) {
-            throw new DesensitizationJarValidationException(ErrType.SERVICE_OVERLOAD);
+        try {
+            RemoteJarClassLoader loader = RemoteJarLoaderUtils.loadJar(uri);
+            List<DataDesensitization> service = RemoteJarLoaderUtils.loadService(DataDesensitization.class, loader);
+            if (service.isEmpty()) {
+                throw new DesensitizationJarValidationException(ErrType.SERVICE_NOTFOUND);
+            } else if (service.size() != 1) {
+                throw new DesensitizationJarValidationException(ErrType.SERVICE_OVERLOAD);
+            }
+        } catch (MalformedURLException e) {
+            throw new DesensitizationJarValidationException(ErrType.URL_MALFORMED);
         }
+
     }
 }
