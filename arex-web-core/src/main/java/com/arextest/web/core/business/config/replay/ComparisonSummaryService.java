@@ -18,9 +18,11 @@ import com.arextest.web.model.dao.mongodb.AppContractCollection;
 import com.arextest.web.model.dto.AppContractDto;
 import com.arextest.web.model.enums.ContractTypeEnum;
 import com.google.common.collect.ImmutableMap;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -49,9 +51,7 @@ public class ComparisonSummaryService {
     ComparisonEncryptionConfigurableHandler encryptionConfigurableHandler;
     ComparisonReferenceConfigurableHandler referenceConfigurableHandler;
     ComparisonListSortConfigurableHandler listSortConfigurableHandler;
-    @Resource
     ComparisonIgnoreCategoryConfigurableHandler ignoreCategoryConfigurableHandler;
-    @Resource
     ConfigurableHandler<ApplicationServiceConfiguration> applicationServiceConfigurationConfigurableHandler;
     AppContractRepository appContractRepository;
 
@@ -62,7 +62,8 @@ public class ComparisonSummaryService {
         @Autowired ComparisonListSortConfigurableHandler listSortConfigurableHandler,
         @Autowired ConfigurableHandler<
             ApplicationServiceConfiguration> applicationServiceConfigurationConfigurableHandler,
-        @Autowired AppContractRepository appContractRepository) {
+        @Autowired AppContractRepository appContractRepository,
+        @Autowired ComparisonIgnoreCategoryConfigurableHandler ignoreCategoryConfigurableHandler) {
         this.exclusionsConfigurableHandler = exclusionsConfigurableHandler;
         this.inclusionsConfigurableHandler = inclusionsConfigurableHandler;
         this.encryptionConfigurableHandler = encryptionConfigurableHandler;
@@ -70,6 +71,7 @@ public class ComparisonSummaryService {
         this.listSortConfigurableHandler = listSortConfigurableHandler;
         this.applicationServiceConfigurationConfigurableHandler = applicationServiceConfigurationConfigurableHandler;
         this.appContractRepository = appContractRepository;
+        this.ignoreCategoryConfigurableHandler = ignoreCategoryConfigurableHandler;
     }
 
     public ComparisonSummaryConfiguration getComparisonDetailsSummary(String interfaceId) {
@@ -171,15 +173,15 @@ public class ComparisonSummaryService {
                     .map(ComparisonExclusionsConfiguration::getExclusions).collect(Collectors.toSet());
                 summaryConfiguration.setExclusionList(operationExclusion);
             }, operationInfoMap, appContractDtoMap);
-            }, appContractDtoMap, operationInfoMap);
 
         buildComparisonConfig(replayConfigurationMap, ignoreCategoryConfigurableHandler.useResultAsList(appId),
             (configurations,  summaryConfiguration) -> {
-                summaryConfiguration.setIgnoreCategoryTypes(configurations.stream()
+                List<String> ignoreCategoryTypes = configurations.stream()
                     .map(ComparisonIgnoreCategoryConfiguration::getIgnoreCategory)
                     .flatMap(Collection::stream)
-                    .collect(Collectors.toList()));
-            }, appContractDtoMap, operationInfoMap);
+                    .collect(Collectors.toList());
+                summaryConfiguration.setIgnoreCategoryTypes(ignoreCategoryTypes);
+            }, operationInfoMap, appContractDtoMap);
 
         buildComparisonConfig(replayConfigurationMap, inclusionsConfigurableHandler.useResultAsList(appId),
             (configurations, summaryConfiguration) -> {
@@ -222,12 +224,8 @@ public class ComparisonSummaryService {
                             }));
                 summaryConfiguration.setReferenceMap(operationReferenceMap);
             }, operationInfoMap, appContractDtoMap);
-            }, appContractDtoMap, operationInfoMap);
 
-
-
-
-        mergeGlobalComparisonConfig(replayConfigurationMap, operationIdList, appContractDtoMap, operationInfoMap);
+        mergeGlobalComparisonConfig(replayConfigurationMap, operationInfoMap, appContractDtoMap);
         return replayConfigurationMap;
     }
 
