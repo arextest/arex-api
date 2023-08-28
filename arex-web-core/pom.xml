@@ -29,7 +29,7 @@
         </dependency>
         <dependency>
             <groupId>com.arextest</groupId>
-            <artifactId>arex-desensitization-extension</artifactId>
+            <artifactId>arex-extension</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>

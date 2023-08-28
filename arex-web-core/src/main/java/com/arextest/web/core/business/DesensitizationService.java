@@ -1,7 +1,8 @@
 package com.arextest.web.core.business;
 
-import com.arextest.desensitization.extension.DataDesensitization;
-import com.arextest.web.core.business.util.RemoteJarLoader;
+import com.arextest.common.model.classloader.RemoteJarClassLoader;
+import com.arextest.common.utils.RemoteJarLoaderUtils;
+import com.arextest.extension.desensitization.DataDesensitization;
 import com.arextest.web.core.repository.DesensitizationJarRepository;
 import com.arextest.web.model.contract.contracts.datadesensitization.DesensitizationJar;
 import com.arextest.web.model.dto.DesensitizationJarDto;
@@ -11,7 +12,6 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.net.MalformedURLException;
-import java.security.SecureClassLoader;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -42,17 +42,17 @@ public class DesensitizationService {
         }
     }
 
-    public void saveJar(String uri, String remark) throws DesensitizationJarValidationException {
+    public boolean saveJar(String uri, String remark) throws DesensitizationJarValidationException {
         validateJar(uri);
         jarRepository.deleteAll();
         DesensitizationJarDto jarDto = new DesensitizationJarDto();
         jarDto.setJarUrl(uri);
         jarDto.setRemark(remark);
-        jarRepository.saveJar(jarDto);
+        return jarRepository.saveJar(jarDto);
     }
 
-    public void deleteJar(String jarId) {
-        jarRepository.deleteJar(jarId);
+    public boolean deleteJar(String jarId) {
+        return jarRepository.deleteJar(jarId);
     }
 
     public List<DesensitizationJar> listAllJars() {
@@ -60,14 +60,13 @@ public class DesensitizationService {
     }
 
     private void validateJar(String uri) throws DesensitizationJarValidationException {
+        if (!uri.startsWith("http")) {
+            throw new DesensitizationJarValidationException(ErrType.URL_MALFORMED);
+        }
+
         try {
-            if (!uri.startsWith("http")) {
-                throw new DesensitizationJarValidationException(ErrType.URL_MALFORMED);
-            }
-
-            SecureClassLoader classLoader = RemoteJarLoader.loadJar(uri);
-
-            List<DataDesensitization> service = RemoteJarLoader.loadService(DataDesensitization.class, classLoader);
+            RemoteJarClassLoader loader = RemoteJarLoaderUtils.loadJar(uri);
+            List<DataDesensitization> service = RemoteJarLoaderUtils.loadService(DataDesensitization.class, loader);
             if (service.isEmpty()) {
                 throw new DesensitizationJarValidationException(ErrType.SERVICE_NOTFOUND);
             } else if (service.size() != 1) {
@@ -76,5 +75,6 @@ public class DesensitizationService {
         } catch (MalformedURLException e) {
             throw new DesensitizationJarValidationException(ErrType.URL_MALFORMED);
         }
+
     }
 }
