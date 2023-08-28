@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import javax.annotation.Resource;
+
 /**
  * @author jmo
  * @since 2022/1/22
@@ -15,5 +17,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public final class ServiceCollectConfigurableController extends AbstractConfigurableController<ServiceCollectConfiguration> {
     public ServiceCollectConfigurableController(@Autowired ConfigurableHandler<ServiceCollectConfiguration> configurableHandler) {
         super(configurableHandler);
+    }
+
+    @Resource
+    private ConfigurableHandler<ServiceCollectConfiguration> serviceCollectHandler;
+    public void updateServiceCollectTime (String appId){
+        ServiceCollectConfiguration serviceCollectConfiguration = serviceCollectHandler.useResult(appId);
+        serviceCollectHandler.update(serviceCollectConfiguration);
     }
 }
