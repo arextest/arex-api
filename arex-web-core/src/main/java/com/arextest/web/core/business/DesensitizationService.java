@@ -7,7 +7,6 @@ import com.arextest.web.model.contract.contracts.datadesensitization.Desensitiza
 import com.arextest.web.model.dto.DesensitizationJarDto;
 import com.arextest.web.model.mapper.DesensitizationJarMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;

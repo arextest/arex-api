@@ -163,7 +163,7 @@ public class ReportQueryController {
     @PostMapping("/removeRecordsAndScenes")
     @ResponseBody
     public Response removeFailedCases(@Valid @RequestBody RemoveRecordsAndScenesRequest request) {
-        SuccessResponse response = new SuccessResponse();;
+        SuccessResponse response = new SuccessResponse();
         response.setSuccess(reportService.removeRecords(request) && sceneReportService.removeScene(request));
         return ResponseUtils.successResponse(response);
     }
@@ -391,6 +391,12 @@ public class ReportQueryController {
     @ResponseBody
     public Response syncResponse(@Valid @RequestBody OverwriteContractRequestType requestType) {
         return ResponseUtils.successResponse(schemaInferService.overwriteContract(requestType));
+    }
+
+    @GetMapping("/listCategoryType")
+    @ResponseBody
+    public Response listCategoryType() {
+        return ResponseUtils.successResponse(reportService.listCategoryType());
     }
 
 }

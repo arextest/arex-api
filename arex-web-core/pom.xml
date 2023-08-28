@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.arextest</groupId>
         <artifactId>arex-web</artifactId>
-        <version>0.4.3.3</version>
+        <version>0.4.3.4</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>arex-web-core</artifactId>
@@ -91,14 +91,6 @@
         <dependency>
             <groupId>org.redisson</groupId>
             <artifactId>redisson</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.google.api-client</groupId>
-            <artifactId>google-api-client</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.google.oauth-client</groupId>
-            <artifactId>google-oauth-client</artifactId>
         </dependency>
     </dependencies>
 </project>

@@ -21,9 +21,11 @@ public class CustomServiceConfiguration {
         ComparisonReferenceConfigurableHandler referenceConfigurableHandler,
         ComparisonListSortConfigurableHandler listSortConfigurableHandler,
         ConfigurableHandler<ApplicationServiceConfiguration> applicationServiceConfigurationConfigurableHandler,
-        AppContractRepository appContractRepository) {
+        AppContractRepository appContractRepository,
+        ComparisonIgnoreCategoryConfigurableHandler ignoreCategoryConfigurableHandler) {
         return new ComparisonSummaryService(exclusionsConfigurableHandler, inclusionsConfigurableHandler,
             encryptionConfigurableHandler, referenceConfigurableHandler, listSortConfigurableHandler,
-            applicationServiceConfigurationConfigurableHandler, appContractRepository);
+            applicationServiceConfigurationConfigurableHandler, appContractRepository,
+            ignoreCategoryConfigurableHandler);
     }
 }
