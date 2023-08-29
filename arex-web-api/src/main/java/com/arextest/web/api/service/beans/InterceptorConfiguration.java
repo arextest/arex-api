@@ -63,6 +63,7 @@ public class InterceptorConfiguration implements WebMvcConfigurer {
 
         // exclude configuration services
         defaultPatterns.add("/api/config/**");
+        defaultPatterns.add("/api/report/listCategoryType");
         // exclude logs services
         defaultPatterns.add("/api/logs/**");
         // invite to workspace
