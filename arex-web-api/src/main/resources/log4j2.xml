@@ -26,7 +26,7 @@
         <Root level="info">
             <AppenderRef ref="RollingFile"/>
         </Root>
-        <Logger name="com.arextest" level="INFO">
+        <Logger name="com.arextest" level="ERROR">
             <AppenderRef ref="Mongo4"/>
         </Logger>
     </Loggers>

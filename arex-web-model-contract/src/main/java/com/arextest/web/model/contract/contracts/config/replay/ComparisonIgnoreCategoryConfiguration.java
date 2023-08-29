@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.springframework.util.CollectionUtils;
 
-import java.util.List;
+import java.util.Set;
 
 /**
  * @author wildeslam.
@@ -17,7 +17,7 @@ import java.util.List;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 public class ComparisonIgnoreCategoryConfiguration extends AbstractComparisonDetailsConfiguration {
-    List<String> ignoreCategory;
+    Set<String> ignoreCategory;
 
     @Override
     public void validParameters() throws Exception {

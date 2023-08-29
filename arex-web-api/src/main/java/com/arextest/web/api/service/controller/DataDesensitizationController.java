@@ -28,13 +28,15 @@ public class DataDesensitizationController {
     @PostMapping("/saveJar")
     @ResponseBody
     public Response saveJar(@Valid @RequestBody UploadDesensitizationJarRequestType request) {
-        return ResponseUtils.successResponse(desensitizationService.saveJar(request.getJarUrl(), request.getRemark()));
+        desensitizationService.saveJar(request.getJarUrl(), request.getRemark());
+        return ResponseUtils.successResponse(true);
     }
 
     @PostMapping("/deleteJar")
     @ResponseBody
     public Response deleteJar(@Valid @RequestBody DeleteDesensitizationJarRequestType request) {
-        return ResponseUtils.successResponse(desensitizationService.deleteJar(request.getId()));
+        desensitizationService.deleteJar(request.getId());
+        return ResponseUtils.successResponse(true);
     }
 
     @PostMapping("/listJar")
