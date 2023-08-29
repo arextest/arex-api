@@ -41,6 +41,7 @@ public class OauthHandler {
         OauthService oauthService = oauthServiceFactory.getOauthService(oauthType);
         response.setClientId(oauthService.getClientId());
         response.setRedirectUri(oauthService.getRedirectUri());
+        response.setOauthUri(oauthService.getOauthUri());
         return response;
     }
 }
