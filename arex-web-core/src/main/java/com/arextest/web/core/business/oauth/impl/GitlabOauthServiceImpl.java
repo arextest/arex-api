@@ -42,6 +42,10 @@ public class GitlabOauthServiceImpl extends AbstractOauthServiceImpl {
         return redirectUri;
     }
     @Override
+    public String getOauthUri() {
+        return gitlabUri;
+    }
+    @Override
     public String getUser(String code) {
         if (!checkOauth(clientId, secret, code)) {
             return null;

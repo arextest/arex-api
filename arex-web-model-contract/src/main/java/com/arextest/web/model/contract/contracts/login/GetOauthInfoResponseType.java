@@ -10,4 +10,5 @@ import lombok.Data;
 public class GetOauthInfoResponseType {
     private String clientId;
     private String redirectUri;
+    private String oauthUri;
 }
