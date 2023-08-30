@@ -11,13 +11,10 @@ import com.arextest.web.core.business.config.ConfigurableHandler;
 import com.arextest.web.model.contract.contracts.common.enums.ModifyType;
 import com.arextest.web.model.contract.contracts.config.AbstractConfiguration;
 
-import lombok.extern.slf4j.Slf4j;
-
 /**
  * @author jmo
  * @since 2022/1/22
  */
-@Slf4j
 public abstract class AbstractConfigurableController<T extends AbstractConfiguration> {
     protected final ConfigurableHandler<T> configurableHandler;
 
