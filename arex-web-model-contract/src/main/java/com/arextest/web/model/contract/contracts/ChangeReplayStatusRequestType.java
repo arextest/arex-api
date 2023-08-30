@@ -14,6 +14,7 @@ public class ChangeReplayStatusRequestType {
     private Integer status;
     private String errorMessage;
     private List<ReplayItem> items;
+    private boolean rerun;
 
 
     @Data

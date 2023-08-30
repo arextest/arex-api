@@ -190,7 +190,8 @@ public class ReportPlanItemStatisticRepositoryImpl implements ReportPlanItemStat
     }
 
     @Override
-    public PlanItemDto changePlanItemStatus(String planItemId, Integer status, Integer totalCaseCount, String errorMessage) {
+    public PlanItemDto changePlanItemStatus(String planItemId, Integer status, Integer totalCaseCount,
+                                            String errorMessage, boolean isRerun) {
         if (planItemId == null || planItemId == "") {
             return null;
         }
@@ -199,7 +200,8 @@ public class ReportPlanItemStatisticRepositoryImpl implements ReportPlanItemStat
             update.set(STATUS, status);
             if (Objects.equals(status, ReplayStatusType.RUNNING)) {
                 update.set(REPLAY_START_TIME, System.currentTimeMillis());
-            } else {
+            } else if (!isRerun){
+                // rerun will not update end time
                 update.set(REPLAY_END_TIME, System.currentTimeMillis());
             }
         }

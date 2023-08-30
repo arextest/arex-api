@@ -22,7 +22,8 @@ public interface ReportPlanItemStatisticRepository extends RepositoryProvider {
     List<Integer> findStatusesByPlanId(String planId);
 
 
-    PlanItemDto changePlanItemStatus(String planItemId, Integer status, Integer totalCaseCount, String errorMessage);
+    PlanItemDto changePlanItemStatus(String planItemId, Integer status, Integer totalCaseCount, String errorMessage,
+                                     boolean isRerun);
 
     boolean deletePlanItemsByPlanId(String planId);
 
