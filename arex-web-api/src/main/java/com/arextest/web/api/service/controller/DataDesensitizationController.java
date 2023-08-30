@@ -1,7 +1,6 @@
 package com.arextest.web.api.service.controller;
 
 import com.arextest.common.model.response.Response;
-import com.arextest.common.model.response.ResponseCode;
 import com.arextest.common.utils.ResponseUtils;
 import com.arextest.web.core.business.DesensitizationService;
 import com.arextest.web.model.contract.contracts.datadesensitization.DeleteDesensitizationJarRequestType;

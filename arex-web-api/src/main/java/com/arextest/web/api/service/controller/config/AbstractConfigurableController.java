@@ -1,18 +1,15 @@
 package com.arextest.web.api.service.controller.config;
 
+import java.util.List;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.web.bind.annotation.*;
+
 import com.arextest.common.model.response.Response;
 import com.arextest.common.utils.ResponseUtils;
 import com.arextest.web.core.business.config.ConfigurableHandler;
 import com.arextest.web.model.contract.contracts.common.enums.ModifyType;
 import com.arextest.web.model.contract.contracts.config.AbstractConfiguration;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.ResponseBody;
-
-import java.util.List;
 
 /**
  * @author jmo

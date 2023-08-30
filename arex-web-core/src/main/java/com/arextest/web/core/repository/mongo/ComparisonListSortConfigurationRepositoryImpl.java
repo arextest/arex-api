@@ -1,8 +1,16 @@
 package com.arextest.web.core.repository.mongo;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
+import com.arextest.web.common.LogUtils;
+import com.arextest.web.core.repository.ConfigRepositoryField;
+import com.arextest.web.core.repository.ConfigRepositoryProvider;
+import com.arextest.web.core.repository.mongo.util.MongoHelper;
+import com.arextest.web.model.contract.contracts.config.replay.ComparisonListSortConfiguration;
+import com.arextest.web.model.dao.mongodb.ConfigComparisonListSortCollection;
+import com.arextest.web.model.dao.mongodb.entity.AbstractComparisonDetails;
+import com.arextest.web.model.mapper.ConfigComparisonListSortMapper;
+import com.mongodb.client.result.DeleteResult;
+import com.mongodb.client.result.UpdateResult;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,18 +22,8 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Repository;
 
-import com.arextest.web.common.LogUtils;
-import com.arextest.web.core.repository.ConfigRepositoryField;
-import com.arextest.web.core.repository.ConfigRepositoryProvider;
-import com.arextest.web.core.repository.mongo.util.MongoHelper;
-import com.arextest.web.model.contract.contracts.config.replay.ComparisonListSortConfiguration;
-import com.arextest.web.model.dao.mongodb.ConfigComparisonListSortCollection;
-import com.arextest.web.model.dao.mongodb.entity.AbstractComparisonDetails;
-import com.arextest.web.model.mapper.ConfigComparisonListSortMapper;
-import com.mongodb.client.result.DeleteResult;
-import com.mongodb.client.result.UpdateResult;
-
-import lombok.extern.slf4j.Slf4j;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by rchen9 on 2022/9/16.
@@ -33,7 +31,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Repository
 public class ComparisonListSortConfigurationRepositoryImpl
-    implements ConfigRepositoryProvider<ComparisonListSortConfiguration>, ConfigRepositoryField {
+        implements ConfigRepositoryProvider<ComparisonListSortConfiguration>, ConfigRepositoryField {
 
     @Autowired
     MongoTemplate mongoTemplate;
@@ -47,35 +45,36 @@ public class ComparisonListSortConfigurationRepositoryImpl
     public List<ComparisonListSortConfiguration> listBy(String appId) {
         Query query = Query.query(Criteria.where(APP_ID).is(appId));
         List<ConfigComparisonListSortCollection> configComparisonListSortCollections =
-            mongoTemplate.find(query, ConfigComparisonListSortCollection.class);
+                mongoTemplate.find(query, ConfigComparisonListSortCollection.class);
         return configComparisonListSortCollections.stream().map(ConfigComparisonListSortMapper.INSTANCE::dtoFromDao)
-            .collect(Collectors.toList());
+                .collect(Collectors.toList());
     }
 
     public List<ComparisonListSortConfiguration> listBy(String appId, String operationId) {
         Query query = Query
-            .query(Criteria.where(APP_ID).is(appId).and(AbstractComparisonDetails.Fields.operationId).is(operationId));
+                .query(Criteria.where(APP_ID).is(appId).and(AbstractComparisonDetails.Fields.operationId).is(operationId));
         List<ConfigComparisonListSortCollection> configComparisonListSortCollections =
-            mongoTemplate.find(query, ConfigComparisonListSortCollection.class);
+                mongoTemplate.find(query, ConfigComparisonListSortCollection.class);
         return configComparisonListSortCollections.stream().map(ConfigComparisonListSortMapper.INSTANCE::dtoFromDao)
-            .collect(Collectors.toList());
+                .collect(Collectors.toList());
     }
 
     @Override
     public List<ComparisonListSortConfiguration> queryByInterfaceIdAndOperationId(String interfaceId,
-        String operationId) {
+                                                                                  String operationId) {
         Query query = new Query();
         if (StringUtils.isNotBlank(operationId)) {
-            query.addCriteria(new Criteria().orOperator(
-                Criteria.where(AbstractComparisonDetails.Fields.fsInterfaceId).is(interfaceId),
-                Criteria.where(AbstractComparisonDetails.Fields.operationId).is(operationId)));
+            Criteria fsInterfaceConfigQuery = Criteria.where(AbstractComparisonDetails.Fields.fsInterfaceId).is(interfaceId);
+            Criteria operationConfigQuery = Criteria.where(AbstractComparisonDetails.Fields.operationId).is(operationId)
+                    .andOperator(Criteria.where(AbstractComparisonDetails.Fields.dependencyId).is(null));
+            query.addCriteria(new Criteria().orOperator(fsInterfaceConfigQuery, operationConfigQuery));
         } else {
             query.addCriteria(Criteria.where(AbstractComparisonDetails.Fields.fsInterfaceId).is(interfaceId));
         }
         List<ConfigComparisonListSortCollection> configComparisonListSortCollections =
-            mongoTemplate.find(query, ConfigComparisonListSortCollection.class);
+                mongoTemplate.find(query, ConfigComparisonListSortCollection.class);
         return configComparisonListSortCollections.stream().map(ConfigComparisonListSortMapper.INSTANCE::dtoFromDao)
-            .collect(Collectors.toList());
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -83,8 +82,8 @@ public class ComparisonListSortConfigurationRepositoryImpl
         Query query = Query.query(Criteria.where(DASH_ID).is(configuration.getId()));
         Update update = MongoHelper.getConfigUpdate();
         MongoHelper.appendSpecifiedProperties(update, configuration, ConfigComparisonListSortCollection.Fields.listPath,
-            ConfigComparisonListSortCollection.Fields.keys, AbstractComparisonDetails.Fields.expirationType,
-            AbstractComparisonDetails.Fields.expirationDate);
+                ConfigComparisonListSortCollection.Fields.keys, AbstractComparisonDetails.Fields.expirationType,
+                AbstractComparisonDetails.Fields.expirationDate);
         UpdateResult updateResult = mongoTemplate.updateMulti(query, update, ConfigComparisonListSortCollection.class);
         return updateResult.getModifiedCount() > 0;
     }
@@ -99,23 +98,23 @@ public class ComparisonListSortConfigurationRepositoryImpl
     @Override
     public boolean insert(ComparisonListSortConfiguration configuration) {
         ConfigComparisonListSortCollection configComparisonListSortCollection =
-            ConfigComparisonListSortMapper.INSTANCE.daoFromDto(configuration);
+                ConfigComparisonListSortMapper.INSTANCE.daoFromDto(configuration);
 
         Update update = new Update();
         MongoHelper.appendFullProperties(update, configComparisonListSortCollection);
 
         Query query = Query.query(Criteria.where(APP_ID).is(configComparisonListSortCollection.getAppId())
-            .and(AbstractComparisonDetails.Fields.operationId).is(configComparisonListSortCollection.getOperationId())
-            .and(AbstractComparisonDetails.Fields.compareConfigType)
-            .is(configComparisonListSortCollection.getCompareConfigType())
-            .and(AbstractComparisonDetails.Fields.fsInterfaceId)
-            .is(configComparisonListSortCollection.getFsInterfaceId())
-            .and(AbstractComparisonDetails.Fields.dependencyId).is(configComparisonListSortCollection.getDependencyId())
-            .and(ConfigComparisonListSortCollection.Fields.listPath)
-            .is(configComparisonListSortCollection.getListPath()));
+                .and(AbstractComparisonDetails.Fields.operationId).is(configComparisonListSortCollection.getOperationId())
+                .and(AbstractComparisonDetails.Fields.compareConfigType)
+                .is(configComparisonListSortCollection.getCompareConfigType())
+                .and(AbstractComparisonDetails.Fields.fsInterfaceId)
+                .is(configComparisonListSortCollection.getFsInterfaceId())
+                .and(AbstractComparisonDetails.Fields.dependencyId).is(configComparisonListSortCollection.getDependencyId())
+                .and(ConfigComparisonListSortCollection.Fields.listPath)
+                .is(configComparisonListSortCollection.getListPath()));
 
         ConfigComparisonListSortCollection dao = mongoTemplate.findAndModify(query, update,
-            FindAndModifyOptions.options().returnNew(true).upsert(true), ConfigComparisonListSortCollection.class);
+                FindAndModifyOptions.options().returnNew(true).upsert(true), ConfigComparisonListSortCollection.class);
         return dao != null;
     }
 
@@ -125,21 +124,21 @@ public class ComparisonListSortConfigurationRepositoryImpl
             return false;
         }
         List<ConfigComparisonListSortCollection> listSortCollections = configurationList.stream()
-            .map(ConfigComparisonListSortMapper.INSTANCE::daoFromDto).collect(Collectors.toList());
+                .map(ConfigComparisonListSortMapper.INSTANCE::daoFromDto).collect(Collectors.toList());
         try {
             BulkOperations bulkOperations =
-                mongoTemplate.bulkOps(BulkOperations.BulkMode.UNORDERED, ConfigComparisonListSortCollection.class);
+                    mongoTemplate.bulkOps(BulkOperations.BulkMode.UNORDERED, ConfigComparisonListSortCollection.class);
             for (ConfigComparisonListSortCollection listSortCollection : listSortCollections) {
                 Update update = new Update();
                 MongoHelper.appendFullProperties(update, listSortCollection);
 
                 Query query = Query.query(Criteria.where(APP_ID).is(listSortCollection.getAppId())
-                    .and(AbstractComparisonDetails.Fields.operationId).is(listSortCollection.getOperationId())
-                    .and(AbstractComparisonDetails.Fields.compareConfigType)
-                    .is(listSortCollection.getCompareConfigType()).and(AbstractComparisonDetails.Fields.fsInterfaceId)
-                    .is(listSortCollection.getFsInterfaceId()).and(AbstractComparisonDetails.Fields.dependencyId)
-                    .is(listSortCollection.getDependencyId()).and(ConfigComparisonListSortCollection.Fields.listPath)
-                    .is(listSortCollection.getListPath()));
+                        .and(AbstractComparisonDetails.Fields.operationId).is(listSortCollection.getOperationId())
+                        .and(AbstractComparisonDetails.Fields.compareConfigType)
+                        .is(listSortCollection.getCompareConfigType()).and(AbstractComparisonDetails.Fields.fsInterfaceId)
+                        .is(listSortCollection.getFsInterfaceId()).and(AbstractComparisonDetails.Fields.dependencyId)
+                        .is(listSortCollection.getDependencyId()).and(ConfigComparisonListSortCollection.Fields.listPath)
+                        .is(listSortCollection.getListPath()));
                 bulkOperations.upsert(query, update);
             }
             bulkOperations.execute();
@@ -155,5 +154,12 @@ public class ComparisonListSortConfigurationRepositoryImpl
         Query query = Query.query(Criteria.where(APP_ID).is(appId));
         DeleteResult remove = mongoTemplate.remove(query, ConfigComparisonListSortCollection.class);
         return remove.getDeletedCount() > 0;
+    }
+
+    @Override
+    public ComparisonListSortConfiguration queryById(String id) {
+        Query query = Query.query(Criteria.where(DASH_ID).is(id));
+        ConfigComparisonListSortCollection dao = mongoTemplate.findOne(query, ConfigComparisonListSortCollection.class);
+        return ConfigComparisonListSortMapper.INSTANCE.dtoFromDao(dao);
     }
 }

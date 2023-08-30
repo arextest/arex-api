@@ -104,10 +104,10 @@ public class ComparisonEncryptionConfigurationRepositoryImpl
     public List<ComparisonEncryptionConfiguration> queryByInterfaceIdAndOperationId(String interfaceId, String operationId) {
         Query query = new Query();
         if (StringUtils.isNotBlank(operationId)) {
-            query.addCriteria(new Criteria().orOperator(
-                    Criteria.where(AbstractComparisonDetails.Fields.fsInterfaceId).is(interfaceId),
-                    Criteria.where(AbstractComparisonDetails.Fields.operationId).is(operationId)
-            ));
+            Criteria fsInterfaceConfigQuery = Criteria.where(AbstractComparisonDetails.Fields.fsInterfaceId).is(interfaceId);
+            Criteria operationConfigQuery = Criteria.where(AbstractComparisonDetails.Fields.operationId).is(operationId)
+                    .andOperator(Criteria.where(AbstractComparisonDetails.Fields.dependencyId).is(null));
+            query.addCriteria(new Criteria().orOperator(fsInterfaceConfigQuery, operationConfigQuery));
         } else {
             query.addCriteria(Criteria.where(AbstractComparisonDetails.Fields.fsInterfaceId).is(interfaceId));
         }

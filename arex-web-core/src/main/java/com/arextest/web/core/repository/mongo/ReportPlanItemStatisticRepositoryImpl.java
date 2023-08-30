@@ -200,7 +200,7 @@ public class ReportPlanItemStatisticRepositoryImpl implements ReportPlanItemStat
             if (Objects.equals(status, ReplayStatusType.RUNNING)) {
                 update.set(REPLAY_START_TIME, System.currentTimeMillis());
             } else {
-                update.set(REPLAY_END_TIME, System.currentTimeMillis());
+                update.setOnInsert(REPLAY_END_TIME, System.currentTimeMillis());
             }
         }
         if (totalCaseCount != null) {
