@@ -7,5 +7,5 @@ public class ReplayStatusType {
     public static final Integer FINISHED = 2;
     public static final Integer FAIL_INTERRUPTED = 3;
     public static final Integer CANCELLED = 4;
-    public static final Integer RERUNNING = 5;
+    public static final Integer RERUNNING = 6;
 }
