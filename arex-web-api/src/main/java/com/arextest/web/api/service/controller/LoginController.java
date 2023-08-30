@@ -3,11 +3,14 @@ package com.arextest.web.api.service.controller;
 import com.arextest.common.model.response.Response;
 import com.arextest.common.utils.ResponseUtils;
 import com.arextest.web.core.business.LoginService;
+import com.arextest.web.core.business.oauth.OauthHandler;
 import com.arextest.web.model.contract.contracts.SuccessResponseType;
 import com.arextest.web.model.contract.contracts.common.enums.ModifyType;
+import com.arextest.web.model.contract.contracts.login.GetOauthInfoResponseType;
 import com.arextest.web.model.contract.contracts.login.LoginAsGuestRequestType;
 import com.arextest.web.model.contract.contracts.login.LoginAsGuestResponseType;
 import com.arextest.web.model.contract.contracts.login.ModifyUserFavoriteAppRequestType;
+import com.arextest.web.model.contract.contracts.login.OauthLoginRequestType;
 import com.arextest.web.model.contract.contracts.login.QueryUserFavoriteAppResponseType;
 import com.arextest.web.model.contract.contracts.login.UpdateUserProfileRequestType;
 import com.arextest.web.model.contract.contracts.login.UserProfileResponseType;
@@ -32,6 +35,9 @@ public class LoginController {
 
     @Resource
     private LoginService loginService;
+
+    @Resource
+    private OauthHandler oauthHandler;
 
     @GetMapping("/getVerificationCode/{userName}")
     @ResponseBody
@@ -87,7 +93,7 @@ public class LoginController {
     @PostMapping("/userFavoriteApp/modify/{modifyType}")
     @ResponseBody
     public Response modifyUserFavoriteApp(@PathVariable ModifyType modifyType,
-                                          @Valid @RequestBody ModifyUserFavoriteAppRequestType request) {
+            @Valid @RequestBody ModifyUserFavoriteAppRequestType request) {
         if (modifyType == ModifyType.INSERT) {
             return ResponseUtils.successResponse(loginService.insertUserFavoriteApp(request));
         }
@@ -97,5 +103,17 @@ public class LoginController {
         return ResponseUtils.resourceNotFoundResponse();
     }
 
+    @PostMapping("/oauthLogin")
+    @ResponseBody
+    public Response oauthLogin(@RequestBody OauthLoginRequestType request) {
+        VerifyResponseType response = oauthHandler.oauthLogin(request.getCode(), request.getOauthType());
+        return ResponseUtils.successResponse(response);
+    }
 
+    @GetMapping("/oauthInfo/{oauthType}")
+    @ResponseBody
+    public Response getOauthClientId(@PathVariable String oauthType) {
+        GetOauthInfoResponseType response = oauthHandler.getOauthInfo(oauthType);
+        return ResponseUtils.successResponse(response);
+    }
 }

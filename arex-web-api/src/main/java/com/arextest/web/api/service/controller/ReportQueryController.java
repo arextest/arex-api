@@ -5,6 +5,8 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import com.arextest.web.common.HttpUtils;
+import com.arextest.web.model.contract.contracts.RemoveRecordsAndScenesRequest;
+import com.arextest.web.model.contract.contracts.SuccessResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -73,7 +75,6 @@ import com.arextest.web.model.contract.contracts.ReportInitialRequestType;
 import com.arextest.web.model.contract.contracts.ReportInitialResponseType;
 import com.arextest.web.model.contract.contracts.SuccessResponseType;
 import com.arextest.web.model.contract.contracts.SyncResponseContractRequestType;
-import com.arextest.web.model.contract.contracts.appcontract.AddDependencyToSystemRequestType;
 import com.arextest.web.model.contract.contracts.record.CountRecordRequestType;
 import com.arextest.web.model.contract.contracts.record.ListRecordRequestType;
 import com.arextest.web.model.contract.contracts.replay.AnalyzeCompareResultsRequestType;
@@ -158,6 +159,15 @@ public class ReportQueryController {
         response.setUpdateSuccess(reportService.changeReportStatus(request));
         return ResponseUtils.successResponse(response);
     }
+
+    @PostMapping("/removeRecordsAndScenes")
+    @ResponseBody
+    public Response removeFailedCases(@Valid @RequestBody RemoveRecordsAndScenesRequest request) {
+        SuccessResponse response = new SuccessResponse();
+        response.setSuccess(reportService.removeRecords(request) && sceneReportService.removeScene(request));
+        return ResponseUtils.successResponse(response);
+    }
+
 
     @PostMapping("/queryPlanStatistics")
     @ResponseBody
@@ -329,6 +339,15 @@ public class ReportQueryController {
     @PostMapping("/countRecord")
     @ResponseBody
     public Response countRecord(@Valid @RequestBody CountRecordRequestType requestType) {
+        // add default time
+        long currentTime = System.currentTimeMillis();
+
+        if (requestType.getBeginTime() == null) {
+            requestType.setBeginTime(currentTime - 4 * 24 * 60 * 60 * 1000L);
+        }
+        if (requestType.getEndTime() == null) {
+            requestType.setEndTime(currentTime);
+        }
         return ResponseUtils.successResponse(recordService.countRecord(requestType));
     }
 
@@ -337,6 +356,15 @@ public class ReportQueryController {
     public Response countRecord(@Valid @RequestBody ListRecordRequestType requestType) {
         if (requestType.getOperationType() == null) {
             return ResponseUtils.errorResponse("no operationType", ResponseCode.REQUESTED_PARAMETER_INVALID);
+        }
+        // add default time
+        long currentTime = System.currentTimeMillis();
+
+        if (requestType.getBeginTime() == null) {
+            requestType.setBeginTime(currentTime - 4 * 24 * 60 * 60 * 1000L);
+        }
+        if (requestType.getEndTime() == null) {
+            requestType.setEndTime(currentTime);
         }
         return ResponseUtils.successResponse(recordService.listRecord(requestType));
     }
@@ -363,6 +391,12 @@ public class ReportQueryController {
     @ResponseBody
     public Response syncResponse(@Valid @RequestBody OverwriteContractRequestType requestType) {
         return ResponseUtils.successResponse(schemaInferService.overwriteContract(requestType));
+    }
+
+    @GetMapping("/listCategoryType")
+    @ResponseBody
+    public Response listCategoryType() {
+        return ResponseUtils.successResponse(reportService.listCategoryType());
     }
 
 }

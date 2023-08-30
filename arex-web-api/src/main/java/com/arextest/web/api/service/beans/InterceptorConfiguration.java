@@ -47,6 +47,8 @@ public class InterceptorConfiguration implements WebMvcConfigurer {
         defaultPatterns.add("/api/login/verify");
         defaultPatterns.add("/api/login/getVerificationCode/**");
         defaultPatterns.add("/api/login/loginAsGuest");
+        defaultPatterns.add("/api/login/oauthLogin");
+        defaultPatterns.add("/api/login/oauthInfo/**");
         defaultPatterns.add("/api/login/refresh/**");
         // healthCheck
         defaultPatterns.add("/vi/health");
@@ -56,9 +58,12 @@ public class InterceptorConfiguration implements WebMvcConfigurer {
         defaultPatterns.add("/api/report/pushReplayStatus");
         defaultPatterns.add("/api/report/updateReportInfo");
         defaultPatterns.add("/api/report/analyzeCompareResults");
+        defaultPatterns.add("/api/report/removeRecordsAndScenes");
+        defaultPatterns.add("/api/desensitization/listJar");
 
         // exclude configuration services
         defaultPatterns.add("/api/config/**");
+        defaultPatterns.add("/api/report/listCategoryType");
         // exclude logs services
         defaultPatterns.add("/api/logs/**");
         // invite to workspace

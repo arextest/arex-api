@@ -26,14 +26,13 @@ public final class DynamicClassConfigurableController extends AbstractConfigurab
     }
 
     @Resource
-    private ConfigurableHandler<ServiceCollectConfiguration> serviceCollectHandler;
+    private ServiceCollectConfigurableController serviceCollectConfigurableController;
 
     @Override
     @ResponseBody
     public Response modify(@PathVariable ModifyType modifyType, @RequestBody DynamicClassConfiguration configuration) throws Exception {
         // change dataChangeUpdatesTime in recordServiceConfig before modifying
-        ServiceCollectConfiguration serviceCollectConfiguration = serviceCollectHandler.useResult(configuration.getAppId());
-        serviceCollectHandler.update(serviceCollectConfiguration);
+        serviceCollectConfigurableController.updateServiceCollectTime(configuration.getAppId());
 
         return super.modify(modifyType, configuration);
     }

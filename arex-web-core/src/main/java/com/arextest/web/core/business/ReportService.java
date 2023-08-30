@@ -1,5 +1,6 @@
 package com.arextest.web.core.business;
 
+import com.arextest.model.mock.MockCategoryType;
 import com.arextest.web.common.LogUtils;
 import com.arextest.web.core.business.iosummary.SceneReportService;
 import com.arextest.web.core.business.iosummary.SummaryService;
@@ -10,14 +11,17 @@ import com.arextest.web.core.repository.ReportPlanItemStatisticRepository;
 import com.arextest.web.core.repository.ReportPlanStatisticRepository;
 import com.arextest.web.model.contract.contracts.ChangeReplayStatusRequestType;
 import com.arextest.web.model.contract.contracts.PushCompareResultsRequestType;
+import com.arextest.web.model.contract.contracts.RemoveRecordsAndScenesRequest;
 import com.arextest.web.model.contract.contracts.common.CompareResult;
 import com.arextest.web.model.contract.contracts.replay.AnalyzeCompareResultsRequestType;
 import com.arextest.web.model.dto.CompareResultDto;
+import com.arextest.web.model.dto.PlanItemDto;
 import com.arextest.web.model.dto.ReportPlanStatisticDto;
 import com.arextest.web.model.enums.ReplayStatusType;
 import com.arextest.web.model.mapper.CompareResultMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -134,5 +138,33 @@ public class ReportService {
         reportDiffAggStatisticRepository.deleteDiffAggByPlanId(planId);
         replayCompareResultRepository.deleteCompareResultsByPlanId(planId);
         return planStatisticRepository.deletePlan(planId);
+    }
+
+    public boolean removeRecords(RemoveRecordsAndScenesRequest request) {
+        if (MapUtils.isEmpty(request.getActionIdAndRecordIdsMap())) {
+            return false;
+        }
+        request.getActionIdAndRecordIdsMap().forEach((actionId, recordIds) -> {
+            PlanItemDto planItemDto = planItemStatisticRepository.findByPlanItemId(actionId);
+            if (planItemDto != null) {
+                recordIds.forEach(recordId -> {
+                    if (planItemDto.getCases() != null) {
+                        planItemDto.getCases().remove(recordId);
+                    }
+                    if (planItemDto.getFailCases() != null) {
+                        planItemDto.getFailCases().remove(recordId);
+                    }
+                    if (planItemDto.getErrorCases() != null) {
+                        planItemDto.getErrorCases().remove(recordId);
+                    }
+                });
+                planItemStatisticRepository.findAndModifyCaseMap(planItemDto);
+            }
+        });
+        return true;
+    }
+
+    public List<MockCategoryType> listCategoryType() {
+        return new ArrayList<>(MockCategoryType.DEFAULTS);
     }
 }

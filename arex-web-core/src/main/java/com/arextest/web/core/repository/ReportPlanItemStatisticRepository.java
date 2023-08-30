@@ -14,6 +14,7 @@ public interface ReportPlanItemStatisticRepository extends RepositoryProvider {
 
     List<PlanItemDto> findByPlanIdAndPlanItemId(String planId, String planItemId);
 
+    PlanItemDto findByPlanItemId(String planItemId);
 
     List<PlanItemDto> findByPlanIds(List<String> planIds);
 
@@ -25,4 +26,5 @@ public interface ReportPlanItemStatisticRepository extends RepositoryProvider {
 
     boolean deletePlanItemsByPlanId(String planId);
 
+    boolean findAndModifyCaseMap(PlanItemDto result);
 }
