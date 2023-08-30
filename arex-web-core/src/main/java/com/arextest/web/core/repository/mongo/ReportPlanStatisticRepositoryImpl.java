@@ -323,7 +323,6 @@ public class ReportPlanStatisticRepositoryImpl implements ReportPlanStatisticRep
         if (errorMessage != null) {
             update.set(ERROR_MESSAGE, errorMessage);
         }
-        // rerun does not update end time
         if (!rerun) {
             update.set(REPLAY_END_TIME, System.currentTimeMillis());
         }
