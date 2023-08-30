@@ -62,9 +62,8 @@ public class ComparisonIgnoreCategoryConfigurableHandler
         return result;
     }
 
-    @Override
-    public boolean insert(ComparisonIgnoreCategoryConfiguration comparisonDetail) {
-        for (String category : comparisonDetail.getIgnoreCategory()) {
+    private void checkBeforeModify(ComparisonIgnoreCategoryConfiguration configuration) {
+        for (String category : configuration.getIgnoreCategory()) {
             if (!CATEGORIES.contains(category)) {
                 throw new IllegalArgumentException("Invalid category: " + category);
             }
@@ -72,6 +71,23 @@ public class ComparisonIgnoreCategoryConfigurableHandler
                 throw new IllegalArgumentException("Cannot ignore entrypoint category: " + category);
             }
         }
-        return super.insert(comparisonDetail);
+    }
+
+    @Override
+    public boolean insert(ComparisonIgnoreCategoryConfiguration configuration) {
+        checkBeforeModify(configuration);
+        return super.insert(configuration);
+    }
+
+    @Override
+    public boolean remove(ComparisonIgnoreCategoryConfiguration configuration) {
+        checkBeforeModify(configuration);
+        return super.remove(configuration);
+    }
+
+    @Override
+    public boolean update(ComparisonIgnoreCategoryConfiguration configuration) {
+        checkBeforeModify(configuration);
+        return super.update(configuration);
     }
 }
