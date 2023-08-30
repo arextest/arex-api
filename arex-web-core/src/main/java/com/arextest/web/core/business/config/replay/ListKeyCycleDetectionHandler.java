@@ -1,4 +1,4 @@
-package com.arextest.web.core.business.util;
+package com.arextest.web.core.business.config.replay;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -9,8 +9,6 @@ import org.springframework.util.CollectionUtils;
 
 import com.arextest.web.common.LogUtils;
 import com.arextest.web.common.exception.ListKeyCycleException;
-import com.arextest.web.core.business.config.replay.ComparisonListSortConfigurableHandler;
-import com.arextest.web.core.business.config.replay.ComparisonReferenceConfigurableHandler;
 import com.arextest.web.model.contract.contracts.config.replay.AbstractComparisonDetailsConfiguration;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonListSortConfiguration;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonReferenceConfiguration;
@@ -107,7 +105,7 @@ public class ListKeyCycleDetectionHandler {
         this.doCycleDetection(referenceInDb, listSortInDb);
     }
 
-    public void doCycleDetection(List<ComparisonReferenceConfiguration> referenceInDb,
+    private void doCycleDetection(List<ComparisonReferenceConfiguration> referenceInDb,
         List<ComparisonListSortConfiguration> listSortInDb) throws ListKeyCycleException {
 
         Map<String, List<String>> listKeysMap = new HashMap<>();
@@ -151,7 +149,8 @@ public class ListKeyCycleDetectionHandler {
         Set<String> traversedSet = new HashSet<>();
         LinkedList<String> queue = new LinkedList<>();
 
-        this.doPriorityReferences(queue, pkListPaths, new LinkedList<>(), traversedSet, relations, fkPaths, listKeysMap);
+        this.doPriorityReferences(queue, pkListPaths, new LinkedList<>(), traversedSet, relations, fkPaths,
+            listKeysMap);
 
     }
 
@@ -188,15 +187,14 @@ public class ListKeyCycleDetectionHandler {
         }
     }
 
-
-    public String listToString(List<String> listPath) {
+    private String listToString(List<String> listPath) {
         if (CollectionUtils.isEmpty(listPath)) {
             return null;
         }
         return String.join("/", listPath);
     }
 
-    public List<String> mergePath(List<String> listPath, List<String> key) {
+    private List<String> mergePath(List<String> listPath, List<String> key) {
         List<String> result = new ArrayList<>(listPath);
         result.addAll(key);
         return result;
