@@ -117,8 +117,7 @@ public class ReportService {
                 request.getPlanId(),
                 request.getStatus(),
                 request.getTotalCaseCount(),
-                request.getErrorMessage(),
-                request.isRerun()
+                request.getErrorMessage()
         );
         if (request.getItems() != null) {
             for (ChangeReplayStatusRequestType.ReplayItem item : request.getItems()) {
@@ -126,8 +125,7 @@ public class ReportService {
                         item.getPlanItemId(),
                         item.getStatus(),
                         item.getTotalCaseCount(),
-                        item.getErrorMessage(),
-                        request.isRerun()
+                        item.getErrorMessage()
                 );
             }
         }
