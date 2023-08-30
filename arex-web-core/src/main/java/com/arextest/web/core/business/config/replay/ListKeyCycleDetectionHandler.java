@@ -74,13 +74,14 @@ public class ListKeyCycleDetectionHandler {
             return;
         }
 
+        String id = configuration.getId();
         if (configuration instanceof ComparisonReferenceConfiguration) {
             ComparisonReferenceConfiguration newConfiguration = (ComparisonReferenceConfiguration)configuration;
             // update or insert
-            if (configuration.getId() != null) {
+            if (StringUtils.isNotEmpty(id)) {
                 for (int i = 0; i < referenceInDb.size(); i++) {
                     ComparisonReferenceConfiguration oldConfiguration = referenceInDb.get(i);
-                    if (Objects.equals(oldConfiguration.getId(), configuration.getId())) {
+                    if (Objects.equals(oldConfiguration.getId(), id)) {
                         referenceInDb.set(i, newConfiguration);
                     }
                 }
@@ -91,10 +92,10 @@ public class ListKeyCycleDetectionHandler {
 
             ComparisonListSortConfiguration newConfiguration = (ComparisonListSortConfiguration)configuration;
             // update or insert
-            if (configuration.getId() != null) {
+            if (id != null) {
                 for (int i = 0; i < listSortInDb.size(); i++) {
                     ComparisonListSortConfiguration oldConfiguration = listSortInDb.get(i);
-                    if (Objects.equals(oldConfiguration.getId(), configuration.getId())) {
+                    if (Objects.equals(oldConfiguration.getId(), id)) {
                         listSortInDb.set(i, newConfiguration);
                     }
                 }
