@@ -23,7 +23,7 @@ public interface ConfigRepositoryProvider<T> {
         return null;
     }
 
-    default List<T> queryByInterfaceIdAndOperationId(String interfaceId,String operationId){
+    default List<T> queryByInterfaceIdAndOperationId(String interfaceId, String operationId) {
         return null;
     }
 
@@ -53,6 +53,10 @@ public interface ConfigRepositoryProvider<T> {
 
     default long count(String appId) {
         return 0;
+    }
+
+    default T queryById(String id) {
+        return null;
     }
 }
 

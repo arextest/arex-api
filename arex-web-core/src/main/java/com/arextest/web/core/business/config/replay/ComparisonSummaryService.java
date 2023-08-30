@@ -233,8 +233,8 @@ public class ComparisonSummaryService {
      *
      * get the info of operation key: operationId value: operationType
      *
-     * @param appId
-     * @return
+     * @param appId appId
+     * @return Map<String, ApplicationOperationConfiguration>
      */
     protected AppOperationAndDependencyInfo getOperationInfos(String appId) {
         AppOperationAndDependencyInfo appOperationAndDependencyInfo = new AppOperationAndDependencyInfo();

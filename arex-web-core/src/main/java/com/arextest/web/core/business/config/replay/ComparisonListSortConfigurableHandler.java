@@ -4,15 +4,13 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
-import com.arextest.web.core.business.config.application.ApplicationOperationConfigurableHandler;
 import com.arextest.web.core.repository.AppContractRepository;
 import com.arextest.web.core.repository.ConfigRepositoryProvider;
 import com.arextest.web.core.repository.FSInterfaceRepository;
-import com.arextest.web.model.contract.contracts.config.application.ApplicationOperationConfiguration;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonListSortConfiguration;
 import com.arextest.web.model.dto.filesystem.FSInterfaceDto;
 
@@ -30,9 +28,11 @@ public class ComparisonListSortConfigurableHandler
 
     @Resource
     FSInterfaceRepository fsInterfaceRepository;
-
+    @Lazy
     @Resource
-    ApplicationOperationConfigurableHandler applicationOperationConfigurableHandler;
+    ComparisonReferenceConfigurableHandler referenceHandler;
+    @Resource
+    ListKeyCycleDetectionHandler listKeyCycleDetectionHandler;
 
     @Override
     public List<ComparisonListSortConfiguration> queryByInterfaceId(String interfaceId) {
@@ -40,17 +40,24 @@ public class ComparisonListSortConfigurableHandler
         // get operationId
         FSInterfaceDto fsInterfaceDto = fsInterfaceRepository.queryInterface(interfaceId);
         String operationId = fsInterfaceDto == null ? null : fsInterfaceDto.getOperationId();
+        return this.queryByOperationIdAndInterfaceId(interfaceId, operationId);
+    }
 
-        List<ComparisonListSortConfiguration> result = this.queryByOperationIdAndInterfaceId(interfaceId, operationId);
-        if (StringUtils.isNotEmpty(operationId)) {
-            ApplicationOperationConfiguration applicationOperationConfiguration =
-                applicationOperationConfigurableHandler.useResultByOperationId(operationId);
-            if (applicationOperationConfiguration != null) {
-                List<ComparisonListSortConfiguration> globalConfig =
-                    this.useResultAsList(applicationOperationConfiguration.getAppId(), null);
-                result.addAll(globalConfig);
-            }
+    @Override
+    public boolean update(ComparisonListSortConfiguration configuration) {
+        ComparisonListSortConfiguration oldConfiguration = repositoryProvider.queryById(configuration.getId());
+        oldConfiguration.setListPath(configuration.getListPath());
+        oldConfiguration.setKeys(configuration.getKeys());
+        listKeyCycleDetectionHandler.judgeWhetherCycle(referenceHandler, this, oldConfiguration);
+        return super.update(configuration);
+    }
+
+    @Override
+    public boolean insertList(List<ComparisonListSortConfiguration> configurationList) {
+        this.addDependencyId(configurationList);
+        for (ComparisonListSortConfiguration configuration : configurationList) {
+            listKeyCycleDetectionHandler.judgeWhetherCycle(referenceHandler, this, configuration);
         }
-        return result;
+        return super.insertList(configurationList);
     }
 }
