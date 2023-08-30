@@ -63,6 +63,9 @@ public class ComparisonIgnoreCategoryConfigurableHandler
     }
 
     private void checkBeforeModify(ComparisonIgnoreCategoryConfiguration configuration) {
+        if (configuration.getIgnoreCategory() == null) {
+            return;
+        }
         for (String category : configuration.getIgnoreCategory()) {
             if (!CATEGORIES.contains(category)) {
                 throw new IllegalArgumentException("Invalid category: " + category);
