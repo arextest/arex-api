@@ -59,9 +59,9 @@ public abstract class AbstractComparisonDetailsConfiguration extends AbstractCon
     public void validParameters() throws Exception {
         super.validParameters();
 
-        // not allow operationId and interfaceId all be empty
-        if (StringUtils.isEmpty(operationId) && StringUtils.isEmpty(fsInterfaceId)) {
-            throw new Exception("operationId and interfaceId cannot be empty at the same time");
+        // not allow appId and operationId and interfaceId all be empty
+        if (StringUtils.isEmpty(appId) && StringUtils.isEmpty(operationId) && StringUtils.isEmpty(fsInterfaceId)) {
+            throw new Exception("appId, operationId and interfaceId cannot be empty at the same time");
         }
     }
 
