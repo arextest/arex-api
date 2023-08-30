@@ -308,7 +308,8 @@ public class ReportPlanStatisticRepositoryImpl implements ReportPlanStatisticRep
     public ReportPlanStatisticDto changePlanStatus(String planId,
                                                    Integer status,
                                                    Integer totalCaseCount,
-                                                   String errorMessage) {
+                                                   String errorMessage,
+                                                   boolean rerun) {
         if (planId == null || planId == "") {
             return null;
         }
@@ -322,7 +323,9 @@ public class ReportPlanStatisticRepositoryImpl implements ReportPlanStatisticRep
         if (errorMessage != null) {
             update.set(ERROR_MESSAGE, errorMessage);
         }
-        update.set(REPLAY_END_TIME, System.currentTimeMillis());
+        if (!rerun) {
+            update.set(REPLAY_END_TIME, System.currentTimeMillis());
+        }
         if (update.getUpdateObject().keySet().size() == 0) {
             return null;
         }

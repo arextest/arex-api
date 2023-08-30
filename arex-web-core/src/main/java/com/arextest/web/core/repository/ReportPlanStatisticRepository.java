@@ -31,7 +31,8 @@ public interface ReportPlanStatisticRepository extends RepositoryProvider {
                                                                    List<MutablePair<Object, Object>> matches, String groupField,
                                                                    String timeDate, String orderField, boolean desc);
 
-    ReportPlanStatisticDto changePlanStatus(String planId, Integer status, Integer totalCaseCount, String errorMessage);
+    ReportPlanStatisticDto changePlanStatus(String planId, Integer status, Integer totalCaseCount,
+                                            String errorMessage, boolean rerun);
 
     boolean deletePlan(String planId);
 }
