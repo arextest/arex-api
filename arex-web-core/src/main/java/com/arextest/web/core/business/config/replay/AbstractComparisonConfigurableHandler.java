@@ -101,12 +101,7 @@ public abstract class AbstractComparisonConfigurableHandler<T extends AbstractCo
 
     @Override
     public boolean insert(T comparisonDetail) {
-
-        if (comparisonDetail.getExpirationDate() == null) {
-            comparisonDetail.setExpirationDate(new Date());
-        }
-        addDependencyId(Collections.singletonList(comparisonDetail));
-        return repositoryProvider.insert(comparisonDetail);
+        return this.insertList(Collections.singletonList(comparisonDetail));
     }
 
     @Override
@@ -117,7 +112,7 @@ public abstract class AbstractComparisonConfigurableHandler<T extends AbstractCo
                     item.setExpirationDate(new Date());
                 }
             }).collect(Collectors.toList());
-        addDependencyId(configurations);
+        this.addDependencyId(configurations);
         return repositoryProvider.insertList(configurations);
     }
 
@@ -125,10 +120,14 @@ public abstract class AbstractComparisonConfigurableHandler<T extends AbstractCo
         return repositoryProvider.listBy(appId).isEmpty() || repositoryProvider.removeByAppId(appId);
     }
 
-    private void addDependencyId(List<T> comparisonDetails) {
+    void addDependencyId(List<T> comparisonDetails) {
         Map<AppContractDto, String> notFoundAppContractMap = new HashMap<>();
         for (T comparisonDetail : comparisonDetails) {
             if (comparisonDetail.getOperationType() == null && comparisonDetail.getOperationName() == null) {
+                continue;
+            }
+
+            if (comparisonDetail.getDependencyId() != null) {
                 continue;
             }
 

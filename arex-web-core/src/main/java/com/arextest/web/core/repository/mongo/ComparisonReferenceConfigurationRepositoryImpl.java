@@ -64,9 +64,10 @@ public class ComparisonReferenceConfigurationRepositoryImpl
                                                                                    String operationId) {
         Query query = new Query();
         if (StringUtils.isNotBlank(operationId)) {
-            query.addCriteria(new Criteria().orOperator(
-                    Criteria.where(AbstractComparisonDetails.Fields.fsInterfaceId).is(interfaceId),
-                    Criteria.where(AbstractComparisonDetails.Fields.operationId).is(operationId)));
+            Criteria fsInterfaceConfigQuery = Criteria.where(AbstractComparisonDetails.Fields.fsInterfaceId).is(interfaceId);
+            Criteria operationConfigQuery = Criteria.where(AbstractComparisonDetails.Fields.operationId).is(operationId)
+                    .andOperator(Criteria.where(AbstractComparisonDetails.Fields.dependencyId).is(null));
+            query.addCriteria(new Criteria().orOperator(fsInterfaceConfigQuery, operationConfigQuery));
         } else {
             query.addCriteria(Criteria.where(AbstractComparisonDetails.Fields.fsInterfaceId).is(interfaceId));
         }
@@ -157,5 +158,12 @@ public class ComparisonReferenceConfigurationRepositoryImpl
         Query query = Query.query(Criteria.where(APP_ID).is(appId));
         DeleteResult remove = mongoTemplate.remove(query, ConfigComparisonReferenceCollection.class);
         return remove.getDeletedCount() > 0;
+    }
+
+    @Override
+    public ComparisonReferenceConfiguration queryById(String id) {
+        Query query = Query.query(Criteria.where(DASH_ID).is(id));
+        ConfigComparisonReferenceCollection dao = mongoTemplate.findOne(query, ConfigComparisonReferenceCollection.class);
+        return ConfigComparisonReferenceMapper.INSTANCE.dtoFromDao(dao);
     }
 }
