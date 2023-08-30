@@ -322,7 +322,7 @@ public class ReportPlanStatisticRepositoryImpl implements ReportPlanStatisticRep
         if (errorMessage != null) {
             update.set(ERROR_MESSAGE, errorMessage);
         }
-        update.setOnInsert(REPLAY_END_TIME, System.currentTimeMillis());
+        update.set(REPLAY_END_TIME, System.currentTimeMillis());
         if (update.getUpdateObject().keySet().size() == 0) {
             return null;
         }
