@@ -190,17 +190,21 @@ public class ReportPlanItemStatisticRepositoryImpl implements ReportPlanItemStat
     }
 
     @Override
-    public PlanItemDto changePlanItemStatus(String planItemId, Integer status, Integer totalCaseCount, String errorMessage) {
+    public PlanItemDto changePlanItemStatus(String planItemId, Integer status, Integer totalCaseCount,
+                                            String errorMessage, boolean rerun) {
         if (planItemId == null || planItemId == "") {
             return null;
         }
         Update update = MongoHelper.getUpdate();
         if (status != null) {
             update.set(STATUS, status);
-            if (Objects.equals(status, ReplayStatusType.RUNNING)) {
-                update.set(REPLAY_START_TIME, System.currentTimeMillis());
-            } else {
-                update.setOnInsert(REPLAY_END_TIME, System.currentTimeMillis());
+            // rerun does not update start time and end time
+            if (!rerun) {
+                if (Objects.equals(status, ReplayStatusType.RUNNING)) {
+                    update.set(REPLAY_START_TIME, System.currentTimeMillis());
+                } else {
+                    update.set(REPLAY_END_TIME, System.currentTimeMillis());
+                }
             }
         }
         if (totalCaseCount != null) {
