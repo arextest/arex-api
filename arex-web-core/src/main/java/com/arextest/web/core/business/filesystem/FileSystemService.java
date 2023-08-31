@@ -687,7 +687,10 @@ public class FileSystemService {
         return response;
     }
 
-    public FSQueryCaseResponseType queryDebuggingCase(String recordId) {
+    public FSQueryCaseResponseType queryDebuggingCase(String planId, String recordId) {
+        if (StringUtils.isBlank(planId)) {
+            return new FSQueryCaseResponseType();
+        }
         if (StringUtils.isBlank(recordId)) {
             return new FSQueryCaseResponseType();
         }
@@ -703,6 +706,9 @@ public class FileSystemService {
         header.setValue(recordId);
         header.setActive(true);
         caseDto.getHeaders().add(0, header);
+
+        setAddressEndpoint(planId, caseDto.getAddress());
+
         return FSCaseMapper.INSTANCE.contractFromDto(caseDto);
     }
 
@@ -764,14 +770,7 @@ public class FileSystemService {
         caseDto.getHeaders().add(0, recordHeader);
 
         // modify the address of fsCase(domain + request path)
-        String planId = request.getPlanId();
-        ReportPlanStatisticDto reportPlanStatisticDto = reportPlanStatisticRepository.findByPlanId(planId);
-        AddressDto address = caseDto.getAddress();
-        if (address != null) {
-            address.setEndpoint(this.contactUrl(
-                    reportPlanStatisticDto == null ? StringUtils.EMPTY : reportPlanStatisticDto.getTargetEnv(),
-                    address.getEndpoint()));
-        }
+        setAddressEndpoint(request.getPlanId(), caseDto.getAddress());
 
         // when fix the case form replay, don't inherit the address of the parent interface
         caseDto.setInherited(false);
@@ -875,6 +874,15 @@ public class FileSystemService {
             return false;
         }
         return ie.importItem(treeDto, request.getPath(), request.getImportString());
+    }
+
+    private void setAddressEndpoint(String planId, AddressDto addressDto) {
+        ReportPlanStatisticDto reportPlanStatisticDto = reportPlanStatisticRepository.findByPlanId(planId);
+        if (addressDto != null) {
+            addressDto.setEndpoint(this.contactUrl(
+                    reportPlanStatisticDto == null ? StringUtils.EMPTY : reportPlanStatisticDto.getTargetEnv(),
+                    addressDto.getEndpoint()));
+        }
     }
 
     private Map<Integer, List<String>> getItemInfoIds(List<FSNodeDto> list) {

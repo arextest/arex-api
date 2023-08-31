@@ -250,10 +250,10 @@ public class FileSystemController {
         return ResponseUtils.successResponse(response);
     }
 
-    @GetMapping("/queryDebuggingCase/{recordId}")
+    @GetMapping("/queryDebuggingCase/{planId}/{recordId}")
     @ResponseBody
-    public Response queryDebuggingCase(@PathVariable String recordId) {
-        FSQueryCaseResponseType response = fileSystemService.queryDebuggingCase(recordId);
+    public Response queryDebuggingCase(@PathVariable String planId, @PathVariable String recordId) {
+        FSQueryCaseResponseType response = fileSystemService.queryDebuggingCase(planId, recordId);
         return ResponseUtils.successResponse(response);
     }
 
