@@ -28,7 +28,7 @@ public class RedisConfiguration {
     private String redisUri;
 
     private final static String USERNAME_AND_PASSWORD_REGEX = "redis://(.*?)@(.*?)";
-    private final static String DATABASE_REGEX = "redis://(.*?)@(.*?)";
+    private final static String DATABASE_REGEX = "redis://(.*?)/(.*?)";
 
     @Bean
     public RedissonClient redissonClient() {
