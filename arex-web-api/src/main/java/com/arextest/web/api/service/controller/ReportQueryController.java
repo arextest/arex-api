@@ -372,6 +372,15 @@ public class ReportQueryController {
     @PostMapping("/aggCount")
     @ResponseBody
     public Response aggCountRecord(@Valid @RequestBody CountRecordRequestType requestType) {
+        // add default time
+        long currentTime = System.currentTimeMillis();
+
+        if (requestType.getBeginTime() == null) {
+            requestType.setBeginTime(currentTime - 4 * 24 * 60 * 60 * 1000L);
+        }
+        if (requestType.getEndTime() == null) {
+            requestType.setEndTime(currentTime);
+        }
         return ResponseUtils.successResponse(recordService.aggCountRecord(requestType));
     }
 
