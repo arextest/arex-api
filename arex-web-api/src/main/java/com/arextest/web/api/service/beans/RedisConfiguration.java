@@ -1,6 +1,10 @@
 package com.arextest.web.api.service.beans;
 
-import lombok.extern.slf4j.Slf4j;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -12,10 +16,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author b_yu
@@ -105,7 +106,9 @@ public class RedisConfiguration {
         Matcher matcher = pattern.matcher(redisUri);
         if (matcher.matches()) {
             String group = matcher.group(2);
-            database = Integer.valueOf(group);
+            if (StringUtils.isNotBlank(group)) {
+                database = Integer.valueOf(group);
+            }
         }
         return database;
     }
