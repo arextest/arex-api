@@ -2,6 +2,7 @@ package com.arextest.web.api.service.controller.config;
 
 import com.arextest.common.model.response.Response;
 import com.arextest.web.core.business.config.ConfigurableHandler;
+import com.arextest.web.core.business.config.record.ServiceCollectConfigurableHandler;
 import com.arextest.web.model.contract.contracts.common.enums.ModifyType;
 import com.arextest.web.model.contract.contracts.config.record.DynamicClassConfiguration;
 import com.arextest.web.model.contract.contracts.config.record.ServiceCollectConfiguration;
@@ -26,13 +27,13 @@ public final class DynamicClassConfigurableController extends AbstractConfigurab
     }
 
     @Resource
-    private ServiceCollectConfigurableController serviceCollectConfigurableController;
+    private ServiceCollectConfigurableHandler serviceCollectConfigurableHandler;
 
     @Override
     @ResponseBody
     public Response modify(@PathVariable ModifyType modifyType, @RequestBody DynamicClassConfiguration configuration) throws Exception {
         // change dataChangeUpdatesTime in recordServiceConfig before modifying
-        serviceCollectConfigurableController.updateServiceCollectTime(configuration.getAppId());
+        serviceCollectConfigurableHandler.updateServiceCollectTime(configuration.getAppId());
 
         return super.modify(modifyType, configuration);
     }

@@ -1,6 +1,7 @@
 package com.arextest.web.core.business.config.record;
 
 import com.arextest.web.core.business.config.AbstractConfigurableHandler;
+import com.arextest.web.core.business.config.ConfigurableHandler;
 import com.arextest.web.core.repository.ConfigRepositoryProvider;
 import com.arextest.web.model.contract.contracts.config.record.ServiceCollectConfiguration;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +22,7 @@ import java.util.Set;
  */
 @Slf4j
 @Component
-final class ServiceCollectConfigurableHandler extends AbstractConfigurableHandler<ServiceCollectConfiguration> {
+public final class ServiceCollectConfigurableHandler extends AbstractConfigurableHandler<ServiceCollectConfiguration> {
 
     @Resource
     private ServiceCollectConfiguration globalDefaultConfiguration;
@@ -71,6 +72,11 @@ final class ServiceCollectConfigurableHandler extends AbstractConfigurableHandle
         }
         source.addAll(globalValues);
         return source;
+    }
+
+    public void updateServiceCollectTime(String appId) {
+        ServiceCollectConfiguration serviceCollectConfiguration = this.useResult(appId);
+        this.update(serviceCollectConfiguration);
     }
 
     @Configuration
