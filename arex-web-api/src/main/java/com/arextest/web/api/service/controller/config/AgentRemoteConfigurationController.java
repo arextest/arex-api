@@ -14,6 +14,7 @@ import com.arextest.web.model.contract.contracts.config.instance.AgentRemoteConf
 import com.arextest.web.model.contract.contracts.config.instance.AgentStatusRequest;
 import com.arextest.web.model.contract.contracts.config.record.DynamicClassConfiguration;
 import com.arextest.web.model.contract.contracts.config.record.ServiceCollectConfiguration;
+import com.arextest.web.model.enums.AgentStatusType;
 import com.arextest.web.model.mapper.InstancesMapper;
 import com.google.common.collect.ImmutableMap;
 import lombok.extern.slf4j.Slf4j;
@@ -52,7 +53,6 @@ public final class AgentRemoteConfigurationController {
 
     private static final String EMPTY_TIME = "0";
     private static final String LAST_MODIFY_TIME = "If-Modified-Since";
-    private static final String SHUTDOWN = "SHUTDOWN";
     @Resource
     private ConfigurableHandler<DynamicClassConfiguration> dynamicClassHandler;
     @Resource
@@ -110,22 +110,23 @@ public final class AgentRemoteConfigurationController {
     @ResponseBody
     public ResponseEntity<String> agentStatus(HttpServletRequest httpServletRequest, HttpServletResponse response,
             @RequestBody AgentStatusRequest request) {
-        LogUtils.info(LOGGER, ImmutableMap.of("appId", request.getAppId()), "from appId: {}, load agentStatus",
-                request.getAppId());
+        LogUtils.info(LOGGER, ImmutableMap.of("appId", request.getAppId()), "from appId: {}, load agentStatus:{}",
+                request.getAppId(), request.getAgentStatus());
 
         String modifiedTime = EMPTY_TIME;
 
         // update the instance
         InstancesConfiguration instancesConfiguration = InstancesMapper.INSTANCE.dtoFromContract(request);
-        if (SHUTDOWN.equalsIgnoreCase(instancesConfiguration.getAgentStatus())) {
+        if (AgentStatusType.SHUTDOWN.equalsIgnoreCase(instancesConfiguration.getAgentStatus())) {
             applicationInstancesConfigurableHandler.deleteByAppIdAndHost(instancesConfiguration.getAppId(),
                     instancesConfiguration.getHost());
             // update ModifiedTime in serviceCollectionConfiguration if agentStatus equals SHUTDOWN
             serviceCollectHandler.updateServiceCollectTime(instancesConfiguration.getAppId());
-        }else{
+        } else {
             applicationInstancesConfigurableHandler.createOrUpdate(instancesConfiguration);
             // get the latest time
-            ServiceCollectConfiguration serviceConfig = serviceCollectHandler.useResult(instancesConfiguration.getAppId());
+            ServiceCollectConfiguration serviceConfig =
+                    serviceCollectHandler.useResult(instancesConfiguration.getAppId());
             if (serviceConfig.getModifiedTime() != null) {
                 modifiedTime = DateUtils.formatDate(serviceConfig.getModifiedTime());
             }
