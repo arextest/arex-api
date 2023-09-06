@@ -106,4 +106,10 @@ public class InstancesConfigurationRepositoryImpl implements ConfigRepositoryPro
         return remove.getDeletedCount() > 0;
     }
 
+    public boolean removeByAppIdAndHost(String appId, String host) {
+        Query query = Query.query(Criteria.where(APP_ID).is(appId).and(HOST).is(host));
+        DeleteResult remove = mongoTemplate.remove(query, InstancesCollection.class);
+        return remove.getDeletedCount() > 0;
+    }
+
 }
