@@ -18,11 +18,4 @@ public final class ServiceCollectConfigurableController extends AbstractConfigur
     public ServiceCollectConfigurableController(@Autowired ConfigurableHandler<ServiceCollectConfiguration> configurableHandler) {
         super(configurableHandler);
     }
-
-    @Resource
-    private ConfigurableHandler<ServiceCollectConfiguration> serviceCollectHandler;
-    public void updateServiceCollectTime (String appId){
-        ServiceCollectConfiguration serviceCollectConfiguration = serviceCollectHandler.useResult(appId);
-        serviceCollectHandler.update(serviceCollectConfiguration);
-    }
 }
