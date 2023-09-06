@@ -120,8 +120,6 @@ public final class AgentRemoteConfigurationController {
         if (AgentStatusType.SHUTDOWN.equalsIgnoreCase(instancesConfiguration.getAgentStatus())) {
             applicationInstancesConfigurableHandler.deleteByAppIdAndHost(instancesConfiguration.getAppId(),
                     instancesConfiguration.getHost());
-            // update ModifiedTime in serviceCollectionConfiguration if agentStatus equals SHUTDOWN
-            serviceCollectHandler.updateServiceCollectTime(instancesConfiguration.getAppId());
         } else {
             applicationInstancesConfigurableHandler.createOrUpdate(instancesConfiguration);
             // get the latest time
