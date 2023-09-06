@@ -4,6 +4,7 @@ import com.arextest.common.model.response.Response;
 import com.arextest.web.core.business.config.AbstractConfigurableHandler;
 import com.arextest.web.core.business.config.ConfigurableHandler;
 import com.arextest.web.core.business.config.application.ApplicationInstancesConfigurableHandler;
+import com.arextest.web.core.business.config.record.ServiceCollectConfigurableHandler;
 import com.arextest.web.model.contract.contracts.common.enums.ModifyType;
 import com.arextest.web.model.contract.contracts.config.application.InstancesConfiguration;
 import com.arextest.web.model.contract.contracts.config.record.ServiceCollectConfiguration;
@@ -28,12 +29,12 @@ public class ApplicationInstancesConfigurableController extends AbstractConfigur
     }
 
     @Resource
-    private ServiceCollectConfigurableController serviceCollectConfigurableController;
+    private ServiceCollectConfigurableHandler serviceCollectConfigurableHandler;
 
     @Override
     @ResponseBody
     public Response modify(@PathVariable ModifyType modifyType,@RequestBody InstancesConfiguration configuration) throws Exception {
-        serviceCollectConfigurableController.updateServiceCollectTime(configuration.getAppId());
+        serviceCollectConfigurableHandler.updateServiceCollectTime(configuration.getAppId());
 
         return super.modify(modifyType, configuration);
     }

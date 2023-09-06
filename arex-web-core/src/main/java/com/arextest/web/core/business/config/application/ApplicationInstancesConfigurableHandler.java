@@ -38,4 +38,10 @@ public final class ApplicationInstancesConfigurableHandler extends AbstractConfi
     public List<InstancesConfiguration> useResultAsList(String appId, int top) {
         return instancesConfigurationRepository.listBy(appId, top);
     }
+
+
+
+    public boolean deleteByAppIdAndHost(String appId, String host) {
+        return instancesConfigurationRepository.removeByAppIdAndHost(appId, host);
+    }
 }
