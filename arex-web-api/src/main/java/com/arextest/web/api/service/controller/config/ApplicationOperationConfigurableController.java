@@ -2,8 +2,8 @@ package com.arextest.web.api.service.controller.config;
 
 import com.arextest.common.model.response.Response;
 import com.arextest.common.utils.ResponseUtils;
+import com.arextest.config.model.dto.application.ApplicationOperationConfiguration;
 import com.arextest.web.core.business.config.application.ApplicationOperationConfigurableHandler;
-import com.arextest.web.model.contract.contracts.config.application.ApplicationOperationConfiguration;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;

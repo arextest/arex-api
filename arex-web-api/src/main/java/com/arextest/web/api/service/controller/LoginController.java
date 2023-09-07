@@ -2,10 +2,10 @@ package com.arextest.web.api.service.controller;
 
 import com.arextest.common.model.response.Response;
 import com.arextest.common.utils.ResponseUtils;
+import com.arextest.config.model.dto.ModifyType;
 import com.arextest.web.core.business.LoginService;
 import com.arextest.web.core.business.oauth.OauthHandler;
 import com.arextest.web.model.contract.contracts.SuccessResponseType;
-import com.arextest.web.model.contract.contracts.common.enums.ModifyType;
 import com.arextest.web.model.contract.contracts.login.GetOauthInfoResponseType;
 import com.arextest.web.model.contract.contracts.login.LoginAsGuestRequestType;
 import com.arextest.web.model.contract.contracts.login.LoginAsGuestResponseType;

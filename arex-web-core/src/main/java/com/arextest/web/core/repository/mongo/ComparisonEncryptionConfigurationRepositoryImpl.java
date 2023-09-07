@@ -1,15 +1,12 @@
 package com.arextest.web.core.repository.mongo;
 
+import com.arextest.config.repository.ConfigRepositoryProvider;
 import com.arextest.web.common.LogUtils;
-import com.arextest.web.core.repository.ConfigRepositoryField;
-import com.arextest.web.core.repository.ConfigRepositoryProvider;
 import com.arextest.web.core.repository.mongo.util.MongoHelper;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonEncryptionConfiguration;
 import com.arextest.web.model.dao.mongodb.ConfigComparisonEncryptionCollection;
-import com.arextest.web.model.dao.mongodb.ConfigComparisonExclusionsCollection;
 import com.arextest.web.model.dao.mongodb.entity.AbstractComparisonDetails;
 import com.arextest.web.model.mapper.ConfigComparisonEncryptionMapper;
-import com.arextest.web.model.mapper.ConfigComparisonExclusionsMapper;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
 import lombok.extern.slf4j.Slf4j;
@@ -30,7 +27,7 @@ import java.util.stream.Collectors;
 @Component
 @Slf4j
 public class ComparisonEncryptionConfigurationRepositoryImpl
-    implements ConfigRepositoryProvider<ComparisonEncryptionConfiguration>, ConfigRepositoryField {
+    implements ConfigRepositoryProvider<ComparisonEncryptionConfiguration> {
     @Autowired
     MongoTemplate mongoTemplate;
 
@@ -41,7 +38,7 @@ public class ComparisonEncryptionConfigurationRepositoryImpl
 
     @Override
     public List<ComparisonEncryptionConfiguration> listBy(String appId) {
-        Query query= Query.query(Criteria.where(APP_ID).is(appId));
+        Query query= Query.query(Criteria.where(AbstractComparisonDetails.Fields.appId).is(appId));
         List<ConfigComparisonEncryptionCollection> configComparisonEncryptionCollections =
                 mongoTemplate.find(query, ConfigComparisonEncryptionCollection.class);
         return configComparisonEncryptionCollections.stream().map(ConfigComparisonEncryptionMapper.INSTANCE::dtoFromDao)
@@ -75,7 +72,7 @@ public class ComparisonEncryptionConfigurationRepositoryImpl
         Update update = new Update();
         MongoHelper.appendFullProperties(update, configComparisonEncryptionCollection);
 
-        Query query = Query.query(Criteria.where(APP_ID).is(configComparisonEncryptionCollection.getAppId())
+        Query query = Query.query(Criteria.where(AbstractComparisonDetails.Fields.appId).is(configComparisonEncryptionCollection.getAppId())
                 .and(AbstractComparisonDetails.Fields.operationId).is(configComparisonEncryptionCollection.getOperationId())
                 .and(AbstractComparisonDetails.Fields.compareConfigType)
                 .is(configComparisonEncryptionCollection.getCompareConfigType())
@@ -93,7 +90,7 @@ public class ComparisonEncryptionConfigurationRepositoryImpl
     @Override
     public List<ComparisonEncryptionConfiguration> listBy(String appId, String operationId) {
         Query query = Query
-                .query(Criteria.where(APP_ID).is(appId).and(AbstractComparisonDetails.Fields.operationId).is(operationId));
+                .query(Criteria.where(AbstractComparisonDetails.Fields.appId).is(appId).and(AbstractComparisonDetails.Fields.operationId).is(operationId));
         List<ConfigComparisonEncryptionCollection> configComparisonEncryptionCollections =
                 mongoTemplate.find(query, ConfigComparisonEncryptionCollection.class);
         return configComparisonEncryptionCollections.stream().map(ConfigComparisonEncryptionMapper.INSTANCE::dtoFromDao)
@@ -131,7 +128,7 @@ public class ComparisonEncryptionConfigurationRepositoryImpl
                 Update update = new Update();
                 MongoHelper.appendFullProperties(update, encryptionCollection);
 
-                Query query = Query.query(Criteria.where(APP_ID).is(encryptionCollection.getAppId())
+                Query query = Query.query(Criteria.where(AbstractComparisonDetails.Fields.appId).is(encryptionCollection.getAppId())
                         .and(AbstractComparisonDetails.Fields.operationId).is(encryptionCollection.getOperationId())
                         .and(AbstractComparisonDetails.Fields.compareConfigType)
                         .is(encryptionCollection.getCompareConfigType()).and(AbstractComparisonDetails.Fields.fsInterfaceId)
@@ -151,7 +148,7 @@ public class ComparisonEncryptionConfigurationRepositoryImpl
 
     @Override
     public boolean removeByAppId(String appId) {
-        Query query = Query.query(Criteria.where(APP_ID).is(appId));
+        Query query = Query.query(Criteria.where(AbstractComparisonDetails.Fields.appId).is(appId));
         DeleteResult remove = mongoTemplate.remove(query, ConfigComparisonEncryptionCollection.class);
         return remove.getDeletedCount() > 0;
     }

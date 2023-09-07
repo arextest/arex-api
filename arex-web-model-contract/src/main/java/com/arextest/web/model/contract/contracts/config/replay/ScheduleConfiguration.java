@@ -1,6 +1,6 @@
 package com.arextest.web.model.contract.contracts.config.replay;
 
-import com.arextest.web.model.contract.contracts.config.AbstractConfiguration;
+import com.arextest.config.model.dto.AbstractConfiguration;
 import lombok.Getter;
 import lombok.Setter;
 

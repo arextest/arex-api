@@ -1,8 +1,8 @@
 package com.arextest.web.core.business.config.record;
 
+import com.arextest.config.model.dto.record.DynamicClassConfiguration;
+import com.arextest.config.repository.ConfigRepositoryProvider;
 import com.arextest.web.core.business.config.AbstractConfigurableHandler;
-import com.arextest.web.core.repository.ConfigRepositoryProvider;
-import com.arextest.web.model.contract.contracts.config.record.DynamicClassConfiguration;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
