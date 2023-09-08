@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.arextest</groupId>
         <artifactId>arex-web</artifactId>
-        <version>0.0.0-corydev-SNAPSHOT</version>
+        <version>0.5.0.1</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -30,7 +30,6 @@
         <dependency>
             <groupId>com.arextest</groupId>
             <artifactId>arex-storage-config</artifactId>
-            <version>0.0.0-corydev-SNAPSHOT</version>
         </dependency>
     </dependencies>
 
