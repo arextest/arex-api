@@ -53,11 +53,6 @@ public class MongodbConfiguration {
             if (dbName == null) {
                 dbName = AREX_STORAGE_DB;
             }
-            // CodecRegistry customPojo = CodecRegistries.fromProviders(PojoCodecProvider
-            // .builder().automatic(true).build());
-            // CodecRegistry codecRegistry =
-            // CodecRegistries.fromRegistries(MongoClientSettings.getDefaultCodecRegistry(),
-            // customPojo);
 
             CodecRegistry pojoCodecRegistry =
                 CodecRegistries.fromRegistries(MongoClientSettings.getDefaultCodecRegistry(),
