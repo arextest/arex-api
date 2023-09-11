@@ -1,6 +1,6 @@
 package com.arextest.web.core.business.config;
 
-import com.arextest.web.core.repository.ConfigRepositoryProvider;
+import com.arextest.config.repository.ConfigRepositoryProvider;
 import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.List;

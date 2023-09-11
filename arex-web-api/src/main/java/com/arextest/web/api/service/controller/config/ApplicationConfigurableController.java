@@ -2,9 +2,9 @@ package com.arextest.web.api.service.controller.config;
 
 import com.arextest.common.model.response.Response;
 import com.arextest.common.utils.ResponseUtils;
+import com.arextest.config.model.dto.application.ApplicationConfiguration;
 import com.arextest.web.core.business.config.ConfigurableHandler;
 import com.arextest.web.core.business.config.replay.ScheduleConfigurableHandler;
-import com.arextest.web.model.contract.contracts.config.application.ApplicationConfiguration;
 import com.arextest.web.model.contract.contracts.config.replay.ScheduleConfiguration;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;

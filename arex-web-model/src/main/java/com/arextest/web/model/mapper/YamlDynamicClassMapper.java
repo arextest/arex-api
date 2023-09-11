@@ -1,6 +1,5 @@
 package com.arextest.web.model.mapper;
-
-import com.arextest.web.model.contract.contracts.config.record.DynamicClassConfiguration;
+import com.arextest.config.model.dto.record.DynamicClassConfiguration;
 import com.arextest.web.model.contract.contracts.config.yamlTemplate.entity.DynamicClassTemplateConfig;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;

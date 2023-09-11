@@ -6,6 +6,8 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 
+import com.arextest.config.model.dto.application.ApplicationOperationConfiguration;
+import com.arextest.config.repository.impl.ApplicationOperationConfigurationRepositoryImpl;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -16,10 +18,8 @@ import com.arextest.web.common.LogUtils;
 import com.arextest.web.core.business.util.SchemaUtils;
 import com.arextest.web.core.repository.AppContractRepository;
 import com.arextest.web.core.repository.ReplayCompareResultRepository;
-import com.arextest.web.core.repository.mongo.ApplicationOperationConfigurationRepositoryImpl;
 import com.arextest.web.model.contract.contracts.*;
 import com.arextest.web.model.contract.contracts.common.DependencyWithContract;
-import com.arextest.web.model.contract.contracts.config.application.ApplicationOperationConfiguration;
 import com.arextest.web.model.dto.AppContractDto;
 import com.arextest.web.model.dto.CompareResultDto;
 import com.arextest.web.model.enums.ContractTypeEnum;
