@@ -2,12 +2,17 @@ package com.arextest.web.core.business.iosummary;
 
 import com.arextest.web.core.repository.CaseSummaryRepository;
 import com.arextest.web.core.repository.ReplayCompareResultRepository;
+import com.arextest.web.core.repository.ReportPlanItemStatisticRepository;
 import com.arextest.web.core.repository.SceneInfoRepository;
+import com.arextest.web.model.contract.contracts.FeedbackSceneRequest;
 import com.arextest.web.model.contract.contracts.QuerySceneInfoResponseType;
 import com.arextest.web.model.contract.contracts.RemoveRecordsAndScenesRequest;
 import com.arextest.web.model.dto.CompareResultDto;
+import com.arextest.web.model.dto.PlanItemDto;
 import com.arextest.web.model.dto.iosummary.CaseSummary;
 import com.arextest.web.model.dto.iosummary.SceneInfo;
+import com.arextest.web.model.enums.DiffResultCode;
+import com.arextest.web.model.enums.FeedbackTypeEnum;
 import com.arextest.web.model.mapper.SceneInfoMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.MapUtils;
@@ -20,6 +25,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -38,6 +44,9 @@ public class SceneReportService {
 
     @Autowired
     ReplayCompareResultRepository replayCompareResultRepository;
+
+    @Autowired
+    ReportPlanItemStatisticRepository reportPlanItemStatisticRepository;
 
     /**
      * from CaseSummary to ScnenInfo
@@ -94,4 +103,51 @@ public class SceneReportService {
     public boolean removeScene(RemoveRecordsAndScenesRequest request) {
         return sceneInfoRepository.removeByPlanItemId(request.getActionIdAndRecordIdsMap().keySet());
     }
+
+    public boolean feedbackScene(FeedbackSceneRequest request) {
+        FeedbackTypeEnum feedbackTypeEnum = FeedbackTypeEnum.from(request.getFeedbackType());
+        switch (feedbackTypeEnum) {
+            case BY_DESIGN:
+            case AREX_PROBLEM:
+                return passCases(request.getPlanId(), request.getPlanItemId(), request.getRecordId());
+            case UNKNOWN:
+            case BUG:
+            default:
+                return true;
+        }
+    }
+
+    private boolean passCases(String planId, String planItemId, String recordId) {
+        // update compareResult
+        List<CompareResultDto> compareResultList =
+            replayCompareResultRepository.queryCompareResultsByRecordId(planItemId, recordId);
+        for (CompareResultDto compareResult : compareResultList) {
+            compareResult.setDiffResultCode(DiffResultCode.COMPARED_WITHOUT_DIFFERENCE);
+        }
+        replayCompareResultRepository.updateResults(compareResultList);
+
+        // update planItemStatistic
+        PlanItemDto planItemDto = reportPlanItemStatisticRepository.findByPlanItemId(planItemId);
+        if (planItemDto.getErrorCases() != null) {
+            planItemDto.getErrorCases().remove(recordId);
+        }
+        if (planItemDto.getFailCases() != null) {
+            planItemDto.getFailCases().remove(recordId);
+        }
+
+        reportPlanItemStatisticRepository.findAndModifyCaseMap(planItemDto);
+
+        //update scene
+        List<SceneInfo> sceneInfos = sceneInfoRepository.querySceneInfo(planId, planItemId);
+        sceneInfos.forEach(sceneInfo -> {
+            sceneInfo.getSubSceneInfoMap().forEach((groupKey, subSceneInfo) -> {
+                if (Objects.equals(subSceneInfo.getRecordId(), recordId)) {
+                    subSceneInfo.setCode(DiffResultCode.COMPARED_WITHOUT_DIFFERENCE);
+                }
+            });
+            sceneInfoRepository.save(sceneInfo);
+        });
+        return true;
+    }
+
 }

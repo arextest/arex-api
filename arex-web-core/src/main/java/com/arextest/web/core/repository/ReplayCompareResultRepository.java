@@ -10,6 +10,8 @@ import java.util.Set;
 public interface ReplayCompareResultRepository extends RepositoryProvider {
     boolean saveResults(List<CompareResultDto> results);
 
+    boolean updateResults(List<CompareResultDto> results);
+
     List<CompareResultDto> findResultWithoutMsg(String planItemId);
 
     List<CompareResultDto> findResultWithoutMsg(String planItemId, String keyWord);

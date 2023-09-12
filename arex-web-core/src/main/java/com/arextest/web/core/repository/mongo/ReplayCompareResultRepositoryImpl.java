@@ -2,6 +2,7 @@ package com.arextest.web.core.repository.mongo;
 
 import com.arextest.web.common.LogUtils;
 import com.arextest.web.core.repository.ReplayCompareResultRepository;
+import com.arextest.web.core.repository.mongo.util.MongoHelper;
 import com.arextest.web.model.dao.mongodb.ReplayCompareResultCollection;
 import com.arextest.web.model.dto.CompareResultDto;
 import com.arextest.web.model.mapper.CompareResultMapper;
@@ -14,9 +15,11 @@ import org.apache.logging.log4j.util.Strings;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.BulkOperations;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -65,6 +68,28 @@ public class ReplayCompareResultRepositoryImpl implements ReplayCompareResultRep
             LogUtils.error(LOGGER, "failed to insert compare results", e);
         }
         return false;
+    }
+
+    @Override
+    public boolean updateResults(List<CompareResultDto> results) {
+        try {
+            BulkOperations bulkOperations =
+                mongoTemplate.bulkOps(BulkOperations.BulkMode.UNORDERED, ReplayCompareResultCollection.class);
+            List<org.springframework.data.util.Pair<Query, Update>> updates = new ArrayList<>();
+            for (CompareResultDto compareResultDto : results) {
+                Query query = new Query();
+                query.addCriteria(Criteria.where(DASH_ID).is(compareResultDto.getId()));
+                Update update = new Update();
+                update.set(DIFF_RESULT_CODE, compareResultDto.getDiffResultCode());
+                updates.add(org.springframework.data.util.Pair.of(query, update));
+            }
+            bulkOperations.updateMulti(updates);
+            bulkOperations.execute();
+        } catch (Exception e) {
+            LogUtils.error(LOGGER, "updateResults failed! list:{}", results, e);
+            return false;
+        }
+        return true;
     }
 
     @Override
