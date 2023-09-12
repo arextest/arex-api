@@ -38,6 +38,7 @@ public class QueryPlanItemStatisticService {
         if (CollectionUtils.isEmpty(planItemDtoList)) {
             return response;
         }
+        // TODO: performance issue
         List<PlanItemStatistic> result = planItemDtoList.stream().map(this::covert)
                 .sorted(Comparator.comparing(PlanItemStatistic::getFailCaseCount, Comparator.reverseOrder())
                         .thenComparing(PlanItemStatistic::getErrorCaseCount, Comparator.reverseOrder())

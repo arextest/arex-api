@@ -1,8 +1,10 @@
 package com.arextest.web.api.service.beans;
 
-import com.arextest.web.common.LogUtils;
-import com.arextest.web.model.dao.mongodb.*;
-import lombok.extern.slf4j.Slf4j;
+import java.util.concurrent.TimeUnit;
+
+import org.bson.codecs.configuration.CodecRegistries;
+import org.bson.codecs.configuration.CodecRegistry;
+import org.bson.codecs.pojo.PojoCodecProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
@@ -18,7 +20,16 @@ import org.springframework.data.mongodb.core.convert.MappingMongoConverter;
 import org.springframework.data.mongodb.core.index.Index;
 import org.springframework.data.mongodb.core.mapping.MongoMappingContext;
 
-import java.util.concurrent.TimeUnit;
+import com.arextest.web.common.LogUtils;
+import com.arextest.web.model.dao.mongodb.AppContractCollection;
+import com.arextest.web.model.dao.mongodb.LogsCollection;
+import com.arextest.web.model.dao.mongodb.ReplayScheduleConfigCollection;
+import com.mongodb.ConnectionString;
+import com.mongodb.MongoClientSettings;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Configuration
@@ -33,9 +44,24 @@ public class MongodbConfiguration {
     private static final String DATE = "date";
     private static final String DATE_UPDATE_TIME = "dataUpdateTime";
 
+    private static final String AREX_STORAGE_DB = "arex_storage_db";
+
     public MongoDatabaseFactory mongoDbFactory() {
         try {
-            return new SimpleMongoClientDatabaseFactory(mongoUrl);
+            ConnectionString connectionString = new ConnectionString(mongoUrl);
+            String dbName = connectionString.getDatabase();
+            if (dbName == null) {
+                dbName = AREX_STORAGE_DB;
+            }
+
+            CodecRegistry pojoCodecRegistry =
+                CodecRegistries.fromRegistries(MongoClientSettings.getDefaultCodecRegistry(),
+                    CodecRegistries.fromProviders(PojoCodecProvider.builder().automatic(true).build()));
+
+            MongoClientSettings settings = MongoClientSettings.builder().applyConnectionString(connectionString)
+                .codecRegistry(pojoCodecRegistry).build();
+            MongoClient mongoClient = MongoClients.create(settings);
+            return new SimpleMongoClientDatabaseFactory(mongoClient, dbName);
         } catch (Exception e) {
             LogUtils.error(LOGGER, "cannot connect mongodb", e);
         }
@@ -55,25 +81,18 @@ public class MongodbConfiguration {
 
     public void initIndicesAfterStartup(MongoTemplate mongoTemplate) {
 
+        /*
         // indexs for AppCollection
         mongoTemplate.indexOps(AppCollection.class).ensureIndex(new Index().on(APP_ID, Sort.Direction.ASC).unique());
-
+        
         // indexs for RecordServiceConfigCollection
         mongoTemplate.indexOps(RecordServiceConfigCollection.class)
             .ensureIndex(new Index().on(APP_ID, Sort.Direction.ASC).unique());
-
-        // indexs for ReplayScheduleConfigCollection
-        mongoTemplate.indexOps(ReplayScheduleConfigCollection.class)
-            .ensureIndex(new Index().on(APP_ID, Sort.Direction.ASC).unique());
-
+        
         // indexs for ServiceOperationCollection
         mongoTemplate.indexOps(ServiceOperationCollection.class).ensureIndex(new Index().on(APP_ID, Sort.Direction.ASC)
-            .on(SERVICE_ID, Sort.Direction.ASC).on(OPERATION_NAME, Sort.Direction.ASC).unique());
-
-        // indexs for LogsCollection
-        mongoTemplate.indexOps(LogsCollection.class)
-            .ensureIndex(new Index(DATE, Sort.Direction.DESC).expire(10, TimeUnit.DAYS));
-
+                .on(SERVICE_ID, Sort.Direction.ASC).on(OPERATION_NAME, Sort.Direction.ASC).unique());
+        
         // indexs for InstancesCollection
         try {
             mongoTemplate.indexOps(InstancesCollection.class)
@@ -81,7 +100,15 @@ public class MongodbConfiguration {
         } catch (Throwable throwable) {
             mongoTemplate.indexOps(InstancesCollection.class).dropIndex("dataUpdateTime_-1");
             mongoTemplate.indexOps(InstancesCollection.class).ensureIndex(new Index(DATE_UPDATE_TIME, Sort.Direction.DESC).expire(65, TimeUnit.SECONDS));
-        }
+        }*/
+
+        // indexs for ReplayScheduleConfigCollection
+        mongoTemplate.indexOps(ReplayScheduleConfigCollection.class)
+            .ensureIndex(new Index().on(APP_ID, Sort.Direction.ASC).unique());
+
+        // indexs for LogsCollection
+        mongoTemplate.indexOps(LogsCollection.class)
+            .ensureIndex(new Index(DATE, Sort.Direction.DESC).expire(10, TimeUnit.DAYS));
 
         // indexs for AppContractCollection
         mongoTemplate.indexOps(AppContractCollection.class)

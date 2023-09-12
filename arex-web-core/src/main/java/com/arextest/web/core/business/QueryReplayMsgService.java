@@ -18,16 +18,16 @@ import java.util.stream.Collectors;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 
+import com.arextest.config.model.dto.application.ApplicationOperationConfiguration;
+import com.arextest.config.repository.impl.ApplicationOperationConfigurationRepositoryImpl;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.tuple.MutablePair;
-import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.stereotype.Component;
 
 import com.arextest.web.common.LogUtils;
 import com.arextest.web.core.business.util.ListUtils;
 import com.arextest.web.core.repository.AppContractRepository;
 import com.arextest.web.core.repository.ReplayCompareResultRepository;
-import com.arextest.web.core.repository.mongo.ApplicationOperationConfigurationRepositoryImpl;
 import com.arextest.web.model.contract.contracts.CompareResultDetail;
 import com.arextest.web.model.contract.contracts.DownloadReplayMsgRequestType;
 import com.arextest.web.model.contract.contracts.FullLinkInfoItem;
@@ -43,8 +43,6 @@ import com.arextest.web.model.contract.contracts.common.CompareResult;
 import com.arextest.web.model.contract.contracts.common.LogEntity;
 import com.arextest.web.model.contract.contracts.common.NodeEntity;
 import com.arextest.web.model.contract.contracts.common.UnmatchedPairEntity;
-import com.arextest.web.model.contract.contracts.config.application.ApplicationOperationConfiguration;
-import com.arextest.web.model.dto.AppContractDto;
 import com.arextest.web.model.dto.CompareResultDto;
 import com.arextest.web.model.dto.iosummary.UnmatchedCategory;
 import com.arextest.web.model.enums.DiffResultCode;

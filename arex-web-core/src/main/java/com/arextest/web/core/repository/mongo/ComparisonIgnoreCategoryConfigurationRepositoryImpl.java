@@ -1,8 +1,8 @@
 package com.arextest.web.core.repository.mongo;
 
-import com.arextest.web.core.repository.ConfigRepositoryField;
-import com.arextest.web.core.repository.ConfigRepositoryProvider;
+import com.arextest.config.repository.ConfigRepositoryProvider;
 import com.arextest.web.core.repository.mongo.util.MongoHelper;
+import com.arextest.web.model.contract.contracts.config.replay.AbstractComparisonDetailsConfiguration;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonIgnoreCategoryConfiguration;
 import com.arextest.web.model.dao.mongodb.ConfigComparisonIgnoreCategoryCollection;
 import com.arextest.web.model.dao.mongodb.entity.AbstractComparisonDetails;
@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Repository
 public class ComparisonIgnoreCategoryConfigurationRepositoryImpl
-    implements ConfigRepositoryProvider<ComparisonIgnoreCategoryConfiguration>, ConfigRepositoryField {
+    implements ConfigRepositoryProvider<ComparisonIgnoreCategoryConfiguration> {
 
     @Autowired
     MongoTemplate mongoTemplate;
@@ -39,7 +39,7 @@ public class ComparisonIgnoreCategoryConfigurationRepositoryImpl
 
     @Override
     public List<ComparisonIgnoreCategoryConfiguration> listBy(String appId) {
-        Query query = Query.query(Criteria.where(APP_ID).is(appId));
+        Query query = Query.query(Criteria.where(AbstractComparisonDetails.Fields.appId).is(appId));
         List<ConfigComparisonIgnoreCategoryCollection> collections =
             mongoTemplate.find(query, ConfigComparisonIgnoreCategoryCollection.class);
         return collections.stream().map(ConfigComparisonIgnoreCategoryMapper.INSTANCE::dtoFromDao)
@@ -49,7 +49,7 @@ public class ComparisonIgnoreCategoryConfigurationRepositoryImpl
     @Override
     public List<ComparisonIgnoreCategoryConfiguration> listBy(String appId, String operationId) {
         Query query = Query
-            .query(Criteria.where(APP_ID).is(appId).and(AbstractComparisonDetails.Fields.operationId).is(operationId));
+            .query(Criteria.where(AbstractComparisonDetails.Fields.appId).is(appId).and(AbstractComparisonDetails.Fields.operationId).is(operationId));
         List<ConfigComparisonIgnoreCategoryCollection> configComparisonExclusionsCollections =
             mongoTemplate.find(query, ConfigComparisonIgnoreCategoryCollection.class);
         return configComparisonExclusionsCollections.stream().map(ConfigComparisonIgnoreCategoryMapper.INSTANCE::dtoFromDao)

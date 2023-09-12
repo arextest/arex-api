@@ -2,14 +2,14 @@ package com.arextest.web.api.service.controller.config;
 
 import java.util.List;
 
+import com.arextest.config.model.dto.AbstractConfiguration;
+import com.arextest.config.model.dto.ModifyType;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import com.arextest.common.model.response.Response;
 import com.arextest.common.utils.ResponseUtils;
 import com.arextest.web.core.business.config.ConfigurableHandler;
-import com.arextest.web.model.contract.contracts.common.enums.ModifyType;
-import com.arextest.web.model.contract.contracts.config.AbstractConfiguration;
 
 /**
  * @author jmo

@@ -1,10 +1,10 @@
 package com.arextest.web.core.business.config.replay;
 
+import com.arextest.config.model.dto.application.ApplicationOperationConfiguration;
+import com.arextest.config.model.dto.application.ApplicationServiceConfiguration;
 import com.arextest.web.common.LogUtils;
 import com.arextest.web.core.business.config.ConfigurableHandler;
 import com.arextest.web.core.repository.AppContractRepository;
-import com.arextest.web.model.contract.contracts.config.application.ApplicationOperationConfiguration;
-import com.arextest.web.model.contract.contracts.config.application.ApplicationServiceConfiguration;
 import com.arextest.web.model.contract.contracts.config.replay.AbstractComparisonDetailsConfiguration;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonEncryptionConfiguration;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonIgnoreCategoryConfiguration;
@@ -23,9 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -61,7 +59,7 @@ public class ComparisonSummaryService {
         @Autowired ComparisonReferenceConfigurableHandler referenceConfigurableHandler,
         @Autowired ComparisonListSortConfigurableHandler listSortConfigurableHandler,
         @Autowired ConfigurableHandler<
-            ApplicationServiceConfiguration> applicationServiceConfigurationConfigurableHandler,
+                    ApplicationServiceConfiguration> applicationServiceConfigurationConfigurableHandler,
         @Autowired AppContractRepository appContractRepository,
         @Autowired ComparisonIgnoreCategoryConfigurableHandler ignoreCategoryConfigurableHandler) {
         this.exclusionsConfigurableHandler = exclusionsConfigurableHandler;
