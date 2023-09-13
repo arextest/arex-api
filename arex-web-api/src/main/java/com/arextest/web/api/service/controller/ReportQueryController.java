@@ -5,6 +5,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import com.arextest.web.common.HttpUtils;
+import com.arextest.web.model.contract.contracts.FeedbackSceneRequest;
 import com.arextest.web.model.contract.contracts.RemoveRecordsAndScenesRequest;
 import com.arextest.web.model.contract.contracts.SuccessResponse;
 import org.apache.commons.lang3.StringUtils;
@@ -165,6 +166,14 @@ public class ReportQueryController {
     public Response removeFailedCases(@Valid @RequestBody RemoveRecordsAndScenesRequest request) {
         SuccessResponse response = new SuccessResponse();
         response.setSuccess(reportService.removeRecords(request) && sceneReportService.removeScene(request));
+        return ResponseUtils.successResponse(response);
+    }
+
+    @PostMapping("/feedbackScene")
+    @ResponseBody
+    public Response feedbackScene(@Valid @RequestBody FeedbackSceneRequest request) {
+        SuccessResponse response = new SuccessResponse();
+        response.setSuccess(sceneReportService.feedbackScene(request));
         return ResponseUtils.successResponse(response);
     }
 
