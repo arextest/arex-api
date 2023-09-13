@@ -2,13 +2,13 @@ package com.arextest.web.core.business.config.yamltemplate;
 
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
+import com.arextest.config.model.dto.record.DynamicClassConfiguration;
+import com.arextest.config.model.dto.record.ServiceCollectConfiguration;
 import com.arextest.web.common.LogUtils;
 import com.arextest.web.core.business.config.record.DynamicClassConfigurableHandler;
 import com.arextest.web.core.business.config.ConfigurableHandler;
 import com.arextest.web.model.contract.contracts.config.yamlTemplate.PushYamlTemplateRequestType;
 import com.arextest.web.model.contract.contracts.config.yamlTemplate.PushYamlTemplateResponseType;
-import com.arextest.web.model.contract.contracts.config.record.DynamicClassConfiguration;
-import com.arextest.web.model.contract.contracts.config.record.ServiceCollectConfiguration;
 import com.arextest.web.model.contract.contracts.config.replay.ScheduleConfiguration;
 import com.arextest.web.model.contract.contracts.config.yamlTemplate.entity.ReplayTemplateConfig;
 import com.arextest.web.model.contract.contracts.config.yamlTemplate.entity.ServiceTemplateConfig;

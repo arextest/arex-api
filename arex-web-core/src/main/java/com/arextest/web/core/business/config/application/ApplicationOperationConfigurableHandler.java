@@ -5,16 +5,18 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+import com.arextest.config.model.dto.application.ApplicationOperationConfiguration;
+import com.arextest.config.model.dto.application.Dependency;
+import com.arextest.config.repository.ConfigRepositoryProvider;
+import com.arextest.config.repository.impl.ApplicationOperationConfigurationRepositoryImpl;
+import com.arextest.web.core.business.config.AbstractConfigurableHandler;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.arextest.web.core.business.config.AbstractConfigurableHandler;
+
 import com.arextest.web.core.repository.AppContractRepository;
-import com.arextest.web.core.repository.ConfigRepositoryProvider;
-import com.arextest.web.core.repository.mongo.ApplicationOperationConfigurationRepositoryImpl;
-import com.arextest.web.model.contract.contracts.common.Dependency;
-import com.arextest.web.model.contract.contracts.config.application.ApplicationOperationConfiguration;
+
 import com.arextest.web.model.dto.AppContractDto;
 import com.arextest.web.model.enums.ContractTypeEnum;
 

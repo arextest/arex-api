@@ -4,12 +4,12 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.arextest.config.repository.ConfigRepositoryProvider;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import com.arextest.web.core.business.config.AbstractConfigurableHandler;
 import com.arextest.web.core.repository.AppContractRepository;
-import com.arextest.web.core.repository.ConfigRepositoryProvider;
 import com.arextest.web.model.contract.contracts.common.enums.ExpirationType;
 import com.arextest.web.model.contract.contracts.config.replay.AbstractComparisonDetailsConfiguration;
 import com.arextest.web.model.dto.AppContractDto;
@@ -25,7 +25,7 @@ public abstract class AbstractComparisonConfigurableHandler<T extends AbstractCo
     private AppContractRepository appContractRepository;
 
     protected AbstractComparisonConfigurableHandler(ConfigRepositoryProvider<T> repositoryProvider,
-        AppContractRepository appContractRepository) {
+                                                    AppContractRepository appContractRepository) {
         super(repositoryProvider);
         this.appContractRepository = appContractRepository;
     }

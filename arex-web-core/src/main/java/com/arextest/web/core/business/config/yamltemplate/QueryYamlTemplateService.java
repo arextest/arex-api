@@ -1,10 +1,10 @@
 package com.arextest.web.core.business.config.yamltemplate;
 
+import com.arextest.config.model.dto.record.DynamicClassConfiguration;
+import com.arextest.config.model.dto.record.ServiceCollectConfiguration;
 import com.arextest.web.core.business.config.ConfigurableHandler;
-import com.arextest.web.model.contract.contracts.config.record.DynamicClassConfiguration;
 import com.arextest.web.model.contract.contracts.config.yamlTemplate.QueryYamlTemplateRequestType;
 import com.arextest.web.model.contract.contracts.config.yamlTemplate.QueryYamlTemplateResponseType;
-import com.arextest.web.model.contract.contracts.config.record.ServiceCollectConfiguration;
 import com.arextest.web.model.contract.contracts.config.replay.ScheduleConfiguration;
 import com.arextest.web.model.contract.contracts.config.yamlTemplate.entity.DynamicClassTemplateConfig;
 import com.arextest.web.model.contract.contracts.config.yamlTemplate.entity.OperationCompareTemplateConfig;

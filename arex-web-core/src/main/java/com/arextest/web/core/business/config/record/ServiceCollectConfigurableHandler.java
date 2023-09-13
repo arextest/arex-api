@@ -1,9 +1,8 @@
 package com.arextest.web.core.business.config.record;
 
+import com.arextest.config.model.dto.record.ServiceCollectConfiguration;
+import com.arextest.config.repository.ConfigRepositoryProvider;
 import com.arextest.web.core.business.config.AbstractConfigurableHandler;
-import com.arextest.web.core.business.config.ConfigurableHandler;
-import com.arextest.web.core.repository.ConfigRepositoryProvider;
-import com.arextest.web.model.contract.contracts.config.record.ServiceCollectConfiguration;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;

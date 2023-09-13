@@ -1,8 +1,7 @@
 package com.arextest.web.core.repository.mongo;
 
+import com.arextest.config.repository.ConfigRepositoryProvider;
 import com.arextest.web.common.LogUtils;
-import com.arextest.web.core.repository.ConfigRepositoryField;
-import com.arextest.web.core.repository.ConfigRepositoryProvider;
 import com.arextest.web.core.repository.mongo.util.MongoHelper;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonReferenceConfiguration;
 import com.arextest.web.model.dao.mongodb.ConfigComparisonReferenceCollection;
@@ -31,7 +30,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Repository
 public class ComparisonReferenceConfigurationRepositoryImpl
-        implements ConfigRepositoryProvider<ComparisonReferenceConfiguration>, ConfigRepositoryField {
+        implements ConfigRepositoryProvider<ComparisonReferenceConfiguration> {
 
     @Autowired
     MongoTemplate mongoTemplate;
@@ -43,7 +42,7 @@ public class ComparisonReferenceConfigurationRepositoryImpl
 
     @Override
     public List<ComparisonReferenceConfiguration> listBy(String appId) {
-        Query query = Query.query(Criteria.where(APP_ID).is(appId));
+        Query query = Query.query(Criteria.where(AbstractComparisonDetails.Fields.appId).is(appId));
         List<ConfigComparisonReferenceCollection> configComparisonReferenceCollections =
                 mongoTemplate.find(query, ConfigComparisonReferenceCollection.class);
         return configComparisonReferenceCollections.stream().map(ConfigComparisonReferenceMapper.INSTANCE::dtoFromDao)
@@ -52,7 +51,7 @@ public class ComparisonReferenceConfigurationRepositoryImpl
 
     public List<ComparisonReferenceConfiguration> listBy(String appId, String operationId) {
         Query query = Query
-                .query(Criteria.where(APP_ID).is(appId).and(AbstractComparisonDetails.Fields.operationId).is(operationId));
+                .query(Criteria.where(AbstractComparisonDetails.Fields.appId).is(appId).and(AbstractComparisonDetails.Fields.operationId).is(operationId));
         List<ConfigComparisonReferenceCollection> configComparisonReferenceCollections =
                 mongoTemplate.find(query, ConfigComparisonReferenceCollection.class);
         return configComparisonReferenceCollections.stream().map(ConfigComparisonReferenceMapper.INSTANCE::dtoFromDao)
@@ -103,7 +102,7 @@ public class ComparisonReferenceConfigurationRepositoryImpl
         Update update = new Update();
         MongoHelper.appendFullProperties(update, configComparisonReferenceCollection);
 
-        Query query = Query.query(Criteria.where(APP_ID).is(configComparisonReferenceCollection.getAppId())
+        Query query = Query.query(Criteria.where(AbstractComparisonDetails.Fields.appId).is(configComparisonReferenceCollection.getAppId())
                 .and(AbstractComparisonDetails.Fields.operationId).is(configComparisonReferenceCollection.getOperationId())
                 .and(AbstractComparisonDetails.Fields.compareConfigType)
                 .is(configComparisonReferenceCollection.getCompareConfigType())
@@ -135,7 +134,7 @@ public class ComparisonReferenceConfigurationRepositoryImpl
                 Update update = new Update();
                 MongoHelper.appendFullProperties(update, referenceCollection);
 
-                Query query = Query.query(Criteria.where(APP_ID).is(referenceCollection.getAppId())
+                Query query = Query.query(Criteria.where(AbstractComparisonDetails.Fields.appId).is(referenceCollection.getAppId())
                         .and(AbstractComparisonDetails.Fields.operationId).is(referenceCollection.getOperationId())
                         .and(AbstractComparisonDetails.Fields.compareConfigType)
                         .is(referenceCollection.getCompareConfigType()).and(AbstractComparisonDetails.Fields.fsInterfaceId)
@@ -155,7 +154,7 @@ public class ComparisonReferenceConfigurationRepositoryImpl
 
     @Override
     public boolean removeByAppId(String appId) {
-        Query query = Query.query(Criteria.where(APP_ID).is(appId));
+        Query query = Query.query(Criteria.where(AbstractComparisonDetails.Fields.appId).is(appId));
         DeleteResult remove = mongoTemplate.remove(query, ConfigComparisonReferenceCollection.class);
         return remove.getDeletedCount() > 0;
     }

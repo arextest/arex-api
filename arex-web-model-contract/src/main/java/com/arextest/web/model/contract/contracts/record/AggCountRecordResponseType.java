@@ -1,6 +1,6 @@
 package com.arextest.web.model.contract.contracts.record;
 
-import com.arextest.web.model.contract.contracts.config.application.ApplicationOperationConfiguration;
+import com.arextest.config.model.dto.application.ApplicationOperationConfiguration;
 import lombok.Data;
 
 import java.util.List;

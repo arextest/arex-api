@@ -1,13 +1,13 @@
 package com.arextest.web.core.business.beans;
 
+import com.arextest.config.model.dto.application.ApplicationServiceConfiguration;
+import com.arextest.web.core.business.config.ConfigurableHandler;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import com.arextest.web.core.business.config.ConfigurableHandler;
 import com.arextest.web.core.business.config.replay.*;
 import com.arextest.web.core.repository.AppContractRepository;
-import com.arextest.web.model.contract.contracts.config.application.ApplicationServiceConfiguration;
 
 @Configuration
 public class CustomServiceConfiguration {

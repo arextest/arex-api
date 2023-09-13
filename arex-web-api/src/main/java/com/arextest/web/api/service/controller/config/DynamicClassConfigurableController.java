@@ -1,11 +1,10 @@
 package com.arextest.web.api.service.controller.config;
 
 import com.arextest.common.model.response.Response;
+import com.arextest.config.model.dto.ModifyType;
+import com.arextest.config.model.dto.record.DynamicClassConfiguration;
 import com.arextest.web.core.business.config.ConfigurableHandler;
 import com.arextest.web.core.business.config.record.ServiceCollectConfigurableHandler;
-import com.arextest.web.model.contract.contracts.common.enums.ModifyType;
-import com.arextest.web.model.contract.contracts.config.record.DynamicClassConfiguration;
-import com.arextest.web.model.contract.contracts.config.record.ServiceCollectConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
