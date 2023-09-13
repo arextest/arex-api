@@ -1,5 +1,6 @@
 package com.arextest.web.common;
 
+import com.arextest.common.metrics.CommonMetrics;
 import com.arextest.common.utils.NetworkInterfaceManager;
 import lombok.SneakyThrows;
 import org.apache.commons.collections4.MapUtils;
@@ -7,7 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.MDC;
 import org.springframework.stereotype.Component;
 
-import java.net.InetAddress;
 import java.util.Map;
 
 /**
@@ -17,7 +17,7 @@ import java.util.Map;
 @Component
 public class LogUtils {
     private static final String APP_TYPE = "app-type";
-    private static final String AREX_WEB_API = "arex-web-api";
+    private static final String AREX_API = "arex-api";
     private static final String IP = "ip";
     private LogUtils() {
 
@@ -25,7 +25,7 @@ public class LogUtils {
 
     @SneakyThrows
     public static void init() {
-        MDC.put(APP_TYPE, AREX_WEB_API);
+        MDC.put(APP_TYPE, AREX_API);
         MDC.put(IP, NetworkInterfaceManager.INSTANCE.getLocalHostAddress());
     }
 
@@ -138,6 +138,7 @@ public class LogUtils {
             tags.forEach((k, v) -> MDC.put(k, v));
         }
         logger.error(s);
+        CommonMetrics.incErrorCount(AREX_API, NetworkInterfaceManager.INSTANCE.getLocalHostAddress());
         clear();
     }
 
@@ -151,6 +152,7 @@ public class LogUtils {
             tags.forEach((k, v) -> MDC.put(k, v));
         }
         logger.error(s, objects);
+        CommonMetrics.incErrorCount(AREX_API, NetworkInterfaceManager.INSTANCE.getLocalHostAddress());
         clear();
     }
 
@@ -164,6 +166,7 @@ public class LogUtils {
             tags.forEach((k, v) -> MDC.put(k, v));
         }
         logger.error(s, throwable);
+        CommonMetrics.incErrorCount(AREX_API, NetworkInterfaceManager.INSTANCE.getLocalHostAddress());
         clear();
     }
 }

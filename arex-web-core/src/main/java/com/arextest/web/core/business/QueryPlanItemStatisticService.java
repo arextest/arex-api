@@ -1,5 +1,16 @@
 package com.arextest.web.core.business;
 
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.stereotype.Component;
+
 import com.arextest.web.core.repository.mongo.ReportPlanItemStatisticRepositoryImpl;
 import com.arextest.web.core.repository.mongo.ReportPlanStatisticRepositoryImpl;
 import com.arextest.web.model.contract.contracts.QueryPlanItemStatisticsRequestType;
@@ -9,16 +20,6 @@ import com.arextest.web.model.dto.PlanItemDto;
 import com.arextest.web.model.dto.ReportPlanStatisticDto;
 import com.google.common.collect.MapDifference;
 import com.google.common.collect.Maps;
-import org.apache.commons.collections4.CollectionUtils;
-import org.springframework.stereotype.Component;
-
-import javax.annotation.Resource;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 
 @Component
 public class QueryPlanItemStatisticService {
@@ -29,26 +30,27 @@ public class QueryPlanItemStatisticService {
 
     public QueryPlanItemStatisticsResponseType planItemStatistic(QueryPlanItemStatisticsRequestType request) {
         QueryPlanItemStatisticsResponseType response = new QueryPlanItemStatisticsResponseType();
-        if (request == null || (request.getPlanId() == null && request.getPlanItemId() == null)) {
+        if (request == null) {
             return response;
         }
+
         List<PlanItemDto> planItemDtoList =
-                reportPlanItemStatisticRepository.findByPlanIdAndPlanItemId(request.getPlanId(),
-                        request.getPlanItemId());
+            reportPlanItemStatisticRepository.findByPlanIdAndPlanItemId(request.getPlanId(), request.getPlanItemId());
         if (CollectionUtils.isEmpty(planItemDtoList)) {
             return response;
         }
-        // TODO: performance issue
-        List<PlanItemStatistic> result = planItemDtoList.stream().map(this::covert)
-                .sorted(Comparator.comparing(PlanItemStatistic::getFailCaseCount, Comparator.reverseOrder())
-                        .thenComparing(PlanItemStatistic::getErrorCaseCount, Comparator.reverseOrder())
-                        .thenComparing(PlanItemStatistic::getSuccessCaseCount, Comparator.reverseOrder()))
-                .collect(Collectors.toList());
+
+        ReportPlanStatisticDto planStatisticDto = reportPlanStatisticRepository.findByPlanId(request.getPlanId());
+        List<PlanItemStatistic> result = planItemDtoList.stream().map(item -> this.covert(item, planStatisticDto))
+            .sorted(Comparator.comparing(PlanItemStatistic::getFailCaseCount, Comparator.reverseOrder())
+                .thenComparing(PlanItemStatistic::getErrorCaseCount, Comparator.reverseOrder())
+                .thenComparing(PlanItemStatistic::getSuccessCaseCount, Comparator.reverseOrder()))
+            .collect(Collectors.toList());
         response.setPlanItemStatisticList(result);
         return response;
     }
 
-    private PlanItemStatistic covert(PlanItemDto dto) {
+    private PlanItemStatistic covert(PlanItemDto dto, ReportPlanStatisticDto planStatisticDto) {
         PlanItemStatistic planItemStatistic = new PlanItemStatistic();
         if (dto == null) {
             return planItemStatistic;
@@ -77,9 +79,7 @@ public class QueryPlanItemStatisticService {
         planItemStatistic.setWaitCaseCount(totalCaseCount - receivedCaseCount);
         planItemStatistic.setStatus(dto.getStatus());
 
-        
-        if (dto.getPlanId() != null) {
-            ReportPlanStatisticDto planStatisticDto = reportPlanStatisticRepository.findByPlanId(dto.getPlanId());
+        if (planStatisticDto != null) {
             planItemStatistic.setAppId(planStatisticDto.getAppId());
             planItemStatistic.setCaseSourceType(planStatisticDto.getCaseSourceType());
             planItemStatistic.setCaseStartTime(planStatisticDto.getCaseStartTime());

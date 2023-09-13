@@ -10,76 +10,15 @@ import com.arextest.web.core.business.filesystem.pincase.StorageCase;
 import com.arextest.web.core.business.filesystem.recovery.RecoveryFactory;
 import com.arextest.web.core.business.filesystem.recovery.RecoveryService;
 import com.arextest.web.core.business.util.MailUtils;
-import com.arextest.web.core.repository.FSCaseRepository;
-import com.arextest.web.core.repository.FSFolderRepository;
-import com.arextest.web.core.repository.FSInterfaceRepository;
-import com.arextest.web.core.repository.FSTraceLogRepository;
-import com.arextest.web.core.repository.FSTreeRepository;
-import com.arextest.web.core.repository.ReportPlanStatisticRepository;
-import com.arextest.web.core.repository.UserRepository;
-import com.arextest.web.core.repository.UserWorkspaceRepository;
-import com.arextest.web.model.contract.contracts.filesystem.ChangeRoleRequestType;
-import com.arextest.web.model.contract.contracts.filesystem.FSAddItemFromRecordRequestType;
-import com.arextest.web.model.contract.contracts.filesystem.FSAddItemRequestType;
-import com.arextest.web.model.contract.contracts.filesystem.FSAddItemResponseType;
-import com.arextest.web.model.contract.contracts.filesystem.FSAddWorkspaceRequestType;
-import com.arextest.web.model.contract.contracts.filesystem.FSAddWorkspaceResponseType;
-import com.arextest.web.model.contract.contracts.filesystem.FSDuplicateRequestType;
-import com.arextest.web.model.contract.contracts.filesystem.FSExportItemRequestType;
-import com.arextest.web.model.contract.contracts.filesystem.FSImportItemRequestType;
-import com.arextest.web.model.contract.contracts.filesystem.FSMoveItemRequestType;
-import com.arextest.web.model.contract.contracts.filesystem.FSPinMockRequestType;
-import com.arextest.web.model.contract.contracts.filesystem.FSQueryCaseRequestType;
-import com.arextest.web.model.contract.contracts.filesystem.FSQueryCaseResponseType;
-import com.arextest.web.model.contract.contracts.filesystem.FSQueryFolderRequestType;
-import com.arextest.web.model.contract.contracts.filesystem.FSQueryFolderResponseType;
-import com.arextest.web.model.contract.contracts.filesystem.FSQueryInterfaceRequestType;
-import com.arextest.web.model.contract.contracts.filesystem.FSQueryInterfaceResponseType;
-import com.arextest.web.model.contract.contracts.filesystem.FSQueryUsersByWorkspaceRequestType;
-import com.arextest.web.model.contract.contracts.filesystem.FSQueryUsersByWorkspaceResponseType;
-import com.arextest.web.model.contract.contracts.filesystem.FSQueryWorkspaceRequestType;
-import com.arextest.web.model.contract.contracts.filesystem.FSQueryWorkspaceResponseType;
-import com.arextest.web.model.contract.contracts.filesystem.FSQueryWorkspacesRequestType;
-import com.arextest.web.model.contract.contracts.filesystem.FSQueryWorkspacesResponseType;
-import com.arextest.web.model.contract.contracts.filesystem.FSRemoveItemRequestType;
-import com.arextest.web.model.contract.contracts.filesystem.FSRenameRequestType;
-import com.arextest.web.model.contract.contracts.filesystem.FSRenameWorkspaceRequestType;
-import com.arextest.web.model.contract.contracts.filesystem.FSSaveCaseRequestType;
-import com.arextest.web.model.contract.contracts.filesystem.FSSaveFolderRequestType;
-import com.arextest.web.model.contract.contracts.filesystem.FSSaveFolderResponseType;
-import com.arextest.web.model.contract.contracts.filesystem.FSSaveInterfaceRequestType;
-import com.arextest.web.model.contract.contracts.filesystem.FSTreeType;
-import com.arextest.web.model.contract.contracts.filesystem.InviteToWorkspaceRequestType;
-import com.arextest.web.model.contract.contracts.filesystem.InviteToWorkspaceResponseType;
-import com.arextest.web.model.contract.contracts.filesystem.RecoverItemInfoRequestType;
-import com.arextest.web.model.contract.contracts.filesystem.UserType;
-import com.arextest.web.model.contract.contracts.filesystem.ValidInvitationRequestType;
-import com.arextest.web.model.contract.contracts.filesystem.ValidInvitationResponseType;
+import com.arextest.web.core.repository.*;
+import com.arextest.web.model.contract.contracts.filesystem.*;
 import com.arextest.web.model.dto.KeyValuePairDto;
 import com.arextest.web.model.dto.ReportPlanStatisticDto;
 import com.arextest.web.model.dto.UserDto;
 import com.arextest.web.model.dto.WorkspaceDto;
-import com.arextest.web.model.dto.filesystem.AddressDto;
-import com.arextest.web.model.dto.filesystem.FSCaseDto;
-import com.arextest.web.model.dto.filesystem.FSFolderDto;
-import com.arextest.web.model.dto.filesystem.FSInterfaceAndCaseBaseDto;
-import com.arextest.web.model.dto.filesystem.FSInterfaceDto;
-import com.arextest.web.model.dto.filesystem.FSItemDto;
-import com.arextest.web.model.dto.filesystem.FSNodeDto;
-import com.arextest.web.model.dto.filesystem.FSTraceLogDto;
-import com.arextest.web.model.dto.filesystem.FSTreeDto;
-import com.arextest.web.model.dto.filesystem.UserWorkspaceDto;
-import com.arextest.web.model.enums.CaseSourceType;
-import com.arextest.web.model.enums.FSInfoItem;
-import com.arextest.web.model.enums.InvitationType;
-import com.arextest.web.model.enums.RoleType;
-import com.arextest.web.model.enums.SendEmailType;
-import com.arextest.web.model.mapper.FSCaseMapper;
-import com.arextest.web.model.mapper.FSFolderMapper;
-import com.arextest.web.model.mapper.FSInterfaceMapper;
-import com.arextest.web.model.mapper.FSTreeMapper;
-import com.arextest.web.model.mapper.UserWorkspaceMapper;
-import com.arextest.web.model.mapper.WorkspaceMapper;
+import com.arextest.web.model.dto.filesystem.*;
+import com.arextest.web.model.enums.*;
+import com.arextest.web.model.mapper.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Data;
@@ -93,19 +32,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Queue;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
@@ -123,9 +50,6 @@ public class FileSystemService {
     private static final String AREX_RECORD_ID = "arex-record-id";
     private static final String AREX_REPLAY_PREPARE_DEPENDENCY = "arex_replay_prepare_dependency";
     private static final String PINNED_PRE_FIX = "pinned_";
-
-    @Value("${arex.ui.url}")
-    private String arexUiUrl;
 
     @Value("${arex.report.case.inherited}")
     private String arexCaseInherited;
@@ -645,7 +569,7 @@ public class FileSystemService {
             userWorkspaceDto.setStatus(InvitationType.INVITING);
             userWorkspaceDto.setToken(UUID.randomUUID().toString());
 
-            Boolean result = sendInviteEmail(request.getInvitor(),
+            Boolean result = sendInviteEmail(request.getArexUiUrl(), request.getInvitor(),
                     userName,
                     request.getWorkspaceId(),
                     userWorkspaceDto.getToken());
@@ -987,7 +911,7 @@ public class FileSystemService {
         }
     }
 
-    private Boolean sendInviteEmail(String invitor, String invitee, String workspaceId, String token) {
+    private Boolean sendInviteEmail(String arexUiUrl, String invitor, String invitee, String workspaceId, String token) {
         FSTreeDto workspace = fsTreeRepository.queryFSTreeById(workspaceId);
         if (workspace == null) {
             return false;
