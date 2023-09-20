@@ -25,15 +25,4 @@ public final class ServiceCollectConfigurableController extends AbstractConfigur
     public ServiceCollectConfigurableController(@Autowired ConfigurableHandler<ServiceCollectConfiguration> configurableHandler) {
         super(configurableHandler);
     }
-    @Resource
-    private ServiceCollectConfigurableHandler serviceCollectConfigurableHandler;
-
-    @PostMapping("/updateCustomConfig")
-    @ResponseBody
-    public Response updateCustomConfig(@RequestBody ServiceCollectConfiguration serviceCollectConfiguration) {
-        if (serviceCollectConfiguration == null|| StringUtils.isBlank(serviceCollectConfiguration.getAppId())){
-            return ResponseUtils.parameterInvalidResponse("The request body is null or appId is blank");
-        }
-        return ResponseUtils.successResponse(serviceCollectConfigurableHandler.update(serviceCollectConfiguration));
-    }
 }
