@@ -33,9 +33,9 @@ public class OauthHandler {
             return response;
         }
 
-        userRepository.saveUser(new UserDto() {{
-            setUserName(userName);
-        }});
+        UserDto userDto = new UserDto();
+        userDto.setUserName(userName);
+        userRepository.saveUser(userDto);
 
         response.setSuccess(true);
         response.setUserName(userName);
