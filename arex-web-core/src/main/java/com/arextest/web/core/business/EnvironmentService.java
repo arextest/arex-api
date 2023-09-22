@@ -6,6 +6,7 @@ import com.arextest.web.model.contract.contracts.environment.DuplicateEnvironmen
 import com.arextest.web.model.contract.contracts.environment.EnvironmentType;
 import com.arextest.web.model.contract.contracts.environment.QueryEnvsByWorkspaceRequestType;
 import com.arextest.web.model.contract.contracts.environment.SaveEnvironmentRequestType;
+import com.arextest.web.model.contract.contracts.environment.SaveEnvironmentResponseType;
 import com.arextest.web.model.dto.EnvironmentDto;
 import com.arextest.web.model.mapper.EnvironmentMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -24,19 +25,22 @@ public class EnvironmentService {
     @Resource
     private EnvironmentRepository environmentRepository;
 
-    public Boolean saveEnvironment(SaveEnvironmentRequestType request) {
+    public SaveEnvironmentResponseType saveEnvironment(SaveEnvironmentRequestType request) {
+        SaveEnvironmentResponseType response = new SaveEnvironmentResponseType();
         EnvironmentDto dto = EnvironmentMapper.INSTANCE.dtoFromContract(request.getEnv());
         try {
             if (StringUtils.isEmpty(dto.getId())) {
-                environmentRepository.initEnvironment(dto);
+                dto = environmentRepository.initEnvironment(dto);
             } else {
-                environmentRepository.saveEnvironment(dto);
+                dto = environmentRepository.saveEnvironment(dto);
             }
-            return true;
+            response.setSuccess(true);
+            response.setEnvironmentId(dto.getId());
         } catch (Exception e) {
             LogUtils.error(LOGGER, "failed to save environment", e);
+            response.setSuccess(false);
         }
-        return false;
+        return response;
     }
 
     public Boolean removeEnvironment(String id) {
