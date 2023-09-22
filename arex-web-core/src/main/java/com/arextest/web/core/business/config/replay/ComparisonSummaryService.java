@@ -5,6 +5,7 @@ import com.arextest.config.model.dto.application.ApplicationServiceConfiguration
 import com.arextest.web.common.LogUtils;
 import com.arextest.web.core.business.config.ConfigurableHandler;
 import com.arextest.web.core.repository.AppContractRepository;
+import com.arextest.web.model.contract.contracts.common.enums.ExpirationType;
 import com.arextest.web.model.contract.contracts.config.replay.AbstractComparisonDetailsConfiguration;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonEncryptionConfiguration;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonIgnoreCategoryConfiguration;
@@ -168,6 +169,8 @@ public class ComparisonSummaryService {
         buildComparisonConfig(replayConfigurationMap, exclusionsConfigurableHandler.useResultAsList(appId),
             (configurations, summaryConfiguration) -> {
                 Set<List<String>> operationExclusion = configurations.stream()
+                    .filter(config -> config.getExpirationType() == ExpirationType.PINNED_NEVER_EXPIRED.getCodeValue()
+                        || config.getExpirationDate().getTime() > System.currentTimeMillis())
                     .map(ComparisonExclusionsConfiguration::getExclusions).collect(Collectors.toSet());
                 summaryConfiguration.setExclusionList(operationExclusion);
             }, operationInfoMap, appContractDtoMap);

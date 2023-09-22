@@ -96,7 +96,8 @@ public abstract class AbstractComparisonConfigurableHandler<T extends AbstractCo
         if (expirationType == ExpirationType.ABSOLUTE_TIME_EXPIRED.getCodeValue()) {
             return comparisonDetails.getExpirationDate().getTime() < System.currentTimeMillis();
         }
-        return expirationType != ExpirationType.PINNED_NEVER_EXPIRED.getCodeValue();
+        return expirationType != ExpirationType.PINNED_NEVER_EXPIRED.getCodeValue()
+            && expirationType != ExpirationType.SOFT_TIME_EXPIRED.getCodeValue();
     }
 
     @Override

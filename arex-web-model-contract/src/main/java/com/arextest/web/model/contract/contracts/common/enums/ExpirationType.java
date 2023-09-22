@@ -14,7 +14,13 @@ public enum ExpirationType {
     /**
      * after timeout,it would be expired
      */
-    ABSOLUTE_TIME_EXPIRED(1);
+    ABSOLUTE_TIME_EXPIRED(1),
+    /**
+     * after timeout, still displayed but not work.
+     */
+    SOFT_TIME_EXPIRED(2),
+    ;
+
     @Getter
     private final int codeValue;
 
