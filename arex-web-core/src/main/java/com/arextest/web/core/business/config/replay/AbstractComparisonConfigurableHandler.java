@@ -79,6 +79,11 @@ public abstract class AbstractComparisonConfigurableHandler<T extends AbstractCo
         return this.useResultAsList(appId, null);
     }
 
+    public boolean removeDetailsExpired(T comparisonDetails) {
+        return comparisonDetails.getExpirationType() == ExpirationType.SOFT_TIME_EXPIRED.getCodeValue()
+            && comparisonDetails.getExpirationDate().getTime() < System.currentTimeMillis();
+    }
+
     @Override
     public boolean insert(T comparisonDetail) {
         return this.insertList(Collections.singletonList(comparisonDetail));
