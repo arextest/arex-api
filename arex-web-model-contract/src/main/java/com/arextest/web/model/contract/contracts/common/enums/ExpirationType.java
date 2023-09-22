@@ -12,13 +12,9 @@ public enum ExpirationType {
      */
     PINNED_NEVER_EXPIRED(0),
     /**
-     * after timeout,it would be expired
-     */
-    ABSOLUTE_TIME_EXPIRED(1),
-    /**
      * after timeout, still displayed but not work.
      */
-    SOFT_TIME_EXPIRED(2),
+    SOFT_TIME_EXPIRED(1),
     ;
 
     @Getter
