@@ -47,8 +47,7 @@ public class EnvironmentController {
                 request.getEnv().getWorkspaceId())) {
             return ResponseUtils.errorResponse(Constants.NO_PERMISSION, ResponseCode.REQUESTED_HANDLE_EXCEPTION);
         }
-        SaveEnvironmentResponseType response = new SaveEnvironmentResponseType();
-        response.setSuccess(environmentService.saveEnvironment(request));
+        SaveEnvironmentResponseType response = environmentService.saveEnvironment(request);
         return ResponseUtils.successResponse(response);
     }
 
