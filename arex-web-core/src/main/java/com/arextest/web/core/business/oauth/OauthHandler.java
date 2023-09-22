@@ -1,8 +1,11 @@
 package com.arextest.web.core.business.oauth;
 
 import com.arextest.web.common.JwtUtil;
+import com.arextest.web.core.repository.UserRepository;
 import com.arextest.web.model.contract.contracts.login.GetOauthInfoResponseType;
 import com.arextest.web.model.contract.contracts.login.VerifyResponseType;
+import com.arextest.web.model.dto.UserDto;
+import com.arextest.web.model.enums.UserStatusType;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
@@ -16,6 +19,8 @@ import javax.annotation.Resource;
 public class OauthHandler {
     @Resource
     private OauthServiceFactory oauthServiceFactory;
+    @Resource
+    private UserRepository userRepository;
 
     public VerifyResponseType oauthLogin(String code, String oauthType) {
         OauthService oauthService = oauthServiceFactory.getOauthService(oauthType);
@@ -27,6 +32,10 @@ public class OauthHandler {
             response.setReason("oauth login failed");
             return response;
         }
+
+        UserDto userDto = new UserDto();
+        userDto.setUserName(userName);
+        userRepository.saveUser(userDto);
 
         response.setSuccess(true);
         response.setUserName(userName);
