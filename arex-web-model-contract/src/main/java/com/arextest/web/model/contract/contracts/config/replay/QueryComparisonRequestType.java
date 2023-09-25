@@ -15,4 +15,5 @@ public class QueryComparisonRequestType {
      */
     private String operationName;
     private String operationType;
+    private Boolean filterExpired;
 }

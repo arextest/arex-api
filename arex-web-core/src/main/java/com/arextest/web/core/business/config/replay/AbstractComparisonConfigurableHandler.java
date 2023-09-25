@@ -32,19 +32,11 @@ public abstract class AbstractComparisonConfigurableHandler<T extends AbstractCo
 
     @Override
     public List<T> useResultAsList(String appId) {
-        List<T> comparisonDetails = repositoryProvider.listBy(appId);
-        if (CollectionUtils.isNotEmpty(comparisonDetails)) {
-            comparisonDetails.removeIf(this::removeDetailsExpired);
-        }
-        return comparisonDetails;
+        return repositoryProvider.listBy(appId);
     }
 
     public List<T> useResultAsList(String appId, String operationId) {
-        List<T> comparisonDetails = repositoryProvider.listBy(appId, operationId);
-        if (CollectionUtils.isNotEmpty(comparisonDetails)) {
-            comparisonDetails.removeIf(this::removeDetailsExpired);
-        }
-        return comparisonDetails;
+        return repositoryProvider.listBy(appId, operationId);
     }
 
     public List<T> useResultAsList(String appId, int compareConfigType) {
@@ -53,11 +45,7 @@ public abstract class AbstractComparisonConfigurableHandler<T extends AbstractCo
     }
 
     public List<T> queryByOperationIdAndInterfaceId(String interfaceId, String operationId) {
-        List<T> comparisonDetails = repositoryProvider.queryByInterfaceIdAndOperationId(interfaceId, operationId);
-        if (CollectionUtils.isNotEmpty(comparisonDetails)) {
-            comparisonDetails.removeIf(this::removeDetailsExpired);
-        }
-        return comparisonDetails;
+        return repositoryProvider.queryByInterfaceIdAndOperationId(interfaceId, operationId);
     }
 
     public abstract List<T> queryByInterfaceId(String interfaceId);
@@ -91,12 +79,9 @@ public abstract class AbstractComparisonConfigurableHandler<T extends AbstractCo
         return this.useResultAsList(appId, null);
     }
 
-    private boolean removeDetailsExpired(T comparisonDetails) {
-        int expirationType = comparisonDetails.getExpirationType();
-        if (expirationType == ExpirationType.ABSOLUTE_TIME_EXPIRED.getCodeValue()) {
-            return comparisonDetails.getExpirationDate().getTime() < System.currentTimeMillis();
-        }
-        return expirationType != ExpirationType.PINNED_NEVER_EXPIRED.getCodeValue();
+    public boolean removeDetailsExpired(T comparisonDetails) {
+        return comparisonDetails.getExpirationType() == ExpirationType.SOFT_TIME_EXPIRED.getCodeValue()
+            && comparisonDetails.getExpirationDate().getTime() < System.currentTimeMillis();
     }
 
     @Override

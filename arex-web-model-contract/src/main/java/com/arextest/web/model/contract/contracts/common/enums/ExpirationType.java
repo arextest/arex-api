@@ -12,9 +12,11 @@ public enum ExpirationType {
      */
     PINNED_NEVER_EXPIRED(0),
     /**
-     * after timeout,it would be expired
+     * after timeout, still displayed but not work.
      */
-    ABSOLUTE_TIME_EXPIRED(1);
+    SOFT_TIME_EXPIRED(1),
+    ;
+
     @Getter
     private final int codeValue;
 
