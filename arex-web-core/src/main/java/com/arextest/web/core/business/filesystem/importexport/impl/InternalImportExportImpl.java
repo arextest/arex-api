@@ -6,7 +6,6 @@ import com.arextest.web.core.business.filesystem.ItemInfo;
 import com.arextest.web.core.business.filesystem.ItemInfoFactory;
 import com.arextest.web.core.business.filesystem.importexport.ImportExport;
 import com.arextest.web.core.repository.FSTreeRepository;
-import com.arextest.web.model.contract.contracts.filesystem.FSNodeType;
 import com.arextest.web.model.dto.filesystem.FSCaseDto;
 import com.arextest.web.model.dto.filesystem.FSFolderDto;
 import com.arextest.web.model.dto.filesystem.FSInterfaceDto;

@@ -1,6 +1,6 @@
 package com.arextest.web.core.business.filesystem;
 
-import com.arextest.web.common.JwtUtil;
+import com.arextest.common.utils.JwtUtil;
 import com.arextest.web.common.LoadResource;
 import com.arextest.web.common.LogUtils;
 import com.arextest.web.common.Tuple;

@@ -1,6 +1,6 @@
 package com.arextest.web.core.business;
 
-import com.arextest.web.common.JwtUtil;
+import com.arextest.common.utils.JwtUtil;
 import com.arextest.web.common.LoadResource;
 import com.arextest.web.core.business.beans.AsyncOperations;
 import com.arextest.web.core.business.util.MailUtils;
@@ -18,7 +18,6 @@ import com.arextest.web.model.enums.UserStatusType;
 import com.arextest.web.model.mapper.UserMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
