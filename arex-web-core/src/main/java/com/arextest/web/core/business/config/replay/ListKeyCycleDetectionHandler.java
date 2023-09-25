@@ -29,14 +29,16 @@ public class ListKeyCycleDetectionHandler {
         String dependencyId = configuration.getDependencyId();
 
         if (dependencyId != null) {
-
+            // TODO: 2023/9/25  if listsort and reference allow expire, here need to add expire condition
             List<ComparisonReferenceConfiguration> dependencyReferenceInDb =
                 referenceHandler.useResultAsList(appId, operationId).stream()
-                    .filter(reference -> reference.getDependencyId().equals(dependencyId)).collect(Collectors.toList());
+                    .filter(reference -> Objects.equals(reference.getDependencyId(), dependencyId))
+                    .collect(Collectors.toList());
 
             List<ComparisonListSortConfiguration> dependencyListSortInDb =
                 listSortHandler.useResultAsList(appId, operationId).stream()
-                    .filter(sort -> sort.getDependencyId().equals(dependencyId)).collect(Collectors.toList());
+                    .filter(sort -> Objects.equals(sort.getDependencyId(), dependencyId))
+                    .collect(Collectors.toList());
 
             this.doCheckCycle(configuration, dependencyReferenceInDb, dependencyListSortInDb);
 
