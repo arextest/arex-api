@@ -2,8 +2,8 @@ package com.arextest.web.api.service.interceptor;
 
 import com.arextest.common.model.response.Response;
 import com.arextest.common.model.response.ResponseCode;
+import com.arextest.common.utils.JwtUtil;
 import com.arextest.common.utils.ResponseUtils;
-import com.arextest.web.common.JwtUtil;
 import com.arextest.web.common.LogUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
