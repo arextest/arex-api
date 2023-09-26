@@ -8,9 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 @Data
-public class FSQueryInterfaceResponseType {
-    private String id;
-    private String name;
+public class FSQueryInterfaceResponseType extends FSQueryItemType {
     private AddressType address;
     private List<ScriptBlockType> preRequestScripts;
     private List<ScriptBlockType> testScripts;
@@ -20,7 +18,6 @@ public class FSQueryInterfaceResponseType {
     private AuthType auth;
     private AddressType testAddress;
     private String description;
-    private Map<String, Object> customTags;
     private String operationId;
     private String operationResponse;
 }
