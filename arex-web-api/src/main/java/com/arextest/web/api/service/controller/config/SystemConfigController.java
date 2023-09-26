@@ -3,7 +3,6 @@ package com.arextest.web.api.service.controller.config;
 import com.arextest.common.model.response.Response;
 import com.arextest.common.model.response.ResponseCode;
 import com.arextest.common.utils.ResponseUtils;
-import com.arextest.web.core.business.listener.planfinish.PlanFinishedService;
 import com.arextest.web.core.repository.SystemConfigRepository;
 import com.arextest.web.model.contract.contracts.config.SaveSystemConfigRequestType;
 import org.apache.commons.collections4.CollectionUtils;
@@ -25,8 +24,6 @@ import javax.annotation.Resource;
 public class SystemConfigController {
     @Resource
     private SystemConfigRepository systemConfigRepository;
-    @Resource
-    private PlanFinishedService planFinishedService;
 
     @PostMapping("/save")
     @ResponseBody
@@ -40,7 +37,6 @@ public class SystemConfigController {
     @GetMapping("/list")
     @ResponseBody
     public Response listSystemConfig() {
-        planFinishedService.onPlanFinishEvent("community-test-0905", "6511f4d2675d98262131febb", 2);
         return ResponseUtils.successResponse(systemConfigRepository.listSystemConfigs());
     }
 }
