@@ -1009,10 +1009,7 @@ public class FileSystemService {
 
     private List<FSQueryItemType.ParentNodeType> getParentPath(String parentInfoId, Integer parentNodeType) {
         List<FSQueryItemType.ParentNodeType> parentPath = new ArrayList<>();
-        while (StringUtils.isNotBlank(parentInfoId)) {
-            if (StringUtils.isBlank(parentInfoId) || parentNodeType == null) {
-                break;
-            }
+        while (StringUtils.isNotBlank(parentInfoId) && parentNodeType != null) {
             FSItemDto itemDto = itemInfoFactory.getItemInfo(parentNodeType).queryById(parentInfoId);
             if (itemDto == null) {
                 break;
