@@ -311,13 +311,13 @@ public class FileSystemService {
                 Integer toIndex = request.getToIndex() == null ? 0 : request.getToIndex();
                 if (toParent == null) {
                     dto.getRoots().add(toIndex, current.y);
-                    updateParentId(current.y, "");
+                    updateParentId(current.y, "", 0);
                 } else {
                     if (toParent.getChildren() == null) {
                         toParent.setChildren(new ArrayList<>());
                     }
                     toParent.getChildren().add(toIndex, current.y);
-                    updateParentId(current.y, request.getToParentPath()[request.getToParentPath().length - 1]);
+                    updateParentId(current.y, toParent.getInfoId(), toParent.getNodeType());
                 }
                 if (fromParent == null && toParent == null) {
                     if (request.getToIndex() < current.x) {
@@ -452,7 +452,9 @@ public class FileSystemService {
         if (dto == null) {
             return new FSQueryFolderResponseType();
         }
-        return FSFolderMapper.INSTANCE.contractFromDto(dto);
+        FSQueryFolderResponseType response = FSFolderMapper.INSTANCE.contractFromDto(dto);
+        response.setParentPath(getParentPath(dto.getParentId(), dto.getParentNodeType()));
+        return response;
     }
 
     public boolean saveInterface(FSSaveInterfaceRequestType request, String userName) {
@@ -488,7 +490,9 @@ public class FileSystemService {
         if (dto == null) {
             return new FSQueryInterfaceResponseType();
         }
-        return FSInterfaceMapper.INSTANCE.contractFromDto(dto);
+        FSQueryInterfaceResponseType response = FSInterfaceMapper.INSTANCE.contractFromDto(dto);
+        response.setParentPath(getParentPath(dto.getParentId(), dto.getParentNodeType()));
+        return response;
     }
 
     public boolean saveCase(FSSaveCaseRequestType request, String userName) {
@@ -529,6 +533,7 @@ public class FileSystemService {
         }
 
         FSQueryCaseResponseType response = FSCaseMapper.INSTANCE.contractFromDto(dto);
+        response.setParentPath(getParentPath(dto.getParentId(), dto.getParentNodeType()));
         String parentId = dto.getParentId();
         FSInterfaceDto fsInterfaceDto = fsInterfaceRepository.queryInterface(parentId);
         if (fsInterfaceDto != null) {
@@ -899,7 +904,7 @@ public class FileSystemService {
         return dto;
     }
 
-    private void updateParentId(FSNodeDto fsNodeDto, String parentId) {
+    private void updateParentId(FSNodeDto fsNodeDto, String parentId, Integer parentNodeType) {
         if (fsNodeDto == null) {
             return;
         }
@@ -907,11 +912,16 @@ public class FileSystemService {
         FSItemDto fsItemDto = itemInfo.queryById(fsNodeDto.getInfoId());
         if (fsItemDto != null) {
             fsItemDto.setParentId(parentId);
+            fsItemDto.setParentNodeType(parentNodeType);
             itemInfo.saveItem(fsItemDto);
         }
     }
 
-    private Boolean sendInviteEmail(String arexUiUrl, String invitor, String invitee, String workspaceId, String token) {
+    private Boolean sendInviteEmail(String arexUiUrl,
+            String invitor,
+            String invitee,
+            String workspaceId,
+            String token) {
         FSTreeDto workspace = fsTreeRepository.queryFSTreeById(workspaceId);
         if (workspace == null) {
             return false;
@@ -995,6 +1005,24 @@ public class FileSystemService {
             result = domain + operation;
         }
         return result;
+    }
+
+    private List<FSQueryItemType.ParentNodeType> getParentPath(String parentInfoId, Integer parentNodeType) {
+        List<FSQueryItemType.ParentNodeType> parentPath = new ArrayList<>();
+        while (StringUtils.isNotBlank(parentInfoId) && parentNodeType != null) {
+            FSItemDto itemDto = itemInfoFactory.getItemInfo(parentNodeType).queryById(parentInfoId);
+            if (itemDto == null) {
+                break;
+            }
+            FSQueryItemType.ParentNodeType parentNode = new FSQueryItemType.ParentNodeType();
+            parentNode.setId(itemDto.getId());
+            parentNode.setNodeType(parentNodeType);
+            parentNode.setName(itemDto.getName());
+            parentPath.add(0, parentNode);
+            parentInfoId = itemDto.getParentId();
+            parentNodeType = itemDto.getParentNodeType();
+        }
+        return parentPath;
     }
 
     @Data
