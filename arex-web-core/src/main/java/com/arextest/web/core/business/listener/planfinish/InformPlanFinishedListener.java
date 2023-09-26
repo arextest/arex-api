@@ -1,14 +1,18 @@
 package com.arextest.web.core.business.listener.planfinish;
 
 import com.arextest.web.common.HttpUtils;
-import com.arextest.web.core.repository.ReportPlanStatisticRepository;
+import com.arextest.web.core.business.QueryPlanStatisticsService;
 import com.arextest.web.core.repository.SystemConfigRepository;
 import com.arextest.web.model.contract.contracts.CallbackInformRequestType;
-import com.arextest.web.model.dto.ReportPlanStatisticDto;
+import com.arextest.web.model.contract.contracts.QueryPlanStatisticsRequestType;
+import com.arextest.web.model.contract.contracts.QueryPlanStatisticsResponseType;
+import com.arextest.web.model.contract.contracts.common.PlanStatistic;
 import com.arextest.web.model.contract.contracts.config.SystemConfig;
 import com.arextest.web.model.enums.SystemConfigTypeEnum;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
 
 /**
@@ -17,15 +21,12 @@ import org.springframework.stereotype.Component;
  */
 @Slf4j
 @Component
-public class InformPlanFinishedListener implements PlanFinishedLinstener {
-    @Autowired
-    private ReportPlanStatisticRepository reportPlanStatisticRepository;
-    @Autowired
-    private SystemConfigRepository systemConfigRepository;
-
+public class InformPlanFinishedListener implements PlanFinishedLinstener, ApplicationContextAware {
     private static final String SUCCESS_STR = "success";
     private static final String FAIL_STR = "fail";
 
+    private static QueryPlanStatisticsService queryPlanStatisticsService;
+    private static SystemConfigRepository systemConfigRepository;
 
     @Override
     public String planFinishedAction(String appId, String planId, Integer status) {
@@ -34,9 +35,14 @@ public class InformPlanFinishedListener implements PlanFinishedLinstener {
         if (systemConfig == null || systemConfig.getCallbackUrl() == null) {
             return FAIL_STR;
         }
-        ReportPlanStatisticDto reportPlanStatisticDto = reportPlanStatisticRepository.findByPlanId(planId);
+
+        QueryPlanStatisticsResponseType queryPlanStatisticsResponseType = queryPlan(appId, planId);
+        if (queryPlanStatisticsResponseType.getTotalCount() == 0) {
+            return FAIL_STR;
+        }
+        PlanStatistic planStatistic = queryPlanStatisticsResponseType.getPlanStatisticList().get(0);
         try {
-            CallbackInformRequestType requestType = buildRequest(reportPlanStatisticDto);
+            CallbackInformRequestType requestType = buildRequest(planStatistic);
             HttpUtils.post(systemConfig.getCallbackUrl(), requestType, Object.class);
         } catch (Throwable e) {
             LOGGER.error("callback inform failed, planId:{}", planId, e);
@@ -45,24 +51,41 @@ public class InformPlanFinishedListener implements PlanFinishedLinstener {
         return SUCCESS_STR;
     }
 
-    CallbackInformRequestType buildRequest(ReportPlanStatisticDto reportPlanStatisticDto) {
+    private CallbackInformRequestType buildRequest(PlanStatistic planStatistic) {
         CallbackInformRequestType requestType = new CallbackInformRequestType();
-        requestType.setCreator(reportPlanStatisticDto.getCreator());
-        requestType.setAppId(reportPlanStatisticDto.getAppId());
-        requestType.setAppName(reportPlanStatisticDto.getAppName());
-        requestType.setPlanName(reportPlanStatisticDto.getPlanName());
-        requestType.setStatus(reportPlanStatisticDto.getStatus());
-        requestType.setTotalCaseCount(reportPlanStatisticDto.getTotalCaseCount());
-        requestType.setErrorCaseCount(reportPlanStatisticDto.getErrorCaseCount());
-        requestType.setFailCaseCount(reportPlanStatisticDto.getFailCaseCount());
-        requestType.setSuccessCaseCount(reportPlanStatisticDto.getSuccessCaseCount());
-        requestType.setWaitCaseCount(reportPlanStatisticDto.getWaitCaseCount());
-        requestType.setElapsedMillSeconds(reportPlanStatisticDto.getReplayEndTime() - reportPlanStatisticDto.getReplayStartTime());
-        if (reportPlanStatisticDto.getTotalCaseCount() != 0 && reportPlanStatisticDto.getSuccessCaseCount() != null
-        && reportPlanStatisticDto.getTotalCaseCount() != null) {
-            requestType.setPassRate(reportPlanStatisticDto.getSuccessCaseCount().doubleValue() / reportPlanStatisticDto.getTotalCaseCount());
+        requestType.setCreator(planStatistic.getCreator());
+        requestType.setAppId(planStatistic.getAppId());
+        requestType.setAppName(planStatistic.getAppName());
+        requestType.setPlanName(planStatistic.getPlanName());
+        requestType.setStatus(planStatistic.getStatus());
+        requestType.setTotalCaseCount(planStatistic.getTotalCaseCount());
+        requestType.setErrorCaseCount(planStatistic.getErrorCaseCount());
+        requestType.setFailCaseCount(planStatistic.getFailCaseCount());
+        requestType.setSuccessCaseCount(planStatistic.getSuccessCaseCount());
+        requestType.setWaitCaseCount(planStatistic.getWaitCaseCount());
+        requestType.setElapsedMillSeconds(planStatistic.getReplayEndTime() - planStatistic.getReplayStartTime());
+        if (planStatistic.getTotalCaseCount() != 0 && planStatistic.getSuccessCaseCount() != null
+        && planStatistic.getTotalCaseCount() != null) {
+            requestType.setPassRate(planStatistic.getSuccessCaseCount().doubleValue() / planStatistic.getTotalCaseCount());
         }
         return requestType;
     }
 
+    private QueryPlanStatisticsResponseType queryPlan(String appId, String planId) {
+        QueryPlanStatisticsRequestType request = new QueryPlanStatisticsRequestType();
+        request.setAppId(appId);
+        request.setNeedTotal(true);
+        request.setPageSize(1);
+        request.setPageIndex(1);
+        request.setPlanId(planId);
+        return queryPlanStatisticsService.planStatistic(request);
+    }
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        queryPlanStatisticsService = (QueryPlanStatisticsService) applicationContext.getBean(
+            "queryPlanStatisticsService");
+        systemConfigRepository = (SystemConfigRepository) applicationContext.getBean(
+            "systemConfigRepositoryImpl");
+    }
 }
