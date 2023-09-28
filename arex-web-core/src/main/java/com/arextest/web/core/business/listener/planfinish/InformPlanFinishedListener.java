@@ -9,6 +9,7 @@ import com.arextest.web.model.contract.contracts.QueryPlanStatisticsResponseType
 import com.arextest.web.model.contract.contracts.common.PlanStatistic;
 import com.arextest.web.model.contract.contracts.config.SystemConfig;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
@@ -72,7 +73,7 @@ public class InformPlanFinishedListener implements PlanFinishedLinstener, Applic
         && planStatistic.getTotalCaseCount() != null) {
             requestType.setPassRate(planStatistic.getSuccessCaseCount().doubleValue() / planStatistic.getTotalCaseCount());
         }
-        if (frontUrl != null) {
+        if (StringUtils.isNotEmpty(frontUrl)) {
             requestType.setReportUrl(String.format(REPORT_URL_PATTERN, frontUrl, requestType.getAppId()));
         }
         return requestType;
