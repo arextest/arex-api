@@ -7,6 +7,7 @@ import com.arextest.web.model.dao.mongodb.SystemConfigCollection;
 import com.arextest.web.model.mapper.SystemConfigMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.CollectionOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;

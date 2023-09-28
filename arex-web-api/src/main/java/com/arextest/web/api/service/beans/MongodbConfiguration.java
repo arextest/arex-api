@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.MongoDatabaseFactory;
+import org.springframework.data.mongodb.core.CollectionOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.SimpleMongoClientDatabaseFactory;
 import org.springframework.data.mongodb.core.convert.DbRefResolver;
@@ -115,6 +116,10 @@ public class MongodbConfiguration {
             .ensureIndex(new Index().on(AppContractCollection.Fields.appId, Sort.Direction.ASC));
         mongoTemplate.indexOps(AppContractCollection.class)
             .ensureIndex(new Index().on(AppContractCollection.Fields.operationId, Sort.Direction.ASC));
+
+        if (!mongoTemplate.collectionExists("SystemConfig")) {
+            mongoTemplate.createCollection("SystemConfig", CollectionOptions.empty().size(10000).maxDocuments(30).capped());
+        }
 
     }
 }
