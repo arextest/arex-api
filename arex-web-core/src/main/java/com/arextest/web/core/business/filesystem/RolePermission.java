@@ -1,6 +1,6 @@
 package com.arextest.web.core.business.filesystem;
 
-import com.arextest.web.common.JwtUtil;
+import com.arextest.common.utils.JwtUtil;
 import com.arextest.web.core.repository.UserWorkspaceRepository;
 import com.arextest.web.model.dto.filesystem.UserWorkspaceDto;
 import com.arextest.web.model.enums.RoleType;

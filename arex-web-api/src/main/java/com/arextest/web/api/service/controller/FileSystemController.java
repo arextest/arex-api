@@ -2,8 +2,8 @@ package com.arextest.web.api.service.controller;
 
 import com.arextest.common.model.response.Response;
 import com.arextest.common.model.response.ResponseCode;
+import com.arextest.common.utils.JwtUtil;
 import com.arextest.common.utils.ResponseUtils;
-import com.arextest.web.common.JwtUtil;
 import com.arextest.web.common.Tuple;
 import com.arextest.web.core.business.filesystem.FileSystemService;
 import com.arextest.web.core.business.filesystem.RolePermission;
@@ -66,7 +66,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
-import javax.validation.constraints.NotBlank;
 
 @Slf4j
 @Controller

@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.arextest</groupId>
         <artifactId>arex-web</artifactId>
-        <version>0.5.0.4</version>
+        <version>0.5.0.5</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <packaging>${packagingType}</packaging>
@@ -61,10 +61,6 @@
         <dependency>
             <groupId>net.javacrumbs.shedlock</groupId>
             <artifactId>shedlock-provider-mongo</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.auth0</groupId>
-            <artifactId>java-jwt</artifactId>
         </dependency>
         <dependency>
             <groupId>org.redisson</groupId>

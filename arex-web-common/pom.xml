@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.arextest</groupId>
         <artifactId>arex-web</artifactId>
-        <version>0.5.0.4</version>
+        <version>0.5.0.5</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -40,10 +40,6 @@
         <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.auth0</groupId>
-            <artifactId>java-jwt</artifactId>
         </dependency>
         <dependency>
             <groupId>cn.hutool</groupId>

@@ -9,9 +9,8 @@ import java.util.Map;
 import java.util.Set;
 
 @Data
-public class FSQueryCaseResponseType {
-    private String id;
-    private String name;
+public class FSQueryCaseResponseType extends FSQueryItemType{
+
     private String workspaceId;
     private AddressType address;
     private List<ScriptBlockType> preRequestScripts;
@@ -27,5 +26,4 @@ public class FSQueryCaseResponseType {
     private String description;
     private Boolean inherited;
     private List<ScriptBlockType> parentPreRequestScripts;
-    private Map<String, Object> customTags;
 }
