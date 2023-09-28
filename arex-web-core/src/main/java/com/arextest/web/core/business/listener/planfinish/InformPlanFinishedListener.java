@@ -9,9 +9,7 @@ import com.arextest.web.model.contract.contracts.QueryPlanStatisticsResponseType
 import com.arextest.web.model.contract.contracts.common.PlanStatistic;
 import com.arextest.web.model.contract.contracts.config.SystemConfig;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
@@ -25,11 +23,6 @@ import org.springframework.stereotype.Component;
 public class InformPlanFinishedListener implements PlanFinishedLinstener, ApplicationContextAware {
     private static final String SUCCESS_STR = "success";
     private static final String FAIL_STR = "fail";
-
-    @Value("${arex.front.url}")
-    private String frontUrl;
-
-    private static final String REPORT_URL_PATTERN = "%s/replay/replay/%s";
 
     private static QueryPlanStatisticsService queryPlanStatisticsService;
     private static SystemConfigRepository systemConfigRepository;
@@ -72,9 +65,6 @@ public class InformPlanFinishedListener implements PlanFinishedLinstener, Applic
         if (planStatistic.getTotalCaseCount() != 0 && planStatistic.getSuccessCaseCount() != null
         && planStatistic.getTotalCaseCount() != null) {
             requestType.setPassRate(planStatistic.getSuccessCaseCount().doubleValue() / planStatistic.getTotalCaseCount());
-        }
-        if (StringUtils.isNotEmpty(frontUrl)) {
-            requestType.setReportUrl(String.format(REPORT_URL_PATTERN, frontUrl, requestType.getAppId()));
         }
         return requestType;
     }
