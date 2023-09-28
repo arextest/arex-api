@@ -7,7 +7,7 @@
     <groupId>com.arextest</groupId>
     <artifactId>arex-web</artifactId>
     <packaging>pom</packaging>
-    <version>0.5.0.5</version>
+    <version>0.5.0.6</version>
     <modules>
         <module>arex-web-api</module>
         <module>arex-web-common</module>
@@ -40,7 +40,7 @@
         <javax.mail-api.version>1.6.2</javax.mail-api.version>
         <commons-email.version>1.5</commons-email.version>
         <arex-storage.version>1.0.13</arex-storage.version>
-        <arex-storage-config.version>1.0.23</arex-storage-config.version>
+        <arex-storage-config.version>1.0.25</arex-storage-config.version>
         <redisson.version>3.15.6</redisson.version>
         <google-oauth-client.version>1.31.0</google-oauth-client.version>
     </properties>

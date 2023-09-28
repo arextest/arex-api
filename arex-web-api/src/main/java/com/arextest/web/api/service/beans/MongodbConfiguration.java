@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.MongoDatabaseFactory;
+import org.springframework.data.mongodb.core.CollectionOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.SimpleMongoClientDatabaseFactory;
 import org.springframework.data.mongodb.core.convert.DbRefResolver;
@@ -84,15 +85,15 @@ public class MongodbConfiguration {
         /*
         // indexs for AppCollection
         mongoTemplate.indexOps(AppCollection.class).ensureIndex(new Index().on(APP_ID, Sort.Direction.ASC).unique());
-        
+
         // indexs for RecordServiceConfigCollection
         mongoTemplate.indexOps(RecordServiceConfigCollection.class)
             .ensureIndex(new Index().on(APP_ID, Sort.Direction.ASC).unique());
-        
+
         // indexs for ServiceOperationCollection
         mongoTemplate.indexOps(ServiceOperationCollection.class).ensureIndex(new Index().on(APP_ID, Sort.Direction.ASC)
                 .on(SERVICE_ID, Sort.Direction.ASC).on(OPERATION_NAME, Sort.Direction.ASC).unique());
-        
+
         // indexs for InstancesCollection
         try {
             mongoTemplate.indexOps(InstancesCollection.class)
@@ -115,6 +116,10 @@ public class MongodbConfiguration {
             .ensureIndex(new Index().on(AppContractCollection.Fields.appId, Sort.Direction.ASC));
         mongoTemplate.indexOps(AppContractCollection.class)
             .ensureIndex(new Index().on(AppContractCollection.Fields.operationId, Sort.Direction.ASC));
+
+        if (!mongoTemplate.collectionExists("SystemConfig")) {
+            mongoTemplate.createCollection("SystemConfig", CollectionOptions.empty().size(10000).maxDocuments(30).capped());
+        }
 
     }
 }
