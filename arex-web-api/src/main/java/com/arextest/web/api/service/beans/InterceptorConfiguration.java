@@ -69,8 +69,6 @@ public class InterceptorConfiguration implements WebMvcConfigurer {
         defaultPatterns.add("/api/logs/**");
         // invite to workspace
         defaultPatterns.add("/api/filesystem/validInvitation");
-        // systemConfig
-        defaultPatterns.add("/api/system/config/**");
 
         // add custom patterns
         if (StringUtils.isNotBlank(interceptorPatterns)) {

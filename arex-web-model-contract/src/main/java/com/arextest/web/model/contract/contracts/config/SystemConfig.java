@@ -8,10 +8,6 @@ import lombok.Data;
  */
 @Data
 public class SystemConfig {
-    /**
-     * @see com.arextest.web.model.enums.SystemConfigTypeEnum
-     */
-    private Integer configType;
 
     private String operator;
 

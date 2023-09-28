@@ -1,7 +1,16 @@
 package com.arextest.web.api.service.beans;
 
-import java.util.concurrent.TimeUnit;
-
+import com.arextest.web.common.LogUtils;
+import com.arextest.web.model.dao.mongodb.AppContractCollection;
+import com.arextest.web.model.dao.mongodb.LogsCollection;
+import com.arextest.web.model.dao.mongodb.ModelBase;
+import com.arextest.web.model.dao.mongodb.ReplayScheduleConfigCollection;
+import com.arextest.web.model.dao.mongodb.SystemConfigCollection;
+import com.mongodb.ConnectionString;
+import com.mongodb.MongoClientSettings;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
+import lombok.extern.slf4j.Slf4j;
 import org.bson.codecs.configuration.CodecRegistries;
 import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.codecs.pojo.PojoCodecProvider;
@@ -20,16 +29,7 @@ import org.springframework.data.mongodb.core.convert.MappingMongoConverter;
 import org.springframework.data.mongodb.core.index.Index;
 import org.springframework.data.mongodb.core.mapping.MongoMappingContext;
 
-import com.arextest.web.common.LogUtils;
-import com.arextest.web.model.dao.mongodb.AppContractCollection;
-import com.arextest.web.model.dao.mongodb.LogsCollection;
-import com.arextest.web.model.dao.mongodb.ReplayScheduleConfigCollection;
-import com.mongodb.ConnectionString;
-import com.mongodb.MongoClientSettings;
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoClients;
-
-import lombok.extern.slf4j.Slf4j;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Configuration
@@ -116,5 +116,9 @@ public class MongodbConfiguration {
         mongoTemplate.indexOps(AppContractCollection.class)
             .ensureIndex(new Index().on(AppContractCollection.Fields.operationId, Sort.Direction.ASC));
 
+        // index for systemConfig
+        mongoTemplate.indexOps(SystemConfigCollection.class)
+            .ensureIndex(new Index(ModelBase.Fields.dataChangeCreateTime, Sort.Direction.DESC)
+                .expire(30, TimeUnit.DAYS));
     }
 }

@@ -20,4 +20,5 @@ public class CallbackInformRequestType {
     private Double passRate;
     private Long elapsedMillSeconds;
     private String creator;
+    private String reportUrl;
 }

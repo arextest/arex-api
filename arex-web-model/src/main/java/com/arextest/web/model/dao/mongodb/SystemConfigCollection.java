@@ -12,11 +12,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @FieldNameConstants
 @Document(collection = "SystemConfig")
 public class SystemConfigCollection extends ModelBase {
-    /**
-     * @see com.arextest.web.model.enums.SystemConfigTypeEnum
-     * unique.
-     */
-    private Integer configType;
 
     private String operator;
 

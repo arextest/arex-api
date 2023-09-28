@@ -9,9 +9,8 @@ import java.util.List;
  * @create 2023/9/25 17:27
  */
 public interface SystemConfigRepository extends RepositoryProvider {
-    List<SystemConfig> listSystemConfigs();
 
-    SystemConfig queryByType(Integer systemConfigType);
+    SystemConfig getLatestSystemConfig();
 
-    boolean saveList(List<SystemConfig> systemConfigDtos);
+    boolean saveConfig(SystemConfig systemConfig);
 }

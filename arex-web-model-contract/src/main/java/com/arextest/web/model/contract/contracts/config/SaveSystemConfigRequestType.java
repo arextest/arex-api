@@ -10,5 +10,5 @@ import java.util.List;
  */
 @Data
 public class SaveSystemConfigRequestType {
-    private List<SystemConfig> systemConfigList;
+    private SystemConfig systemConfig;
 }
