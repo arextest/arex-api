@@ -116,4 +116,10 @@ public class LoginController {
         GetOauthInfoResponseType response = oauthHandler.getOauthInfo(oauthType);
         return ResponseUtils.successResponse(response);
     }
+
+    @GetMapping("/listUsersName")
+    @ResponseBody
+    public Response listAllUsers() {
+        return ResponseUtils.successResponse(loginService.listVerifiedUserNames());
+    }
 }

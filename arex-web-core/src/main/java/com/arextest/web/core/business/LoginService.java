@@ -21,7 +21,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import java.util.List;
+import java.util.Objects;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -145,6 +148,13 @@ public class LoginService {
 
     public Boolean removeUserFavoriteApp(ModifyUserFavoriteAppRequestType request) {
         return userRepository.removeUserFavoriteApp(request.getUserName(), request.getFavoriteApp());
+    }
+
+    public List<String> listVerifiedUserNames() {
+        return userRepository.listUsers().stream()
+            .filter(userDto -> !Objects.equals(userDto.getStatus(), UserStatusType.GUEST))
+            .map(UserDto::getUserName)
+            .collect(Collectors.toList());
     }
 
     private String generateVerificationCode() {

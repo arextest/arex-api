@@ -16,6 +16,8 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -96,5 +98,11 @@ public class UserRepositoryImpl implements UserRepository {
         update.pull(FAVORITE_APPS, favoriteApp);
         UpdateResult upsert = mongoTemplate.upsert(query, update, UserCollection.class);
         return upsert.getModifiedCount() > 0;
+    }
+
+    @Override
+    public List<UserDto> listUsers() {
+        List<UserCollection> userCollections = mongoTemplate.findAll(UserCollection.class);
+        return userCollections.stream().map(UserMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
     }
 }
