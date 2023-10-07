@@ -4,10 +4,7 @@ import com.arextest.web.common.LogUtils;
 import com.arextest.web.core.repository.UserRepository;
 import com.arextest.web.core.repository.mongo.util.MongoHelper;
 import com.arextest.web.model.dao.mongodb.ModelBase;
-import com.arextest.web.model.dao.mongodb.ReportPlanStatisticCollection;
 import com.arextest.web.model.dao.mongodb.UserCollection;
-import com.arextest.web.model.dto.BaseUserDto;
-import com.arextest.web.model.dto.ReportPlanStatisticDto;
 import com.arextest.web.model.dto.UserDto;
 import com.arextest.web.model.enums.UserStatusType;
 import com.arextest.web.model.mapper.UserMapper;
@@ -112,7 +109,7 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public List<BaseUserDto> queryVerifiedUseWithKeyword(String keyword) {
+    public List<UserDto> queryVerifiedUseWithKeyword(String keyword) {
         ProjectionOperation projectionOperation = Aggregation.project(ModelBase.Fields.id, UserCollection.Fields.userName);
         Criteria criteria = Criteria.where(UserCollection.Fields.status).ne(UserStatusType.GUEST);
         if (keyword != null) {
@@ -121,15 +118,15 @@ public class UserRepositoryImpl implements UserRepository {
         Aggregation aggregation = Aggregation.newAggregation(
             Aggregation.match(criteria),
             projectionOperation,
-            Aggregation.limit(5)
+            Aggregation.limit(DEFAULT_LIMIT)
         );
         AggregationResults<BasicDBObject> aggregate = mongoTemplate.aggregate(aggregation, UserCollection.class, BasicDBObject.class);
         return aggregate.getMappedResults().stream().map(this::covertToBaseUserDto).collect(Collectors.toList());
     }
 
-    private BaseUserDto covertToBaseUserDto(BasicDBObject basicDBObject) {
-        return new BaseUserDto(
-            basicDBObject.getString(ModelBase.Fields.id),
-            basicDBObject.getString(UserCollection.Fields.userName));
+    private UserDto covertToBaseUserDto(BasicDBObject basicDBObject) {
+        UserDto userDto = new UserDto();
+        userDto.setUserName(basicDBObject.getString(UserCollection.Fields.userName));
+        return userDto;
     }
 }

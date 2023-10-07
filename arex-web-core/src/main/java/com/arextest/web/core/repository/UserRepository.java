@@ -1,7 +1,6 @@
 package com.arextest.web.core.repository;
 
 
-import com.arextest.web.model.dto.BaseUserDto;
 import com.arextest.web.model.dto.UserDto;
 
 import java.util.List;
@@ -21,5 +20,5 @@ public interface UserRepository extends RepositoryProvider {
 
     Boolean removeUserFavoriteApp(String userName, String favoriteApp);
 
-    List<BaseUserDto> queryVerifiedUseWithKeyword(String keyword);
+    List<UserDto> queryVerifiedUseWithKeyword(String keyword);
 }

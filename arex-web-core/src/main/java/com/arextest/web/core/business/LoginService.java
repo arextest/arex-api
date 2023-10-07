@@ -12,7 +12,6 @@ import com.arextest.web.model.contract.contracts.login.UpdateUserProfileRequestT
 import com.arextest.web.model.contract.contracts.login.UserProfileResponseType;
 import com.arextest.web.model.contract.contracts.login.VerifyRequestType;
 import com.arextest.web.model.contract.contracts.login.VerifyResponseType;
-import com.arextest.web.model.dto.BaseUserDto;
 import com.arextest.web.model.dto.UserDto;
 import com.arextest.web.model.enums.SendEmailType;
 import com.arextest.web.model.enums.UserStatusType;
@@ -24,8 +23,6 @@ import org.springframework.stereotype.Component;
 import javax.annotation.Resource;
 import java.security.SecureRandom;
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -148,7 +145,7 @@ public class LoginService {
         return userRepository.removeUserFavoriteApp(request.getUserName(), request.getFavoriteApp());
     }
 
-    public List<BaseUserDto> queryVerifiedUseWithKeyword(String keyword) {
+    public List<UserDto> queryVerifiedUseWithKeyword(String keyword) {
         return userRepository.queryVerifiedUseWithKeyword(keyword);
     }
 
