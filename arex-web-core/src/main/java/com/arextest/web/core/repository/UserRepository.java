@@ -20,5 +20,5 @@ public interface UserRepository extends RepositoryProvider {
 
     Boolean removeUserFavoriteApp(String userName, String favoriteApp);
 
-    List<UserDto> listUsers();
+    List<UserDto> queryVerifiedUseWithKeyword(String keyword);
 }

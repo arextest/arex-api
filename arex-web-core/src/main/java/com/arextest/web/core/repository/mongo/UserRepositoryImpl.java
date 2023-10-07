@@ -3,8 +3,10 @@ package com.arextest.web.core.repository.mongo;
 import com.arextest.web.common.LogUtils;
 import com.arextest.web.core.repository.UserRepository;
 import com.arextest.web.core.repository.mongo.util.MongoHelper;
+import com.arextest.web.model.dao.mongodb.ModelBase;
 import com.arextest.web.model.dao.mongodb.UserCollection;
 import com.arextest.web.model.dto.UserDto;
+import com.arextest.web.model.enums.UserStatusType;
 import com.arextest.web.model.mapper.UserMapper;
 import com.mongodb.client.result.UpdateResult;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +29,8 @@ public class UserRepositoryImpl implements UserRepository {
     private static final String VERIFICATION_CODE = "verificationCode";
     private static final String VERIFICATION_TIME = "verificationTime";
     private static final String FAVORITE_APPS = "favoriteApps";
+    private static final String LIKE_QUERY_PATTERN = ".*%s.*";
+    private static final int DEFAULT_LIMIT = 5;
 
     @Resource
     private MongoTemplate mongoTemplate;
@@ -101,8 +105,16 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public List<UserDto> listUsers() {
-        List<UserCollection> userCollections = mongoTemplate.findAll(UserCollection.class);
-        return userCollections.stream().map(UserMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
+    public List<UserDto> queryVerifiedUseWithKeyword(String keyword) {
+        Criteria criteria = Criteria.where(UserCollection.Fields.status).ne(UserStatusType.GUEST);
+        if (keyword != null) {
+            criteria.andOperator(Criteria.where(UserCollection.Fields.userName).regex(String.format(LIKE_QUERY_PATTERN, keyword)));
+        }
+        Query query = new Query(criteria);
+        query.fields().include(UserCollection.Fields.userName).exclude(ModelBase.Fields.id);
+        query.limit(DEFAULT_LIMIT);
+        return mongoTemplate.find(query, UserCollection.class).stream()
+            .map(UserMapper.INSTANCE::dtoFromDao)
+            .collect(Collectors.toList());
     }
 }

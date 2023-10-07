@@ -1,11 +1,13 @@
 package com.arextest.web.model.dao.mongodb;
 
 import lombok.Data;
+import lombok.experimental.FieldNameConstants;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
 
 @Data
+@FieldNameConstants
 @Document(collection = "User")
 public class UserCollection extends ModelBase {
     private String userName;

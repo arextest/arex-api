@@ -23,8 +23,6 @@ import org.springframework.stereotype.Component;
 import javax.annotation.Resource;
 import java.security.SecureRandom;
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -147,10 +145,8 @@ public class LoginService {
         return userRepository.removeUserFavoriteApp(request.getUserName(), request.getFavoriteApp());
     }
 
-    public List<UserDto> listVerifiedUser() {
-        return userRepository.listUsers().stream()
-            .filter(userDto -> !Objects.equals(userDto.getStatus(), UserStatusType.GUEST))
-            .collect(Collectors.toList());
+    public List<UserDto> queryVerifiedUseWithKeyword(String keyword) {
+        return userRepository.queryVerifiedUseWithKeyword(keyword);
     }
 
     private String generateVerificationCode() {
