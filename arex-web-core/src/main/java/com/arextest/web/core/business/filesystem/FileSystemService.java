@@ -578,7 +578,7 @@ public class FileSystemService {
                     userName,
                     request.getWorkspaceId(),
                     userWorkspaceDto.getToken());
-            if (result) {
+            if (Boolean.TRUE.equals(result)) {
                 userWorkspaceRepository.update(userWorkspaceDto);
                 response.getSuccessUsers().add(userName);
             } else {
