@@ -21,7 +21,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
-import java.util.Random;
+import java.security.SecureRandom;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -31,6 +34,7 @@ public class LoginService {
     private static final String VERIFICATION_CODE_PLACEHOLDER = "{{verificationCode}}";
     private static final String VERIFICATION_CODE_EMAIL_TEMPLATE = "classpath:verificationCodeEmailTemplate.htm";
     private static final String GUEST_PREFIX = "GUEST_";
+    private static final SecureRandom random = new SecureRandom();
 
     @Resource
     private UserRepository userRepository;
@@ -53,9 +57,8 @@ public class LoginService {
         boolean success = userRepository.saveUser(user);
         if (success) {
             template = template.replace(VERIFICATION_CODE_PLACEHOLDER, user.getVerificationCode());
-            success = success & mailUtils.sendEmail(user.getUserName(),
-                    SEND_VERIFICATION_CODE_SUBJECT,
-                    template, SendEmailType.LOGIN);
+            success = mailUtils.sendEmail(user.getUserName(), SEND_VERIFICATION_CODE_SUBJECT, template,
+                SendEmailType.LOGIN);
         }
         return success;
     }
@@ -69,7 +72,7 @@ public class LoginService {
             UserDto userDto = new UserDto();
             userDto.setUserName(request.getUserName());
             userDto.setVerificationCode(generateVerificationCode());
-            exist = exist & userRepository.saveUser(userDto);
+            exist = userRepository.saveUser(userDto);
         }
         if (exist) {
             responseType.setSuccess(true);
@@ -106,11 +109,10 @@ public class LoginService {
             // retry 3 times
             for (int i = 0; i < 3; i++) {
                 String guestName = generateGuestUserName();
-                if (userRepository.existUserName(guestName)) {
-                    continue;
+                if (!userRepository.existUserName(guestName)) {
+                    userName = guestName;
+                    break;
                 }
-                userName = guestName;
-                break;
             }
         }
         if (StringUtils.isEmpty(userName)) {
@@ -121,13 +123,11 @@ public class LoginService {
         user.setUserName(userName);
         user.setStatus(UserStatusType.GUEST);
         Boolean result = userRepository.saveUser(user);
-        if (result) {
+        if (Boolean.TRUE.equals(result)) {
             response.setUserName(userName);
             response.setSuccess(true);
             response.setAccessToken(JwtUtil.makeAccessToken(userName));
             response.setRefreshToken(JwtUtil.makeRefreshToken(userName));
-
-            // asyncOperations.sendMailAsGuest(userName,SEND_VERIFICATION_CODE_SUBJECT);
         } else {
             response.setSuccess(false);
         }
@@ -147,11 +147,16 @@ public class LoginService {
         return userRepository.removeUserFavoriteApp(request.getUserName(), request.getFavoriteApp());
     }
 
+    public List<UserDto> listVerifiedUser() {
+        return userRepository.listUsers().stream()
+            .filter(userDto -> !Objects.equals(userDto.getStatus(), UserStatusType.GUEST))
+            .collect(Collectors.toList());
+    }
+
     private String generateVerificationCode() {
         StringBuilder verificationCode = new StringBuilder(6);
-        Random r = new Random();
         for (int i = 0; i < 6; i++) {
-            verificationCode.append(r.nextInt(10));
+            verificationCode.append(random.nextInt(10));
         }
         return verificationCode.toString();
     }
@@ -159,9 +164,8 @@ public class LoginService {
     private String generateGuestUserName() {
         StringBuilder guestName = new StringBuilder(20);
         guestName.append(GUEST_PREFIX);
-        Random r = new Random();
         for (int i = 0; i < 15; i++) {
-            guestName.append(UserStatusType.VALID_USERNAME_CHAR[r.nextInt(UserStatusType.VALID_USERNAME_CHAR.length)]);
+            guestName.append(UserStatusType.VALID_USERNAME_CHAR[random.nextInt(UserStatusType.VALID_USERNAME_CHAR.length)]);
         }
         return guestName.toString();
     }
