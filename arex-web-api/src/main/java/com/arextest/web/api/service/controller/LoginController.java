@@ -117,9 +117,9 @@ public class LoginController {
         return ResponseUtils.successResponse(response);
     }
 
-    @GetMapping("/listVerifiedUser")
+    @GetMapping("/listUsers/{keyword}")
     @ResponseBody
-    public Response listAllUsers() {
-        return ResponseUtils.successResponse(loginService.listVerifiedUser());
+    public Response listUsers(@PathVariable String keyword) {
+        return ResponseUtils.successResponse(loginService.queryVerifiedUseWithKeyword(keyword));
     }
 }

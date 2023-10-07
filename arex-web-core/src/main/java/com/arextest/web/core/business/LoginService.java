@@ -148,11 +148,8 @@ public class LoginService {
         return userRepository.removeUserFavoriteApp(request.getUserName(), request.getFavoriteApp());
     }
 
-    public List<BaseUserDto> listVerifiedUser() {
-        return userRepository.listUsers().stream()
-            .filter(userDto -> !Objects.equals(userDto.getStatus(), UserStatusType.GUEST))
-            .map(userDto -> new BaseUserDto(userDto.getId(), userDto.getUserName()))
-            .collect(Collectors.toList());
+    public List<BaseUserDto> queryVerifiedUseWithKeyword(String keyword) {
+        return userRepository.queryVerifiedUseWithKeyword(keyword);
     }
 
     private String generateVerificationCode() {
