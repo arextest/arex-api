@@ -1,13 +1,13 @@
 package com.arextest.web.model.dto;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.util.List;
 
 @Data
-public class UserDto {
-    private String id;
-    private String userName;
+@EqualsAndHashCode(callSuper = true)
+public class UserDto extends BaseUserDto {
     private String verificationCode;
     private Long verificationTime;
     private String profile;

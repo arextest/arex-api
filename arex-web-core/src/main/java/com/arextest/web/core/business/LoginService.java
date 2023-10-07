@@ -12,6 +12,7 @@ import com.arextest.web.model.contract.contracts.login.UpdateUserProfileRequestT
 import com.arextest.web.model.contract.contracts.login.UserProfileResponseType;
 import com.arextest.web.model.contract.contracts.login.VerifyRequestType;
 import com.arextest.web.model.contract.contracts.login.VerifyResponseType;
+import com.arextest.web.model.dto.BaseUserDto;
 import com.arextest.web.model.dto.UserDto;
 import com.arextest.web.model.enums.SendEmailType;
 import com.arextest.web.model.enums.UserStatusType;
@@ -147,9 +148,10 @@ public class LoginService {
         return userRepository.removeUserFavoriteApp(request.getUserName(), request.getFavoriteApp());
     }
 
-    public List<UserDto> listVerifiedUser() {
+    public List<BaseUserDto> listVerifiedUser() {
         return userRepository.listUsers().stream()
             .filter(userDto -> !Objects.equals(userDto.getStatus(), UserStatusType.GUEST))
+            .map(userDto -> new BaseUserDto(userDto.getId(), userDto.getUserName()))
             .collect(Collectors.toList());
     }
 
