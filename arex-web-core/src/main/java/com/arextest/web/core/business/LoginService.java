@@ -150,10 +150,9 @@ public class LoginService {
         return userRepository.removeUserFavoriteApp(request.getUserName(), request.getFavoriteApp());
     }
 
-    public List<String> listVerifiedUserNames() {
+    public List<UserDto> listVerifiedUser() {
         return userRepository.listUsers().stream()
             .filter(userDto -> !Objects.equals(userDto.getStatus(), UserStatusType.GUEST))
-            .map(UserDto::getUserName)
             .collect(Collectors.toList());
     }
 

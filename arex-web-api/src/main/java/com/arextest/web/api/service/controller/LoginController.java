@@ -117,9 +117,9 @@ public class LoginController {
         return ResponseUtils.successResponse(response);
     }
 
-    @GetMapping("/listUsersName")
+    @GetMapping("/listVerifiedUser")
     @ResponseBody
     public Response listAllUsers() {
-        return ResponseUtils.successResponse(loginService.listVerifiedUserNames());
+        return ResponseUtils.successResponse(loginService.listVerifiedUser());
     }
 }
