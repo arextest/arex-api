@@ -4,7 +4,6 @@ import com.arextest.common.model.response.Response;
 import com.arextest.common.model.response.ResponseCode;
 import com.arextest.common.utils.JwtUtil;
 import com.arextest.common.utils.ResponseUtils;
-import com.arextest.web.common.Tuple;
 import com.arextest.web.core.business.filesystem.FileSystemService;
 import com.arextest.web.core.business.filesystem.RolePermission;
 import com.arextest.web.model.contract.contracts.SuccessResponseType;
@@ -45,6 +44,7 @@ import com.arextest.web.model.contract.contracts.filesystem.FSSaveFolderRequestT
 import com.arextest.web.model.contract.contracts.filesystem.FSSaveFolderResponseType;
 import com.arextest.web.model.contract.contracts.filesystem.FSSaveInterfaceRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.FSSaveInterfaceResponseType;
+import com.arextest.web.model.contract.contracts.filesystem.FsAddItemFromRecordByDefaultRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.InviteToWorkspaceRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.InviteToWorkspaceResponseType;
 import com.arextest.web.model.contract.contracts.filesystem.LeaveWorkspaceRequestType;
@@ -54,6 +54,7 @@ import com.arextest.web.model.contract.contracts.filesystem.ValidInvitationReque
 import com.arextest.web.model.contract.contracts.filesystem.ValidInvitationResponseType;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.MutablePair;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -91,7 +92,7 @@ public class FileSystemController {
         }
         String userName = JwtUtil.getUserName(token);
         request.setUserName(userName);
-        FSAddItemResponseType response = fileSystemService.addItem(request);
+        FSAddItemResponseType response = fileSystemService.addItemForController(request);
         return ResponseUtils.successResponse(response);
     }
 
@@ -329,15 +330,30 @@ public class FileSystemController {
     @PostMapping("/addItemFromRecord")
     @ResponseBody
     public Response addItemFromRecord(@Valid @RequestBody FSAddItemFromRecordRequestType request) {
-        Tuple<String, String> result = fileSystemService.addItemFromRecord(request);
+        MutablePair<String, String> result = fileSystemService.addItemFromRecord(request);
         if (result == null) {
             return ResponseUtils.errorResponse("Failed to add record case to workspace",
                     ResponseCode.REQUESTED_HANDLE_EXCEPTION);
         }
         FSAddItemFromRecordResponseType response = new FSAddItemFromRecordResponseType();
         response.setSuccess(true);
-        response.setWorkspaceId(result.x);
-        response.setInfoId(result.y);
+        response.setWorkspaceId(result.getLeft());
+        response.setInfoId(result.getRight());
+        return ResponseUtils.successResponse(response);
+    }
+
+    @PostMapping("/addItemFromRecordByDefault")
+    @ResponseBody
+    public Response addItemFromRecordByDefault(@Valid @RequestBody FsAddItemFromRecordByDefaultRequestType request) {
+        MutablePair<String, String> result = fileSystemService.addItemFromRecordByDefault(request);
+        if (result == null) {
+            return ResponseUtils.errorResponse("Failed to add record case to workspace by default path",
+                    ResponseCode.REQUESTED_HANDLE_EXCEPTION);
+        }
+        FSAddItemFromRecordResponseType response = new FSAddItemFromRecordResponseType();
+        response.setSuccess(true);
+        response.setWorkspaceId(result.getLeft());
+        response.setInfoId(result.getRight());
         return ResponseUtils.successResponse(response);
     }
 
@@ -353,11 +369,11 @@ public class FileSystemController {
     @ResponseBody
     public Response exportItem(@Valid @RequestBody FSExportItemRequestType request) {
         FSExportItemResponseType response = new FSExportItemResponseType();
-        Tuple<Boolean, String> result = fileSystemService.exportItem(request);
-        if (!result.x) {
+        MutablePair<Boolean, String> result = fileSystemService.exportItem(request);
+        if (!result.getLeft()) {
             return ResponseUtils.errorResponse("Failed to export items", ResponseCode.REQUESTED_HANDLE_EXCEPTION);
         }
-        response.setExportString(result.y);
+        response.setExportString(result.getRight());
         return ResponseUtils.successResponse(response);
     }
 

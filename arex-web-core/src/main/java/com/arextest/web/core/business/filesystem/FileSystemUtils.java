@@ -1,15 +1,9 @@
 package com.arextest.web.core.business.filesystem;
 
-import com.arextest.web.common.Tuple;
-import com.arextest.web.core.repository.FSTraceLogRepository;
-import com.arextest.web.model.dto.filesystem.FSItemDto;
 import com.arextest.web.model.dto.filesystem.FSNodeDto;
-import com.arextest.web.model.dto.filesystem.FSTraceLogDto;
-import com.arextest.web.model.dto.filesystem.FSTreeDto;
-import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.tuple.MutablePair;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
 import java.util.ArrayDeque;
 import java.util.List;
 import java.util.Objects;
@@ -23,14 +17,14 @@ import java.util.Queue;
 public class FileSystemUtils {
 
     public FSNodeDto findByPath(List<FSNodeDto> list, String[] pathArr) {
-        Tuple<Integer, FSNodeDto> result = findByPathWithIndex(list, pathArr);
+        MutablePair<Integer, FSNodeDto> result = findByPathWithIndex(list, pathArr);
         if (result == null) {
             return null;
         }
-        return result.y;
+        return result.getRight();
     }
 
-    public Tuple<Integer, FSNodeDto> findByPathWithIndex(List<FSNodeDto> list, String[] pathArr) {
+    public MutablePair<Integer, FSNodeDto> findByPathWithIndex(List<FSNodeDto> list, String[] pathArr) {
         if (list == null || list.isEmpty()) {
             return null;
         }
@@ -40,32 +34,53 @@ public class FileSystemUtils {
             if (tmp == null || tmp.size() == 0) {
                 return null;
             }
-            Tuple<Integer, FSNodeDto> find = findByInfoIdWithIndex(tmp, pathNode);
+            MutablePair<Integer, FSNodeDto> find = findByInfoIdWithIndex(tmp, pathNode);
             if (find == null) {
                 return null;
             }
-            tmp = find.y.getChildren();
+            tmp = find.getRight().getChildren();
         }
         String last = pathArr[pathArr.length - 1];
         return findByInfoIdWithIndex(tmp, last);
     }
 
     public FSNodeDto findByInfoId(List<FSNodeDto> list, String infoId) {
-        Tuple<Integer, FSNodeDto> result = findByInfoIdWithIndex(list, infoId);
+        MutablePair<Integer, FSNodeDto> result = findByInfoIdWithIndex(list, infoId);
         if (result == null) {
             return null;
         }
-        return result.y;
+        return result.getRight();
     }
 
-    public Tuple<Integer, FSNodeDto> findByInfoIdWithIndex(List<FSNodeDto> list, String infoId) {
+    public FSNodeDto findByNodeName(List<FSNodeDto> list, String nodeName) {
+        MutablePair<Integer, FSNodeDto> result = findByNodeNameWithIndex(list, nodeName);
+        if (result == null) {
+            return null;
+        }
+        return result.getRight();
+    }
+
+    public MutablePair<Integer, FSNodeDto> findByInfoIdWithIndex(List<FSNodeDto> list, String infoId) {
         if (list == null || list.size() == 0) {
             return null;
         }
         for (int i = 0; i < list.size(); i++) {
             FSNodeDto dto = list.get(i);
             if (Objects.equals(dto.getInfoId(), infoId)) {
-                return new Tuple<>(i, dto);
+                return new MutablePair<>(i, dto);
+            }
+        }
+        return null;
+    }
+
+    public MutablePair<Integer, FSNodeDto> findByNodeNameWithIndex(List<FSNodeDto> list, String nodeName) {
+        if (list == null || list.size() == 0) {
+            return null;
+        }
+        for (int i = 0; i < list.size(); i++) {
+            FSNodeDto dto = list.get(i);
+            if (Objects.equals(dto.getNodeName(), nodeName)) {
+                return new MutablePair<>(i, dto);
             }
         }
         return null;
