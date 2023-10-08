@@ -3,22 +3,84 @@ package com.arextest.web.core.business.filesystem;
 import com.arextest.common.utils.JwtUtil;
 import com.arextest.web.common.LoadResource;
 import com.arextest.web.common.LogUtils;
-import com.arextest.web.common.Tuple;
 import com.arextest.web.core.business.filesystem.importexport.ImportExport;
 import com.arextest.web.core.business.filesystem.importexport.impl.ImportExportFactory;
 import com.arextest.web.core.business.filesystem.pincase.StorageCase;
 import com.arextest.web.core.business.filesystem.recovery.RecoveryFactory;
 import com.arextest.web.core.business.filesystem.recovery.RecoveryService;
 import com.arextest.web.core.business.util.MailUtils;
-import com.arextest.web.core.repository.*;
-import com.arextest.web.model.contract.contracts.filesystem.*;
+import com.arextest.web.core.repository.FSCaseRepository;
+import com.arextest.web.core.repository.FSFolderRepository;
+import com.arextest.web.core.repository.FSInterfaceRepository;
+import com.arextest.web.core.repository.FSTraceLogRepository;
+import com.arextest.web.core.repository.FSTreeRepository;
+import com.arextest.web.core.repository.ReportPlanStatisticRepository;
+import com.arextest.web.core.repository.UserRepository;
+import com.arextest.web.core.repository.UserWorkspaceRepository;
+import com.arextest.web.model.contract.contracts.filesystem.ChangeRoleRequestType;
+import com.arextest.web.model.contract.contracts.filesystem.FSAddItemFromRecordRequestType;
+import com.arextest.web.model.contract.contracts.filesystem.FSAddItemRequestType;
+import com.arextest.web.model.contract.contracts.filesystem.FSAddItemResponseType;
+import com.arextest.web.model.contract.contracts.filesystem.FSAddWorkspaceRequestType;
+import com.arextest.web.model.contract.contracts.filesystem.FSAddWorkspaceResponseType;
+import com.arextest.web.model.contract.contracts.filesystem.FSDuplicateRequestType;
+import com.arextest.web.model.contract.contracts.filesystem.FSExportItemRequestType;
+import com.arextest.web.model.contract.contracts.filesystem.FSImportItemRequestType;
+import com.arextest.web.model.contract.contracts.filesystem.FSMoveItemRequestType;
+import com.arextest.web.model.contract.contracts.filesystem.FSPinMockRequestType;
+import com.arextest.web.model.contract.contracts.filesystem.FSQueryCaseRequestType;
+import com.arextest.web.model.contract.contracts.filesystem.FSQueryCaseResponseType;
+import com.arextest.web.model.contract.contracts.filesystem.FSQueryFolderRequestType;
+import com.arextest.web.model.contract.contracts.filesystem.FSQueryFolderResponseType;
+import com.arextest.web.model.contract.contracts.filesystem.FSQueryInterfaceRequestType;
+import com.arextest.web.model.contract.contracts.filesystem.FSQueryInterfaceResponseType;
+import com.arextest.web.model.contract.contracts.filesystem.FSQueryItemType;
+import com.arextest.web.model.contract.contracts.filesystem.FSQueryUsersByWorkspaceRequestType;
+import com.arextest.web.model.contract.contracts.filesystem.FSQueryUsersByWorkspaceResponseType;
+import com.arextest.web.model.contract.contracts.filesystem.FSQueryWorkspaceRequestType;
+import com.arextest.web.model.contract.contracts.filesystem.FSQueryWorkspaceResponseType;
+import com.arextest.web.model.contract.contracts.filesystem.FSQueryWorkspacesRequestType;
+import com.arextest.web.model.contract.contracts.filesystem.FSQueryWorkspacesResponseType;
+import com.arextest.web.model.contract.contracts.filesystem.FSRemoveItemRequestType;
+import com.arextest.web.model.contract.contracts.filesystem.FSRenameRequestType;
+import com.arextest.web.model.contract.contracts.filesystem.FSRenameWorkspaceRequestType;
+import com.arextest.web.model.contract.contracts.filesystem.FSSaveCaseRequestType;
+import com.arextest.web.model.contract.contracts.filesystem.FSSaveFolderRequestType;
+import com.arextest.web.model.contract.contracts.filesystem.FSSaveFolderResponseType;
+import com.arextest.web.model.contract.contracts.filesystem.FSSaveInterfaceRequestType;
+import com.arextest.web.model.contract.contracts.filesystem.FSTreeType;
+import com.arextest.web.model.contract.contracts.filesystem.FsAddItemFromRecordByDefaultRequestType;
+import com.arextest.web.model.contract.contracts.filesystem.InviteToWorkspaceRequestType;
+import com.arextest.web.model.contract.contracts.filesystem.InviteToWorkspaceResponseType;
+import com.arextest.web.model.contract.contracts.filesystem.RecoverItemInfoRequestType;
+import com.arextest.web.model.contract.contracts.filesystem.UserType;
+import com.arextest.web.model.contract.contracts.filesystem.ValidInvitationRequestType;
+import com.arextest.web.model.contract.contracts.filesystem.ValidInvitationResponseType;
 import com.arextest.web.model.dto.KeyValuePairDto;
 import com.arextest.web.model.dto.ReportPlanStatisticDto;
 import com.arextest.web.model.dto.UserDto;
 import com.arextest.web.model.dto.WorkspaceDto;
-import com.arextest.web.model.dto.filesystem.*;
-import com.arextest.web.model.enums.*;
-import com.arextest.web.model.mapper.*;
+import com.arextest.web.model.dto.filesystem.AddressDto;
+import com.arextest.web.model.dto.filesystem.FSCaseDto;
+import com.arextest.web.model.dto.filesystem.FSFolderDto;
+import com.arextest.web.model.dto.filesystem.FSInterfaceAndCaseBaseDto;
+import com.arextest.web.model.dto.filesystem.FSInterfaceDto;
+import com.arextest.web.model.dto.filesystem.FSItemDto;
+import com.arextest.web.model.dto.filesystem.FSNodeDto;
+import com.arextest.web.model.dto.filesystem.FSTraceLogDto;
+import com.arextest.web.model.dto.filesystem.FSTreeDto;
+import com.arextest.web.model.dto.filesystem.UserWorkspaceDto;
+import com.arextest.web.model.enums.CaseSourceType;
+import com.arextest.web.model.enums.FSInfoItem;
+import com.arextest.web.model.enums.InvitationType;
+import com.arextest.web.model.enums.RoleType;
+import com.arextest.web.model.enums.SendEmailType;
+import com.arextest.web.model.mapper.FSCaseMapper;
+import com.arextest.web.model.mapper.FSFolderMapper;
+import com.arextest.web.model.mapper.FSInterfaceMapper;
+import com.arextest.web.model.mapper.FSTreeMapper;
+import com.arextest.web.model.mapper.UserWorkspaceMapper;
+import com.arextest.web.model.mapper.WorkspaceMapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Data;
@@ -27,12 +89,25 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.MutablePair;
 import org.bson.internal.Base64;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Queue;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
@@ -105,14 +180,28 @@ public class FileSystemService {
     @Resource
     private ObjectMapper objectMapper;
 
-
-    public FSAddItemResponseType addItem(FSAddItemRequestType request) {
+    public FSAddItemResponseType addItemForController(FSAddItemRequestType request) {
+        MutablePair<String, FSTreeDto> tuple = addItem(request);
+        if (tuple == null) {
+            return null;
+        }
         FSAddItemResponseType response = new FSAddItemResponseType();
+        response.setInfoId(tuple.getLeft());
+        response.setWorkspaceId(tuple.getRight().getId());
+        return response;
+    }
+
+
+    /**
+     * add item into workspace
+     *
+     * @return <InfoId, FSTreeDto>
+     */
+    public MutablePair<String, FSTreeDto> addItem(FSAddItemRequestType request) {
 
         ItemInfo itemInfo = itemInfoFactory.getItemInfo(request.getNodeType());
         if (itemInfo == null) {
-            response.setSuccess(false);
-            return response;
+            return null;
         }
 
         try {
@@ -188,19 +277,12 @@ public class FileSystemService {
                 targetTreeNodes.add(0, nodeDto);
                 return dto;
             });
-            if (workspace != null) {
-                response.setSuccess(true);
-                response.setInfoId(infoId.get());
-                response.setWorkspaceId(workspaceId);
-            } else {
-                response.setSuccess(false);
-            }
+            return new MutablePair<>(infoId.get(), workspace);
 
         } catch (Exception e) {
             LogUtils.error(LOGGER, "failed to add item to filesystem", e);
-            response.setSuccess(false);
+            return null;
         }
-        return response;
     }
 
     public Boolean removeItem(FSRemoveItemRequestType request, String userName) {
@@ -294,7 +376,7 @@ public class FileSystemService {
     public Boolean move(FSMoveItemRequestType request) {
         try {
             FSTreeDto treeDto = fsTreeRepository.updateFSTree(request.getId(), dto -> {
-                Tuple<Integer, FSNodeDto> current =
+                MutablePair<Integer, FSNodeDto> current =
                         fileSystemUtils.findByPathWithIndex(dto.getRoots(), request.getFromNodePath());
                 if (current == null) {
                     return null;
@@ -310,33 +392,33 @@ public class FileSystemService {
                 }
                 Integer toIndex = request.getToIndex() == null ? 0 : request.getToIndex();
                 if (toParent == null) {
-                    dto.getRoots().add(toIndex, current.y);
-                    updateParentId(current.y, "", 0);
+                    dto.getRoots().add(toIndex, current.getRight());
+                    updateParentId(current.getRight(), "", 0);
                 } else {
                     if (toParent.getChildren() == null) {
                         toParent.setChildren(new ArrayList<>());
                     }
-                    toParent.getChildren().add(toIndex, current.y);
-                    updateParentId(current.y, toParent.getInfoId(), toParent.getNodeType());
+                    toParent.getChildren().add(toIndex, current.getRight());
+                    updateParentId(current.getRight(), toParent.getInfoId(), toParent.getNodeType());
                 }
                 if (fromParent == null && toParent == null) {
-                    if (request.getToIndex() < current.x) {
-                        dto.getRoots().remove(current.x + 1);
+                    if (request.getToIndex() < current.getLeft()) {
+                        dto.getRoots().remove(current.getLeft() + 1);
                     } else {
-                        dto.getRoots().remove(current.x.intValue());
+                        dto.getRoots().remove(current.getLeft().intValue());
                     }
                 } else if (fromParent != null && toParent != null
                         && Objects.equals(fromParent.getInfoId(), toParent.getInfoId())) {
-                    if (request.getToIndex() < current.x) {
-                        fromParent.getChildren().remove(current.x + 1);
+                    if (request.getToIndex() < current.getLeft()) {
+                        fromParent.getChildren().remove(current.getLeft() + 1);
                     } else {
-                        fromParent.getChildren().remove(current.x.intValue());
+                        fromParent.getChildren().remove(current.getLeft().intValue());
                     }
                 } else {
                     if (fromParent == null) {
-                        dto.getRoots().remove(current.x.intValue());
+                        dto.getRoots().remove(current.getLeft().intValue());
                     } else {
-                        fromParent.getChildren().remove(current.x.intValue());
+                        fromParent.getChildren().remove(current.getLeft().intValue());
                     }
                 }
                 return dto;
@@ -642,9 +724,65 @@ public class FileSystemService {
     }
 
     /**
+     * Add item from record by default path. default path rule: AppName/InterfaceName/NodeName
+     */
+    public MutablePair<String, String> addItemFromRecordByDefault(FsAddItemFromRecordByDefaultRequestType request) {
+        FSAddItemFromRecordRequestType fsAddItemFromRecordRequest = new FSAddItemFromRecordRequestType();
+        fsAddItemFromRecordRequest.setWorkspaceId(request.getWorkspaceId());
+        fsAddItemFromRecordRequest.setNodeName(request.getNodeName());
+        fsAddItemFromRecordRequest.setPlanId(request.getPlanId());
+        fsAddItemFromRecordRequest.setRecordId(request.getRecordId());
+        fsAddItemFromRecordRequest.setOperationId(request.getOperationId());
+
+        FSTreeDto treeDto = fsTreeRepository.queryFSTreeById(request.getWorkspaceId());
+        if (treeDto == null) {
+            LogUtils.error(LOGGER, "Workspace not found, workspaceId: {}", request.getWorkspaceId());
+            return null;
+        }
+        String[] parentPath = new String[2];
+        FSNodeDto appIdNode = fileSystemUtils.findByNodeName(treeDto.getRoots(), request.getAppName());
+        if (appIdNode == null) {
+            FSAddItemRequestType addFolderRequest = new FSAddItemRequestType();
+            addFolderRequest.setId(treeDto.getId());
+            addFolderRequest.setNodeName(request.getAppName());
+            addFolderRequest.setNodeType(FSInfoItem.FOLDER);
+            MutablePair<String, FSTreeDto> addFolder = addItem(addFolderRequest);
+            if (addFolder == null) {
+                LogUtils.error(LOGGER, "Add folder failed, workspaceId: {}, nodeName: {}", request.getWorkspaceId(),
+                        request.getAppName());
+                return null;
+            }
+            appIdNode = fileSystemUtils.findByNodeName(addFolder.getRight().getRoots(), request.getAppName());
+            parentPath[0] = addFolder.getLeft();
+        } else {
+            parentPath[0] = appIdNode.getInfoId();
+        }
+        FSNodeDto interfaceNode = fileSystemUtils.findByNodeName(appIdNode.getChildren(), request.getInterfaceName());
+        if (interfaceNode == null) {
+            FSAddItemRequestType addInterfaceRequest = new FSAddItemRequestType();
+            addInterfaceRequest.setId(treeDto.getId());
+            addInterfaceRequest.setNodeName(request.getInterfaceName());
+            addInterfaceRequest.setNodeType(FSInfoItem.INTERFACE);
+            addInterfaceRequest.setParentPath(new String[] {parentPath[0]});
+            MutablePair<String, FSTreeDto> addInterface = addItem(addInterfaceRequest);
+            if (addInterface == null) {
+                LogUtils.error(LOGGER, "Add interface failed, workspaceId: {}, nodeName: {}", request.getWorkspaceId(),
+                        request.getInterfaceName());
+                return null;
+            }
+            parentPath[1] = addInterface.getLeft();
+        } else {
+            parentPath[1] = interfaceNode.getInfoId();
+        }
+
+        fsAddItemFromRecordRequest.setParentPath(parentPath);
+        return addItemFromRecord(fsAddItemFromRecordRequest);
+    }
+
+    /**
      * @return : Tuple<workspaceId,InfoId>
      */
-    public Tuple<String, String> addItemFromRecord(FSAddItemFromRecordRequestType request) {
+    public MutablePair<String, String> addItemFromRecord(FSAddItemFromRecordRequestType request) {
 
         FSTreeDto treeDto = fsTreeRepository.queryFSTreeById(request.getWorkspaceId());
         if (treeDto == null) {
@@ -671,8 +809,8 @@ public class FileSystemService {
             addInterface.setNodeName(DEFAULT_INTERFACE_NAME);
             addInterface.setNodeType(FSInfoItem.INTERFACE);
             addInterface.setParentPath(request.getParentPath());
-            FSAddItemResponseType addItemResponse = addItem(addInterface);
-            path.add(addItemResponse.getInfoId());
+            MutablePair<String, FSTreeDto> addInterfaceResponse = addItem(addInterface);
+            path.add(addInterfaceResponse.getLeft());
         }
 
         // add the related information about the replay interface to the manual interface
@@ -684,10 +822,10 @@ public class FileSystemService {
         addCase.setNodeType(FSInfoItem.CASE);
         addCase.setParentPath(path.toArray(new String[path.size()]));
         addCase.setCaseSourceType(CaseSourceType.REPLAY_CASE);
-        FSAddItemResponseType addCaseResponse = addItem(addCase);
+        MutablePair<String, FSTreeDto> addCaseResponse = addItem(addCase);
 
         caseDto.setParentId(path.get(path.size() - 1));
-        caseDto.setId(addCaseResponse.getInfoId());
+        caseDto.setId(addCaseResponse.getLeft());
         String newRecordId = storageCase.getNewRecordId(request.getRecordId());
         caseDto.setRecordId(newRecordId);
 
@@ -709,7 +847,7 @@ public class FileSystemService {
         }
 
         fsCaseRepository.saveCase(caseDto);
-        return new Tuple<>(treeDto.getId(), addCaseResponse.getInfoId());
+        return new MutablePair<>(treeDto.getId(), addCaseResponse.getLeft());
     }
 
     public boolean pinMock(FSPinMockRequestType request) {
@@ -773,7 +911,7 @@ public class FileSystemService {
         return recoveryService.recovery(traceLogDto);
     }
 
-    public Tuple<Boolean, String> exportItem(FSExportItemRequestType request) {
+    public MutablePair<Boolean, String> exportItem(FSExportItemRequestType request) {
         FSTreeDto treeDto = fsTreeRepository.queryFSTreeById(request.getWorkspaceId());
         List<FSNodeDto> nodes;
         if (ArrayUtils.isEmpty(request.getPath())) {
@@ -787,10 +925,10 @@ public class FileSystemService {
 
         ImportExport ie = importExportFactory.getImportExport(request.getType());
         if (ie == null) {
-            return new Tuple<>(false, null);
+            return new MutablePair<>(false, null);
         }
         String exportString = ie.exportItem(nodes, itemInfos);
-        return new Tuple<>(true, exportString);
+        return new MutablePair<>(true, exportString);
     }
 
     public boolean importItem(FSImportItemRequestType request) {

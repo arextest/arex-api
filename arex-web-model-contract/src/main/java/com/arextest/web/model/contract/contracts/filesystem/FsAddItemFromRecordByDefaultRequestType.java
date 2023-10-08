@@ -1,15 +1,19 @@
 package com.arextest.web.model.contract.contracts.filesystem;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
 
+/**
+ * @author b_yu
+ * @since 2023/10/7
+ */
 @Data
-public class FSAddItemFromRecordRequestType {
+public class FsAddItemFromRecordByDefaultRequestType {
     @NotBlank(message = "WorkspaceId cannot be empty")
     private String workspaceId;
-    private String[] parentPath;
+    private String appName;
+    private String interfaceName;
     private String nodeName;
     @NotBlank(message = "planId cannot be empty")
     private String planId;
