@@ -181,11 +181,13 @@ public class FileSystemService {
     private ObjectMapper objectMapper;
 
     public FSAddItemResponseType addItemForController(FSAddItemRequestType request) {
+        FSAddItemResponseType response = new FSAddItemResponseType();
         MutablePair<String, FSTreeDto> tuple = addItem(request);
         if (tuple == null) {
-            return null;
+            response.setSuccess(false);
+            return response;
         }
-        FSAddItemResponseType response = new FSAddItemResponseType();
+        response.setSuccess(true);
         response.setInfoId(tuple.getLeft());
         response.setWorkspaceId(tuple.getRight().getId());
         return response;
@@ -277,12 +279,14 @@ public class FileSystemService {
                 targetTreeNodes.add(0, nodeDto);
                 return dto;
             });
-            return new MutablePair<>(infoId.get(), workspace);
-
+            if (workspace != null) {
+                return new MutablePair<>(infoId.get(), workspace);
+            }
         } catch (Exception e) {
             LogUtils.error(LOGGER, "failed to add item to filesystem", e);
             return null;
         }
+        return null;
     }
 
     public Boolean removeItem(FSRemoveItemRequestType request, String userName) {
