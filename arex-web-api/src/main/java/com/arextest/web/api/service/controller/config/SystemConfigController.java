@@ -1,8 +1,8 @@
 package com.arextest.web.api.service.controller.config;
 
+import com.arextest.common.annotation.AppAuth;
 import com.arextest.common.model.response.Response;
 import com.arextest.common.utils.ResponseUtils;
-import com.arextest.web.api.service.annotation.AppAuth;
 import com.arextest.web.core.repository.SystemConfigRepository;
 import com.arextest.web.model.contract.contracts.config.SaveSystemConfigRequestType;
 import org.springframework.stereotype.Controller;
@@ -26,7 +26,7 @@ public class SystemConfigController {
 
     @PostMapping("/save")
     @ResponseBody
-    @AppAuth(appId = )
+    @AppAuth()
     public Response saveSystemConfig(@RequestBody SaveSystemConfigRequestType request) {
         return ResponseUtils.successResponse(systemConfigRepository.saveConfig(request.getSystemConfig()));
     }

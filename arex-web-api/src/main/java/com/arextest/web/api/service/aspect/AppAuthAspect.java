@@ -1,5 +1,6 @@
 package com.arextest.web.api.service.aspect;
 
+import com.arextest.common.annotation.AppAuth;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
@@ -15,11 +16,12 @@ import org.springframework.stereotype.Component;
 @Aspect
 @Component
 public class AppAuthAspect {
-    @Pointcut("@annotation(com.arextest.web.api.service.annotation.AppAuth)")
+    @Pointcut("@annotation(com.arextest.common.annotation.AppAuth)")
     public void appAuth(){}
 
-    @Before("appAuth()")
-    public void doBefore(JoinPoint point) {
+    @Before("appAuth() && @annotation(auth)")
+    public void doBefore(JoinPoint point, AppAuth auth) {
+
         int i = 1;
     }
 
