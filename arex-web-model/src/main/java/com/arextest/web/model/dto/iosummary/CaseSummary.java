@@ -1,9 +1,9 @@
 package com.arextest.web.model.dto.iosummary;
 
 import cn.hutool.core.collection.CollectionUtil;
-import com.arextest.web.common.Tuple;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.tuple.MutablePair;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -49,17 +49,17 @@ public class CaseSummary {
         if (CollectionUtil.isEmpty(diffs)) {
             this.categoryKey = 0L;
         } else {
-            Set<Tuple<String, Integer>> categoryAndCodeSet = new HashSet<>();
+            Set<MutablePair<String, Integer>> categoryAndCodeSet = new HashSet<>();
             for (DiffDetail diffDetail : diffs) {
                 categoryAndCodeSet.add(
-                        new Tuple<>(diffDetail.categoryName, diffDetail.code)
+                        new MutablePair<>(diffDetail.categoryName, diffDetail.code)
                 );
             }
 
             long key = OFFSET_BASIS;
-            for (Tuple<String, Integer> item : categoryAndCodeSet) {
-                key = (key ^ item.y) * FNV_PRIME;
-                for (byte c : item.x.getBytes()) {
+            for (MutablePair<String, Integer> item : categoryAndCodeSet) {
+                key = (key ^ item.getRight()) * FNV_PRIME;
+                for (byte c : item.getLeft().getBytes()) {
                     key = (key ^ c) * FNV_PRIME;
                 }
             }

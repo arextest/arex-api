@@ -71,7 +71,7 @@ public class ComparisonExclusionsController extends AbstractConfigurableControll
     public Response queryComparisonConfig(@RequestBody QueryComparisonRequestType request) {
         List<ComparisonExclusionsConfiguration> configs = comparisonExclusionsConfigurableHandler.queryComparisonConfig(
             request.getAppId(), request.getOperationId(), request.getOperationType(), request.getOperationName());
-        if (request.getFilterExpired() && CollectionUtils.isNotEmpty(configs)) {
+        if (Boolean.TRUE.equals(request.getFilterExpired()) && CollectionUtils.isNotEmpty(configs)) {
             configs.removeIf(config -> comparisonExclusionsConfigurableHandler.removeDetailsExpired(config));
         }
         return ResponseUtils.successResponse(configs);
