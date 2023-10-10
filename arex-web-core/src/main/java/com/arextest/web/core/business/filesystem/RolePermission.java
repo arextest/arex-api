@@ -43,12 +43,4 @@ public class RolePermission {
         }
         return checkPermission(action, userName, workspaceId);
     }
-
-    public boolean checkPermissionByToken(String token, String appId) {
-        String userName = JwtUtil.getUserName(token);
-        if (StringUtils.isEmpty(userName)) {
-            return false;
-        }
-        return true;
-    }
 }
