@@ -21,7 +21,7 @@ import javax.annotation.Resource;
  */
 @Controller
 @RequestMapping("/api/config/serviceCollect")
-public final class ServiceCollectConfigurableController extends AbstractConfigurableController<ServiceCollectConfiguration> {
+public class ServiceCollectConfigurableController extends AbstractConfigurableController<ServiceCollectConfiguration> {
     public ServiceCollectConfigurableController(@Autowired ConfigurableHandler<ServiceCollectConfiguration> configurableHandler) {
         super(configurableHandler);
     }

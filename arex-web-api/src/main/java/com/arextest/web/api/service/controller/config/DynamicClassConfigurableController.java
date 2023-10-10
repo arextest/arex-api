@@ -20,7 +20,7 @@ import javax.annotation.Resource;
  */
 @Controller
 @RequestMapping("/api/config/dynamicClass")
-public final class DynamicClassConfigurableController extends AbstractConfigurableController<DynamicClassConfiguration> {
+public class DynamicClassConfigurableController extends AbstractConfigurableController<DynamicClassConfiguration> {
     public DynamicClassConfigurableController(@Autowired ConfigurableHandler<DynamicClassConfiguration> configurableHandler) {
         super(configurableHandler);
     }

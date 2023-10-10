@@ -15,6 +15,7 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -30,6 +31,7 @@ import java.util.List;
 @Slf4j
 @Aspect
 @Component
+@ConditionalOnProperty(value = "arex.app.auth.switch", havingValue = "true")
 public class AppAuthAspect {
     @Resource
     private ApplicationConfigurationRepositoryImpl applicationConfigurationRepository;
@@ -37,14 +39,8 @@ public class AppAuthAspect {
     @Pointcut("@annotation(com.arextest.common.annotation.AppAuth)")
     public void appAuth(){}
 
-    @Value("${arex.app.auth.switch}")
-    private boolean authSwitch;
-
     @Around("appAuth() && @annotation(auth)")
     public Object doAround(ProceedingJoinPoint point, AppAuth auth) throws Throwable {
-        if (!authSwitch) {
-            return point.proceed();
-        }
         ArexContext context = ArexContext.getContext();
         ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         HttpServletRequest request = requestAttributes.getRequest();
