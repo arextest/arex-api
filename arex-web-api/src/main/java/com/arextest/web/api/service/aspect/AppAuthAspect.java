@@ -55,34 +55,34 @@ public class AppAuthAspect {
         context.setOperator(userName);
         if (appId == null) {
             LOGGER.error("header has no appId");
-            return reject(point, auth);
+            return reject(point, auth, Constants.NO_APPID);
         }
         List<ApplicationConfiguration> applications = applicationConfigurationRepository.listBy(context.getAppId());
         if (CollectionUtils.isEmpty(applications)) {
             LOGGER.error("error appId");
-            return reject(point, auth);
+            return reject(point, auth, Constants.ERROR_APPID);
         }
         ApplicationConfiguration application = applications.get(0);
         if (application.getOwners() == null) {
             LOGGER.error("The app:{} has no owners", appId);
-            return reject(point, auth);
+            return reject(point, auth, Constants.NO_PERMISSION);
         }
         Object result;
         if (application.getOwners().contains(userName)) {
             result = point.proceed();
         } else {
             context.setPassAuth(true);
-            return reject(point, auth);
+            return reject(point, auth, Constants.NO_PERMISSION);
         }
         ArexContext.removeContext();
         return result;
     }
 
-    private Object reject(ProceedingJoinPoint point, AppAuth auth) throws Throwable {
+    private Object reject(ProceedingJoinPoint point, AppAuth auth, String remark) throws Throwable {
         ArexContext.removeContext();
         switch (auth.rejectStrategy()) {
             case FAIL_RESPONSE:
-                return ResponseUtils.errorResponse(Constants.NO_PERMISSION, ResponseCode.AUTHENTICATION_FAILED);
+                return ResponseUtils.errorResponse(remark, ResponseCode.AUTHENTICATION_FAILED);
             case DOWNGRADE:
                 ArexContext.getContext().setPassAuth(false);
             default:
