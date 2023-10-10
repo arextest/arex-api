@@ -344,7 +344,6 @@ public class ReportQueryController {
         return ResponseUtils.successResponse(response);
     }
 
-    @AppAuth
     @Deprecated
     @GetMapping("/queryDiffMsgById/{id}")
     @ResponseBody
