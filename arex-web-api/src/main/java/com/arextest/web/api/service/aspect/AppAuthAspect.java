@@ -1,12 +1,27 @@
 package com.arextest.web.api.service.aspect;
 
 import com.arextest.common.annotation.AppAuth;
+import com.arextest.common.context.ArexContext;
+import com.arextest.common.model.response.ResponseCode;
+import com.arextest.common.utils.JwtUtil;
+import com.arextest.common.utils.ResponseUtils;
+import com.arextest.config.model.dto.application.ApplicationConfiguration;
+import com.arextest.config.repository.impl.ApplicationConfigurationRepositoryImpl;
+import com.arextest.web.api.service.controller.Constants;
 import lombok.extern.slf4j.Slf4j;
-import org.aspectj.lang.JoinPoint;
+import org.apache.commons.collections4.CollectionUtils;
+import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 /**
  * @author wildeslam.
@@ -16,13 +31,63 @@ import org.springframework.stereotype.Component;
 @Aspect
 @Component
 public class AppAuthAspect {
+    @Resource
+    private ApplicationConfigurationRepositoryImpl applicationConfigurationRepository;
+
     @Pointcut("@annotation(com.arextest.common.annotation.AppAuth)")
     public void appAuth(){}
 
-    @Before("appAuth() && @annotation(auth)")
-    public void doBefore(JoinPoint point, AppAuth auth) {
+    @Value("${arex.app.auth.switch}")
+    private boolean authSwitch;
 
-        int i = 1;
+    @Around("appAuth() && @annotation(auth)")
+    public Object doAround(ProceedingJoinPoint point, AppAuth auth) throws Throwable {
+        if (!authSwitch) {
+            return point.proceed();
+        }
+        ArexContext context = ArexContext.getContext();
+        ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        HttpServletRequest request = requestAttributes.getRequest();
+        String appId = request.getHeader("appId");
+        String accessToken = request.getHeader("access-token");
+        String userName = JwtUtil.getUserName(accessToken);
+        context.setAppId(appId);
+        context.setOperator(userName);
+        if (appId == null) {
+            LOGGER.error("header has no appId");
+            return reject(point, auth);
+        }
+        List<ApplicationConfiguration> applications = applicationConfigurationRepository.listBy(context.getAppId());
+        if (CollectionUtils.isEmpty(applications)) {
+            LOGGER.error("error appId");
+            return reject(point, auth);
+        }
+        ApplicationConfiguration application = applications.get(0);
+        if (application.getOwners() == null) {
+            LOGGER.error("The app:{} has no owners", appId);
+            return reject(point, auth);
+        }
+        Object result;
+        if (application.getOwners().contains(userName)) {
+            result = point.proceed();
+        } else {
+            context.setPassAuth(true);
+            return reject(point, auth);
+        }
+        ArexContext.removeContext();
+        return result;
+    }
+
+    private Object reject(ProceedingJoinPoint point, AppAuth auth) throws Throwable {
+        ArexContext.removeContext();
+        switch (auth.rejectStrategy()) {
+            case FAIL_RESPONSE:
+                return ResponseUtils.errorResponse(Constants.NO_PERMISSION, ResponseCode.AUTHENTICATION_FAILED);
+            case DOWNGRADE:
+                ArexContext.getContext().setPassAuth(false);
+            default:
+                return point.proceed();
+        }
     }
 
 }

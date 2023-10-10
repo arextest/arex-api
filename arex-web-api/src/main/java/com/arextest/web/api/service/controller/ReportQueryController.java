@@ -4,6 +4,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
+import com.arextest.common.annotation.AppAuth;
 import com.arextest.web.common.HttpUtils;
 import com.arextest.web.model.contract.contracts.FeedbackSceneRequest;
 import com.arextest.web.model.contract.contracts.RemoveRecordsAndScenesRequest;
@@ -120,6 +121,7 @@ public class ReportQueryController {
     @Deprecated
     @PostMapping("/pushCompareResults")
     @ResponseBody
+    // from schedule
     public Response pushCompareResults(@Valid @RequestBody PushCompareResultsRequestType request) {
         PushCompareResultsResponseType response = new PushCompareResultsResponseType();
         response.setSuccess(reportService.saveCompareResults(request));
@@ -147,6 +149,7 @@ public class ReportQueryController {
 
     @PostMapping("/updateReportInfo")
     @ResponseBody
+    // from schedule
     public Response updateReportInfo(@Valid @RequestBody UpdateReportInfoRequestType request) {
         UpdateReportInfoResponseType response = new UpdateReportInfoResponseType();
         response.setSuccess(replayInfoService.updatePlan(request));
@@ -155,6 +158,7 @@ public class ReportQueryController {
 
     @PostMapping("/pushReplayStatus")
     @ResponseBody
+    // from schedule
     public Response changeReplayStatus(@Valid @RequestBody ChangeReplayStatusRequestType request) {
         ChangeReplayStatusResponseType response = new ChangeReplayStatusResponseType();
         response.setUpdateSuccess(reportService.changeReportStatus(request));
@@ -163,12 +167,14 @@ public class ReportQueryController {
 
     @PostMapping("/removeRecordsAndScenes")
     @ResponseBody
+    // from schedule
     public Response removeFailedCases(@Valid @RequestBody RemoveRecordsAndScenesRequest request) {
         SuccessResponse response = new SuccessResponse();
         response.setSuccess(reportService.removeRecords(request) && sceneReportService.removeScene(request));
         return ResponseUtils.successResponse(response);
     }
 
+    @AppAuth
     @PostMapping("/feedbackScene")
     @ResponseBody
     public Response feedbackScene(@Valid @RequestBody FeedbackSceneRequest request) {
@@ -205,6 +211,7 @@ public class ReportQueryController {
         return ResponseUtils.successResponse(response);
     }
 
+    @AppAuth
     @PostMapping("/queryReplayCase")
     @ResponseBody
     public Response queryReplayCase(@Valid @RequestBody QueryReplayCaseRequestType request) {
@@ -215,6 +222,7 @@ public class ReportQueryController {
         return ResponseUtils.successResponse(response);
     }
 
+    @AppAuth
     @PostMapping("/queryDiffAggInfo")
     @ResponseBody
     public Response queryDiffAggInfo(@RequestBody QueryDiffAggInfoRequestType request) {
@@ -222,6 +230,7 @@ public class ReportQueryController {
         return ResponseUtils.successResponse(response);
     }
 
+    @AppAuth
     @PostMapping("/queryMsgWithDiff")
     @ResponseBody
     public Response queryMsgWithDiff(@RequestBody QueryMsgWithDiffRequestType request) {
@@ -229,6 +238,7 @@ public class ReportQueryController {
         return ResponseUtils.successResponse(response);
     }
 
+    @AppAuth
     @PostMapping("/queryMsgShowByCase")
     @ResponseBody
     public Response queryMsgShowByCase(@RequestBody QueryMsgShowByCaseRequestType request) {
@@ -236,6 +246,7 @@ public class ReportQueryController {
         return ResponseUtils.successResponse(response);
     }
 
+    @AppAuth
     @PostMapping("/queryDifferences")
     @ResponseBody
     public Response queryDifferences(@Valid @RequestBody QueryDifferencesRequestType request) {
@@ -243,6 +254,7 @@ public class ReportQueryController {
         return ResponseUtils.successResponse(response);
     }
 
+    @AppAuth
     @PostMapping("/queryScenes")
     @ResponseBody
     public Response queryScenes(@Valid @RequestBody QueryScenesRequestType request) {
@@ -250,6 +262,7 @@ public class ReportQueryController {
         return ResponseUtils.successResponse(response);
     }
 
+    @AppAuth
     @PostMapping("/queryFullLinkMsg")
     @ResponseBody
     public Response queryFullLinkMsg(@Valid @RequestBody QueryFullLinkMsgRequestType request) {
@@ -257,6 +270,7 @@ public class ReportQueryController {
         return ResponseUtils.successResponse(response);
     }
 
+    @AppAuth
     @PostMapping("/queryReplayMsg")
     @ResponseBody
     public Response queryReplayMsg(@Valid @RequestBody QueryReplayMsgRequestType request) {
@@ -264,6 +278,7 @@ public class ReportQueryController {
         return ResponseUtils.successResponse(response);
     }
 
+    @AppAuth
     @PostMapping("/downloadReplayMsg")
     @ResponseBody
     public void downloadReplayMsg(@Valid @RequestBody DownloadReplayMsgRequestType request,
@@ -271,6 +286,7 @@ public class ReportQueryController {
         queryReplayMsgService.downloadReplayMsg(request, response);
     }
 
+    @AppAuth
     @PostMapping("/queryMsgSchema")
     @ResponseBody
     public Response queryMsgSchema(@RequestBody QueryMsgSchemaRequestType request) {
@@ -281,6 +297,7 @@ public class ReportQueryController {
         return ResponseUtils.successResponse(response);
     }
 
+    @AppAuth
     @PostMapping("/querySchemaForConfig")
     @ResponseBody
     public Response querySchemaForConfig(@RequestBody QuerySchemaForConfigRequestType request) {
@@ -291,6 +308,7 @@ public class ReportQueryController {
         return ResponseUtils.successResponse(response);
     }
 
+    @AppAuth
     @GetMapping("/delete/{planId}")
     @ResponseBody
     public Response deleteReport(@PathVariable String planId) {
@@ -310,6 +328,7 @@ public class ReportQueryController {
         }
     }
 
+    @AppAuth
     @GetMapping("/querySceneInfo/{planId}/{planItemId}")
     @ResponseBody
     public Response querySceneInfo(@PathVariable String planId, @PathVariable String planItemId) {
@@ -317,6 +336,7 @@ public class ReportQueryController {
         return ResponseUtils.successResponse(response);
     }
 
+    @AppAuth
     @GetMapping("/queryFullLinkInfo/{planItemId}/{recordId}")
     @ResponseBody
     public Response queryFullLinkInfo(@PathVariable String planItemId, @PathVariable String recordId) {
@@ -324,6 +344,7 @@ public class ReportQueryController {
         return ResponseUtils.successResponse(response);
     }
 
+    @AppAuth
     @Deprecated
     @GetMapping("/queryDiffMsgById/{id}")
     @ResponseBody
@@ -360,6 +381,7 @@ public class ReportQueryController {
         return ResponseUtils.successResponse(recordService.countRecord(requestType));
     }
 
+    @AppAuth
     @PostMapping("/listRecord")
     @ResponseBody
     public Response countRecord(@Valid @RequestBody ListRecordRequestType requestType) {
@@ -393,6 +415,7 @@ public class ReportQueryController {
         return ResponseUtils.successResponse(recordService.aggCountRecord(requestType));
     }
 
+    @AppAuth
     @PostMapping("/syncResponseContract")
     @ResponseBody
     public Response syncResponse(@Valid @RequestBody SyncResponseContractRequestType requestType) {
@@ -405,6 +428,7 @@ public class ReportQueryController {
         return ResponseUtils.successResponse(schemaInferService.queryContract(requestType));
     }
 
+    @AppAuth
     @PostMapping("/overwriteContract")
     @ResponseBody
     public Response syncResponse(@Valid @RequestBody OverwriteContractRequestType requestType) {

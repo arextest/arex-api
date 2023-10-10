@@ -2,6 +2,7 @@ package com.arextest.web.api.service.controller.config;
 
 import java.util.List;
 
+import com.arextest.common.annotation.AppAuth;
 import com.arextest.config.model.dto.AbstractConfiguration;
 import com.arextest.config.model.dto.ModifyType;
 import org.apache.commons.lang3.StringUtils;
@@ -42,6 +43,7 @@ public abstract class AbstractConfigurableController<T extends AbstractConfigura
 
     @GetMapping("/editList/appId/{appId}")
     @ResponseBody
+    @AppAuth
     public final Response editList(@PathVariable String appId) {
         if (StringUtils.isEmpty(appId)) {
             return InvalidResponse.REQUESTED_APP_ID_IS_EMPTY;
@@ -51,6 +53,7 @@ public abstract class AbstractConfigurableController<T extends AbstractConfigura
 
     @PostMapping("/modify/{modifyType}")
     @ResponseBody
+    @AppAuth
     public Response modify(@PathVariable ModifyType modifyType, @RequestBody T configuration) throws Exception {
         if (modifyType == ModifyType.INSERT) {
             configuration.validParameters();
@@ -67,6 +70,7 @@ public abstract class AbstractConfigurableController<T extends AbstractConfigura
 
     @PostMapping("/batchModify/{modifyType}")
     @ResponseBody
+    @AppAuth
     public final Response batchModify(@PathVariable ModifyType modifyType, @RequestBody List<T> configuration)
         throws Exception {
         if (modifyType == ModifyType.INSERT) {
