@@ -14,6 +14,7 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
@@ -33,7 +34,7 @@ import java.util.List;
 @Component
 @ConditionalOnProperty(value = "arex.app.auth.switch", havingValue = "true")
 public class AppAuthAspect {
-    @Resource
+    @Autowired
     private ApplicationConfigurationRepositoryImpl applicationConfigurationRepository;
 
     @Pointcut("@annotation(com.arextest.common.annotation.AppAuth)")
@@ -65,9 +66,10 @@ public class AppAuthAspect {
         }
         Object result;
         if (application.getOwners().contains(userName)) {
+            context.setPassAuth(true);
             result = point.proceed();
         } else {
-            context.setPassAuth(true);
+            context.setPassAuth(false);
             return reject(point, auth, Constants.NO_PERMISSION);
         }
         ArexContext.removeContext();
