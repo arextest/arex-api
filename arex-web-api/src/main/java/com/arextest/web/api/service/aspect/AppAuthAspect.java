@@ -14,8 +14,6 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -34,7 +32,7 @@ import java.util.List;
 @Component
 @ConditionalOnProperty(value = "arex.app.auth.switch", havingValue = "true")
 public class AppAuthAspect {
-    @Autowired
+    @Resource
     private ApplicationConfigurationRepositoryImpl applicationConfigurationRepository;
 
     @Pointcut("@annotation(com.arextest.common.annotation.AppAuth)")
