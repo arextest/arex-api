@@ -32,7 +32,7 @@ public class FSTreeRepositoryImpl implements FSTreeRepository {
     private static final String USERNAME = "userName";
     private static final String ROOTS = "roots";
 
-    @Value("${arex.web.api.redis.lease-time}")
+    @Value("${arex.api.redis.lease-time}")
     private long redisLeaseTime;
     @Resource
     private MongoTemplate mongoTemplate;
