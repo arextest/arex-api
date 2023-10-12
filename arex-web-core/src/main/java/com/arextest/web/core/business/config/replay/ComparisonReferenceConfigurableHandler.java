@@ -4,10 +4,10 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
-import com.arextest.config.repository.ConfigRepositoryProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.arextest.config.repository.ConfigRepositoryProvider;
 import com.arextest.web.core.repository.AppContractRepository;
 import com.arextest.web.core.repository.FSInterfaceRepository;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonReferenceConfiguration;
@@ -57,6 +57,7 @@ public class ComparisonReferenceConfigurableHandler
 
     @Override
     public boolean insertList(List<ComparisonReferenceConfiguration> configurationList) {
+        this.addDependencyId(configurationList);
         for (ComparisonReferenceConfiguration configuration : configurationList) {
             listKeyCycleDetectionHandler.judgeWhetherCycle(this, listSortHandler, configuration);
         }
