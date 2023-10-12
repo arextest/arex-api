@@ -1,5 +1,6 @@
 package com.arextest.web.api.service.controller;
 
+import com.arextest.common.annotation.AppAuth;
 import com.arextest.common.model.response.Response;
 import com.arextest.common.model.response.ResponseCode;
 import com.arextest.common.utils.JwtUtil;
@@ -250,6 +251,7 @@ public class FileSystemController {
         return ResponseUtils.successResponse(response);
     }
 
+    @AppAuth
     @GetMapping("/queryDebuggingCase/{planId}/{recordId}")
     @ResponseBody
     public Response queryDebuggingCase(@PathVariable String planId, @PathVariable String recordId) {
@@ -359,6 +361,7 @@ public class FileSystemController {
 
     @PostMapping("/pinMock")
     @ResponseBody
+    @AppAuth
     public Response pinMock(@Valid @RequestBody FSPinMockRequestType request) {
         SuccessResponseType response = new SuccessResponseType();
         response.setSuccess(fileSystemService.pinMock(request));

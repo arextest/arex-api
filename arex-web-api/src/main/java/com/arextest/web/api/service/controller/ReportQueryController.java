@@ -211,7 +211,6 @@ public class ReportQueryController {
         return ResponseUtils.successResponse(response);
     }
 
-    @AppAuth
     @PostMapping("/queryReplayCase")
     @ResponseBody
     public Response queryReplayCase(@Valid @RequestBody QueryReplayCaseRequestType request) {

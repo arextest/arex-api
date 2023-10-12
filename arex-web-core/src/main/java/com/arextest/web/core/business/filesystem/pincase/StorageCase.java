@@ -1,5 +1,7 @@
 package com.arextest.web.core.business.filesystem.pincase;
 
+import com.arextest.common.context.ArexContext;
+import com.arextest.common.utils.JwtUtil;
 import com.arextest.model.mock.AREXMocker;
 import com.arextest.model.mock.MockCategoryType;
 import com.arextest.model.replay.ViewRecordResponseType;
@@ -17,7 +19,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 
@@ -48,11 +52,16 @@ public class StorageCase {
     public FSCaseDto getViewRecord(String recordId) {
         ObjectNode request = objectMapper.createObjectNode();
         request.put(RECORD_ID, recordId);
+        ArexContext arexContext = ArexContext.getContext();
+        Map<String, String> header = new HashMap<>();
+        header.put("appId", arexContext.getAppId());
+        header.put("access-token", JwtUtil.makeAccessToken(arexContext.getOperator()));
         ResponseEntity<ViewRecordResponseType>
                 response =
                 HttpUtils.post(storageServiceUrl + STORAGE_VIEW_RECORD_URL,
                         request.toString(),
-                        ViewRecordResponseType.class);
+                        ViewRecordResponseType.class,
+                    header);
         if (response == null || response.getBody() == null || response.getBody().getRecordResult() == null) {
             return null;
         }
@@ -86,11 +95,16 @@ public class StorageCase {
         ObjectNode request = objectMapper.createObjectNode();
         request.put(RECORD_ID, recordId);
         request.put(SOURCE_PROVIDER, PINNED);
+        ArexContext arexContext = ArexContext.getContext();
+        Map<String, String> header = new HashMap<>();
+        header.put("appId", arexContext.getAppId());
+        header.put("access-token", JwtUtil.makeAccessToken(arexContext.getOperator()));
         ResponseEntity<ViewRecordResponseType>
             response =
             HttpUtils.post(storageServiceUrl + STORAGE_VIEW_RECORD_URL,
                 request.toString(),
-                ViewRecordResponseType.class);
+                ViewRecordResponseType.class,
+                header);
         if (response == null || response.getBody() == null || response.getBody().getRecordResult() == null) {
             return null;
         }
