@@ -1,5 +1,6 @@
 package com.arextest.web.model.dto.iosummary;
 
+import com.arextest.web.model.enums.FeedbackTypeEnum;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -16,6 +17,10 @@ public class SubSceneInfo {
 
     private String recordId;
     private String replayId;
+    /**
+     * @see FeedbackTypeEnum#getCode() ;
+     */
+    private Integer feedbackType;
 
     private List<DiffDetail> details;
 

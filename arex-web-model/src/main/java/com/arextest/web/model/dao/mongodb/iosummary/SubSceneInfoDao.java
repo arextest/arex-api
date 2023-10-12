@@ -1,5 +1,6 @@
 package com.arextest.web.model.dao.mongodb.iosummary;
 
+import com.arextest.web.model.enums.FeedbackTypeEnum;
 import lombok.Data;
 import lombok.experimental.FieldNameConstants;
 
@@ -16,6 +17,10 @@ public class SubSceneInfoDao {
 
     private String recordId;
     private String replayId;
+    /**
+     * @see FeedbackTypeEnum#getCode() ;
+     */
+    private Integer feedbackType;
 
     private List<DiffDetailDao> details;
 }

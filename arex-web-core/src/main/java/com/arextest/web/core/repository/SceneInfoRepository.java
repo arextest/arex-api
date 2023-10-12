@@ -16,4 +16,6 @@ public interface SceneInfoRepository extends RepositoryProvider {
     List<SceneInfo> querySceneInfo(String planId, String planItemId);
 
     boolean removeByPlanItemId(Set<String> planItemIds);
+
+    boolean removeById(Set<String> ids);
 }

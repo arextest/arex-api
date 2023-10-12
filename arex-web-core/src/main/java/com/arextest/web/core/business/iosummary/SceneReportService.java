@@ -11,10 +11,12 @@ import com.arextest.web.model.dto.CompareResultDto;
 import com.arextest.web.model.dto.PlanItemDto;
 import com.arextest.web.model.dto.iosummary.CaseSummary;
 import com.arextest.web.model.dto.iosummary.SceneInfo;
+import com.arextest.web.model.dto.iosummary.SubSceneInfo;
 import com.arextest.web.model.enums.DiffResultCode;
 import com.arextest.web.model.enums.FeedbackTypeEnum;
 import com.arextest.web.model.mapper.SceneInfoMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -23,9 +25,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -61,9 +65,38 @@ public class SceneReportService {
         sceneInfoRepository.save(sceneInfo);
     }
 
+    /**
+     * merge sceneInfo with same categoryKey.
+     */
+    private List<SceneInfo> checkDuplicateScene(List<SceneInfo> sceneInfos) {
+        Map<Long, SceneInfo> sceneInfoMap = new HashMap<>();
+        Set<String> removeSceneIds = new HashSet<>();
+        List<SceneInfo> updateSceneInfoList = new ArrayList<>();
+        for (SceneInfo sceneInfo : sceneInfos) {
+            SceneInfo existedScene = sceneInfoMap.get(sceneInfo.getCategoryKey());
+            if (existedScene != null) {
+                removeSceneIds.add(sceneInfo.getId());
+                removeSceneIds.add(existedScene.getId());
+                existedScene.getSubSceneInfoMap().putAll(sceneInfo.getSubSceneInfoMap());
+                existedScene.setCount(existedScene.getCount() + sceneInfo.getCount());
+                updateSceneInfoList.add(existedScene);
+            } else {
+                sceneInfoMap.put(sceneInfo.getCategoryKey(), sceneInfo);
+            }
+        }
+        List<SceneInfo> newSceneInfos = new ArrayList<>(sceneInfoMap.values());
+        if (!CollectionUtils.isEmpty(removeSceneIds)) {
+            LOGGER.info("merge sceneInfo with same categoryKey, mergedSceneIds:{}", removeSceneIds);
+            sceneInfoRepository.removeById(removeSceneIds);
+            sceneInfoRepository.save(updateSceneInfoList);
+        }
+        return newSceneInfos;
+    }
+
     public QuerySceneInfoResponseType querySceneInfo(String planId, String planItemId) {
         QuerySceneInfoResponseType response = new QuerySceneInfoResponseType();
         List<SceneInfo> sceneInfos = sceneInfoRepository.querySceneInfo(planId, planItemId);
+        sceneInfos = checkDuplicateScene(sceneInfos);
         List<QuerySceneInfoResponseType.SceneInfoType> sceneInfoTypes =
                 sceneInfos.stream()
                         .map(SceneInfoMapper.INSTANCE::contractFromDto)
@@ -109,7 +142,7 @@ public class SceneReportService {
         switch (feedbackTypeEnum) {
             case BY_DESIGN:
             case AREX_PROBLEM:
-                return passCases(request.getPlanId(), request.getPlanItemId(), request.getRecordId());
+                return passCases(request.getPlanId(), request.getPlanItemId(), request.getRecordId(), feedbackTypeEnum);
             case UNKNOWN:
             case BUG:
             default:
@@ -117,10 +150,43 @@ public class SceneReportService {
         }
     }
 
-    private boolean passCases(String planId, String planItemId, String recordId) {
+    private boolean passCases(String planId, String planItemId, String recordId, FeedbackTypeEnum feedbackTypeEnum) {
+        //update scene
+        List<SceneInfo> sceneInfos = sceneInfoRepository.querySceneInfo(planId, planItemId);
+        List<SceneInfo> newSceneInfos = new ArrayList<>();
+        sceneInfos.forEach(sceneInfo -> {
+            sceneInfo.getSubSceneInfoMap().forEach((groupKey, subSceneInfo) -> {
+                if (Objects.equals(subSceneInfo.getRecordId(), recordId)) {
+                    subSceneInfo.setCode(DiffResultCode.COMPARED_WITHOUT_DIFFERENCE);
+                    subSceneInfo.setFeedbackType(feedbackTypeEnum.getCode());
+                }
+            });
+            if (checkAllSubScenes(sceneInfo)) {
+                sceneInfo.setCode(DiffResultCode.COMPARED_WITHOUT_DIFFERENCE);
+            }
+            newSceneInfos.add(sceneInfo);
+        });
+        sceneInfoRepository.removeById(newSceneInfos.stream().map(SceneInfo::getId).collect(Collectors.toSet()));
+        sceneInfoRepository.save(newSceneInfos);
+
+        // After all the scene has been passed, update compareResult&planItemStatistic
+        if (!checkAllScenes(sceneInfos)) {
+            return true;
+        }
+
+        LOGGER.info("All the scenes has been passed");
+        // query other cases in the same subScene
+        List<CaseSummary> caseSummaryList = caseSummaryRepository.query(planId, planItemId);
+        List<String> recordIds = caseSummaryList.stream().map(CaseSummary::getRecordId).collect(Collectors.toList());
+
         // update compareResult
-        List<CompareResultDto> compareResultList =
-            replayCompareResultRepository.queryCompareResultsByRecordId(planItemId, recordId);
+        List<CompareResultDto> compareResultList = replayCompareResultRepository.queryCompareResults(
+            planId,
+            Collections.singletonList(planItemId),
+            recordIds,
+            null,
+            Arrays.asList(RECORD_ID, RECORD_TIME, REPLAY_TIME)
+        );
         for (CompareResultDto compareResult : compareResultList) {
             compareResult.setDiffResultCode(DiffResultCode.COMPARED_WITHOUT_DIFFERENCE);
         }
@@ -129,25 +195,36 @@ public class SceneReportService {
         // update planItemStatistic
         PlanItemDto planItemDto = reportPlanItemStatisticRepository.findByPlanItemId(planItemId);
         if (planItemDto.getErrorCases() != null) {
-            planItemDto.getErrorCases().remove(recordId);
+            planItemDto.getErrorCases().remove(recordIds);
         }
         if (planItemDto.getFailCases() != null) {
-            planItemDto.getFailCases().remove(recordId);
+            planItemDto.getFailCases().remove(recordIds);
         }
 
         reportPlanItemStatisticRepository.findAndModifyCaseMap(planItemDto);
 
-        //update scene
-        List<SceneInfo> sceneInfos = sceneInfoRepository.querySceneInfo(planId, planItemId);
-        sceneInfos.forEach(sceneInfo -> {
-            sceneInfo.getSubSceneInfoMap().forEach((groupKey, subSceneInfo) -> {
-                if (Objects.equals(subSceneInfo.getRecordId(), recordId)) {
-                    subSceneInfo.setCode(DiffResultCode.COMPARED_WITHOUT_DIFFERENCE);
-                }
-            });
-            sceneInfoRepository.save(sceneInfo);
-        });
         return true;
     }
 
+    private boolean checkAllSubScenes(SceneInfo sceneInfo) {
+        boolean result = true;
+        for(SubSceneInfo subSceneInfo : sceneInfo.getSubScenes()) {
+            if (subSceneInfo.getCode() != DiffResultCode.COMPARED_WITHOUT_DIFFERENCE) {
+                result = false;
+                break;
+            }
+        }
+        return result;
+    }
+
+    private boolean checkAllScenes(List<SceneInfo> sceneInfoList) {
+        boolean result = true;
+        for(SceneInfo sceneInfo : sceneInfoList) {
+            if (sceneInfo.getCode() != DiffResultCode.COMPARED_WITHOUT_DIFFERENCE) {
+                result = false;
+                break;
+            }
+        }
+        return result;
+    }
 }

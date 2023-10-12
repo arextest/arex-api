@@ -102,6 +102,12 @@ public class SceneInfoRepositoryImpl implements SceneInfoRepository {
         return mongoTemplate.remove(query, SceneInfoCollection.class).getDeletedCount() > 0;
     }
 
+    @Override
+    public boolean removeById(Set<String> ids) {
+        Query query = Query.query(Criteria.where(DASH_ID).in(ids));
+        return mongoTemplate.remove(query, SceneInfoCollection.class).getDeletedCount() > 0;
+    }
+
     private String toColumnName(String groupKeyName, String columnName) {
         return groupKeyName + DOT + columnName;
     }
