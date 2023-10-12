@@ -34,7 +34,6 @@ public class ReplayQueryController {
 
     @ResponseBody
     @GetMapping(value = "/viewRecord/")
-    @AppAuth(rejectStrategy = AuthRejectStrategy.DOWNGRADE)
     public Response viewRecord(String recordId,
                                @RequestParam(required = false) String category,
                                @RequestParam(required = false, defaultValue = "Rolling") String srcProvider) {
