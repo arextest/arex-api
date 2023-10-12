@@ -195,10 +195,10 @@ public class SceneReportService {
         // update planItemStatistic
         PlanItemDto planItemDto = reportPlanItemStatisticRepository.findByPlanItemId(planItemId);
         if (planItemDto.getErrorCases() != null) {
-            planItemDto.getErrorCases().remove(recordIds);
+            recordIds.forEach(itemRecordID -> planItemDto.getErrorCases().remove(itemRecordID));
         }
         if (planItemDto.getFailCases() != null) {
-            planItemDto.getFailCases().remove(recordIds);
+            recordIds.forEach(itemRecordID -> planItemDto.getFailCases().remove(itemRecordID));
         }
 
         reportPlanItemStatisticRepository.findAndModifyCaseMap(planItemDto);
