@@ -36,7 +36,7 @@ import lombok.extern.slf4j.Slf4j;
 @Configuration
 public class MongodbConfiguration {
 
-    @Value("${arex.report.mongo.uri}")
+    @Value("${arex.mongo.uri}")
     private String mongoUrl;
 
     private static final String APP_ID = "appId";
