@@ -379,10 +379,9 @@ public class ReportQueryController {
         return ResponseUtils.successResponse(recordService.countRecord(requestType));
     }
 
-    @AppAuth
     @PostMapping("/listRecord")
     @ResponseBody
-    public Response countRecord(@Valid @RequestBody ListRecordRequestType requestType) {
+    public Response listRecord(@Valid @RequestBody ListRecordRequestType requestType) {
         if (requestType.getOperationType() == null) {
             return ResponseUtils.errorResponse("no operationType", ResponseCode.REQUESTED_PARAMETER_INVALID);
         }
