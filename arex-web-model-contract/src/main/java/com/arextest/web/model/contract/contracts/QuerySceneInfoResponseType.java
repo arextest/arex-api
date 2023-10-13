@@ -25,6 +25,10 @@ public class QuerySceneInfoResponseType {
         private String replayId;
         private long recordTime;
         private long replayTime;
+        /**
+         * @see com.arextest.web.model.enums.FeedbackTypeEnum#getCode() ;
+         */
+        private Integer feedbackType;
         private List<DiffDetailType> details;
     }
 
