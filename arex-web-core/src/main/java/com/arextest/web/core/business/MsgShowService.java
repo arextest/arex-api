@@ -2,6 +2,7 @@ package com.arextest.web.core.business;
 
 import com.arextest.common.context.ArexContext;
 import com.arextest.common.utils.JsonTraverseUtils;
+import com.arextest.web.core.business.util.JsonUtils;
 import com.arextest.web.core.business.util.ListUtils;
 import com.arextest.web.core.repository.mongo.ReplayCompareResultRepositoryImpl;
 import com.arextest.web.model.contract.contracts.QueryMsgWithDiffRequestType;
@@ -66,6 +67,12 @@ public class MsgShowService {
         if (compareResultDto == null) {
             return response;
         }
+
+        if (!Boolean.TRUE.equals(ArexContext.getContext().getPassAuth())) {
+            JsonUtils.downgrade(compareResultDto);
+        }
+
+
         String baseMsg = compareResultDto.getBaseMsg();
         String testMsg = compareResultDto.getTestMsg();
 
@@ -85,15 +92,6 @@ public class MsgShowService {
                 MutablePair<Object, Object> baseAndTestObjCombination = produceNewObjectFromOriginal(baseMsg, testMsg, sceneLogs);
                 baseMsg = baseAndTestObjCombination.getLeft().toString();
                 testMsg = baseAndTestObjCombination.getRight().toString();
-            }
-        }
-
-        if (!Boolean.TRUE.equals(ArexContext.getContext().getPassAuth())) {
-            try {
-                baseMsg = JsonTraverseUtils.trimAllLeaves(baseMsg);
-                testMsg = JsonTraverseUtils.trimAllLeaves(testMsg);
-            } catch (Exception e) {
-                LOGGER.error("trimAllLeaves error", e);
             }
         }
 
