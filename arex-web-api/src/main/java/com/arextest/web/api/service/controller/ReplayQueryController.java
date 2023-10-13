@@ -49,7 +49,7 @@ public class ReplayQueryController {
     @ResponseBody
     @AppAuth(rejectStrategy = AuthRejectStrategy.DOWNGRADE)
     public Response viewRecord(@RequestBody ViewRecordRequestType requestType) {
-        ArexContext arexContext = new ArexContext();
+        ArexContext arexContext = ArexContext.getContext();
         Map<String, String> headers = new HashMap<>();
         boolean downgrade = Boolean.FALSE.equals(arexContext.getPassAuth());
         headers.put("downgrade", Boolean.toString(downgrade));
