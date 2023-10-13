@@ -5,6 +5,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import com.arextest.common.annotation.AppAuth;
+import com.arextest.common.enums.AuthRejectStrategy;
 import com.arextest.web.common.HttpUtils;
 import com.arextest.web.model.contract.contracts.FeedbackSceneRequest;
 import com.arextest.web.model.contract.contracts.RemoveRecordsAndScenesRequest;
@@ -377,6 +378,7 @@ public class ReportQueryController {
 
     @PostMapping("/listRecord")
     @ResponseBody
+    @AppAuth(rejectStrategy = AuthRejectStrategy.DOWNGRADE)
     public Response listRecord(@Valid @RequestBody ListRecordRequestType requestType) {
         if (requestType.getOperationType() == null) {
             return ResponseUtils.errorResponse("no operationType", ResponseCode.REQUESTED_PARAMETER_INVALID);

@@ -50,7 +50,8 @@ public class ReplayQueryController {
     public Response viewRecord(@RequestBody ViewRecordRequestType requestType) {
         ArexContext arexContext = new ArexContext();
         Map<String, String> headers = new HashMap<>();
-        headers.put("passAuth", arexContext.getPassAuth().toString());
+        boolean downgrade = Boolean.FALSE.equals(arexContext.getPassAuth());
+        headers.put("downgrade", Boolean.toString(downgrade));
         ResponseEntity<Response> response = HttpUtils.post(viewRecordUrl, requestType, Response.class, headers);
         if (response == null || response.getBody() == null) {
             return ResponseUtils.errorResponse("call storage failed", ResponseCode.REQUESTED_RESOURCE_NOT_FOUND);

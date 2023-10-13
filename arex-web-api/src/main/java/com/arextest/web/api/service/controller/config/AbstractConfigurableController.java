@@ -45,7 +45,6 @@ public abstract class AbstractConfigurableController<T extends AbstractConfigura
 
     @GetMapping("/editList/appId/{appId}")
     @ResponseBody
-    @AppAuth
     public final Response editList(@PathVariable String appId) {
         if (StringUtils.isEmpty(appId)) {
             return InvalidResponse.REQUESTED_APP_ID_IS_EMPTY;
