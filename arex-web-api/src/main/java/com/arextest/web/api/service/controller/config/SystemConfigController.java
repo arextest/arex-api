@@ -26,7 +26,6 @@ public class SystemConfigController {
 
     @PostMapping("/save")
     @ResponseBody
-    @AppAuth()
     public Response saveSystemConfig(@RequestBody SaveSystemConfigRequestType request) {
         return ResponseUtils.successResponse(systemConfigRepository.saveConfig(request.getSystemConfig()));
     }
