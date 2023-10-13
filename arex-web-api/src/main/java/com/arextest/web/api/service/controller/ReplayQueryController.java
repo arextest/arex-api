@@ -7,6 +7,7 @@ import com.arextest.common.model.response.Response;
 import com.arextest.common.model.response.ResponseCode;
 import com.arextest.common.utils.ResponseUtils;
 import com.arextest.model.replay.ViewRecordRequestType;
+import com.arextest.model.replay.ViewRecordResponseType;
 import com.arextest.web.common.HttpUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -52,7 +53,8 @@ public class ReplayQueryController {
         Map<String, String> headers = new HashMap<>();
         boolean downgrade = Boolean.FALSE.equals(arexContext.getPassAuth());
         headers.put("downgrade", Boolean.toString(downgrade));
-        ResponseEntity<Response> response = HttpUtils.post(viewRecordUrl, requestType, Response.class, headers);
+        ResponseEntity<ViewRecordResponseType> response = HttpUtils.post(viewRecordUrl, requestType,
+            ViewRecordResponseType.class, headers);
         if (response == null || response.getBody() == null) {
             return ResponseUtils.errorResponse("call storage failed", ResponseCode.REQUESTED_RESOURCE_NOT_FOUND);
         }
