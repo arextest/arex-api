@@ -58,12 +58,8 @@ public class AppAuthAspect {
             return reject(point, auth, Constants.ERROR_APPID);
         }
         ApplicationConfiguration application = applications.get(0);
-        if (application.getOwners() == null) {
-            LOGGER.error("The app:{} has no owners", appId);
-            return reject(point, auth, Constants.NO_PERMISSION);
-        }
         Object result;
-        if (application.getOwners().contains(userName)) {
+        if (CollectionUtils.isEmpty(application.getOwners()) || application.getOwners().contains(userName)) {
             context.setPassAuth(true);
             result = point.proceed();
         } else {

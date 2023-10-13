@@ -228,7 +228,7 @@ public class ReportQueryController {
         return ResponseUtils.successResponse(response);
     }
 
-    @AppAuth
+    @AppAuth(rejectStrategy = AuthRejectStrategy.DOWNGRADE)
     @PostMapping("/queryMsgWithDiff")
     @ResponseBody
     public Response queryMsgWithDiff(@RequestBody QueryMsgWithDiffRequestType request) {
@@ -257,7 +257,7 @@ public class ReportQueryController {
         return ResponseUtils.successResponse(response);
     }
 
-    @AppAuth
+    @AppAuth(rejectStrategy = AuthRejectStrategy.DOWNGRADE)
     @PostMapping("/queryFullLinkMsg")
     @ResponseBody
     public Response queryFullLinkMsg(@Valid @RequestBody QueryFullLinkMsgRequestType request) {
@@ -265,7 +265,7 @@ public class ReportQueryController {
         return ResponseUtils.successResponse(response);
     }
 
-    @AppAuth
+    @AppAuth(rejectStrategy = AuthRejectStrategy.DOWNGRADE)
     @PostMapping("/queryReplayMsg")
     @ResponseBody
     public Response queryReplayMsg(@Valid @RequestBody QueryReplayMsgRequestType request) {

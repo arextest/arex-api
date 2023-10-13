@@ -10,7 +10,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -18,6 +17,8 @@ import java.util.stream.Collectors;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 
+import com.arextest.common.context.ArexContext;
+import com.arextest.common.utils.JsonTraverseUtils;
 import com.arextest.config.model.dto.application.ApplicationOperationConfiguration;
 import com.arextest.config.repository.impl.ApplicationOperationConfigurationRepositoryImpl;
 import org.apache.commons.collections4.CollectionUtils;
@@ -72,6 +73,16 @@ public class QueryReplayMsgService {
         }
         String baseMsg = dto.getBaseMsg();
         String testMsg = dto.getTestMsg();
+
+        if (!Boolean.TRUE.equals(ArexContext.getContext().getPassAuth())) {
+            try {
+                baseMsg = JsonTraverseUtils.trimAllLeaves(baseMsg);
+                testMsg = JsonTraverseUtils.trimAllLeaves(testMsg);
+            } catch (Exception e) {
+                LOGGER.error("trimAllLeaves error", e);
+            }
+        }
+
         String tempBaseMsg = baseMsg != null ? baseMsg : "";
         String tempTestMsg = testMsg != null ? testMsg : "";
         if (tempBaseMsg.length() > BIG_MESSAGE_THRESHOLD) {
@@ -138,7 +149,9 @@ public class QueryReplayMsgService {
             return response;
         }
         List<CompareResult> compareResults = dtos.stream()
-            .map(CompareResultMapper.INSTANCE::contractFromDtoLogsLimitDisplay).collect(Collectors.toList());
+            .map(CompareResultMapper.INSTANCE::contractFromDtoLogsLimitDisplay)
+            .map(this::downgrade)
+            .collect(Collectors.toList());
         response.setCompareResults(compareResults);
         return response;
     }
@@ -256,5 +269,17 @@ public class QueryReplayMsgService {
             }
             compareResultDetail.setLogInfos(new ArrayList<>(logInfoMap.values()));
         }
+    }
+
+    private CompareResult downgrade(CompareResult compareResult) {
+        if (!Boolean.TRUE.equals(ArexContext.getContext().getPassAuth())) {
+            try {
+                compareResult.setBaseMsg(JsonTraverseUtils.trimAllLeaves(compareResult.getBaseMsg()));
+                compareResult.setTestMsg(JsonTraverseUtils.trimAllLeaves(compareResult.getTestMsg()));
+            } catch (Exception e) {
+                LOGGER.error("trimAllLeaves error", e);
+            }
+        }
+        return compareResult;
     }
 }
