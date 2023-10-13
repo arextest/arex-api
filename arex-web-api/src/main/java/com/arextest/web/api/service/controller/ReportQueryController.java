@@ -285,7 +285,6 @@ public class ReportQueryController {
         queryReplayMsgService.downloadReplayMsg(request, response);
     }
 
-    @AppAuth
     @PostMapping("/queryMsgSchema")
     @ResponseBody
     public Response queryMsgSchema(@RequestBody QueryMsgSchemaRequestType request) {
@@ -296,7 +295,6 @@ public class ReportQueryController {
         return ResponseUtils.successResponse(response);
     }
 
-    @AppAuth
     @PostMapping("/querySchemaForConfig")
     @ResponseBody
     public Response querySchemaForConfig(@RequestBody QuerySchemaForConfigRequestType request) {
@@ -327,7 +325,6 @@ public class ReportQueryController {
         }
     }
 
-    @AppAuth
     @GetMapping("/querySceneInfo/{planId}/{planItemId}")
     @ResponseBody
     public Response querySceneInfo(@PathVariable String planId, @PathVariable String planItemId) {
@@ -335,7 +332,6 @@ public class ReportQueryController {
         return ResponseUtils.successResponse(response);
     }
 
-    @AppAuth
     @GetMapping("/queryFullLinkInfo/{planItemId}/{recordId}")
     @ResponseBody
     public Response queryFullLinkInfo(@PathVariable String planItemId, @PathVariable String recordId) {
