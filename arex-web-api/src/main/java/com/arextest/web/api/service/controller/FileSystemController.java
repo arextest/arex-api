@@ -346,7 +346,6 @@ public class FileSystemController {
 
     @PostMapping("/addItemFromRecordByDefault")
     @ResponseBody
-    @AppAuth(rejectStrategy = AuthRejectStrategy.DOWNGRADE)
     public Response addItemFromRecordByDefault(@Valid @RequestBody FsAddItemFromRecordByDefaultRequestType request) {
         MutablePair<String, String> result = fileSystemService.addItemFromRecordByDefault(request);
         if (result == null) {

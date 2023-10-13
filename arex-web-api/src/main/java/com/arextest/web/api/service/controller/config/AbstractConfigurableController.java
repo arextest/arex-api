@@ -40,7 +40,7 @@ public abstract class AbstractConfigurableController<T extends AbstractConfigura
         if (StringUtils.isEmpty(appId)) {
             return InvalidResponse.REQUESTED_APP_ID_IS_EMPTY;
         }
-        return ResponseUtils.successResponse(this.configurableHandler.useResultAsList(appId));
+        return ResponseUtils.successResponse(getConfigurableHandler().useResultAsList(appId));
     }
 
     @GetMapping("/editList/appId/{appId}")
@@ -49,7 +49,7 @@ public abstract class AbstractConfigurableController<T extends AbstractConfigura
         if (StringUtils.isEmpty(appId)) {
             return InvalidResponse.REQUESTED_APP_ID_IS_EMPTY;
         }
-        return ResponseUtils.successResponse(this.configurableHandler.editList(appId));
+        return ResponseUtils.successResponse(getConfigurableHandler().editList(appId));
     }
 
     @PostMapping("/modify/{modifyType}")
@@ -58,13 +58,13 @@ public abstract class AbstractConfigurableController<T extends AbstractConfigura
     public Response modify(@PathVariable ModifyType modifyType, @RequestBody T configuration) throws Exception {
         if (modifyType == ModifyType.INSERT) {
             configuration.validParameters();
-            return ResponseUtils.successResponse(this.configurableHandler.insert(configuration));
+            return ResponseUtils.successResponse(getConfigurableHandler().insert(configuration));
         }
         if (modifyType == ModifyType.UPDATE) {
-            return ResponseUtils.successResponse(this.configurableHandler.update(configuration));
+            return ResponseUtils.successResponse(getConfigurableHandler().update(configuration));
         }
         if (modifyType == ModifyType.REMOVE) {
-            return ResponseUtils.successResponse(this.configurableHandler.remove(configuration));
+            return ResponseUtils.successResponse(getConfigurableHandler().remove(configuration));
         }
         return ResponseUtils.resourceNotFoundResponse();
     }
@@ -78,10 +78,10 @@ public abstract class AbstractConfigurableController<T extends AbstractConfigura
             for (T item : configuration) {
                 item.validParameters();
             }
-            return ResponseUtils.successResponse(this.configurableHandler.insertList(configuration));
+            return ResponseUtils.successResponse(getConfigurableHandler().insertList(configuration));
         }
         if (modifyType == ModifyType.REMOVE) {
-            return ResponseUtils.successResponse(this.configurableHandler.removeList(configuration));
+            return ResponseUtils.successResponse(getConfigurableHandler().removeList(configuration));
         }
         return ResponseUtils.resourceNotFoundResponse();
     }
