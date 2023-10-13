@@ -3,11 +3,11 @@ package com.arextest.web.api.service.controller;
 import com.arextest.common.annotation.AppAuth;
 import com.arextest.common.context.ArexContext;
 import com.arextest.common.enums.AuthRejectStrategy;
-import com.arextest.common.model.response.Response;
 import com.arextest.common.model.response.ResponseCode;
-import com.arextest.common.utils.ResponseUtils;
 import com.arextest.model.replay.ViewRecordRequestType;
 import com.arextest.model.replay.ViewRecordResponseType;
+import com.arextest.model.response.Response;
+import com.arextest.model.response.ResponseStatusType;
 import com.arextest.web.common.HttpUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -55,9 +55,20 @@ public class ReplayQueryController {
         headers.put("downgrade", Boolean.toString(downgrade));
         ResponseEntity<ViewRecordResponseType> response = HttpUtils.post(viewRecordUrl, requestType,
             ViewRecordResponseType.class, headers);
+        ViewRecordResponseType responseType = new ViewRecordResponseType();
+        ResponseStatusType responseStatusType = new ResponseStatusType();
+        responseStatusType.setTimestamp(System.currentTimeMillis());
         if (response == null || response.getBody() == null) {
-            return ResponseUtils.errorResponse("call storage failed", ResponseCode.REQUESTED_RESOURCE_NOT_FOUND);
+            responseStatusType.setResponseDesc("call storage failed");
+            responseStatusType.setResponseCode(ResponseCode.REQUESTED_RESOURCE_NOT_FOUND.getCodeValue());
+            responseType.setResponseStatusType(responseStatusType);
+            return responseType;
         }
-        return ResponseUtils.successResponse(response.getBody());
+
+        responseStatusType.setResponseDesc("success");
+        responseStatusType.setResponseCode(ResponseCode.SUCCESS.getCodeValue());
+        responseType = response.getBody();
+        responseType.setResponseStatusType(responseStatusType);
+        return response.getBody();
     }
 }
