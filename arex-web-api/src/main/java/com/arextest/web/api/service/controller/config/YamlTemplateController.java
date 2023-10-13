@@ -44,7 +44,6 @@ public class YamlTemplateController {
 
     @PostMapping("/pushConfigTemplate")
     @ResponseBody
-    @AppAuth
     public Response pushConfigTemplate(@RequestBody PushYamlTemplateRequestType request) {
         if (StringUtils.isEmpty(request.getAppId())) {
             return ResponseUtils.errorResponse("appId is empty", ResponseCode.REQUESTED_PARAMETER_INVALID);

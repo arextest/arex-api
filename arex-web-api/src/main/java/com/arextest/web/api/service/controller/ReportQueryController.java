@@ -175,7 +175,6 @@ public class ReportQueryController {
         return ResponseUtils.successResponse(response);
     }
 
-    @AppAuth
     @PostMapping("/feedbackScene")
     @ResponseBody
     public Response feedbackScene(@Valid @RequestBody FeedbackSceneRequest request) {
@@ -222,7 +221,6 @@ public class ReportQueryController {
         return ResponseUtils.successResponse(response);
     }
 
-    @AppAuth
     @PostMapping("/queryDiffAggInfo")
     @ResponseBody
     public Response queryDiffAggInfo(@RequestBody QueryDiffAggInfoRequestType request) {
@@ -238,7 +236,6 @@ public class ReportQueryController {
         return ResponseUtils.successResponse(response);
     }
 
-    @AppAuth
     @PostMapping("/queryMsgShowByCase")
     @ResponseBody
     public Response queryMsgShowByCase(@RequestBody QueryMsgShowByCaseRequestType request) {
@@ -246,7 +243,6 @@ public class ReportQueryController {
         return ResponseUtils.successResponse(response);
     }
 
-    @AppAuth
     @PostMapping("/queryDifferences")
     @ResponseBody
     public Response queryDifferences(@Valid @RequestBody QueryDifferencesRequestType request) {
@@ -254,7 +250,6 @@ public class ReportQueryController {
         return ResponseUtils.successResponse(response);
     }
 
-    @AppAuth
     @PostMapping("/queryScenes")
     @ResponseBody
     public Response queryScenes(@Valid @RequestBody QueryScenesRequestType request) {
@@ -306,7 +301,6 @@ public class ReportQueryController {
         return ResponseUtils.successResponse(response);
     }
 
-    @AppAuth
     @GetMapping("/delete/{planId}")
     @ResponseBody
     public Response deleteReport(@PathVariable String planId) {
@@ -378,7 +372,6 @@ public class ReportQueryController {
 
     @PostMapping("/listRecord")
     @ResponseBody
-    @AppAuth(rejectStrategy = AuthRejectStrategy.DOWNGRADE)
     public Response listRecord(@Valid @RequestBody ListRecordRequestType requestType) {
         if (requestType.getOperationType() == null) {
             return ResponseUtils.errorResponse("no operationType", ResponseCode.REQUESTED_PARAMETER_INVALID);
@@ -410,7 +403,6 @@ public class ReportQueryController {
         return ResponseUtils.successResponse(recordService.aggCountRecord(requestType));
     }
 
-    @AppAuth
     @PostMapping("/syncResponseContract")
     @ResponseBody
     public Response syncResponse(@Valid @RequestBody SyncResponseContractRequestType requestType) {
@@ -423,7 +415,6 @@ public class ReportQueryController {
         return ResponseUtils.successResponse(schemaInferService.queryContract(requestType));
     }
 
-    @AppAuth
     @PostMapping("/overwriteContract")
     @ResponseBody
     public Response syncResponse(@Valid @RequestBody OverwriteContractRequestType requestType) {

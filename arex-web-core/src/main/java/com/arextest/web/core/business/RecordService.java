@@ -1,7 +1,5 @@
 package com.arextest.web.core.business;
 
-import com.arextest.common.context.ArexContext;
-import com.arextest.common.utils.JwtUtil;
 import com.arextest.config.model.dto.application.ApplicationOperationConfiguration;
 import com.arextest.config.repository.impl.ApplicationOperationConfigurationRepositoryImpl;
 import com.arextest.model.mock.AREXMocker;
@@ -81,11 +79,7 @@ public class RecordService {
         String operationType = requestType.getOperationType();
         pagedRequestType.setCategory(MockCategoryType.createEntryPoint(operationType));
 
-        ArexContext arexContext = ArexContext.getContext();
-        Map<String, String> header = new HashMap<>();
-        header.put("appId", arexContext.getAppId());
-        header.put("access-token", JwtUtil.makeAccessToken(arexContext.getOperator()));
-        listResponse = HttpUtils.post(listRecordUrl, pagedRequestType, PagedResponseType.class, header);
+        listResponse = HttpUtils.post(listRecordUrl, pagedRequestType, PagedResponseType.class);
         if (listResponse != null && listResponse.getBody() != null) {
             recordItemList.addAll(listResponse.getBody().getRecords()
                     .stream()
