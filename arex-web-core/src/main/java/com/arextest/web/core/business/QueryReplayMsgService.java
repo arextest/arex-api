@@ -74,6 +74,7 @@ public class QueryReplayMsgService {
 
         if (Boolean.FALSE.equals(ArexContext.getContext().getPassAuth())) {
             JsonUtils.downgrade(dto);
+            response.setDesensitized(true);
         }
 
         String baseMsg = dto.getBaseMsg();
@@ -147,6 +148,7 @@ public class QueryReplayMsgService {
 
         if (Boolean.FALSE.equals(ArexContext.getContext().getPassAuth())) {
             dtos.forEach(JsonUtils::downgrade);
+            response.setDesensitized(true);
         }
         List<CompareResult> compareResults = dtos.stream()
             .map(CompareResultMapper.INSTANCE::contractFromDtoLogsLimitDisplay)

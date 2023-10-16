@@ -70,6 +70,7 @@ public class MsgShowService {
 
         if (Boolean.FALSE.equals(ArexContext.getContext().getPassAuth())) {
             JsonUtils.downgrade(compareResultDto);
+            response.setDesensitized(true);
         }
 
 
