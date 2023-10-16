@@ -7,7 +7,7 @@ import java.util.List;
 
 
 @Data
-public class QueryMsgWithDiffResponseType {
+public class QueryMsgWithDiffResponseType extends DesensitizationResponseType {
     private String replayId;
     private String recordId;
     private int diffResultCode;

@@ -10,7 +10,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -18,8 +17,10 @@ import java.util.stream.Collectors;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 
+import com.arextest.common.context.ArexContext;
 import com.arextest.config.model.dto.application.ApplicationOperationConfiguration;
 import com.arextest.config.repository.impl.ApplicationOperationConfigurationRepositoryImpl;
+import com.arextest.web.core.business.util.JsonUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.springframework.stereotype.Component;
@@ -70,8 +71,15 @@ public class QueryReplayMsgService {
         if (dto == null) {
             return response;
         }
+
+        if (Boolean.FALSE.equals(ArexContext.getContext().getPassAuth())) {
+            JsonUtils.downgrade(dto);
+            response.setDesensitized(true);
+        }
+
         String baseMsg = dto.getBaseMsg();
         String testMsg = dto.getTestMsg();
+
         String tempBaseMsg = baseMsg != null ? baseMsg : "";
         String tempTestMsg = testMsg != null ? testMsg : "";
         if (tempBaseMsg.length() > BIG_MESSAGE_THRESHOLD) {
@@ -137,8 +145,14 @@ public class QueryReplayMsgService {
         if (dtos == null) {
             return response;
         }
+
+        if (Boolean.FALSE.equals(ArexContext.getContext().getPassAuth())) {
+            dtos.forEach(JsonUtils::downgrade);
+            response.setDesensitized(true);
+        }
         List<CompareResult> compareResults = dtos.stream()
-            .map(CompareResultMapper.INSTANCE::contractFromDtoLogsLimitDisplay).collect(Collectors.toList());
+            .map(CompareResultMapper.INSTANCE::contractFromDtoLogsLimitDisplay)
+            .collect(Collectors.toList());
         response.setCompareResults(compareResults);
         return response;
     }

@@ -2,8 +2,10 @@ package com.arextest.web.api.service.controller.config;
 
 import java.util.List;
 
+import com.arextest.common.annotation.AppAuth;
 import com.arextest.config.model.dto.AbstractConfiguration;
 import com.arextest.config.model.dto.ModifyType;
+import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,6 +18,7 @@ import com.arextest.web.core.business.config.ConfigurableHandler;
  * @since 2022/1/22
  */
 public abstract class AbstractConfigurableController<T extends AbstractConfiguration> {
+    @Getter
     protected final ConfigurableHandler<T> configurableHandler;
 
     protected AbstractConfigurableController(ConfigurableHandler<T> configurableHandler) {
@@ -28,7 +31,7 @@ public abstract class AbstractConfigurableController<T extends AbstractConfigura
         if (StringUtils.isEmpty(appId)) {
             return InvalidResponse.REQUESTED_APP_ID_IS_EMPTY;
         }
-        return ResponseUtils.successResponse(this.configurableHandler.useResult(appId));
+        return ResponseUtils.successResponse(getConfigurableHandler().useResult(appId));
     }
 
     @GetMapping("/useResultAsList/appId/{appId}")
@@ -37,7 +40,7 @@ public abstract class AbstractConfigurableController<T extends AbstractConfigura
         if (StringUtils.isEmpty(appId)) {
             return InvalidResponse.REQUESTED_APP_ID_IS_EMPTY;
         }
-        return ResponseUtils.successResponse(this.configurableHandler.useResultAsList(appId));
+        return ResponseUtils.successResponse(getConfigurableHandler().useResultAsList(appId));
     }
 
     @GetMapping("/editList/appId/{appId}")
@@ -46,37 +49,39 @@ public abstract class AbstractConfigurableController<T extends AbstractConfigura
         if (StringUtils.isEmpty(appId)) {
             return InvalidResponse.REQUESTED_APP_ID_IS_EMPTY;
         }
-        return ResponseUtils.successResponse(this.configurableHandler.editList(appId));
+        return ResponseUtils.successResponse(getConfigurableHandler().editList(appId));
     }
 
     @PostMapping("/modify/{modifyType}")
     @ResponseBody
+    @AppAuth
     public Response modify(@PathVariable ModifyType modifyType, @RequestBody T configuration) throws Exception {
         if (modifyType == ModifyType.INSERT) {
             configuration.validParameters();
-            return ResponseUtils.successResponse(this.configurableHandler.insert(configuration));
+            return ResponseUtils.successResponse(getConfigurableHandler().insert(configuration));
         }
         if (modifyType == ModifyType.UPDATE) {
-            return ResponseUtils.successResponse(this.configurableHandler.update(configuration));
+            return ResponseUtils.successResponse(getConfigurableHandler().update(configuration));
         }
         if (modifyType == ModifyType.REMOVE) {
-            return ResponseUtils.successResponse(this.configurableHandler.remove(configuration));
+            return ResponseUtils.successResponse(getConfigurableHandler().remove(configuration));
         }
         return ResponseUtils.resourceNotFoundResponse();
     }
 
     @PostMapping("/batchModify/{modifyType}")
     @ResponseBody
+    @AppAuth
     public final Response batchModify(@PathVariable ModifyType modifyType, @RequestBody List<T> configuration)
         throws Exception {
         if (modifyType == ModifyType.INSERT) {
             for (T item : configuration) {
                 item.validParameters();
             }
-            return ResponseUtils.successResponse(this.configurableHandler.insertList(configuration));
+            return ResponseUtils.successResponse(getConfigurableHandler().insertList(configuration));
         }
         if (modifyType == ModifyType.REMOVE) {
-            return ResponseUtils.successResponse(this.configurableHandler.removeList(configuration));
+            return ResponseUtils.successResponse(getConfigurableHandler().removeList(configuration));
         }
         return ResponseUtils.resourceNotFoundResponse();
     }

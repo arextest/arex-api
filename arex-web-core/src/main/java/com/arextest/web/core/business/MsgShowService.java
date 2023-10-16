@@ -1,5 +1,8 @@
 package com.arextest.web.core.business;
 
+import com.arextest.common.context.ArexContext;
+import com.arextest.common.utils.JsonTraverseUtils;
+import com.arextest.web.core.business.util.JsonUtils;
 import com.arextest.web.core.business.util.ListUtils;
 import com.arextest.web.core.repository.mongo.ReplayCompareResultRepositoryImpl;
 import com.arextest.web.model.contract.contracts.QueryMsgWithDiffRequestType;
@@ -17,6 +20,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
@@ -38,6 +42,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 
+@Slf4j
 @Component
 public class MsgShowService {
 
@@ -62,6 +67,13 @@ public class MsgShowService {
         if (compareResultDto == null) {
             return response;
         }
+
+        if (Boolean.FALSE.equals(ArexContext.getContext().getPassAuth())) {
+            JsonUtils.downgrade(compareResultDto);
+            response.setDesensitized(true);
+        }
+
+
         String baseMsg = compareResultDto.getBaseMsg();
         String testMsg = compareResultDto.getTestMsg();
 
@@ -83,6 +95,7 @@ public class MsgShowService {
                 testMsg = baseAndTestObjCombination.getRight().toString();
             }
         }
+
         response.setBaseMsg(baseMsg);
         response.setTestMsg(testMsg);
         response.setLogs(sceneLogs);

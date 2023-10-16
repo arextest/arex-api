@@ -7,7 +7,7 @@ import java.util.List;
 
 
 @Data
-public class QueryReplayMsgResponseType {
+public class QueryReplayMsgResponseType extends DesensitizationResponseType {
     
     private boolean baseMsgDownload;
     private boolean testMsgDownload;

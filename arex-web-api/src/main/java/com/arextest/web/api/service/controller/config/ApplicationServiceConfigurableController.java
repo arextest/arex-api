@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
  */
 @Controller
 @RequestMapping("/api/config/applicationService")
-public final class ApplicationServiceConfigurableController extends AbstractConfigurableController<ApplicationServiceConfiguration> {
+public class ApplicationServiceConfigurableController extends AbstractConfigurableController<ApplicationServiceConfiguration> {
     public ApplicationServiceConfigurableController(@Autowired ConfigurableHandler<ApplicationServiceConfiguration> configurableHandler) {
         super(configurableHandler);
     }

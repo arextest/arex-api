@@ -7,6 +7,6 @@ import java.util.List;
 
 
 @Data
-public class QueryFullLinkMsgResponseType {
+public class QueryFullLinkMsgResponseType extends DesensitizationResponseType{
     List<CompareResult> compareResults;
 }

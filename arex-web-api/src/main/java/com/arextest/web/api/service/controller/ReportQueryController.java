@@ -4,6 +4,8 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
+import com.arextest.common.annotation.AppAuth;
+import com.arextest.common.enums.AuthRejectStrategy;
 import com.arextest.web.common.HttpUtils;
 import com.arextest.web.model.contract.contracts.FeedbackSceneRequest;
 import com.arextest.web.model.contract.contracts.RemoveRecordsAndScenesRequest;
@@ -120,6 +122,7 @@ public class ReportQueryController {
     @Deprecated
     @PostMapping("/pushCompareResults")
     @ResponseBody
+    // from schedule
     public Response pushCompareResults(@Valid @RequestBody PushCompareResultsRequestType request) {
         PushCompareResultsResponseType response = new PushCompareResultsResponseType();
         response.setSuccess(reportService.saveCompareResults(request));
@@ -147,6 +150,7 @@ public class ReportQueryController {
 
     @PostMapping("/updateReportInfo")
     @ResponseBody
+    // from schedule
     public Response updateReportInfo(@Valid @RequestBody UpdateReportInfoRequestType request) {
         UpdateReportInfoResponseType response = new UpdateReportInfoResponseType();
         response.setSuccess(replayInfoService.updatePlan(request));
@@ -155,6 +159,7 @@ public class ReportQueryController {
 
     @PostMapping("/pushReplayStatus")
     @ResponseBody
+    // from schedule
     public Response changeReplayStatus(@Valid @RequestBody ChangeReplayStatusRequestType request) {
         ChangeReplayStatusResponseType response = new ChangeReplayStatusResponseType();
         response.setUpdateSuccess(reportService.changeReportStatus(request));
@@ -163,6 +168,7 @@ public class ReportQueryController {
 
     @PostMapping("/removeRecordsAndScenes")
     @ResponseBody
+    // from schedule
     public Response removeFailedCases(@Valid @RequestBody RemoveRecordsAndScenesRequest request) {
         SuccessResponse response = new SuccessResponse();
         response.setSuccess(reportService.removeRecords(request) && sceneReportService.removeScene(request));
@@ -222,6 +228,7 @@ public class ReportQueryController {
         return ResponseUtils.successResponse(response);
     }
 
+    @AppAuth(rejectStrategy = AuthRejectStrategy.DOWNGRADE)
     @PostMapping("/queryMsgWithDiff")
     @ResponseBody
     public Response queryMsgWithDiff(@RequestBody QueryMsgWithDiffRequestType request) {
@@ -250,6 +257,7 @@ public class ReportQueryController {
         return ResponseUtils.successResponse(response);
     }
 
+    @AppAuth(rejectStrategy = AuthRejectStrategy.DOWNGRADE)
     @PostMapping("/queryFullLinkMsg")
     @ResponseBody
     public Response queryFullLinkMsg(@Valid @RequestBody QueryFullLinkMsgRequestType request) {
@@ -257,6 +265,7 @@ public class ReportQueryController {
         return ResponseUtils.successResponse(response);
     }
 
+    @AppAuth(rejectStrategy = AuthRejectStrategy.DOWNGRADE)
     @PostMapping("/queryReplayMsg")
     @ResponseBody
     public Response queryReplayMsg(@Valid @RequestBody QueryReplayMsgRequestType request) {
@@ -264,6 +273,7 @@ public class ReportQueryController {
         return ResponseUtils.successResponse(response);
     }
 
+    @AppAuth
     @PostMapping("/downloadReplayMsg")
     @ResponseBody
     public void downloadReplayMsg(@Valid @RequestBody DownloadReplayMsgRequestType request,
@@ -362,7 +372,7 @@ public class ReportQueryController {
 
     @PostMapping("/listRecord")
     @ResponseBody
-    public Response countRecord(@Valid @RequestBody ListRecordRequestType requestType) {
+    public Response listRecord(@Valid @RequestBody ListRecordRequestType requestType) {
         if (requestType.getOperationType() == null) {
             return ResponseUtils.errorResponse("no operationType", ResponseCode.REQUESTED_PARAMETER_INVALID);
         }
