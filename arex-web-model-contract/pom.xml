@@ -31,6 +31,10 @@
             <groupId>com.arextest</groupId>
             <artifactId>arex-storage-config</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.arextest</groupId>
+            <artifactId>arex-model</artifactId>
+        </dependency>
     </dependencies>
 
     <properties>
