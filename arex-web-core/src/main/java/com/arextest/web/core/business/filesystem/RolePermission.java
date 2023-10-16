@@ -1,7 +1,6 @@
 package com.arextest.web.core.business.filesystem;
 
 import com.arextest.common.utils.JwtUtil;
-import com.arextest.config.repository.impl.ApplicationConfigurationRepositoryImpl;
 import com.arextest.web.core.repository.UserWorkspaceRepository;
 import com.arextest.web.model.dto.filesystem.UserWorkspaceDto;
 import com.arextest.web.model.enums.RoleType;
@@ -21,9 +20,6 @@ public class RolePermission {
 
     @Resource
     private UserWorkspaceRepository userWorkspaceRepository;
-
-    @Resource
-    private ApplicationConfigurationRepositoryImpl applicationConfigurationRepository;
 
     private boolean checkPermission(Integer action, String userName, String workspaceId) {
         UserWorkspaceDto userWorkspaceDto = userWorkspaceRepository.queryUserWorkspace(userName, workspaceId);

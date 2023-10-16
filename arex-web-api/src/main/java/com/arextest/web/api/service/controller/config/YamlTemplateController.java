@@ -1,6 +1,5 @@
 package com.arextest.web.api.service.controller.config;
 
-import com.arextest.common.annotation.AppAuth;
 import com.arextest.common.model.response.Response;
 import com.arextest.common.model.response.ResponseCode;
 import com.arextest.common.utils.ResponseUtils;
