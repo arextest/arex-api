@@ -72,7 +72,7 @@ public class QueryReplayMsgService {
             return response;
         }
 
-        if (!Boolean.TRUE.equals(ArexContext.getContext().getPassAuth())) {
+        if (Boolean.FALSE.equals(ArexContext.getContext().getPassAuth())) {
             JsonUtils.downgrade(dto);
         }
 
@@ -145,7 +145,7 @@ public class QueryReplayMsgService {
             return response;
         }
 
-        if (!Boolean.TRUE.equals(ArexContext.getContext().getPassAuth())) {
+        if (Boolean.FALSE.equals(ArexContext.getContext().getPassAuth())) {
             dtos.forEach(JsonUtils::downgrade);
         }
         List<CompareResult> compareResults = dtos.stream()

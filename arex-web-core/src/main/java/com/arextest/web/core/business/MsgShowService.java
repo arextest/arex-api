@@ -68,7 +68,7 @@ public class MsgShowService {
             return response;
         }
 
-        if (!Boolean.TRUE.equals(ArexContext.getContext().getPassAuth())) {
+        if (Boolean.FALSE.equals(ArexContext.getContext().getPassAuth())) {
             JsonUtils.downgrade(compareResultDto);
         }
 
