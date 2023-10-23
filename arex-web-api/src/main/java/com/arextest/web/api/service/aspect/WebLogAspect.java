@@ -1,13 +1,17 @@
 package com.arextest.web.api.service.aspect;
 
+import com.arextest.web.api.service.controller.ControllerException;
 import com.arextest.web.common.LogUtils;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ArrayUtils;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StopWatch;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
@@ -29,40 +33,66 @@ public class WebLogAspect {
     }
 
     private static final String CLASS_METHOD = "ClassMethod";
+    private static final String CONTROLLER_EXCEPTION = ControllerException.class.getName();
 
     @Resource
     private ObjectMapper mapper;
 
-
     @Around("webLog()")
     public Object doAround(ProceedingJoinPoint joinPoint) throws Throwable {
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-        HttpServletRequest request = attributes.getRequest();
+        if (attributes == null) {
+            return joinPoint.proceed();
+        }
+
+        if (CONTROLLER_EXCEPTION.equals(joinPoint.getSignature().getDeclaringTypeName())) {
+            return joinPoint.proceed();
+        }
 
         long startTime = System.currentTimeMillis();
-
-        StringBuilder sb = new StringBuilder();
-        sb.append("========================================== Start ==========================================\r\n");
-        sb.append("URL            : ").append(request.getRequestURL().toString()).append("\r\n");
-        sb.append("HTTP Method    : ").append(request.getMethod()).append("\r\n");
-        sb.append(MessageFormat.format("Class Method   : {0}.{1}\r\n",
+        long endTime = 0;
+        Object result = null;
+        try {
+            result = joinPoint.proceed();
+            endTime = System.currentTimeMillis();
+        } catch (Throwable e) {
+            endTime = System.currentTimeMillis();
+            throw e;
+        } finally {
+            HttpServletRequest request = attributes.getRequest();
+            StringBuilder builder = new StringBuilder();
+            builder.append("========================================== Start ==========================================\r\n");
+            builder.append("URL            : ").append(request.getRequestURL().toString()).append("\r\n");
+            builder.append("HTTP Method    : ").append(request.getMethod()).append("\r\n");
+            builder.append("Class Method   : ").append(joinPoint.getSignature().getDeclaringTypeName())
+                .append(".").append(joinPoint.getSignature().getName()).append("\r\n");
+            builder.append("IP             : ").append(request.getRemoteAddr()).append("\r\n");
+            builder.append("Request        : ").append(serializeRequest(joinPoint.getArgs())).append("\r\n");
+            builder.append("Response       : ").append(mapper.writeValueAsString(result)).append("\r\n");
+            builder.append("Time-Consuming : ").append(endTime - startTime).append(" ms\r\n");
+            builder.append("=========================================== End ===========================================");
+            Map<String, String> tags = new HashMap<>();
+            tags.put(CLASS_METHOD, MessageFormat.format("{0}.{1}",
                 joinPoint.getSignature().getDeclaringTypeName(),
                 joinPoint.getSignature().getName()));
-        sb.append(MessageFormat.format("IP             : {0}\r\n", request.getRemoteAddr()));
-        sb.append(MessageFormat.format("Request Args   : {0}\r\n", mapper.writeValueAsString(joinPoint.getArgs())));
+            LogUtils.info(LOGGER, tags, builder.toString());
+        }
 
-        Object result = joinPoint.proceed();
-
-        sb.append(MessageFormat.format("Response Args  : {0}\r\n", mapper.writeValueAsString(result)));
-        sb.append(MessageFormat.format("Time-Consuming : {0} ms\r\n", System.currentTimeMillis() - startTime));
-        sb.append("=========================================== End ===========================================");
-        Map<String, String> tags = new HashMap<>();
-        tags.put(CLASS_METHOD,
-                MessageFormat.format("{0}.{1}",
-                        joinPoint.getSignature().getDeclaringTypeName(),
-                        joinPoint.getSignature().getName()));
-        LogUtils.info(LOGGER, tags, sb.toString());
         return result;
     }
 
+    private String serializeRequest(Object[] args) throws JsonProcessingException {
+        if (ArrayUtils.isEmpty(args)) {
+            return null;
+        }
+
+        for (Object arg : args) {
+            // maybe MethodArgumentNotValidException
+            if (arg instanceof Throwable) {
+                return null;
+            }
+        }
+
+        return mapper.writeValueAsString(args);
+    }
 }
