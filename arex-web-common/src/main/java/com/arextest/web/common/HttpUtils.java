@@ -24,6 +24,12 @@ public class HttpUtils {
         return call(url, request, responseClazz, HttpMethod.POST, null, null, null);
     }
 
+    public static <T, R> ResponseEntity<T> post(String url, R request, Class<T> responseClazz,
+                                                Map<String, String> headers) {
+        return call(url, request, responseClazz, HttpMethod.POST, null, headers, null);
+    }
+
+
     public static <T, R> ResponseEntity<T> post(String url, R request, Class<T> responseClazz, String contentType,
             Map<String, String> headers, Integer timeout) {
         return call(url, request, responseClazz, HttpMethod.POST, contentType, headers, timeout);

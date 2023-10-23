@@ -78,6 +78,7 @@ public class RecordService {
         ResponseEntity<PagedResponseType> listResponse;
         String operationType = requestType.getOperationType();
         pagedRequestType.setCategory(MockCategoryType.createEntryPoint(operationType));
+
         listResponse = HttpUtils.post(listRecordUrl, pagedRequestType, PagedResponseType.class);
         if (listResponse != null && listResponse.getBody() != null) {
             recordItemList.addAll(listResponse.getBody().getRecords()

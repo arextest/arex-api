@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
  */
 @Controller
 @RequestMapping("/api/config/schedule")
-public final class ScheduleConfigurableController extends AbstractConfigurableController<ScheduleConfiguration> {
+public class ScheduleConfigurableController extends AbstractConfigurableController<ScheduleConfiguration> {
     public ScheduleConfigurableController(@Autowired ConfigurableHandler<ScheduleConfiguration> configurableHandler) {
         super(configurableHandler);
     }

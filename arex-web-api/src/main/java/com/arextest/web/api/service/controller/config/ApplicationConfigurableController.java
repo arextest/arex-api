@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
  */
 @Controller
 @RequestMapping("/api/config/application")
-public final class ApplicationConfigurableController extends AbstractConfigurableController<ApplicationConfiguration> {
+public class ApplicationConfigurableController extends AbstractConfigurableController<ApplicationConfiguration> {
 
     @Resource
     private ScheduleConfigurableHandler scheduleHandler;
