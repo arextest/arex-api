@@ -1,31 +1,30 @@
-package com.arextest.web.model.contract.contracts.config.expectation;
+package com.arextest.web.model.dao.mongodb.expectation;
 
-import javax.validation.constraints.NotBlank;
+import com.arextest.web.model.dao.mongodb.ModelBase;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.experimental.FieldNameConstants;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-/**
- * Expectation script config
- */
 @Data
-public class ExpectationScriptModel {
-    private String id;
+@FieldNameConstants
+@EqualsAndHashCode(callSuper = true)
+@Document(collection = "ConfigExpectationScript")
+public class ExpectationScriptEntity extends ModelBase {
     /**
      * app id
      */
-    @NotBlank(message = "appId can not be blank")
     private String appId;
     /**
      * Script title, eg: classA.methodB
      */
-    @NotBlank(message = "title can not be blank")
     private String title;
     /**
      * Script content
      */
-    @NotBlank(message = "content can not be blank")
     public String content;
     /**
-     * Script is valid, null for all, 0 true/1 false
+     * Script is valid
      */
     public Boolean valid;
     /**
@@ -33,6 +32,7 @@ public class ExpectationScriptModel {
      */
     public long expirationTime;
     /**
+     /**
      * 0 specified: for specified operation
      * 1 global: for all operation
      */
