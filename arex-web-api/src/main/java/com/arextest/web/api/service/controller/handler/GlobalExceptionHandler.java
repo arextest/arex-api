@@ -1,0 +1,49 @@
+package com.arextest.web.api.service.controller.handler;
+
+import com.arextest.common.exceptions.ArexException;
+import com.arextest.common.model.response.Response;
+import com.arextest.common.model.response.ResponseCode;
+import com.arextest.common.utils.ResponseUtils;
+import com.arextest.common.utils.ResponseUtils_New;
+import com.arextest.web.common.LogUtils;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.validation.ObjectError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+/**
+ * @author b_yu
+ * @since 2022/11/18
+ */
+@Slf4j
+@RestControllerAdvice
+public class GlobalExceptionHandler {
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public Response handleValidException(MethodArgumentNotValidException e) {
+        List<ObjectError> allErrors = e.getBindingResult().getAllErrors();
+        String message = allErrors.stream().map(s -> s.getDefaultMessage()).collect(Collectors.joining(";"));
+        return ResponseUtils.errorResponse(message, ResponseCode.REQUESTED_PARAMETER_INVALID);
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public Response handleDefaultException(HttpMessageNotReadableException e) {
+        return ResponseUtils.errorResponse("Required request body is missing", ResponseCode.REQUESTED_HANDLE_EXCEPTION);
+    }
+
+    @ExceptionHandler(Throwable.class)
+    public Response handleDefaultException(Throwable e) {
+        LogUtils.error(LOGGER, "Unhandled exception", e);
+        return ResponseUtils.errorResponse(e.getMessage(), ResponseCode.REQUESTED_HANDLE_EXCEPTION);
+    }
+
+    @ExceptionHandler(ArexException.class)
+    public Response handleArexException(ArexException e) {
+        LogUtils.error(LOGGER, "Arex internal exception", e);
+        return ResponseUtils_New.errorResponse(e.getMessage(), e.getResponseCode());
+    }
+}

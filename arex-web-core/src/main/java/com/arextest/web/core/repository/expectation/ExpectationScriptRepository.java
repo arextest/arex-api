@@ -1,0 +1,75 @@
+package com.arextest.web.core.repository.expectation;
+
+import com.arextest.web.core.repository.RepositoryProvider;
+import com.arextest.web.model.contract.contracts.config.expectation.ExpectationScriptDeleteRequest;
+import com.arextest.web.model.contract.contracts.config.expectation.ExpectationScriptModel;
+import com.arextest.web.model.contract.contracts.config.expectation.ExpectationScriptQueryRequest;
+import com.arextest.web.model.dao.mongodb.expectation.ExpectationScriptEntity;
+import com.arextest.web.model.dao.mongodb.expectation.ExpectationScriptEntity.Fields;
+import com.arextest.web.model.mapper.expectation.ExpectationScriptMapper;
+import com.mongodb.client.result.UpdateResult;
+import java.util.List;
+import javax.annotation.Resource;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public class ExpectationScriptRepository implements RepositoryProvider {
+    @Resource
+    private MongoTemplate mongoTemplate;
+
+    public boolean insert(ExpectationScriptModel model) {
+        ExpectationScriptEntity entity = ExpectationScriptMapper.INSTANCE.toEntity(model);
+        if (entity.getExpirationTime() == 0) {
+            // 2099-01-01 12:00:00
+            entity.setExpirationTime(4070923200000L);
+        }
+        mongoTemplate.insert(entity);
+        return StringUtils.isNotBlank(entity.getId());
+    }
+    public boolean update(ExpectationScriptModel model) {
+        Query query = Query.query(Criteria.where(DASH_ID).is(model.getId()));
+        Update update = getConfigUpdate();
+        update.set(Fields.content, model.getContent());
+        update.set(Fields.valid, model.valid);
+        update.set(Fields.expirationTime, model.getExpirationTime());
+        update.set(Fields.scope, model.getScope());
+        update.set(Fields.dataChangeUpdateBy, model.getDataChangeUpdateBy());
+
+        UpdateResult updateResult = mongoTemplate.updateFirst(query, update, ExpectationScriptEntity.class);
+        return updateResult.getModifiedCount() > 0;
+    }
+
+    public boolean save(ExpectationScriptModel model) {
+        return model.getId() != null ? update(model) : insert(model);
+    }
+
+    public boolean delete(ExpectationScriptDeleteRequest request) {
+        Query query = new Query();
+        query.addCriteria(Criteria.where(DASH_ID).is(request.getId()));
+        query.addCriteria(Criteria.where(Fields.appId).is(request.getAppId()));
+        return mongoTemplate.remove(query, ExpectationScriptEntity.class).getDeletedCount() > 0;
+    }
+
+    public List<ExpectationScriptModel> query(ExpectationScriptQueryRequest request){
+        Query query = new Query();
+        query.addCriteria(Criteria.where(Fields.appId).is(request.getAppId()));
+        if (request.getValid() != null) {
+            query.addCriteria(Criteria.where(Fields.valid).is(request.getValid()));
+        }
+        if (request.getExpirationTime() != null) {
+            query.addCriteria(Criteria.where(Fields.expirationTime).lt(request.getExpirationTime()));
+        }
+        if (request.getScope() != null) {
+            query.addCriteria(Criteria.where(Fields.scope).is(request.getScope()));
+        }
+        if (request.getTitle() != null) {
+            query.addCriteria(Criteria.where(Fields.title).regex(request.getTitle()));
+        }
+        return ExpectationScriptMapper.INSTANCE.toModelList(mongoTemplate.find(query, ExpectationScriptEntity.class));
+    }
+}
