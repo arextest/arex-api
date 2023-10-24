@@ -136,10 +136,11 @@ public class ReportService {
     }
 
     public boolean deleteReport(String planId) {
+        planStatisticRepository.deletePlan(planId);
         planItemStatisticRepository.deletePlanItemsByPlanId(planId);
         reportDiffAggStatisticRepository.deleteDiffAggByPlanId(planId);
         replayCompareResultRepository.deleteCompareResultsByPlanId(planId);
-        return planStatisticRepository.deletePlan(planId);
+        return replayCompareResultRepository.deleteCompareResultsByPlanId(planId);
     }
 
     public boolean removeRecords(RemoveRecordsAndScenesRequest request) {
