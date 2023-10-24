@@ -138,20 +138,6 @@ public class SceneReportService {
     }
 
     public boolean feedbackScene(FeedbackSceneRequest request) {
-        FeedbackTypeEnum feedbackTypeEnum = FeedbackTypeEnum.from(request.getFeedbackType());
-        switch (feedbackTypeEnum) {
-            case BY_DESIGN:
-            case AREX_PROBLEM:
-                return passSubScene(request);
-            case BUG:
-                return markSubScene(request);
-            default:
-                return true;
-        }
-    }
-
-
-    private boolean markSubScene(FeedbackSceneRequest request) {
         final String planId = request.getPlanId();
         final String planItemId = request.getPlanItemId();
         final String recordId = request.getRecordId();
@@ -159,53 +145,26 @@ public class SceneReportService {
 
         //update scene
         List<SceneInfo> sceneInfos = sceneInfoRepository.querySceneInfo(planId, planItemId);
-        List<SceneInfo> newSceneInfos = new ArrayList<>();
-        sceneInfos.forEach(sceneInfo -> {
-            sceneInfo.getSubSceneInfoMap().forEach((groupKey, subSceneInfo) -> {
-                if (Objects.equals(subSceneInfo.getRecordId(), recordId)) {
-                    subSceneInfo.setFeedbackType(feedbackType);
-                    subSceneInfo.setRemark(request.getRemark());
-                }
-            });
-            newSceneInfos.add(sceneInfo);
-        });
-        sceneInfoRepository.removeById(newSceneInfos.stream().map(SceneInfo::getId).collect(Collectors.toSet()));
-        sceneInfoRepository.save(newSceneInfos);
-        return true;
-    }
-
-    private boolean passSubScene(FeedbackSceneRequest request) {
-        final String planId = request.getPlanId();
-        final String planItemId = request.getPlanItemId();
-        final String recordId = request.getRecordId();
-        final Integer feedbackType = request.getFeedbackType();
-
-        //update scene
-        List<SceneInfo> sceneInfos = sceneInfoRepository.querySceneInfo(planId, planItemId);
-        List<SceneInfo> newSceneInfos = new ArrayList<>();
         sceneInfos.forEach(sceneInfo -> {
             if (MapUtils.isNotEmpty(sceneInfo.getSubSceneInfoMap())) {
                 sceneInfo.getSubSceneInfoMap().forEach((groupKey, subSceneInfo) -> {
                     if (Objects.equals(subSceneInfo.getRecordId(), recordId)) {
-                        subSceneInfo.setCode(DiffResultCode.COMPARED_WITHOUT_DIFFERENCE);
                         subSceneInfo.setFeedbackType(feedbackType);
                         subSceneInfo.setRemark(request.getRemark());
+                        if (Objects.equals(request.getFeedbackType(), FeedbackTypeEnum.BY_DESIGN.getCode())
+                            || Objects.equals(request.getFeedbackType(), FeedbackTypeEnum.AREX_PROBLEM.getCode())) {
+                            subSceneInfo.setCode(DiffResultCode.COMPARED_WITHOUT_DIFFERENCE);
+                            if (checkAllSubScenes(sceneInfo)) {
+                                passCases(planId, planItemId, sceneInfo);
+                                sceneInfo.setCode(DiffResultCode.COMPARED_WITHOUT_DIFFERENCE);
+                            }
+                        }
+                        sceneInfoRepository.update(sceneInfo);
                     }
                 });
-                if (checkAllSubScenes(sceneInfo)) {
-                    sceneInfo.setCode(DiffResultCode.COMPARED_WITHOUT_DIFFERENCE);
-                }
             }
-            newSceneInfos.add(sceneInfo);
         });
-        sceneInfoRepository.removeById(newSceneInfos.stream().map(SceneInfo::getId).collect(Collectors.toSet()));
-        sceneInfoRepository.save(newSceneInfos);
-
-        // After all the scene has been passed, update compareResult&planItemStatistic
-        if (!checkAllScenes(sceneInfos)) {
-            return true;
-        }
-        return passCases(planId, planItemId);
+        return true;
     }
 
     private boolean checkAllSubScenes(SceneInfo sceneInfo) {
@@ -230,11 +189,14 @@ public class SceneReportService {
         return result;
     }
 
-    private boolean passCases(String planId, String planItemId) {
+    private boolean passCases(String planId, String planItemId, SceneInfo sceneInfo) {
         LOGGER.info("All the scenes has been passed");
         // query other cases in the same subScene
         List<CaseSummary> caseSummaryList = caseSummaryRepository.query(planId, planItemId);
-        List<String> recordIds = caseSummaryList.stream().map(CaseSummary::getRecordId).collect(Collectors.toList());
+        List<String> recordIds = caseSummaryList.stream()
+            .filter(caseSummary -> caseSummary.categoryKey() == sceneInfo.getCategoryKey())
+            .map(CaseSummary::getRecordId)
+            .collect(Collectors.toList());
 
         // update compareResult
         List<CompareResultDto> compareResultList = replayCompareResultRepository.queryCompareResults(

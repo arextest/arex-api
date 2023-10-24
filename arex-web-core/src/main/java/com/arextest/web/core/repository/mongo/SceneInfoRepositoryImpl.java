@@ -108,6 +108,23 @@ public class SceneInfoRepositoryImpl implements SceneInfoRepository {
         return mongoTemplate.remove(query, SceneInfoCollection.class).getDeletedCount() > 0;
     }
 
+    @Override
+    public boolean update(SceneInfo sceneInfo) {
+        Update update = new Update();
+        sceneInfo.setDataChangeCreateTime(null);
+        sceneInfo.setDataChangeUpdateTime(System.currentTimeMillis());
+        MongoHelper.appendFullProperties(update, sceneInfo);
+
+        Query query = Query.query(Criteria.where(DASH_ID).is(sceneInfo.getId()));
+
+        return mongoTemplate.findAndModify(
+            query,
+            update,
+            FindAndModifyOptions.options().upsert(true).returnNew(true),
+            SceneInfoCollection.class
+        ) != null;
+    }
+
     private String toColumnName(String groupKeyName, String columnName) {
         return groupKeyName + DOT + columnName;
     }

@@ -18,4 +18,6 @@ public interface SceneInfoRepository extends RepositoryProvider {
     boolean removeByPlanItemId(Set<String> planItemIds);
 
     boolean removeById(Set<String> ids);
+
+    boolean update(SceneInfo sceneInfo);
 }
