@@ -21,6 +21,7 @@ public class SubSceneInfo {
      * @see FeedbackTypeEnum#getCode() ;
      */
     private Integer feedbackType;
+    private String remark;
 
     private List<DiffDetail> details;
 

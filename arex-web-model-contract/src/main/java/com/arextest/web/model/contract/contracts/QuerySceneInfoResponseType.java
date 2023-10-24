@@ -29,6 +29,7 @@ public class QuerySceneInfoResponseType {
          * @see com.arextest.web.model.enums.FeedbackTypeEnum#getCode() ;
          */
         private Integer feedbackType;
+        private String remark;
         private List<DiffDetailType> details;
     }
 
