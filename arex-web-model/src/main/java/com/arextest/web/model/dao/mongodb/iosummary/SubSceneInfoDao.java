@@ -21,6 +21,7 @@ public class SubSceneInfoDao {
      * @see FeedbackTypeEnum#getCode() ;
      */
     private Integer feedbackType;
+    private String remark;
 
     private List<DiffDetailDao> details;
 }

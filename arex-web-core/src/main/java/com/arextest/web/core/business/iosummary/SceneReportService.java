@@ -184,15 +184,17 @@ public class SceneReportService {
         List<SceneInfo> sceneInfos = sceneInfoRepository.querySceneInfo(planId, planItemId);
         List<SceneInfo> newSceneInfos = new ArrayList<>();
         sceneInfos.forEach(sceneInfo -> {
-            sceneInfo.getSubSceneInfoMap().forEach((groupKey, subSceneInfo) -> {
-                if (Objects.equals(subSceneInfo.getRecordId(), recordId)) {
-                    subSceneInfo.setCode(DiffResultCode.COMPARED_WITHOUT_DIFFERENCE);
-                    subSceneInfo.setFeedbackType(feedbackType);
-                    subSceneInfo.setRemark(request.getRemark());
+            if (MapUtils.isNotEmpty(sceneInfo.getSubSceneInfoMap())) {
+                sceneInfo.getSubSceneInfoMap().forEach((groupKey, subSceneInfo) -> {
+                    if (Objects.equals(subSceneInfo.getRecordId(), recordId)) {
+                        subSceneInfo.setCode(DiffResultCode.COMPARED_WITHOUT_DIFFERENCE);
+                        subSceneInfo.setFeedbackType(feedbackType);
+                        subSceneInfo.setRemark(request.getRemark());
+                    }
+                });
+                if (checkAllSubScenes(sceneInfo)) {
+                    sceneInfo.setCode(DiffResultCode.COMPARED_WITHOUT_DIFFERENCE);
                 }
-            });
-            if (checkAllSubScenes(sceneInfo)) {
-                sceneInfo.setCode(DiffResultCode.COMPARED_WITHOUT_DIFFERENCE);
             }
             newSceneInfos.add(sceneInfo);
         });
@@ -208,7 +210,7 @@ public class SceneReportService {
 
     private boolean checkAllSubScenes(SceneInfo sceneInfo) {
         boolean result = true;
-        for(SubSceneInfo subSceneInfo : sceneInfo.getSubScenes()) {
+        for(SubSceneInfo subSceneInfo : sceneInfo.getSubSceneInfoMap().values()) {
             if (subSceneInfo.getCode() != DiffResultCode.COMPARED_WITHOUT_DIFFERENCE) {
                 result = false;
                 break;
