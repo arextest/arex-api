@@ -139,7 +139,6 @@ public class ReportService {
         planStatisticRepository.deletePlan(planId);
         planItemStatisticRepository.deletePlanItemsByPlanId(planId);
         reportDiffAggStatisticRepository.deleteDiffAggByPlanId(planId);
-        replayCompareResultRepository.deleteCompareResultsByPlanId(planId);
         return replayCompareResultRepository.deleteCompareResultsByPlanId(planId);
     }
 
