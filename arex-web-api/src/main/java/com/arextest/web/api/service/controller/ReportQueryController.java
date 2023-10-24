@@ -415,6 +415,12 @@ public class ReportQueryController {
         return ResponseUtils.successResponse(schemaInferService.queryContract(requestType));
     }
 
+    @PostMapping("/queryFlatContract")
+    @ResponseBody
+    public Response queryFlatContract(@Valid @RequestBody QueryContractRequestType requestType) {
+        return ResponseUtils.successResponse(schemaInferService.queryFlatContract(requestType));
+    }
+
     @PostMapping("/overwriteContract")
     @ResponseBody
     public Response syncResponse(@Valid @RequestBody OverwriteContractRequestType requestType) {

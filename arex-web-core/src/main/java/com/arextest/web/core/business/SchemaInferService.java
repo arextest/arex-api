@@ -48,6 +48,9 @@ public class SchemaInferService {
     @Resource
     private ApplicationOperationConfigurationRepositoryImpl applicationOperationConfigurationRepository;
 
+    @Resource
+    private ObjectMapper objectMapper;
+
     private static final String TYPE = "type";
     private static final String PROPERTIES = "properties";
     private static final String ITEMS = "items";
@@ -126,6 +129,22 @@ public class SchemaInferService {
                 ContractTypeEnum.GLOBAL.getCode());
         }
         return null;
+    }
+
+    public List<String> queryFlatContract(QueryContractRequestType requestType) {
+        AppContractDto appContractDto = queryContract(requestType);
+        List<String> results = new ArrayList<>();
+
+        try {
+            Map<String, Object> jsonMap = CONTRACT_OBJ_MAPPER.readValue(appContractDto.getContract(), Map.class);
+            int i = 1;
+        } catch (Exception e) {
+            LogUtils.error(LOGGER, "ObjectMapper readValue failed, exception:{}, msg:{}", e,
+                appContractDto.getContract());
+        }
+
+
+        return results;
     }
 
     public AppContractDto overwriteContract(OverwriteContractRequestType request) {

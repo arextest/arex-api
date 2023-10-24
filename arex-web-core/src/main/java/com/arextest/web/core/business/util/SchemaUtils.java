@@ -114,4 +114,28 @@ public class SchemaUtils {
         LogUtils.error(LOGGER, "Unsupported Type, item:{}, class:{}", item, item.getClass());
         return null;
     }
+
+    public static List<String> getFlatContract(String contract) {
+        List<String> results = new ArrayList<>();
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            Map<String, Object> map = objectMapper.readValue(contract, Map.class);
+            int i = 1;
+        } catch (Exception e) {
+            LogUtils.error(LOGGER, "ObjectMapper readValue failed, exception:{}, msg:{}", e,
+                contract);
+        }
+        return results;
+    }
+
+    private static void recur(String temp, List<String> result, Map<String, Object> map) {
+        map.forEach((key, value) -> {
+            if (value instanceof Map) {
+                recur(temp + "." + key, result, (Map<String, Object>) value);
+            } else {
+
+            }
+        });
+    }
+
 }
