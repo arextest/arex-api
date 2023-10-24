@@ -178,17 +178,6 @@ public class SceneReportService {
         return result;
     }
 
-    private boolean checkAllScenes(List<SceneInfo> sceneInfoList) {
-        boolean result = true;
-        for(SceneInfo sceneInfo : sceneInfoList) {
-            if (sceneInfo.getCode() != DiffResultCode.COMPARED_WITHOUT_DIFFERENCE) {
-                result = false;
-                break;
-            }
-        }
-        return result;
-    }
-
     private boolean passCases(String planId, String planItemId, SceneInfo sceneInfo) {
         LOGGER.info("All the scenes has been passed");
         // query other cases in the same subScene
