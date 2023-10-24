@@ -154,8 +154,8 @@ public class SceneReportService {
                         if (Objects.equals(request.getFeedbackType(), FeedbackTypeEnum.BY_DESIGN.getCode())
                             || Objects.equals(request.getFeedbackType(), FeedbackTypeEnum.AREX_PROBLEM.getCode())) {
                             subSceneInfo.setCode(DiffResultCode.COMPARED_WITHOUT_DIFFERENCE);
+                            passCases(planId, planItemId, groupKey);
                             if (checkAllSubScenes(sceneInfo)) {
-                                passCases(planId, planItemId, sceneInfo);
                                 sceneInfo.setCode(DiffResultCode.COMPARED_WITHOUT_DIFFERENCE);
                             }
                         }
@@ -178,12 +178,12 @@ public class SceneReportService {
         return result;
     }
 
-    private boolean passCases(String planId, String planItemId, SceneInfo sceneInfo) {
+    private boolean passCases(String planId, String planItemId, String groupKey) {
         LOGGER.info("All the scenes has been passed");
         // query other cases in the same subScene
         List<CaseSummary> caseSummaryList = caseSummaryRepository.query(planId, planItemId);
         List<String> recordIds = caseSummaryList.stream()
-            .filter(caseSummary -> caseSummary.categoryKey() == sceneInfo.getCategoryKey())
+            .filter(caseSummary -> String.valueOf(caseSummary.groupKey()).equals(groupKey))
             .map(CaseSummary::getRecordId)
             .collect(Collectors.toList());
 
