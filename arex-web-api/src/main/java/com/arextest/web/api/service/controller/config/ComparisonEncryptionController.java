@@ -43,7 +43,7 @@ public class ComparisonEncryptionController extends AbstractConfigurableControll
 
     @PostMapping("/queryComparisonConfig")
     @ResponseBody
-    public final Response queryComparisonConfig(@RequestBody QueryComparisonRequestType request) {
+    public Response queryComparisonConfig(@RequestBody QueryComparisonRequestType request) {
         return ResponseUtils.successResponse(getComparisonEncryptionConfigurableHandler().queryComparisonConfig(
             request.getAppId(), request.getOperationId(), request.getOperationType(), request.getOperationName()));
     }
