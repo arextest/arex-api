@@ -1,6 +1,7 @@
 package com.arextest.web.core.business.util;
 
 import com.arextest.web.common.LogUtils;
+import com.arextest.web.core.business.filesystem.importexport.postmancollection.Collection;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -9,6 +10,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @Slf4j
 public class SchemaUtils {
@@ -120,7 +122,8 @@ public class SchemaUtils {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             Map<String, Object> map = objectMapper.readValue(contract, Map.class);
-            int i = 1;
+            recur("", results, map);
+
         } catch (Exception e) {
             LogUtils.error(LOGGER, "ObjectMapper readValue failed, exception:{}, msg:{}", e,
                 contract);
@@ -128,14 +131,21 @@ public class SchemaUtils {
         return results;
     }
 
-    private static void recur(String temp, List<String> result, Map<String, Object> map) {
-        map.forEach((key, value) -> {
-            if (value instanceof Map) {
-                recur(temp + "." + key, result, (Map<String, Object>) value);
-            } else {
-
-            }
-        });
+    private static void recur(String temp, List<String> result, Object contract) {
+        if (contract instanceof Map) {
+            ((Map<String, Object>) contract).forEach((key, value) -> {
+                String newStr = Objects.equals(temp, "") ? key : temp + "." + key;
+                if (value instanceof Map) {
+                    recur(newStr, result, value);
+                } else if (value instanceof List) {
+                    ((List<?>) value).forEach(item -> recur(newStr, result, item));
+                } else {
+                    result.add(newStr);
+                }
+            });
+        } else if (contract instanceof List) {
+            ((List<?>) contract).forEach(item -> recur(temp, result, item));
+        }
     }
 
 }

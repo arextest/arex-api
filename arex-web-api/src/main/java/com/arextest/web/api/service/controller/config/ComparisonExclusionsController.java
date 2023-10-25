@@ -33,7 +33,7 @@ public class ComparisonExclusionsController extends AbstractConfigurableControll
     @Deprecated
     @RequestMapping("/useResultAsList")
     @ResponseBody
-    public final Response useResultList(@RequestParam String appId,
+    public Response useResultList(@RequestParam String appId,
                                         @RequestParam(required = false) String operationId,
                                         @RequestParam(defaultValue = "false") Boolean filterExpired) {
         if (StringUtils.isEmpty(appId)) {
@@ -54,7 +54,7 @@ public class ComparisonExclusionsController extends AbstractConfigurableControll
      */
     @RequestMapping("/queryByInterfaceId")
     @ResponseBody
-    public final Response queryByInterfaceId(@RequestParam String interfaceId,
+    public Response queryByInterfaceId(@RequestParam String interfaceId,
                                              @RequestParam(defaultValue = "false") Boolean filterExpired) {
         if (StringUtils.isEmpty(interfaceId)) {
             return InvalidResponse.REQUESTED_INTERFACE_ID_IS_EMPTY;

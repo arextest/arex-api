@@ -133,18 +133,7 @@ public class SchemaInferService {
 
     public List<String> queryFlatContract(QueryContractRequestType requestType) {
         AppContractDto appContractDto = queryContract(requestType);
-        List<String> results = new ArrayList<>();
-
-        try {
-            Map<String, Object> jsonMap = CONTRACT_OBJ_MAPPER.readValue(appContractDto.getContract(), Map.class);
-            int i = 1;
-        } catch (Exception e) {
-            LogUtils.error(LOGGER, "ObjectMapper readValue failed, exception:{}, msg:{}", e,
-                appContractDto.getContract());
-        }
-
-
-        return results;
+        return SchemaUtils.getFlatContract(appContractDto.getContract());
     }
 
     public AppContractDto overwriteContract(OverwriteContractRequestType request) {

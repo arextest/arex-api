@@ -26,7 +26,7 @@ public class ComparisonEncryptionController extends AbstractConfigurableControll
 
     @PostMapping("/queryByInterfaceId")
     @ResponseBody
-    public final Response queryByInterfaceId(@RequestParam String interfaceId) {
+    public Response queryByInterfaceId(@RequestParam String interfaceId) {
         if (StringUtils.isEmpty(interfaceId)) {
             return InvalidResponse.REQUESTED_INTERFACE_ID_IS_EMPTY;
         }
