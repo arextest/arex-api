@@ -23,6 +23,7 @@ public class SceneInfo extends BaseDto {
     private String planItemId;
     private List<SubSceneInfo> subScenes;
     private Map<String, SubSceneInfo> subSceneInfoMap;
+    private boolean reCalculated;
     SceneInfo(int code, long categoryKey, String planId, String planItemId, Map<String, SubSceneInfo> subSceneInfoMap) {
         this.code = code;
         this.categoryKey = categoryKey;
