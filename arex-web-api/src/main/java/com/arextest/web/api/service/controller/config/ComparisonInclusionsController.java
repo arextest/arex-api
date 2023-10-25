@@ -34,7 +34,7 @@ public class ComparisonInclusionsController extends AbstractConfigurableControll
     @Deprecated
     @RequestMapping("/useResultAsList")
     @ResponseBody
-    public Response useResultList(@RequestParam String appId,
+    public final Response useResultList(@RequestParam String appId,
         @RequestParam(required = false) String operationId) {
         if (StringUtils.isEmpty(appId)) {
             return InvalidResponse.REQUESTED_APP_ID_IS_EMPTY;
@@ -45,7 +45,7 @@ public class ComparisonInclusionsController extends AbstractConfigurableControll
 
     @RequestMapping("/queryByInterfaceId")
     @ResponseBody
-    public Response queryByInterfaceId(@RequestParam String interfaceId) {
+    public final Response queryByInterfaceId(@RequestParam String interfaceId) {
         if (StringUtils.isEmpty(interfaceId)) {
             return InvalidResponse.REQUESTED_INTERFACE_ID_IS_EMPTY;
         }

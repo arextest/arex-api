@@ -33,7 +33,7 @@ public class ComparisonEncryptionController extends AbstractConfigurableControll
 
     @PostMapping("/queryByInterfaceId")
     @ResponseBody
-    public Response queryByInterfaceId(@RequestParam String interfaceId) {
+    public final Response queryByInterfaceId(@RequestParam String interfaceId) {
         if (StringUtils.isEmpty(interfaceId)) {
             return InvalidResponse.REQUESTED_INTERFACE_ID_IS_EMPTY;
         }
@@ -43,7 +43,7 @@ public class ComparisonEncryptionController extends AbstractConfigurableControll
 
     @PostMapping("/queryComparisonConfig")
     @ResponseBody
-    public Response queryComparisonConfig(@RequestBody QueryComparisonRequestType request) {
+    public final Response queryComparisonConfig(@RequestBody QueryComparisonRequestType request) {
         return ResponseUtils.successResponse(getComparisonEncryptionConfigurableHandler().queryComparisonConfig(
             request.getAppId(), request.getOperationId(), request.getOperationType(), request.getOperationName()));
     }
