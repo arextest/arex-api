@@ -2,6 +2,7 @@ package com.arextest.web.api.service.controller.config;
 
 import javax.annotation.Resource;
 
+import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -24,6 +25,7 @@ import com.arextest.web.model.contract.contracts.config.replay.QueryComparisonRe
 @Controller
 @RequestMapping("/api/config/comparison/reference")
 public class ComparisonReferenceController extends AbstractConfigurableController<ComparisonReferenceConfiguration> {
+    @Getter
     @Resource
     ComparisonReferenceConfigurableHandler comparisonReferenceConfigurableHandler;
 
@@ -41,7 +43,7 @@ public class ComparisonReferenceController extends AbstractConfigurableControlle
             return InvalidResponse.REQUESTED_APP_ID_IS_EMPTY;
         }
         return ResponseUtils
-            .successResponse(this.comparisonReferenceConfigurableHandler.useResultAsList(appId, operationId));
+            .successResponse(getComparisonReferenceConfigurableHandler().useResultAsList(appId, operationId));
     }
 
     @RequestMapping("/queryByInterfaceId")
@@ -52,13 +54,13 @@ public class ComparisonReferenceController extends AbstractConfigurableControlle
         }
 
         return ResponseUtils
-            .successResponse(this.comparisonReferenceConfigurableHandler.queryByInterfaceId(interfaceId));
+            .successResponse(getComparisonReferenceConfigurableHandler().queryByInterfaceId(interfaceId));
     }
 
     @PostMapping("/queryComparisonConfig")
     @ResponseBody
     public Response queryComparisonConfig(@RequestBody QueryComparisonRequestType request) {
-        return ResponseUtils.successResponse(this.comparisonReferenceConfigurableHandler.queryComparisonConfig(
+        return ResponseUtils.successResponse(getComparisonReferenceConfigurableHandler().queryComparisonConfig(
             request.getAppId(), request.getOperationId(), request.getOperationType(), request.getOperationName()));
     }
 
