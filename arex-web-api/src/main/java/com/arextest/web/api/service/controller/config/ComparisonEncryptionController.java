@@ -2,6 +2,7 @@ package com.arextest.web.api.service.controller.config;
 
 import javax.annotation.Resource;
 
+import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -21,6 +22,7 @@ import com.arextest.web.model.contract.contracts.config.replay.QueryComparisonRe
 @Controller
 @RequestMapping("/api/config/comparison/encryption")
 public class ComparisonEncryptionController extends AbstractConfigurableController<ComparisonEncryptionConfiguration> {
+    @Getter
     @Resource
     ComparisonEncryptionConfigurableHandler comparisonEncryptionConfigurableHandler;
 
@@ -31,18 +33,18 @@ public class ComparisonEncryptionController extends AbstractConfigurableControll
 
     @PostMapping("/queryByInterfaceId")
     @ResponseBody
-    public Response queryByInterfaceId(@RequestParam String interfaceId) {
+    public final Response queryByInterfaceId(@RequestParam String interfaceId) {
         if (StringUtils.isEmpty(interfaceId)) {
             return InvalidResponse.REQUESTED_INTERFACE_ID_IS_EMPTY;
         }
         return ResponseUtils
-            .successResponse(this.comparisonEncryptionConfigurableHandler.queryByInterfaceId(interfaceId));
+            .successResponse(getComparisonEncryptionConfigurableHandler().queryByInterfaceId(interfaceId));
     }
 
     @PostMapping("/queryComparisonConfig")
     @ResponseBody
     public Response queryComparisonConfig(@RequestBody QueryComparisonRequestType request) {
-        return ResponseUtils.successResponse(this.comparisonEncryptionConfigurableHandler.queryComparisonConfig(
+        return ResponseUtils.successResponse(getComparisonEncryptionConfigurableHandler().queryComparisonConfig(
             request.getAppId(), request.getOperationId(), request.getOperationType(), request.getOperationName()));
     }
 
