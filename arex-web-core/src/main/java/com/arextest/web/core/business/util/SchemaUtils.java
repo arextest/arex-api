@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import com.arextest.web.common.LogUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -129,6 +130,10 @@ public class SchemaUtils {
             LogUtils.error(LOGGER, "ObjectMapper readValue failed, exception:{}, msg:{}", e,
                 contract);
         }
+        results = results
+            .stream()
+            .distinct()
+            .collect(Collectors.toList());
         return results;
     }
 
