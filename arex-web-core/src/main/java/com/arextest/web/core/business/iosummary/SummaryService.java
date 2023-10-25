@@ -37,6 +37,8 @@ public class SummaryService {
                 .recordId(compareResultDto.getRecordId())
                 .rePlayId(compareResultDto.getReplayId())
                 .build();
+        summary.setCategoryKey(summary.categoryKey());
+        summary.setGroupKey(summary.groupKey());
         caseSummaryRepository.upsert(summary);
         sceneReportService.report(summary);
     }

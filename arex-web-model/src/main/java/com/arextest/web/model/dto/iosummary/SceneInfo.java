@@ -1,6 +1,8 @@
 package com.arextest.web.model.dto.iosummary;
 
+import com.arextest.web.model.dto.BaseDto;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.apache.commons.collections4.CollectionUtils;
 
@@ -9,8 +11,9 @@ import java.util.List;
 import java.util.Map;
 
 @Data
+@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
-public class SceneInfo {
+public class SceneInfo extends BaseDto {
     public static Builder builder() {
         return new Builder();
     }
