@@ -2,8 +2,11 @@ package com.arextest.web.core.business.util;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
 import com.arextest.web.common.LogUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -116,4 +119,36 @@ public class SchemaUtils {
         LogUtils.error(LOGGER, "Unsupported Type, item:{}, class:{}", item, item.getClass());
         return null;
     }
+
+    public static Set<String> getFlatContract(String contract) {
+        Set<String> results = new HashSet<>();
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            Map<String, Object> map = objectMapper.readValue(contract, Map.class);
+            recur("", results, map);
+
+        } catch (Exception e) {
+            LogUtils.error(LOGGER, "ObjectMapper readValue failed, exception:{}, msg:{}", e,
+                contract);
+        }
+        return results;
+    }
+
+    private static void recur(String temp, Set<String> result, Object contract) {
+        if (contract instanceof Map) {
+            ((Map<String, Object>) contract).forEach((key, value) -> {
+                String newStr = Objects.equals(temp, "") ? key : temp + "." + key;
+                if (value instanceof Map) {
+                    recur(newStr, result, value);
+                } else if (value instanceof List) {
+                    ((List<?>) value).forEach(item -> recur(newStr, result, item));
+                } else {
+                    result.add(newStr);
+                }
+            });
+        } else if (contract instanceof List) {
+            ((List<?>) contract).forEach(item -> recur(temp, result, item));
+        }
+    }
+
 }

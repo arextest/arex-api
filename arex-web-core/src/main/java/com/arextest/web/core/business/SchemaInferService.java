@@ -131,6 +131,11 @@ public class SchemaInferService {
         return null;
     }
 
+    public Set<String> queryFlatContract(QueryContractRequestType requestType) {
+        AppContractDto appContractDto = queryContract(requestType);
+        return SchemaUtils.getFlatContract(appContractDto.getContract());
+    }
+
     public AppContractDto overwriteContract(OverwriteContractRequestType request) {
         AppContractDto appContractDto = new AppContractDto();
         appContractDto.setContract(SchemaUtils.mergeJson(EMPTY_CONTRACT, request.getOperationResponse()));
