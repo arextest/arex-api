@@ -2,6 +2,7 @@ package com.arextest.web.api.service.controller.config;
 
 import javax.annotation.Resource;
 
+import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -28,6 +29,7 @@ import com.arextest.web.model.contract.contracts.config.replay.QueryComparisonRe
 public class ComparisonIgnoreCategoryController
     extends AbstractConfigurableController<ComparisonIgnoreCategoryConfiguration> {
 
+    @Getter
     @Resource
     ComparisonIgnoreCategoryConfigurableHandler configurableHandler;
 
@@ -45,7 +47,7 @@ public class ComparisonIgnoreCategoryController
         if (StringUtils.isEmpty(interfaceId)) {
             return InvalidResponse.REQUESTED_INTERFACE_ID_IS_EMPTY;
         }
-        return ResponseUtils.successResponse(this.configurableHandler.queryByInterfaceId(interfaceId));
+        return ResponseUtils.successResponse(getConfigurableHandler().queryByInterfaceId(interfaceId));
     }
 
     @PostMapping("/queryComparisonConfig")
