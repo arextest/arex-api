@@ -4,6 +4,7 @@ import com.arextest.common.model.response.Response;
 import com.arextest.common.utils.ResponseUtils;
 import com.arextest.config.model.dto.application.ApplicationOperationConfiguration;
 import com.arextest.web.core.business.config.application.ApplicationOperationConfigurableHandler;
+import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -17,21 +18,25 @@ import org.springframework.web.bind.annotation.ResponseBody;
  */
 @Controller
 @RequestMapping("/api/config/applicationOperation")
-public class ApplicationOperationConfigurableController extends AbstractConfigurableController<ApplicationOperationConfiguration> {
+public class ApplicationOperationConfigurableController extends
+    AbstractConfigurableController<ApplicationOperationConfiguration> {
 
-    public ApplicationOperationConfigurableController(@Autowired ApplicationOperationConfigurableHandler configurableHandler) {
-        super(configurableHandler);
+  public ApplicationOperationConfigurableController(
+      @Autowired ApplicationOperationConfigurableHandler configurableHandler) {
+    super(configurableHandler);
+  }
+
+  @Autowired
+  @Getter
+  ApplicationOperationConfigurableHandler applicationOperationConfigurableHandler;
+
+  @GetMapping("/useResult/operationId/{operationId}")
+  @ResponseBody
+  public final Response useResultById(@PathVariable String operationId) {
+    if (StringUtils.isEmpty(operationId)) {
+      return InvalidResponse.REQUESTED_APP_ID_IS_EMPTY;
     }
-
-    @Autowired
-    ApplicationOperationConfigurableHandler applicationOperationConfigurableHandler;
-
-    @GetMapping("/useResult/operationId/{operationId}")
-    @ResponseBody
-    public final Response useResultById(@PathVariable String operationId) {
-        if (StringUtils.isEmpty(operationId)) {
-            return InvalidResponse.REQUESTED_APP_ID_IS_EMPTY;
-        }
-        return ResponseUtils.successResponse(this.applicationOperationConfigurableHandler.useResultByOperationId(operationId));
-    }
+    return ResponseUtils.successResponse(
+        this.getApplicationOperationConfigurableHandler().useResultByOperationId(operationId));
+  }
 }
