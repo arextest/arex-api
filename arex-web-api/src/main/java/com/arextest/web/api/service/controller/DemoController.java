@@ -1,5 +1,19 @@
 package com.arextest.web.api.service.controller;
 
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
 import com.arextest.common.model.response.Response;
 import com.arextest.common.model.response.ResponseCode;
 import com.arextest.common.utils.ResponseUtils;
@@ -16,20 +30,8 @@ import com.arextest.web.model.dto.CompareResultDto;
 import com.arextest.web.model.enums.DiffResultCode;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-
-import javax.annotation.Resource;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-
 
 @Slf4j
 @Controller
@@ -42,6 +44,8 @@ public class DemoController {
     private DemoService demoService;
     @Resource
     private ObjectMapper objectMapper;
+    @Resource
+    private SceneService sceneService;
 
     @PostMapping("/saveCompareResultsMock")
     @ResponseBody
@@ -63,9 +67,6 @@ public class DemoController {
         reportService.saveCompareResults(request);
         return ResponseUtils.successResponse(response);
     }
-
-    @Resource
-    private SceneService sceneService;
 
     @PostMapping("/calculateSceneMock")
     @ResponseBody
@@ -98,13 +99,11 @@ public class DemoController {
         return ResponseUtils.successResponse(true);
     }
 
-
     @PostMapping("/pagingDemo")
     @ResponseBody
     public Response queryCompareResultsByPage(@RequestBody QueryCompareResultsByPageRequestType request) {
         if (!request.checkPaging()) {
-            return ResponseUtils.errorResponse("invalid paging parameter",
-                    ResponseCode.REQUESTED_PARAMETER_INVALID);
+            return ResponseUtils.errorResponse("invalid paging parameter", ResponseCode.REQUESTED_PARAMETER_INVALID);
         }
         QueryCompareResultsByPageResponseType response = demoService.queryCompareResultsByPage(request);
         return ResponseUtils.successResponse(response);

@@ -1,9 +1,9 @@
 package com.arextest.web.model.dto;
 
-import lombok.Data;
-
 import java.util.List;
 import java.util.Map;
+
+import lombok.Data;
 
 /**
  * @author b_yu
@@ -23,7 +23,6 @@ public class LogsDto {
     private UnitDto source;
     private ThrownDto thrown;
 
-
     @Data
     public static final class UnitDto {
         private String className;
@@ -31,7 +30,6 @@ public class LogsDto {
         private String fileName;
         private int lineNumber;
     }
-
 
     @Data
     public static final class ThrownDto {

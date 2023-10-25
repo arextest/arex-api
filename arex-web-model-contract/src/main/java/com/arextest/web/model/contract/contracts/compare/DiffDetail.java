@@ -6,11 +6,11 @@
 // import java.util.List;
 //
 // /**
-//  * Created by rchen9 on 2022/7/28.
-//  */
+// * Created by rchen9 on 2022/7/28.
+// */
 // @Data
 // public class DiffDetail {
-//     private String path;
-//     private int unmatchedType;
-//     private List<LogEntity> logs;
+// private String path;
+// private int unmatchedType;
+// private List<LogEntity> logs;
 // }

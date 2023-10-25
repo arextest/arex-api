@@ -1,5 +1,15 @@
 package com.arextest.web.core.business;
 
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.lang3.tuple.Pair;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import com.arextest.web.core.repository.mongo.ReportPlanStatisticRepositoryImpl;
 import com.arextest.web.model.contract.contracts.QueryPlanStatisticsRequestType;
 import com.arextest.web.model.contract.contracts.QueryPlanStatisticsResponseType;
@@ -7,15 +17,6 @@ import com.arextest.web.model.contract.contracts.common.CaseCount;
 import com.arextest.web.model.contract.contracts.common.PlanStatistic;
 import com.arextest.web.model.dto.ReportPlanStatisticDto;
 import com.arextest.web.model.mapper.PlanMapper;
-import org.apache.commons.lang3.tuple.Pair;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
-import javax.annotation.Resource;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 
 @Component
 public class QueryPlanStatisticsService {
@@ -33,10 +34,8 @@ public class QueryPlanStatisticsService {
         Long totalCount = result.getRight();
         response.setTotalCount(totalCount);
 
-        List<String> planIds = reportPlanStatisticDtoList
-                .stream()
-                .map(ReportPlanStatisticDto::getPlanId)
-                .collect(Collectors.toList());
+        List<String> planIds =
+            reportPlanStatisticDtoList.stream().map(ReportPlanStatisticDto::getPlanId).collect(Collectors.toList());
 
         Map<String, CaseCount> caseCountMap = caseCountService.calculateCaseCountsByPlanIds(planIds);
         for (ReportPlanStatisticDto plan : reportPlanStatisticDtoList) {
@@ -53,10 +52,8 @@ public class QueryPlanStatisticsService {
             plan.setSuccessOperationCount(caseCount.getSuccessOperationCount());
         }
 
-        List<PlanStatistic> planStatistics = reportPlanStatisticDtoList
-                .stream()
-                .map(PlanMapper.INSTANCE::contractFromDto)
-                .collect(Collectors.toList());
+        List<PlanStatistic> planStatistics =
+            reportPlanStatisticDtoList.stream().map(PlanMapper.INSTANCE::contractFromDto).collect(Collectors.toList());
         response.setPlanStatisticList(planStatistics);
         return response;
     }

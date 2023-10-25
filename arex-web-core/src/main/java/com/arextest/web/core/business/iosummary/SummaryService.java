@@ -1,15 +1,17 @@
 package com.arextest.web.core.business.iosummary;
 
-import cn.hutool.core.collection.CollectionUtil;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import com.arextest.web.core.repository.CaseSummaryRepository;
 import com.arextest.web.model.dto.CompareResultDto;
 import com.arextest.web.model.dto.iosummary.CaseSummary;
 import com.arextest.web.model.dto.iosummary.UnmatchedCategory;
 import com.arextest.web.model.enums.DiffResultCode;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
-import java.util.List;
+import cn.hutool.core.collection.CollectionUtil;
 
 @Component
 public class SummaryService {
@@ -29,14 +31,11 @@ public class SummaryService {
         }
 
         CompareResultDto compareResultDto = compareResults.get(0);
-        CaseSummary summary = compareResults.stream()
-                .filter(r -> r.getDiffResultCode() != DiffResultCode.COMPARED_WITHOUT_DIFFERENCE)
-                .reduce(CaseSummary.builder(), this::analysis0, (b1, b2) -> null)
-                .planId(compareResultDto.getPlanId())
-                .planItemId(compareResultDto.getPlanItemId())
-                .recordId(compareResultDto.getRecordId())
-                .rePlayId(compareResultDto.getReplayId())
-                .build();
+        CaseSummary summary =
+            compareResults.stream().filter(r -> r.getDiffResultCode() != DiffResultCode.COMPARED_WITHOUT_DIFFERENCE)
+                .reduce(CaseSummary.builder(), this::analysis0, (b1, b2) -> null).planId(compareResultDto.getPlanId())
+                .planItemId(compareResultDto.getPlanItemId()).recordId(compareResultDto.getRecordId())
+                .rePlayId(compareResultDto.getReplayId()).build();
         summary.setCategoryKey(summary.categoryKey());
         summary.setGroupKey(summary.groupKey());
         caseSummaryRepository.upsert(summary);

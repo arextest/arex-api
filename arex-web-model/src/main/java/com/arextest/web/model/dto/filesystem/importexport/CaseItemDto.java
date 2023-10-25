@@ -1,14 +1,15 @@
 package com.arextest.web.model.dto.filesystem.importexport;
 
+import java.util.List;
+import java.util.Set;
+
 import com.arextest.web.model.dto.KeyValuePairDto;
 import com.arextest.web.model.dto.filesystem.AddressDto;
 import com.arextest.web.model.dto.filesystem.AuthDto;
 import com.arextest.web.model.dto.filesystem.BodyDto;
 import com.arextest.web.model.dto.filesystem.ScriptBlockDto;
-import lombok.Data;
 
-import java.util.List;
-import java.util.Set;
+import lombok.Data;
 
 @Data
 public class CaseItemDto implements Item {

@@ -1,7 +1,27 @@
 package com.arextest.web.core.business;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.lang3.tuple.MutablePair;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.stereotype.Component;
+
 import com.arextest.common.context.ArexContext;
-import com.arextest.common.utils.JsonTraverseUtils;
 import com.arextest.web.core.business.util.JsonUtils;
 import com.arextest.web.core.business.util.ListUtils;
 import com.arextest.web.core.repository.mongo.ReplayCompareResultRepositoryImpl;
@@ -18,52 +38,28 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.tuple.MutablePair;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-import org.springframework.stereotype.Component;
-
-import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 
 @Slf4j
 @Component
 public class MsgShowService {
 
+    private static final String EMPTY = "%empty%";
+    private static final Set<Integer> SHOW_UNMATCHED_TYPES =
+        new HashSet<>(Arrays.asList(UnmatchedType.UNMATCHED, UnmatchedType.RIGHT_MISSING, UnmatchedType.LEFT_MISSING));
+    private static final ObjectMapper COMPARE_OBJECT_MAPPER = new ObjectMapper();
     @Resource
     ReplayCompareResultRepositoryImpl replayCompareResultRepository;
-
-    private static final String EMPTY = "%empty%";
-
-    private static final Set<Integer> SHOW_UNMATCHED_TYPES = new HashSet<>(Arrays.asList(
-            UnmatchedType.UNMATCHED,
-            UnmatchedType.RIGHT_MISSING,
-            UnmatchedType.LEFT_MISSING));
-
     @Resource(name = "message-clip-executor")
     ThreadPoolTaskExecutor executor;
 
-    private static final ObjectMapper COMPARE_OBJECT_MAPPER = new ObjectMapper();
-
     public QueryMsgWithDiffResponseType queryMsgWithDiff(QueryMsgWithDiffRequestType request) {
         QueryMsgWithDiffResponseType response = new QueryMsgWithDiffResponseType();
-        CompareResultDto compareResultDto = replayCompareResultRepository.queryCompareResultsById(request.getCompareResultId());
+        CompareResultDto compareResultDto =
+            replayCompareResultRepository.queryCompareResultsById(request.getCompareResultId());
         if (compareResultDto == null) {
             return response;
         }
@@ -72,7 +68,6 @@ public class MsgShowService {
             JsonUtils.downgrade(compareResultDto);
             response.setDesensitized(true);
         }
-
 
         String baseMsg = compareResultDto.getBaseMsg();
         String testMsg = compareResultDto.getTestMsg();
@@ -85,12 +80,15 @@ public class MsgShowService {
         if (compareResultDto.getDiffResultCode() == DiffResultCode.COMPARED_INTERNAL_EXCEPTION) {
             sceneLogs = compareResultDto.getLogs();
         } else {
-            List<Integer> logIndexes = Arrays.stream(request.getLogIndexes().split("_")).map(Integer::parseInt).collect(Collectors.toList());
+            List<Integer> logIndexes =
+                Arrays.stream(request.getLogIndexes().split("_")).map(Integer::parseInt).collect(Collectors.toList());
             // Get logs in a single scenario
             sceneLogs = getSceneLogs(logIndexes, compareResultDto.getLogs());
-            // Construct a new message based on the original message and the logs in the scenario, and switch the error path in the logs to the path of the new message
+            // Construct a new message based on the original message and the logs in the scenario, and switch the error
+            // path in the logs to the path of the new message
             if (baseMsg != null && testMsg != null) {
-                MutablePair<Object, Object> baseAndTestObjCombination = produceNewObjectFromOriginal(baseMsg, testMsg, sceneLogs);
+                MutablePair<Object, Object> baseAndTestObjCombination =
+                    produceNewObjectFromOriginal(baseMsg, testMsg, sceneLogs);
                 baseMsg = baseAndTestObjCombination.getLeft().toString();
                 testMsg = baseAndTestObjCombination.getRight().toString();
             }
@@ -138,27 +136,26 @@ public class MsgShowService {
         return sceneLogs;
     }
 
-    public MutablePair<Object, Object> produceNewObjectFromOriginal(String baseMsg, String testMsg, List<LogEntity> sceneLogs) {
+    public MutablePair<Object, Object> produceNewObjectFromOriginal(String baseMsg, String testMsg,
+        List<LogEntity> sceneLogs) {
 
         List<CompletableFuture<Object>> parseTaskList =
-                Stream.of(baseMsg, testMsg, baseMsg, testMsg)
-                        .map(item -> CompletableFuture.supplyAsync(() -> {
-                            try {
-                                return objectParse(item);
-                            } catch (JsonProcessingException e) {
-                                return null;
-                            }
-                        }, executor))
-                        .collect(Collectors.toList());
+            Stream.of(baseMsg, testMsg, baseMsg, testMsg).map(item -> CompletableFuture.supplyAsync(() -> {
+                try {
+                    return objectParse(item);
+                } catch (JsonProcessingException e) {
+                    return null;
+                }
+            }, executor)).collect(Collectors.toList());
         CompletableFuture<List<Object>> listCompletableFuture =
-                CompletableFuture.allOf(parseTaskList.toArray(new CompletableFuture[0]))
-                        .thenApply(v -> parseTaskList.stream().map(parseTask -> {
-                            try {
-                                return parseTask.get();
-                            } catch (Exception e) {
-                                return null;
-                            }
-                        }).collect(Collectors.toList()));
+            CompletableFuture.allOf(parseTaskList.toArray(new CompletableFuture[0]))
+                .thenApply(v -> parseTaskList.stream().map(parseTask -> {
+                    try {
+                        return parseTask.get();
+                    } catch (Exception e) {
+                        return null;
+                    }
+                }).collect(Collectors.toList()));
         List<Object> objectList = listCompletableFuture.join();
         Object baseObj = objectList.get(0);
         Object testObj = objectList.get(1);
@@ -169,13 +166,9 @@ public class MsgShowService {
             return new MutablePair<>(baseMsg, testMsg);
         }
 
-
-        CompletableFuture.allOf(
-                Stream.of(constructedBaseObj, constructedTestObj)
-                        .map(item -> CompletableFuture.runAsync(
-                                () -> cropJSONArray(item), executor)).toArray(CompletableFuture[]::new))
-                .join();
-
+        CompletableFuture.allOf(Stream.of(constructedBaseObj, constructedTestObj)
+            .map(item -> CompletableFuture.runAsync(() -> cropJSONArray(item), executor))
+            .toArray(CompletableFuture[]::new)).join();
 
         ArrayOrder baseArrayOrder = new ArrayOrder();
         ArrayOrder testArrayOrder = new ArrayOrder();
@@ -184,7 +177,6 @@ public class MsgShowService {
             UnmatchedPairEntity pathPair = logEntity.getPathPair();
             int unmatchedType = pathPair.getUnmatchedType();
 
-
             if (unmatchedType == UnmatchedType.DIFFERENT_COUNT) {
                 continue;
             }
@@ -192,13 +184,12 @@ public class MsgShowService {
             List<NodeEntity> leftUnmatchedPath = pathPair.getLeftUnmatchedPath();
             List<NodeEntity> rightUnmatchedPath = pathPair.getRightUnmatchedPath();
 
-
             processPath(leftUnmatchedPath, rightUnmatchedPath, unmatchedType);
 
-
-            List<NodeEntity> constructedLeftUnmatchedPath = fillConstructedObjFromOriginal(pathPair.getLeftUnmatchedPath(), baseObj, constructedBaseObj, baseArrayOrder);
-            List<NodeEntity> constructedRightUnmatchedPath = fillConstructedObjFromOriginal(pathPair.getRightUnmatchedPath(), testObj, constructedTestObj, testArrayOrder);
-
+            List<NodeEntity> constructedLeftUnmatchedPath = fillConstructedObjFromOriginal(
+                pathPair.getLeftUnmatchedPath(), baseObj, constructedBaseObj, baseArrayOrder);
+            List<NodeEntity> constructedRightUnmatchedPath = fillConstructedObjFromOriginal(
+                pathPair.getRightUnmatchedPath(), testObj, constructedTestObj, testArrayOrder);
 
             pathPair.setLeftUnmatchedPath(constructedLeftUnmatchedPath);
             pathPair.setRightUnmatchedPath(constructedRightUnmatchedPath);
@@ -228,7 +219,8 @@ public class MsgShowService {
         return result;
     }
 
-    private void processPath(List<NodeEntity> leftUnmatchedPath, List<NodeEntity> rightUnmatchedPath, Integer unmatchedType) {
+    private void processPath(List<NodeEntity> leftUnmatchedPath, List<NodeEntity> rightUnmatchedPath,
+        Integer unmatchedType) {
         if (unmatchedType == UnmatchedType.LEFT_MISSING) {
             if (leftUnmatchedPath.size() < rightUnmatchedPath.size()) {
                 int size = leftUnmatchedPath.size();
@@ -258,13 +250,15 @@ public class MsgShowService {
             return unmatchedPath;
         }
         NodeEntity nodeEntity = unmatchedPath.get(unmatchedPath.size() - 1);
-        if (Objects.equals(nodeEntity.getNodeName(), EMPTY) || Objects.equals(nodeEntity.getIndex(), Integer.MIN_VALUE)) {
+        if (Objects.equals(nodeEntity.getNodeName(), EMPTY)
+            || Objects.equals(nodeEntity.getIndex(), Integer.MIN_VALUE)) {
             unmatchedPath.remove(unmatchedPath.size() - 1);
         }
         return unmatchedPath;
     }
 
-    private List<NodeEntity> fillConstructedObjFromOriginal(List<NodeEntity> unmatchedPath, Object obj, Object constructedObj, ArrayOrder arrayOrder) {
+    private List<NodeEntity> fillConstructedObjFromOriginal(List<NodeEntity> unmatchedPath, Object obj,
+        Object constructedObj, ArrayOrder arrayOrder) {
 
         List<NodeEntity> constructedUnmatchedPath = new ArrayList<>();
 
@@ -275,8 +269,8 @@ public class MsgShowService {
             NodeEntity nodePath = unmatchedPath.get(i);
 
             if (obj instanceof ObjectNode) {
-                ObjectNode obj1 = (ObjectNode) obj;
-                ObjectNode constructedObj1 = (ObjectNode) constructedObj;
+                ObjectNode obj1 = (ObjectNode)obj;
+                ObjectNode constructedObj1 = (ObjectNode)constructedObj;
 
                 String nodeName = nodePath.getNodeName();
                 if (Objects.equals(nodeName, EMPTY)) {
@@ -303,8 +297,8 @@ public class MsgShowService {
                 }
                 constructedUnmatchedPath.add(new NodeEntity(nodeName, 0));
             } else if (obj instanceof ArrayNode) {
-                ArrayNode obj1 = (ArrayNode) obj;
-                ArrayNode constructedObj1 = (ArrayNode) constructedObj;
+                ArrayNode obj1 = (ArrayNode)obj;
+                ArrayNode constructedObj1 = (ArrayNode)constructedObj;
 
                 int beforeIndex = nodePath.getIndex();
                 int curIndex = constructedObj1.size();
@@ -341,7 +335,7 @@ public class MsgShowService {
 
     private void cropJSONArray(Object obj) {
         if (obj instanceof ObjectNode) {
-            ObjectNode obj1 = (ObjectNode) obj;
+            ObjectNode obj1 = (ObjectNode)obj;
             Iterator<String> stringIterator = obj1.fieldNames();
             List<String> names = new ArrayList<>();
             while (stringIterator.hasNext()) {
@@ -356,7 +350,7 @@ public class MsgShowService {
                 }
             }
         } else if (obj instanceof ArrayNode) {
-            ArrayNode objArr = ((ArrayNode) obj);
+            ArrayNode objArr = ((ArrayNode)obj);
             int length = objArr.size();
             for (int i = length - 1; i >= 0; i--) {
                 objArr.remove(i);

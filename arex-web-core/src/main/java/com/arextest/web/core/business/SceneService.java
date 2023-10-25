@@ -1,5 +1,23 @@
 package com.arextest.web.core.business;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.MutablePair;
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.logging.log4j.util.Strings;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.stereotype.Component;
+
 import com.arextest.web.common.LogUtils;
 import com.arextest.web.core.business.util.ListUtils;
 import com.arextest.web.core.repository.ReportDiffAggStatisticRepository;
@@ -12,25 +30,9 @@ import com.arextest.web.model.dto.CompareResultDto;
 import com.arextest.web.model.dto.DiffAggDto;
 import com.arextest.web.model.dto.SceneDetailDto;
 import com.arextest.web.model.enums.DiffResultCode;
+
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.MapUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.MutablePair;
-import org.apache.commons.lang3.tuple.Pair;
-import org.apache.logging.log4j.util.Strings;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-import org.springframework.stereotype.Component;
-import org.springframework.util.StopWatch;
-
-import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
 
 @Slf4j
 @Component
@@ -39,50 +41,35 @@ public class SceneService {
     private static final String LEFT_MISSING_SUFFIX = "@L";
     private static final String BASE_MISSING = "%baseMissing%";
     private static final String TEST_MISSING = "%testMissing%";
-
+    private static volatile Map<DiffAggKey, DiffAggDto> result = new HashMap<>();
     @Resource
     private ReportDiffAggStatisticRepository reportDiffAggStatisticRepository;
-
     @Resource(name = "report-scene-executor")
     private ThreadPoolTaskExecutor executor;
 
+    public static void main(String[] args) {
+        CompareResultDto dto = new CompareResultDto();
+        List<LogEntity> logs = new ArrayList<>();
+        LogEntity log = new LogEntity();
 
-    /**
-     * Keys of diffAgg
-     */
-    @Data
-    private class DiffAggKey {
-        public DiffAggKey(String planItemId, String categoryName, String operationName) {
-            this.planItemId = planItemId;
-            this.categoryName = categoryName;
-            this.operationName = operationName;
-        }
+        UnmatchedPairEntity entity = new UnmatchedPairEntity();
+        List<NodeEntity> left = new ArrayList<>();
+        // left.add(new NodeEntity(null, 6));
+        // left.add(new NodeEntity("test", 0));
+        // left.add(new NodeEntity(null, 3));
+        // left.add(new NodeEntity("Subject", 0));
+        entity.setLeftUnmatchedPath(left);
+        entity.setUnmatchedType(UnmatchedType.UNMATCHED);
+        log.setBaseValue("aaa");
+        log.setPathPair(entity);
+        log.setLogTag(new LogTag());
+        logs.add(log);
+        dto.setLogs(logs);
+        dto.setDiffResultCode(DiffResultCode.COMPARED_WITH_DIFFERENCE);
 
-        private String planItemId;
-        private String categoryName;
-        private String operationName;
+        new SceneService().statisticScenes(dto);
 
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) {
-                return true;
-            }
-            if (o == null || getClass() != o.getClass()) {
-                return false;
-            }
-            DiffAggKey that = (DiffAggKey) o;
-            return Objects.equals(planItemId, that.planItemId) && Objects.equals(categoryName,
-                    that.categoryName) && Objects.equals(operationName, that.operationName);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(planItemId, categoryName, operationName);
-        }
     }
-
-
-    private static volatile Map<DiffAggKey, DiffAggDto> result = new HashMap<>();
 
     /**
      * calculate multi compareResults
@@ -111,14 +98,10 @@ public class SceneService {
             if (compareResultDto.getLogs() == null || compareResultDto.getLogs().size() == 0) {
                 return;
             }
-            /** caseMap Stores the overall data of the error scene according to the precise path.
-             * (Not deduplicated according to the scene)
-             * key:path(without index)
-             * value:
-             *      key:path(with index)
-             *      value: Pair<integer,string>
-             *          integer: logentity index,
-             *          string: last node name of path
+            /**
+             * caseMap Stores the overall data of the error scene according to the precise path. (Not deduplicated
+             * according to the scene) key:path(without index) value: key:path(with index) value: Pair<integer,string>
+             * integer: logentity index, string: last node name of path
              */
 
             if (isBaseOrTestMissing(compareResultDto)) {
@@ -154,19 +137,15 @@ public class SceneService {
             /**
              * Invalid cases are temporarily not included in the difference statistics
              *
-             Pair<Integer, String> pair = new MutablePair<>(-1, "invalidCase");
-             List<Pair<Integer, String>> list = new ArrayList<>();
-             list.add(pair);
-             Map<String, List<Pair<Integer, String>>> map = new HashMap<>();
-             map.put("", list);
-             caseMap.put("", map);
+             * Pair<Integer, String> pair = new MutablePair<>(-1, "invalidCase"); List<Pair<Integer, String>> list = new
+             * ArrayList<>(); list.add(pair); Map<String, List<Pair<Integer, String>>> map = new HashMap<>();
+             * map.put("", list); caseMap.put("", map);
              */
         }
 
         synchronized (SceneService.class) {
-            DiffAggKey key = new DiffAggKey(compareResultDto.getPlanItemId(),
-                    compareResultDto.getCategoryName(),
-                    compareResultDto.getOperationName());
+            DiffAggKey key = new DiffAggKey(compareResultDto.getPlanItemId(), compareResultDto.getCategoryName(),
+                compareResultDto.getOperationName());
 
             // computing scene
             if (!result.containsKey(key)) {
@@ -222,7 +201,7 @@ public class SceneService {
         }
         LogEntity log = dto.getLogs().get(0);
         if (CollectionUtils.isNotEmpty(log.getPathPair().getLeftUnmatchedPath())
-                || CollectionUtils.isNotEmpty(log.getPathPair().getRightUnmatchedPath())) {
+            || CollectionUtils.isNotEmpty(log.getPathPair().getRightUnmatchedPath())) {
             return false;
         }
         if (log.getBaseValue() != null && log.getTestValue() != null) {
@@ -232,7 +211,7 @@ public class SceneService {
     }
 
     private void setBaseTestMissingScene(Map<String, Map<String, List<Pair<Integer, String>>>> caseMap,
-            String baseMissing) {
+        String baseMissing) {
         caseMap.put(baseMissing, new HashMap<>());
         Map<String, List<Pair<Integer, String>>> sceneMap = caseMap.get(baseMissing);
         sceneMap.put(baseMissing, new ArrayList<>());
@@ -253,9 +232,8 @@ public class SceneService {
             }
             tmp = result;
             result = new HashMap<>();
-            LogUtils.info(LOGGER,
-                    "lock reporting diff scene cost time: {} ms",
-                    System.currentTimeMillis() - currentTimestamp);
+            LogUtils.info(LOGGER, "lock reporting diff scene cost time: {} ms",
+                System.currentTimeMillis() - currentTimestamp);
         }
 
         CompletableFuture.completedFuture(tmp).thenApplyAsync(t -> {
@@ -268,9 +246,8 @@ public class SceneService {
                 for (Map.Entry<DiffAggKey, DiffAggDto> diffScene : t.entrySet()) {
                     reportDiffAggStatisticRepository.updateDiffScenes(diffScene.getValue());
                 }
-                LogUtils.info(LOGGER,
-                        "report diff scene cost time: {} ms. map key count:{}",
-                        System.currentTimeMillis() - currentTimestamp, t.size());
+                LogUtils.info(LOGGER, "report diff scene cost time: {} ms. map key count:{}",
+                    System.currentTimeMillis() - currentTimestamp, t.size());
                 t.clear();
             } catch (Throwable e) {
                 LOGGER.error("report diff scene error", e);
@@ -294,8 +271,8 @@ public class SceneService {
     }
 
     /**
-     * Return the key (node combination) of the scene according to the node name,
-     * without sorting (if the future scene is repeated due to the order, it is recommended to do sorting)
+     * Return the key (node combination) of the scene according to the node name, without sorting (if the future scene
+     * is repeated due to the order, it is recommended to do sorting)
      */
     private String getSceneKey(List<Pair<Integer, String>> scenePart) {
         if (scenePart == null || scenePart.size() == 0) {
@@ -310,7 +287,6 @@ public class SceneService {
         }
         return sb.toString();
     }
-
 
     /**
      * calculate path with index for array
@@ -334,9 +310,8 @@ public class SceneService {
     }
 
     /**
-     * @return : MutablePair<List<NodeEntity>,String>
-     * left: List<NodeEntity> List of nodes to aggregate，for calculating fuzzyPath and path
-     * right: string last name of nodeEntity, for calculating scenes
+     * @return : MutablePair<List<NodeEntity>,String> left: List<NodeEntity> List of nodes to aggregate，for calculating
+     *         fuzzyPath and path right: string last name of nodeEntity, for calculating scenes
      */
     private MutablePair<List<NodeEntity>, String> getPath(UnmatchedPairEntity entity) {
 
@@ -351,45 +326,52 @@ public class SceneService {
         }
         if (entity.getUnmatchedType() == UnmatchedType.LEFT_MISSING) {
             String nodeName = Strings.EMPTY;
-            if (!StringUtils.isEmpty(entity.getRightUnmatchedPath()
-                    .get(entity.getRightUnmatchedPath().size() - 1)
-                    .getNodeName())) {
+            if (!StringUtils
+                .isEmpty(entity.getRightUnmatchedPath().get(entity.getRightUnmatchedPath().size() - 1).getNodeName())) {
                 nodeName = entity.getRightUnmatchedPath().get(entity.getRightUnmatchedPath().size() - 1).getNodeName();
             }
             return new MutablePair<>(entity.getLeftUnmatchedPath(), nodeName + LEFT_MISSING_SUFFIX);
         } else {
             String nodeName = Strings.EMPTY;
-            if (!StringUtils.isEmpty(entity.getLeftUnmatchedPath()
-                    .get(entity.getLeftUnmatchedPath().size() - 1)
-                    .getNodeName())) {
+            if (!StringUtils
+                .isEmpty(entity.getLeftUnmatchedPath().get(entity.getLeftUnmatchedPath().size() - 1).getNodeName())) {
                 nodeName = entity.getLeftUnmatchedPath().get(entity.getLeftUnmatchedPath().size() - 1).getNodeName();
             }
             return new MutablePair<>(entity.getLeftUnmatchedPath().subList(0, entity.getLeftUnmatchedPath().size() - 1),
-                    nodeName);
+                nodeName);
         }
     }
 
-    public static void main(String[] args) {
-        CompareResultDto dto = new CompareResultDto();
-        List<LogEntity> logs = new ArrayList<>();
-        LogEntity log = new LogEntity();
+    /**
+     * Keys of diffAgg
+     */
+    @Data
+    private class DiffAggKey {
+        private String planItemId;
+        private String categoryName;
+        private String operationName;
+        public DiffAggKey(String planItemId, String categoryName, String operationName) {
+            this.planItemId = planItemId;
+            this.categoryName = categoryName;
+            this.operationName = operationName;
+        }
 
-        UnmatchedPairEntity entity = new UnmatchedPairEntity();
-        List<NodeEntity> left = new ArrayList<>();
-        // left.add(new NodeEntity(null, 6));
-        // left.add(new NodeEntity("test", 0));
-        // left.add(new NodeEntity(null, 3));
-        // left.add(new NodeEntity("Subject", 0));
-        entity.setLeftUnmatchedPath(left);
-        entity.setUnmatchedType(UnmatchedType.UNMATCHED);
-        log.setBaseValue("aaa");
-        log.setPathPair(entity);
-        log.setLogTag(new LogTag());
-        logs.add(log);
-        dto.setLogs(logs);
-        dto.setDiffResultCode(DiffResultCode.COMPARED_WITH_DIFFERENCE);
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+            DiffAggKey that = (DiffAggKey)o;
+            return Objects.equals(planItemId, that.planItemId) && Objects.equals(categoryName, that.categoryName)
+                && Objects.equals(operationName, that.operationName);
+        }
 
-        new SceneService().statisticScenes(dto);
-
+        @Override
+        public int hashCode() {
+            return Objects.hash(planItemId, categoryName, operationName);
+        }
     }
 }

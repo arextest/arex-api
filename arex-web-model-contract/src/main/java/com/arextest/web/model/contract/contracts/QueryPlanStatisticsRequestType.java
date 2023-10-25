@@ -1,8 +1,8 @@
 package com.arextest.web.model.contract.contracts;
 
 import com.arextest.web.model.contract.PagingRequest;
-import lombok.Data;
 
+import lombok.Data;
 
 @Data
 public class QueryPlanStatisticsRequestType implements PagingRequest {
@@ -10,9 +10,8 @@ public class QueryPlanStatisticsRequestType implements PagingRequest {
     private Integer pageSize;
     private Boolean needTotal;
 
-    
     private String appId;
-    
+
     private String planId;
     private String imageId;
 }

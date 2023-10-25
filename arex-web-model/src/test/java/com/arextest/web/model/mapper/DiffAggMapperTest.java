@@ -18,39 +18,39 @@
 // @RunWith(SpringRunner.class)
 // public class DiffAggMapperTest {
 //
-//     @Test
-//     public void testDaoFromDto() {
-//         DiffAggDto dto = new DiffAggDto();
-//         dto.setPlanItemId(1L);
-//         dto.setPlanId(2L);
-//         SceneDetailDto detailDto = new SceneDetailDto();
-//         detailDto.setLogIndexes("1_2");
-//         detailDto.setCompareResultId("abc");
-//         Map<String, Map<String, SceneDetailDto>> diffSceneMap = new HashMap<>();
-//         Map<String, SceneDetailDto> sceneMap = new HashMap<>();
-//         sceneMap.put("scene", detailDto);
-//         diffSceneMap.put("fuzzyPath", sceneMap);
-//         dto.setDifferences(diffSceneMap);
+// @Test
+// public void testDaoFromDto() {
+// DiffAggDto dto = new DiffAggDto();
+// dto.setPlanItemId(1L);
+// dto.setPlanId(2L);
+// SceneDetailDto detailDto = new SceneDetailDto();
+// detailDto.setLogIndexes("1_2");
+// detailDto.setCompareResultId("abc");
+// Map<String, Map<String, SceneDetailDto>> diffSceneMap = new HashMap<>();
+// Map<String, SceneDetailDto> sceneMap = new HashMap<>();
+// sceneMap.put("scene", detailDto);
+// diffSceneMap.put("fuzzyPath", sceneMap);
+// dto.setDifferences(diffSceneMap);
 //
-//         ReportDiffAggStatisticCollection dao = DiffAggMapper.INSTANCE.daoFromDto(dto);
-//         assertNotNull(dao);
-//     }
+// ReportDiffAggStatisticCollection dao = DiffAggMapper.INSTANCE.daoFromDto(dto);
+// assertNotNull(dao);
+// }
 //
-//     @Test
-//     public void testDtoFromDao() {
-//         ReportDiffAggStatisticCollection dao = new ReportDiffAggStatisticCollection();
-//         dao.setPlanItemId(1L);
-//         dao.setPlanId(2L);
-//         SceneDetail detail = new SceneDetail();
-//         detail.setLogIndexes("1_2");
-//         detail.setCompareResultId("abc");
-//         Map<String, Map<String, SceneDetail>> diffSceneMap = new HashMap<>();
-//         Map<String, SceneDetail> sceneMap = new HashMap<>();
-//         sceneMap.put("scene", detail);
-//         diffSceneMap.put("fuzzyPath", sceneMap);
-//         dao.setDifferences(diffSceneMap);
+// @Test
+// public void testDtoFromDao() {
+// ReportDiffAggStatisticCollection dao = new ReportDiffAggStatisticCollection();
+// dao.setPlanItemId(1L);
+// dao.setPlanId(2L);
+// SceneDetail detail = new SceneDetail();
+// detail.setLogIndexes("1_2");
+// detail.setCompareResultId("abc");
+// Map<String, Map<String, SceneDetail>> diffSceneMap = new HashMap<>();
+// Map<String, SceneDetail> sceneMap = new HashMap<>();
+// sceneMap.put("scene", detail);
+// diffSceneMap.put("fuzzyPath", sceneMap);
+// dao.setDifferences(diffSceneMap);
 //
-//         DiffAggDto dto = DiffAggMapper.INSTANCE.dtoFromDao(dao);
-//         assertNotNull(dto);
-//     }
+// DiffAggDto dto = DiffAggMapper.INSTANCE.dtoFromDao(dao);
+// assertNotNull(dto);
+// }
 // }

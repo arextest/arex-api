@@ -1,11 +1,10 @@
 package com.arextest.web.core.repository;
 
-import com.arextest.web.model.dto.filesystem.FSCaseDto;
-import com.arextest.web.model.dto.filesystem.FSItemDto;
-
 import java.util.List;
 import java.util.Set;
 
+import com.arextest.web.model.dto.filesystem.FSCaseDto;
+import com.arextest.web.model.dto.filesystem.FSItemDto;
 
 public interface FSCaseRepository extends RepositoryProvider {
     String initCase(String parentId, Integer parentNodeType, String workspaceId, String name);

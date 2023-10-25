@@ -6,11 +6,11 @@
 // @Data
 // public class BatchCompareSummaryItem {
 //
-//     private int unMatchedType;
-//     private String fuzzyPath;
-//     private int errorCount;
+// private int unMatchedType;
+// private String fuzzyPath;
+// private int errorCount;
 //
-//     private LogEntity logEntity;
-//     private String logId;
-//     private String caseId;
+// private LogEntity logEntity;
+// private String logId;
+// private String caseId;
 // }

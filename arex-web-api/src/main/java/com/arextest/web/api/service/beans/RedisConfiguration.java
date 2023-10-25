@@ -25,11 +25,10 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Configuration
 public class RedisConfiguration {
-    @Value("${arex.redis.uri}")
-    private String redisUri;
-
     private final static String USERNAME_AND_PASSWORD_REGEX = "redis://(.*?)@(.*?)";
     private final static String DATABASE_REGEX = "redis://(.*?)/(.*?)";
+    @Value("${arex.redis.uri}")
+    private String redisUri;
 
     @Bean
     public RedissonClient redissonClient() {

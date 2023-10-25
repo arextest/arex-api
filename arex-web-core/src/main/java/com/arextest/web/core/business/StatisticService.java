@@ -1,36 +1,34 @@
 package com.arextest.web.core.business;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.collections4.MapUtils;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.stereotype.Component;
+
 import com.arextest.web.common.LogUtils;
 import com.arextest.web.core.repository.ReportPlanItemStatisticRepository;
 import com.arextest.web.model.dto.CompareResultDto;
 import com.arextest.web.model.dto.PlanItemDto;
 import com.arextest.web.model.dto.ReportPlanStatisticDto;
 import com.arextest.web.model.enums.DiffResultCode;
+
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.MapUtils;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-import org.springframework.stereotype.Component;
-
-import javax.annotation.Resource;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-
 
 @Slf4j
 @Component
 public class StatisticService {
 
+    private static volatile Map<String, PlanItemDto> planItemMap = new HashMap<>();
     @Resource
     private ReportPlanItemStatisticRepository planItemStatisticRepository;
-
     @Resource(name = "report-statistic-executor")
     private ThreadPoolTaskExecutor executor;
-
-
-    private static volatile Map<String, PlanItemDto> planItemMap = new HashMap<>();
-
 
     public void statisticPlanItems(List<CompareResultDto> results) {
         // 100000 records costs 32ms
@@ -102,16 +100,6 @@ public class StatisticService {
         }
     }
 
-    private enum StatisticType {
-
-        CASE_COUNT,
-
-        FAILED,
-
-        ERROR;
-    }
-
-
     public void report() {
         Map<String, PlanItemDto> tmp = null;
         synchronized (StatisticService.class) {
@@ -121,9 +109,8 @@ public class StatisticService {
             }
             tmp = planItemMap;
             planItemMap = new HashMap<>();
-            LogUtils.info(LOGGER,
-                    "locking plan statistic map cost time: {} ms",
-                    System.currentTimeMillis() - currentTimestamp);
+            LogUtils.info(LOGGER, "locking plan statistic map cost time: {} ms",
+                System.currentTimeMillis() - currentTimestamp);
         }
 
         CompletableFuture.completedFuture(tmp).thenApplyAsync(piMap -> {
@@ -135,15 +122,22 @@ public class StatisticService {
                 for (Map.Entry<String, PlanItemDto> pi : piMap.entrySet()) {
                     planItemStatisticRepository.updatePlanItems(pi.getValue());
                 }
-                LogUtils.info(LOGGER,
-                        "updating statistic of plan items cost time: {} ms. plan items count:{}",
-                        System.currentTimeMillis() - currentTimestamp,
-                        piMap.size());
+                LogUtils.info(LOGGER, "updating statistic of plan items cost time: {} ms. plan items count:{}",
+                    System.currentTimeMillis() - currentTimestamp, piMap.size());
                 piMap.clear();
             } catch (Exception e) {
                 LogUtils.error(LOGGER, "updating statistics of plan items error", e);
             }
             return null;
         }, executor);
+    }
+
+    private enum StatisticType {
+
+        CASE_COUNT,
+
+        FAILED,
+
+        ERROR;
     }
 }

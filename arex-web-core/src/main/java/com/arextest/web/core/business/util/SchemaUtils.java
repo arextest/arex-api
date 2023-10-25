@@ -1,14 +1,15 @@
 package com.arextest.web.core.business.util;
 
-import com.arextest.web.common.LogUtils;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.extern.slf4j.Slf4j;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import com.arextest.web.common.LogUtils;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class SchemaUtils {
@@ -28,7 +29,8 @@ public class SchemaUtils {
         }
         try {
             ObjectMapper objectMapper = new ObjectMapper();
-            Map<String, Object> contractMap = contract == null ? new HashMap<>() : objectMapper.readValue(contract, Map.class);
+            Map<String, Object> contractMap =
+                contract == null ? new HashMap<>() : objectMapper.readValue(contract, Map.class);
             Map<String, Object> modelMap = objectMapper.readValue(model, Map.class);
             mergeMap(contractMap, modelMap);
             return objectMapper.writeValueAsString(contractMap);
@@ -43,20 +45,20 @@ public class SchemaUtils {
         if (value instanceof Map<?, ?>) {
             Map<String, Object> mapContract;
             if (contractItem instanceof Map<?, ?>) {
-                mapContract = (Map<String, Object>) contractItem;
+                mapContract = (Map<String, Object>)contractItem;
             } else {
                 mapContract = new HashMap<>();
             }
-            mergeMap(mapContract, (Map<String, Object>) value);
+            mergeMap(mapContract, (Map<String, Object>)value);
             contract.put(key, mapContract);
         } else if (value instanceof List) {
             List<Object> listContract;
             if (contractItem instanceof List) {
-                listContract = (List<Object>) contractItem;
+                listContract = (List<Object>)contractItem;
             } else {
                 listContract = new ArrayList<>();
             }
-            mergeList(listContract, (List<Object>) value);
+            mergeList(listContract, (List<Object>)value);
             contract.put(key, listContract);
         } else {
             if (contract.get(key) == null) {
@@ -76,17 +78,17 @@ public class SchemaUtils {
                 if (!(contractItem instanceof Map<?, ?>)) {
                     contractItem = new HashMap<>();
                 }
-                mergeMap((Map<String, Object>)contractItem, (Map<String, Object>) item);
+                mergeMap((Map<String, Object>)contractItem, (Map<String, Object>)item);
             } else if (item instanceof List) {
                 if (!(contractItem instanceof List)) {
                     contractItem = new ArrayList<>();
                 }
-                mergeList((List<Object>) contractItem, (List<Object>) item);
+                mergeList((List<Object>)contractItem, (List<Object>)item);
             } else {
                 if (contractItem == null) {
                     Object primaryItem = handlePrimaryItem(item);
                     contractItem = new HashMap<String, Object>();
-                    ((Map<String, Object>) contractItem).put(VALUE_WITH_SYMBOL, primaryItem);
+                    ((Map<String, Object>)contractItem).put(VALUE_WITH_SYMBOL, primaryItem);
                 }
             }
         }

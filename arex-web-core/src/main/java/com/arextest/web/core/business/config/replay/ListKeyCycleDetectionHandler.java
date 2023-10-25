@@ -1,6 +1,14 @@
 package com.arextest.web.core.business.config.replay;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -29,7 +37,7 @@ public class ListKeyCycleDetectionHandler {
         String dependencyId = configuration.getDependencyId();
 
         if (dependencyId != null) {
-            // TODO: 2023/9/25  if listsort and reference allow expire, here need to add expire condition
+            // TODO: 2023/9/25 if listsort and reference allow expire, here need to add expire condition
             List<ComparisonReferenceConfiguration> dependencyReferenceInDb =
                 referenceHandler.useResultAsList(appId, operationId).stream()
                     .filter(reference -> Objects.equals(reference.getDependencyId(), dependencyId))
@@ -37,8 +45,7 @@ public class ListKeyCycleDetectionHandler {
 
             List<ComparisonListSortConfiguration> dependencyListSortInDb =
                 listSortHandler.useResultAsList(appId, operationId).stream()
-                    .filter(sort -> Objects.equals(sort.getDependencyId(), dependencyId))
-                    .collect(Collectors.toList());
+                    .filter(sort -> Objects.equals(sort.getDependencyId(), dependencyId)).collect(Collectors.toList());
 
             this.doCheckCycle(configuration, dependencyReferenceInDb, dependencyListSortInDb);
 

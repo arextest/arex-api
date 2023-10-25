@@ -7,8 +7,8 @@
 //
 // @Data
 // public class ComparisonMsgDto {
-//     private int diffResultCode;
-//     private String baseMsg;
-//     private String testMsg;
-//     private List<DiffDetail> diffDetails;
+// private int diffResultCode;
+// private String baseMsg;
+// private String testMsg;
+// private List<DiffDetail> diffDetails;
 // }

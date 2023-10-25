@@ -1,14 +1,14 @@
 package com.arextest.web.model.mapper;
 
-import com.arextest.web.model.contract.contracts.replay.UpdateReportInfoRequestType;
-import com.arextest.web.model.dao.mongodb.ReportPlanItemStatisticCollection;
-import com.arextest.web.model.dto.PlanItemDto;
-import com.arextest.web.model.contract.contracts.ReportInitialRequestType;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
 import org.mapstruct.factory.Mappers;
 
+import com.arextest.web.model.contract.contracts.ReportInitialRequestType;
+import com.arextest.web.model.contract.contracts.replay.UpdateReportInfoRequestType;
+import com.arextest.web.model.dao.mongodb.ReportPlanItemStatisticCollection;
+import com.arextest.web.model.dto.PlanItemDto;
 
 @Mapper
 public interface PlanItemMapper {
@@ -18,9 +18,7 @@ public interface PlanItemMapper {
 
     PlanItemDto dtoFromDao(ReportPlanItemStatisticCollection dao);
 
-    @Mappings({
-            @Mapping(target = "status", constant = "1"),
-    })
+    @Mappings({@Mapping(target = "status", constant = "1"),})
     PlanItemDto dtoFromContract(ReportInitialRequestType.ReportItem contract);
 
     PlanItemDto dtoFromContract(UpdateReportInfoRequestType.UpdateReportItem contract);

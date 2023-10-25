@@ -1,10 +1,11 @@
 package com.arextest.web.model.dto.filesystem;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import lombok.Data;
-
 import java.util.Map;
 import java.util.Set;
+
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
+import lombok.Data;
 
 @Data
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)

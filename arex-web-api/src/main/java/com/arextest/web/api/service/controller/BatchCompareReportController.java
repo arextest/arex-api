@@ -28,66 +28,67 @@
 // import java.util.List;
 //
 // /**
-//  * Created by rchen9 on 2023/2/7.
-//  */
+// * Created by rchen9 on 2023/2/7.
+// */
 // @Slf4j
 // @Controller
 // @RequestMapping("/api/batchcomparereport/")
 // @CrossOrigin(origins = "*", maxAge = 3600)
 // public class BatchCompareReportController {
 //
-//     @Autowired
-//     BatchCompareReportService batchCompareReportService;
+// @Autowired
+// BatchCompareReportService batchCompareReportService;
 //
-//     @PostMapping("/initBatchCompareReport")
-//     @ResponseBody
-//     public Response initBatchCompareReport(@Valid @RequestBody BatchCompareReportRequestType request) {
-//         return ResponseUtils.successResponse(
-//                 batchCompareReportService.initBatchCompareReport(request)
-//         );
-//     }
+// @PostMapping("/initBatchCompareReport")
+// @ResponseBody
+// public Response initBatchCompareReport(@Valid @RequestBody BatchCompareReportRequestType request) {
+// return ResponseUtils.successResponse(
+// batchCompareReportService.initBatchCompareReport(request)
+// );
+// }
 //
-//     @PostMapping("/updateBatchCompareCase")
-//     @ResponseBody
-//     public Response updateBatchCompareCase(@Valid @RequestBody UpdateBatchCompareCaseRequestType request) {
-//         boolean result = batchCompareReportService.updateBatchCompareCase(request);
-//         return ResponseUtils.successResponse(result);
-//     }
+// @PostMapping("/updateBatchCompareCase")
+// @ResponseBody
+// public Response updateBatchCompareCase(@Valid @RequestBody UpdateBatchCompareCaseRequestType request) {
+// boolean result = batchCompareReportService.updateBatchCompareCase(request);
+// return ResponseUtils.successResponse(result);
+// }
 //
-//     @PostMapping("/queryBatchCompareProgress")
-//     @ResponseBody
-//     public Response queryBatchCompareProgress(@Valid @RequestBody QueryBatchCompareProgressRequestType request) {
-//         QueryBatchCompareProgressResponseType response = new QueryBatchCompareProgressResponseType();
-//         List<BatchCompareInterfaceProcess> batchCompareInterfaceProcesses =
-//                 batchCompareReportService.queryBatchCompareProgress(request);
-//         response.setBatchCompareInterfaceProcessList(batchCompareInterfaceProcesses);
-//         return ResponseUtils.successResponse(batchCompareInterfaceProcesses);
-//     }
+// @PostMapping("/queryBatchCompareProgress")
+// @ResponseBody
+// public Response queryBatchCompareProgress(@Valid @RequestBody QueryBatchCompareProgressRequestType request) {
+// QueryBatchCompareProgressResponseType response = new QueryBatchCompareProgressResponseType();
+// List<BatchCompareInterfaceProcess> batchCompareInterfaceProcesses =
+// batchCompareReportService.queryBatchCompareProgress(request);
+// response.setBatchCompareInterfaceProcessList(batchCompareInterfaceProcesses);
+// return ResponseUtils.successResponse(batchCompareInterfaceProcesses);
+// }
 //
-//     @PostMapping("/queryBatchCompareSummary")
-//     @ResponseBody
-//     public Response queryBatchCompareSummary(@Valid @RequestBody QueryBatchCompareSummaryRequestType request) {
-//         QueryBatchCompareSummaryResponseType response = new QueryBatchCompareSummaryResponseType();
-//         List<BatchCompareSummaryItem> batchCompareSummaryItems =
-//                 batchCompareReportService.queryBatchCompareSummary(request);
-//         response.setBatchCompareSummaryItems(batchCompareSummaryItems);
-//         return ResponseUtils.successResponse(response);
-//     }
+// @PostMapping("/queryBatchCompareSummary")
+// @ResponseBody
+// public Response queryBatchCompareSummary(@Valid @RequestBody QueryBatchCompareSummaryRequestType request) {
+// QueryBatchCompareSummaryResponseType response = new QueryBatchCompareSummaryResponseType();
+// List<BatchCompareSummaryItem> batchCompareSummaryItems =
+// batchCompareReportService.queryBatchCompareSummary(request);
+// response.setBatchCompareSummaryItems(batchCompareSummaryItems);
+// return ResponseUtils.successResponse(response);
+// }
 //
-//     @PostMapping("/queryBatchCompareCaseMsgWithDiff")
-//     @ResponseBody
-//     public Response queryBatchCompareCaseMsgWithDiff(@Valid @RequestBody QueryBatchCompareCaseMsgWithDiffRequestType request) {
-//         QueryBatchCompareCaseMsgWithDiffResponseType response =
-//                 batchCompareReportService.queryBatchCompareCaseMsgWithDiff(request.getLogId());
-//         return ResponseUtils.successResponse(response);
-//     }
+// @PostMapping("/queryBatchCompareCaseMsgWithDiff")
+// @ResponseBody
+// public Response queryBatchCompareCaseMsgWithDiff(@Valid @RequestBody QueryBatchCompareCaseMsgWithDiffRequestType
+// request) {
+// QueryBatchCompareCaseMsgWithDiffResponseType response =
+// batchCompareReportService.queryBatchCompareCaseMsgWithDiff(request.getLogId());
+// return ResponseUtils.successResponse(response);
+// }
 //
-//     @PostMapping("/queryMoreDiffInSameCard")
-//     @ResponseBody
-//     public Response queryMoreDiffInSameCard(@Valid @RequestBody QueryMoreDiffInSameCardRequestType request) {
-//         QueryMoreDiffInSameCardResponseType response =
-//                 batchCompareReportService.queryMoreDiffInSameCard(request);
-//         return ResponseUtils.successResponse(response);
-//     }
+// @PostMapping("/queryMoreDiffInSameCard")
+// @ResponseBody
+// public Response queryMoreDiffInSameCard(@Valid @RequestBody QueryMoreDiffInSameCardRequestType request) {
+// QueryMoreDiffInSameCardResponseType response =
+// batchCompareReportService.queryMoreDiffInSameCard(request);
+// return ResponseUtils.successResponse(response);
+// }
 //
 // }

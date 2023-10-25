@@ -4,12 +4,6 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
-import com.arextest.common.annotation.AppAuth;
-import com.arextest.common.enums.AuthRejectStrategy;
-import com.arextest.web.common.HttpUtils;
-import com.arextest.web.model.contract.contracts.FeedbackSceneRequest;
-import com.arextest.web.model.contract.contracts.RemoveRecordsAndScenesRequest;
-import com.arextest.web.model.contract.contracts.SuccessResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -22,9 +16,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.arextest.common.annotation.AppAuth;
+import com.arextest.common.enums.AuthRejectStrategy;
 import com.arextest.common.model.response.Response;
 import com.arextest.common.model.response.ResponseCode;
 import com.arextest.common.utils.ResponseUtils;
+import com.arextest.web.common.HttpUtils;
 import com.arextest.web.core.business.DiffSceneService;
 import com.arextest.web.core.business.MsgShowService;
 import com.arextest.web.core.business.QueryPlanItemStatisticService;
@@ -40,6 +37,7 @@ import com.arextest.web.core.business.iosummary.SceneReportService;
 import com.arextest.web.model.contract.contracts.ChangeReplayStatusRequestType;
 import com.arextest.web.model.contract.contracts.ChangeReplayStatusResponseType;
 import com.arextest.web.model.contract.contracts.DownloadReplayMsgRequestType;
+import com.arextest.web.model.contract.contracts.FeedbackSceneRequest;
 import com.arextest.web.model.contract.contracts.OverwriteContractRequestType;
 import com.arextest.web.model.contract.contracts.PushCompareResultsRequestType;
 import com.arextest.web.model.contract.contracts.PushCompareResultsResponseType;
@@ -74,8 +72,10 @@ import com.arextest.web.model.contract.contracts.QuerySceneInfoResponseType;
 import com.arextest.web.model.contract.contracts.QueryScenesRequestType;
 import com.arextest.web.model.contract.contracts.QueryScenesResponseType;
 import com.arextest.web.model.contract.contracts.QuerySchemaForConfigRequestType;
+import com.arextest.web.model.contract.contracts.RemoveRecordsAndScenesRequest;
 import com.arextest.web.model.contract.contracts.ReportInitialRequestType;
 import com.arextest.web.model.contract.contracts.ReportInitialResponseType;
+import com.arextest.web.model.contract.contracts.SuccessResponse;
 import com.arextest.web.model.contract.contracts.SuccessResponseType;
 import com.arextest.web.model.contract.contracts.SyncResponseContractRequestType;
 import com.arextest.web.model.contract.contracts.record.CountRecordRequestType;
@@ -182,7 +182,6 @@ public class ReportQueryController {
         response.setSuccess(sceneReportService.feedbackScene(request));
         return ResponseUtils.successResponse(response);
     }
-
 
     @PostMapping("/queryPlanStatistics")
     @ResponseBody

@@ -1,11 +1,12 @@
 package com.arextest.web.model.mapper;
 
+import org.mapstruct.Mapper;
+import org.mapstruct.factory.Mappers;
+
 import com.arextest.web.model.contract.contracts.label.LabelType;
 import com.arextest.web.model.contract.contracts.label.SaveLabelRequestType;
 import com.arextest.web.model.dao.mongodb.LabelCollection;
 import com.arextest.web.model.dto.LabelDto;
-import org.mapstruct.Mapper;
-import org.mapstruct.factory.Mappers;
 
 /**
  * @author b_yu

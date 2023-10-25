@@ -1,10 +1,11 @@
 package com.arextest.web.model.dao.mongodb;
 
-import lombok.Data;
-import lombok.experimental.FieldNameConstants;
+import java.util.List;
+
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.List;
+import lombok.Data;
+import lombok.experimental.FieldNameConstants;
 
 @Data
 @FieldNameConstants

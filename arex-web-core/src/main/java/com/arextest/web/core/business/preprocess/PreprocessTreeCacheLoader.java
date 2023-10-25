@@ -1,13 +1,15 @@
 package com.arextest.web.core.business.preprocess;
 
+import java.util.HashMap;
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Component;
+
 import com.arextest.web.core.repository.MessagePreprocessRepository;
 import com.arextest.web.model.dto.MessagePreprocessDto;
 import com.github.benmanes.caffeine.cache.CacheLoader;
-import org.springframework.stereotype.Component;
-
-import javax.annotation.Resource;
-import java.util.HashMap;
-import java.util.List;
 
 @Component
 public class PreprocessTreeCacheLoader implements CacheLoader<String, PreprocessTreeNode> {
@@ -31,8 +33,7 @@ public class PreprocessTreeCacheLoader implements CacheLoader<String, Preprocess
                 }
                 if (!tmp.getChildren().containsKey(pathNode)) {
                     if (i == pathArray.length - 1) {
-                        tmp.getChildren().put(pathNode, new PreprocessTreeNode(key,
-                                true, System.currentTimeMillis()));
+                        tmp.getChildren().put(pathNode, new PreprocessTreeNode(key, true, System.currentTimeMillis()));
                     } else {
                         tmp.getChildren().put(pathNode, new PreprocessTreeNode());
                     }

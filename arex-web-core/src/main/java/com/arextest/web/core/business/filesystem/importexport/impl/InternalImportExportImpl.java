@@ -1,5 +1,18 @@
 package com.arextest.web.core.business.filesystem.importexport.impl;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.util.Strings;
+import org.springframework.stereotype.Component;
+
 import com.arextest.web.common.LogUtils;
 import com.arextest.web.core.business.filesystem.FileSystemUtils;
 import com.arextest.web.core.business.filesystem.ItemInfo;
@@ -23,18 +36,8 @@ import com.arextest.web.model.mapper.FSFolderMapper;
 import com.arextest.web.model.mapper.FSInterfaceMapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.MapUtils;
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.util.Strings;
-import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author b_yu
@@ -97,6 +100,7 @@ public class InternalImportExportImpl implements ImportExport {
         fsTreeRepository.updateFSTree(fsTreeDto);
         return true;
     }
+
     @Override
     public String exportItem(List<FSNodeDto> nodes, Map<String, FSItemDto> itemInfos) {
         if (CollectionUtils.isEmpty(nodes) || MapUtils.isEmpty(itemInfos)) {
@@ -125,15 +129,15 @@ public class InternalImportExportImpl implements ImportExport {
         FSNodeDto node = new FSNodeDto();
         switch (item.getNodeType()) {
             case FSInfoItem.INTERFACE:
-                fsItemDto = FSInterfaceMapper.INSTANCE.fsItemFromIeItemDto((InterfaceItemDto) item);
-                method = ((InterfaceItemDto) item).getAddress().getMethod();
+                fsItemDto = FSInterfaceMapper.INSTANCE.fsItemFromIeItemDto((InterfaceItemDto)item);
+                method = ((InterfaceItemDto)item).getAddress().getMethod();
                 break;
             case FSInfoItem.CASE:
-                fsItemDto = FSCaseMapper.INSTANCE.fsItemFromIeItemDto((CaseItemDto) item);
-                node.setCaseSourceType(((CaseItemDto) item).getCaseSourceType());
+                fsItemDto = FSCaseMapper.INSTANCE.fsItemFromIeItemDto((CaseItemDto)item);
+                node.setCaseSourceType(((CaseItemDto)item).getCaseSourceType());
                 break;
             case FSInfoItem.FOLDER:
-                fsItemDto = FSFolderMapper.INSTANCE.fsItemFromIeItemDto((FolderItemDto) item);
+                fsItemDto = FSFolderMapper.INSTANCE.fsItemFromIeItemDto((FolderItemDto)item);
                 break;
             default:
                 LogUtils.error(LOGGER, "Unexpected NodeType:{}", item.getNodeType());
@@ -145,7 +149,6 @@ public class InternalImportExportImpl implements ImportExport {
         fsItemDto.setParentNodeType(parentNodeType);
         ItemInfo itemInfo = itemInfoFactory.getItemInfo(item.getNodeType());
         String id = itemInfo.saveItem(fsItemDto);
-
 
         node.setInfoId(id);
         node.setNodeName(item.getNodeName());
@@ -172,14 +175,14 @@ public class InternalImportExportImpl implements ImportExport {
         Item item;
         switch (node.getNodeType()) {
             case FSInfoItem.INTERFACE:
-                item = FSInterfaceMapper.INSTANCE.ieItemFromFsItemDto((FSInterfaceDto) fsItemDto);
+                item = FSInterfaceMapper.INSTANCE.ieItemFromFsItemDto((FSInterfaceDto)fsItemDto);
                 break;
             case FSInfoItem.CASE:
-                item = FSCaseMapper.INSTANCE.ieItemFromFsItemDto((FSCaseDto) fsItemDto);
-                ((CaseItemDto) item).setCaseSourceType(node.getCaseSourceType());
+                item = FSCaseMapper.INSTANCE.ieItemFromFsItemDto((FSCaseDto)fsItemDto);
+                ((CaseItemDto)item).setCaseSourceType(node.getCaseSourceType());
                 break;
             case FSInfoItem.FOLDER:
-                item = FSFolderMapper.INSTANCE.ieItemFromFsItemDto((FSFolderDto) fsItemDto);
+                item = FSFolderMapper.INSTANCE.ieItemFromFsItemDto((FSFolderDto)fsItemDto);
                 break;
             default:
                 LogUtils.error(LOGGER, "Unexpected NodeType:{}", node.getNodeType());

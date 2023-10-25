@@ -1,15 +1,17 @@
 package com.arextest.web.core.business;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Component;
+
 import com.arextest.web.core.repository.LogsRepository;
 import com.arextest.web.model.contract.contracts.QueryLogsRequestType;
 import com.arextest.web.model.contract.contracts.common.LogsType;
 import com.arextest.web.model.dto.LogsDto;
 import com.arextest.web.model.mapper.LogsMapper;
-import org.springframework.stereotype.Component;
-
-import javax.annotation.Resource;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author b_yu

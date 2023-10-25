@@ -1,9 +1,10 @@
 package com.arextest.web.model.contract.contracts.filesystem;
 
-import lombok.Data;
+import java.util.Map;
 
 import javax.validation.constraints.NotBlank;
-import java.util.Map;
+
+import lombok.Data;
 
 /**
  * Created by rchen9 on 2022/12/19.

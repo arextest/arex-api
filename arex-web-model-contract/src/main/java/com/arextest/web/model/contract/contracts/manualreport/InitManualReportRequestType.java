@@ -1,9 +1,10 @@
 package com.arextest.web.model.contract.contracts.manualreport;
 
-import lombok.Data;
+import java.util.List;
 
 import javax.validation.constraints.NotBlank;
-import java.util.List;
+
+import lombok.Data;
 
 @Data
 public class InitManualReportRequestType {

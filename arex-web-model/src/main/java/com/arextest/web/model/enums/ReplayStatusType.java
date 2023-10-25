@@ -1,6 +1,5 @@
 package com.arextest.web.model.enums;
 
-
 public class ReplayStatusType {
     public static final Integer INIT = 0;
     public static final Integer RUNNING = 1;
