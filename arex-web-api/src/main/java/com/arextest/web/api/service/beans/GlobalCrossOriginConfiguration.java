@@ -16,8 +16,7 @@ public class GlobalCrossOriginConfiguration {
     public CorsFilter corsFilter() {
         CorsConfiguration config = new CorsConfiguration();
         config.applyPermitDefaultValues();
-        UrlBasedCorsConfigurationSource corsConfigurationSource =
-                new UrlBasedCorsConfigurationSource();
+        UrlBasedCorsConfigurationSource corsConfigurationSource = new UrlBasedCorsConfigurationSource();
         corsConfigurationSource.registerCorsConfiguration("/**", config);
         return new CorsFilter(corsConfigurationSource);
     }

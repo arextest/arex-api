@@ -1,12 +1,13 @@
 package com.arextest.web.model.mapper;
 
+import org.mapstruct.Mapper;
+import org.mapstruct.factory.Mappers;
+
 import com.arextest.web.model.contract.contracts.filesystem.FSQueryFolderResponseType;
 import com.arextest.web.model.contract.contracts.filesystem.FSSaveFolderRequestType;
 import com.arextest.web.model.dao.mongodb.FSFolderCollection;
 import com.arextest.web.model.dto.filesystem.FSFolderDto;
 import com.arextest.web.model.dto.filesystem.importexport.FolderItemDto;
-import org.mapstruct.Mapper;
-import org.mapstruct.factory.Mappers;
 
 @Mapper
 public interface FSFolderMapper {

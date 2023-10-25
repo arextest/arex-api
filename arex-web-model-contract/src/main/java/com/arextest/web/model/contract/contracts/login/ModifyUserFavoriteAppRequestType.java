@@ -1,9 +1,8 @@
 package com.arextest.web.model.contract.contracts.login;
 
-import lombok.Data;
-
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
+
+import lombok.Data;
 
 /**
  * Created by rchen9 on 2022/11/23.

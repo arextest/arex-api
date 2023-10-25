@@ -1,37 +1,30 @@
 package com.arextest.web.model.dto.iosummary;
 
-import cn.hutool.core.collection.CollectionUtil;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.apache.commons.lang3.tuple.MutablePair;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
+import org.apache.commons.lang3.tuple.MutablePair;
+
+import cn.hutool.core.collection.CollectionUtil;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 @Data
 @NoArgsConstructor
 public class CaseSummary {
-    static final int OFFSET_BASIS = 0x811C9DC5; //2166136261
+    static final int OFFSET_BASIS = 0x811C9DC5; // 2166136261
     static final int FNV_PRIME = 16777619;
-
-    public static Builder builder() {
-        return new Builder();
-    }
-
     private int code;
     private String recordId;
     private String replayId;
     private String planId;
     private String planItemId;
-
     private List<DiffDetail> diffs;
-
     private Long categoryKey;
     private Long groupKey;
-
     CaseSummary(String planId, String planItemId, String recordId, String replayId, int code, List<DiffDetail> diffs) {
         this.planId = planId;
         this.planItemId = planItemId;
@@ -39,6 +32,10 @@ public class CaseSummary {
         this.replayId = replayId;
         this.code = code;
         this.diffs = diffs;
+    }
+
+    public static Builder builder() {
+        return new Builder();
     }
 
     public long categoryKey() {
@@ -51,9 +48,7 @@ public class CaseSummary {
         } else {
             Set<MutablePair<String, Integer>> categoryAndCodeSet = new HashSet<>();
             for (DiffDetail diffDetail : diffs) {
-                categoryAndCodeSet.add(
-                        new MutablePair<>(diffDetail.categoryName, diffDetail.code)
-                );
+                categoryAndCodeSet.add(new MutablePair<>(diffDetail.categoryName, diffDetail.code));
             }
 
             long key = OFFSET_BASIS;
@@ -112,11 +107,7 @@ public class CaseSummary {
         private List<DiffDetail> diffs;
 
         /**
-         * -1 : exception
-         * 0: success
-         * 1: value diff
-         * 2: left call missing
-         * 4: right call missing
+         * -1 : exception 0: success 1: value diff 2: left call missing 4: right call missing
          */
         private int code;
 
@@ -159,7 +150,7 @@ public class CaseSummary {
         private boolean exists(String categoryName, String operationName, UnmatchedCategory unmatched) {
             for (DiffDetail detail : diffs) {
                 if (detail.code == unmatched.getCode() && Objects.equals(detail.categoryName, categoryName)
-                        && Objects.equals(detail.operationName, operationName)) {
+                    && Objects.equals(detail.operationName, operationName)) {
                     return true;
                 }
             }
@@ -178,7 +169,7 @@ public class CaseSummary {
 
         public CaseSummary build() {
             return code <= 0 ? new CaseSummary(planId, planItemId, recordId, replayId, code, null)
-                    : new CaseSummary(planId, planItemId, recordId, replayId, code, diffs);
+                : new CaseSummary(planId, planItemId, recordId, replayId, code, diffs);
         }
     }
 }

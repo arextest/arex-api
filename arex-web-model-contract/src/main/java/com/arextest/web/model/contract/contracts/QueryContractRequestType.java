@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class QueryContractRequestType {
-    //query global contract
+    // query global contract
     private String appId;
     // query entryPointContract
     private String operationId;

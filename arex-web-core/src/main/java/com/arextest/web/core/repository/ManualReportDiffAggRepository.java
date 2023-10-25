@@ -1,5 +1,3 @@
 package com.arextest.web.core.repository;
 
-
-public interface ManualReportDiffAggRepository {
-}
+public interface ManualReportDiffAggRepository {}

@@ -1,24 +1,37 @@
 package com.arextest.web.core.business;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 
-import com.arextest.config.model.dto.application.ApplicationOperationConfiguration;
-import com.arextest.config.repository.impl.ApplicationOperationConfigurationRepositoryImpl;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.stereotype.Component;
 
+import com.arextest.config.model.dto.application.ApplicationOperationConfiguration;
+import com.arextest.config.repository.impl.ApplicationOperationConfigurationRepositoryImpl;
 import com.arextest.web.common.LogUtils;
 import com.arextest.web.core.business.util.SchemaUtils;
 import com.arextest.web.core.repository.AppContractRepository;
 import com.arextest.web.core.repository.ReplayCompareResultRepository;
-import com.arextest.web.model.contract.contracts.*;
+import com.arextest.web.model.contract.contracts.OverwriteContractRequestType;
+import com.arextest.web.model.contract.contracts.QueryContractRequestType;
+import com.arextest.web.model.contract.contracts.QueryMsgSchemaRequestType;
+import com.arextest.web.model.contract.contracts.QueryMsgSchemaResponseType;
+import com.arextest.web.model.contract.contracts.QuerySchemaForConfigRequestType;
+import com.arextest.web.model.contract.contracts.SyncResponseContractRequestType;
+import com.arextest.web.model.contract.contracts.SyncResponseContractResponseType;
 import com.arextest.web.model.contract.contracts.common.DependencyWithContract;
 import com.arextest.web.model.dto.AppContractDto;
 import com.arextest.web.model.dto.CompareResultDto;
@@ -39,39 +52,26 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class SchemaInferService {
 
-    @Resource
-    private ReplayCompareResultRepository replayCompareResultRepository;
-
-    @Resource
-    private AppContractRepository appContractRepository;
-
-    @Resource
-    private ApplicationOperationConfigurationRepositoryImpl applicationOperationConfigurationRepository;
-
-    @Resource
-    private ObjectMapper objectMapper;
-
     private static final String TYPE = "type";
     private static final String PROPERTIES = "properties";
     private static final String ITEMS = "items";
     private static final String OBJECT = "object";
     private static final String ARRAY = "array";
     private static final String NULL_STR = "null";
-
     private static final String ANY_OF = "anyOf";
-
     private static final String VALUE_WITH_SYMBOL = "%value%";
-
     private static final String EMPTY_CONTRACT = "{}";
-
     private static final int LIMIT = 5;
-
     private static final int FIRST_INDEX = 0;
-
     private static final ObjectMapper CONTRACT_OBJ_MAPPER = new ObjectMapper();
-
     private static final JsonSchemaInferrer INFERRER =
         JsonSchemaInferrer.newBuilder().setSpecVersion(SpecVersion.DRAFT_06).build();
+    @Resource
+    private ReplayCompareResultRepository replayCompareResultRepository;
+    @Resource
+    private AppContractRepository appContractRepository;
+    @Resource
+    private ApplicationOperationConfigurationRepositoryImpl applicationOperationConfigurationRepository;
 
     public QueryMsgSchemaResponseType schemaInfer(QueryMsgSchemaRequestType request) {
         QueryMsgSchemaResponseType response = new QueryMsgSchemaResponseType();

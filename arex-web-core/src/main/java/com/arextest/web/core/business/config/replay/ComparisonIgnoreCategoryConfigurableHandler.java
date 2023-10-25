@@ -1,5 +1,14 @@
 package com.arextest.web.core.business.config.replay;
 
+import java.util.List;
+import java.util.Set;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import com.arextest.config.model.dto.application.ApplicationOperationConfiguration;
 import com.arextest.config.repository.ConfigRepositoryProvider;
 import com.arextest.config.repository.impl.ApplicationOperationConfigurationRepositoryImpl;
@@ -9,13 +18,6 @@ import com.arextest.web.core.repository.AppContractRepository;
 import com.arextest.web.core.repository.FSInterfaceRepository;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonIgnoreCategoryConfiguration;
 import com.arextest.web.model.dto.filesystem.FSInterfaceDto;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
-import javax.annotation.Resource;
-import java.util.List;
-import java.util.Set;
 
 /**
  * @author wildeslam.
@@ -25,24 +27,20 @@ import java.util.Set;
 public class ComparisonIgnoreCategoryConfigurableHandler
     extends AbstractComparisonConfigurableHandler<ComparisonIgnoreCategoryConfiguration> {
 
+    private static final Set<String> CATEGORIES =
+        MockCategoryType.DEFAULTS.stream().map(MockCategoryType::getName).collect(java.util.stream.Collectors.toSet());
+    @Resource
+    FSInterfaceRepository fsInterfaceRepository;
+    @Resource
+    ApplicationOperationConfigurableHandler applicationOperationConfigurableHandler;
+    @Resource
+    private ApplicationOperationConfigurationRepositoryImpl applicationOperationConfigurationRepository;
+
     protected ComparisonIgnoreCategoryConfigurableHandler(
         @Autowired ConfigRepositoryProvider<ComparisonIgnoreCategoryConfiguration> repositoryProvider,
         @Autowired AppContractRepository appContractRepository) {
         super(repositoryProvider, appContractRepository);
     }
-
-    private static final Set<String> CATEGORIES = MockCategoryType.DEFAULTS.stream()
-        .map(MockCategoryType::getName)
-        .collect(java.util.stream.Collectors.toSet());
-
-    @Resource
-    FSInterfaceRepository fsInterfaceRepository;
-
-    @Resource
-    ApplicationOperationConfigurableHandler applicationOperationConfigurableHandler;
-
-    @Resource
-    private ApplicationOperationConfigurationRepositoryImpl applicationOperationConfigurationRepository;
 
     @Override
     public List<ComparisonIgnoreCategoryConfiguration> queryByInterfaceId(String interfaceId) {

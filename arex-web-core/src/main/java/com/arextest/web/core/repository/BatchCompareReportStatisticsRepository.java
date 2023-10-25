@@ -6,11 +6,11 @@
 // import java.util.List;
 //
 // /**
-//  * Created by rchen9 on 2023/2/9.
-//  */
+// * Created by rchen9 on 2023/2/9.
+// */
 // public interface BatchCompareReportStatisticsRepository extends RepositoryProvider {
 //
-//     boolean updateBatchCompareReportStatistics(BatchCompareReportStatisticsDto dto);
+// boolean updateBatchCompareReportStatistics(BatchCompareReportStatisticsDto dto);
 //
-//     List<BatchCompareSummaryItem> queryBatchCompareSummary(String planId, String interfaceId);
+// List<BatchCompareSummaryItem> queryBatchCompareSummary(String planId, String interfaceId);
 // }

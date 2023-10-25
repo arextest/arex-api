@@ -1,9 +1,10 @@
 package com.arextest.web.core.business.config;
 
-import com.arextest.config.repository.ConfigRepositoryProvider;
+import java.util.List;
+
 import org.apache.commons.collections4.CollectionUtils;
 
-import java.util.List;
+import com.arextest.config.repository.ConfigRepositoryProvider;
 
 /**
  * @author jmo

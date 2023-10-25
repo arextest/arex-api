@@ -1,23 +1,24 @@
 package com.arextest.web.core.repository.mongo;
 
-import com.arextest.web.core.repository.LogsRepository;
-import com.arextest.web.model.dao.mongodb.LogsCollection;
-import com.arextest.web.model.dto.LogsDto;
-import com.arextest.web.model.mapper.LogsMapper;
-import com.arextest.web.model.params.QueryLogsParam;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import javax.annotation.Resource;
+
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
-import org.checkerframework.checker.units.qual.K;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
-import java.util.List;
-import java.util.stream.Collectors;
+import com.arextest.web.core.repository.LogsRepository;
+import com.arextest.web.model.dao.mongodb.LogsCollection;
+import com.arextest.web.model.dto.LogsDto;
+import com.arextest.web.model.mapper.LogsMapper;
+import com.arextest.web.model.params.QueryLogsParam;
 
 /**
  * @author b_yu

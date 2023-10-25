@@ -1,12 +1,13 @@
 package com.arextest.web.model.contract.contracts.config.replay;
 
+import java.util.List;
+
+import org.springframework.util.CollectionUtils;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import org.springframework.util.CollectionUtils;
-
-import java.util.List;
 
 /**
  * Created by rchen9 on 2022/9/16.

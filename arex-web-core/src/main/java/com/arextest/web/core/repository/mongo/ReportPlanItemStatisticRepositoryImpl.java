@@ -1,12 +1,13 @@
 package com.arextest.web.core.repository.mongo;
 
-import com.arextest.web.core.repository.ReportPlanItemStatisticRepository;
-import com.arextest.web.core.repository.mongo.util.MongoHelper;
-import com.arextest.web.model.dao.mongodb.ReportPlanItemStatisticCollection;
-import com.arextest.web.model.dto.PlanItemDto;
-import com.arextest.web.model.enums.ReplayStatusType;
-import com.arextest.web.model.mapper.PlanItemMapper;
-import com.mongodb.client.result.DeleteResult;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
+import javax.annotation.Resource;
+
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -16,13 +17,13 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
-import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Collectors;
-
+import com.arextest.web.core.repository.ReportPlanItemStatisticRepository;
+import com.arextest.web.core.repository.mongo.util.MongoHelper;
+import com.arextest.web.model.dao.mongodb.ReportPlanItemStatisticCollection;
+import com.arextest.web.model.dto.PlanItemDto;
+import com.arextest.web.model.enums.ReplayStatusType;
+import com.arextest.web.model.mapper.PlanItemMapper;
+import com.mongodb.client.result.DeleteResult;
 
 @Component
 public class ReportPlanItemStatisticRepositoryImpl implements ReportPlanItemStatisticRepository {
@@ -47,12 +48,11 @@ public class ReportPlanItemStatisticRepositoryImpl implements ReportPlanItemStat
     @Override
     public PlanItemDto updatePlanItems(PlanItemDto planItem) {
         Update update = MongoHelper.getUpdate();
-        update.setOnInsert(PLAN_ID, planItem.getPlanId())
-                .setOnInsert(OPERATION_ID, planItem.getOperationId())
-                .setOnInsert(OPERATION_NAME, planItem.getOperationName())
-                .setOnInsert(SERVICE_NAME, planItem.getServiceName())
-                .setOnInsert(DATA_CHANGE_CREATE_TIME, System.currentTimeMillis())
-                .setOnInsert(STATUS, ReplayStatusType.INIT);
+        update.setOnInsert(PLAN_ID, planItem.getPlanId()).setOnInsert(OPERATION_ID, planItem.getOperationId())
+            .setOnInsert(OPERATION_NAME, planItem.getOperationName())
+            .setOnInsert(SERVICE_NAME, planItem.getServiceName())
+            .setOnInsert(DATA_CHANGE_CREATE_TIME, System.currentTimeMillis())
+            .setOnInsert(STATUS, ReplayStatusType.INIT);
         if (planItem.getCases() != null) {
             for (Map.Entry<String, Integer> c : planItem.getCases().entrySet()) {
                 update.inc(CASES + DOT + c.getKey(), c.getValue());
@@ -69,12 +69,9 @@ public class ReportPlanItemStatisticRepositoryImpl implements ReportPlanItemStat
             }
         }
 
-        ReportPlanItemStatisticCollection dao = mongoTemplate.findAndModify(
-                Query.query(Criteria.where(PLAN_ITEM_ID).is(planItem.getPlanItemId())),
-                update,
-                FindAndModifyOptions.options().upsert(true).returnNew(true),
-                ReportPlanItemStatisticCollection.class
-        );
+        ReportPlanItemStatisticCollection dao =
+            mongoTemplate.findAndModify(Query.query(Criteria.where(PLAN_ITEM_ID).is(planItem.getPlanItemId())), update,
+                FindAndModifyOptions.options().upsert(true).returnNew(true), ReportPlanItemStatisticCollection.class);
         return PlanItemMapper.INSTANCE.dtoFromDao(dao);
     }
 
@@ -109,10 +106,8 @@ public class ReportPlanItemStatisticRepositoryImpl implements ReportPlanItemStat
         if (result.getTotalCaseCount() != null) {
             update.set(TOTAL_CASE_COUNT, result.getTotalCaseCount());
         }
-        mongoTemplate.findAndModify(
-                Query.query(Criteria.where(PLAN_ITEM_ID).is(result.getPlanItemId())),
-                update, FindAndModifyOptions.options().upsert(true),
-                ReportPlanItemStatisticCollection.class);
+        mongoTemplate.findAndModify(Query.query(Criteria.where(PLAN_ITEM_ID).is(result.getPlanItemId())), update,
+            FindAndModifyOptions.options().upsert(true), ReportPlanItemStatisticCollection.class);
         return true;
     }
 
@@ -131,10 +126,8 @@ public class ReportPlanItemStatisticRepositoryImpl implements ReportPlanItemStat
         if (result.getErrorCases() != null) {
             update.set(ERROR_CASES, result.getErrorCases());
         }
-        mongoTemplate.findAndModify(
-            Query.query(Criteria.where(PLAN_ITEM_ID).is(result.getPlanItemId())),
-            update, FindAndModifyOptions.options().upsert(true),
-            ReportPlanItemStatisticCollection.class);
+        mongoTemplate.findAndModify(Query.query(Criteria.where(PLAN_ITEM_ID).is(result.getPlanItemId())), update,
+            FindAndModifyOptions.options().upsert(true), ReportPlanItemStatisticCollection.class);
         return true;
     }
 
@@ -151,7 +144,7 @@ public class ReportPlanItemStatisticRepositoryImpl implements ReportPlanItemStat
             query.addCriteria(Criteria.where(PLAN_ITEM_ID).is(planItemId));
         }
         List<ReportPlanItemStatisticCollection> result =
-                mongoTemplate.find(query, ReportPlanItemStatisticCollection.class);
+            mongoTemplate.find(query, ReportPlanItemStatisticCollection.class);
         return result.stream().map(PlanItemMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
     }
 
@@ -160,9 +153,8 @@ public class ReportPlanItemStatisticRepositoryImpl implements ReportPlanItemStat
         if (planItemId == null) {
             return null;
         }
-        ReportPlanItemStatisticCollection result =
-                mongoTemplate.findOne(Query.query(Criteria.where(PLAN_ITEM_ID).is(planItemId)),
-                        ReportPlanItemStatisticCollection.class);
+        ReportPlanItemStatisticCollection result = mongoTemplate
+            .findOne(Query.query(Criteria.where(PLAN_ITEM_ID).is(planItemId)), ReportPlanItemStatisticCollection.class);
         return PlanItemMapper.INSTANCE.dtoFromDao(result);
     }
 
@@ -171,9 +163,8 @@ public class ReportPlanItemStatisticRepositoryImpl implements ReportPlanItemStat
         if (CollectionUtils.isEmpty(planIds)) {
             return new ArrayList<>();
         }
-        List<ReportPlanItemStatisticCollection> result =
-                mongoTemplate.find(Query.query(Criteria.where(PLAN_ID).in(planIds)),
-                        ReportPlanItemStatisticCollection.class);
+        List<ReportPlanItemStatisticCollection> result = mongoTemplate
+            .find(Query.query(Criteria.where(PLAN_ID).in(planIds)), ReportPlanItemStatisticCollection.class);
         return result.stream().map(PlanItemMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
 
     }
@@ -183,15 +174,14 @@ public class ReportPlanItemStatisticRepositoryImpl implements ReportPlanItemStat
         if (planId == null) {
             return new ArrayList<>();
         }
-        List<ReportPlanItemStatisticCollection> planItemDaos =
-                mongoTemplate.find(Query.query(Criteria.where(PLAN_ID).is(planId)),
-                        ReportPlanItemStatisticCollection.class);
+        List<ReportPlanItemStatisticCollection> planItemDaos = mongoTemplate
+            .find(Query.query(Criteria.where(PLAN_ID).is(planId)), ReportPlanItemStatisticCollection.class);
         return planItemDaos.stream().map(ReportPlanItemStatisticCollection::getStatus).collect(Collectors.toList());
     }
 
     @Override
     public PlanItemDto changePlanItemStatus(String planItemId, Integer status, Integer totalCaseCount,
-                                            String errorMessage, boolean rerun) {
+        String errorMessage, boolean rerun) {
         if (planItemId == null || planItemId == "") {
             return null;
         }
@@ -218,10 +208,8 @@ public class ReportPlanItemStatisticRepositoryImpl implements ReportPlanItemStat
             return null;
         }
         ReportPlanItemStatisticCollection planItem =
-                mongoTemplate.findAndModify(Query.query(Criteria.where(PLAN_ITEM_ID).is(planItemId)),
-                        update,
-                        FindAndModifyOptions.options().returnNew(true).upsert(true),
-                        ReportPlanItemStatisticCollection.class);
+            mongoTemplate.findAndModify(Query.query(Criteria.where(PLAN_ITEM_ID).is(planItemId)), update,
+                FindAndModifyOptions.options().returnNew(true).upsert(true), ReportPlanItemStatisticCollection.class);
         return PlanItemMapper.INSTANCE.dtoFromDao(planItem);
     }
 

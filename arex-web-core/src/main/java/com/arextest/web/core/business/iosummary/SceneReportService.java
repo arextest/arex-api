@@ -1,5 +1,21 @@
 package com.arextest.web.core.business.iosummary;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import com.arextest.web.core.repository.CaseSummaryRepository;
 import com.arextest.web.core.repository.ReplayCompareResultRepository;
 import com.arextest.web.core.repository.ReportPlanItemStatisticRepository;
@@ -15,22 +31,8 @@ import com.arextest.web.model.dto.iosummary.SubSceneInfo;
 import com.arextest.web.model.enums.DiffResultCode;
 import com.arextest.web.model.enums.FeedbackTypeEnum;
 import com.arextest.web.model.mapper.SceneInfoMapper;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.MapUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
@@ -56,12 +58,8 @@ public class SceneReportService {
      * from CaseSummary to ScnenInfo
      */
     public void report(CaseSummary caseSummary) {
-        SceneInfo sceneInfo = SceneInfo.builder()
-                .code(caseSummary.getCode())
-                .categoryKey(caseSummary.categoryKey())
-                .planId(caseSummary.getPlanId())
-                .planItemId(caseSummary.getPlanItemId())
-                .summary(caseSummary).build();
+        SceneInfo sceneInfo = SceneInfo.builder().code(caseSummary.getCode()).categoryKey(caseSummary.categoryKey())
+            .planId(caseSummary.getPlanId()).planItemId(caseSummary.getPlanItemId()).summary(caseSummary).build();
         sceneInfoRepository.save(sceneInfo);
     }
 
@@ -98,13 +96,10 @@ public class SceneReportService {
         List<SceneInfo> sceneInfos = sceneInfoRepository.querySceneInfo(planId, planItemId);
         sceneInfos = checkDuplicateScene(sceneInfos);
         List<QuerySceneInfoResponseType.SceneInfoType> sceneInfoTypes =
-                sceneInfos.stream()
-                        .map(SceneInfoMapper.INSTANCE::contractFromDto)
-                        .collect(Collectors.toList());
+            sceneInfos.stream().map(SceneInfoMapper.INSTANCE::contractFromDto).collect(Collectors.toList());
 
         // to set recordTime and replayTime
-        Map<String, QuerySceneInfoResponseType.SubSceneInfoType> subSceneInfoTypeMap =
-                new HashMap<>();
+        Map<String, QuerySceneInfoResponseType.SubSceneInfoType> subSceneInfoTypeMap = new HashMap<>();
         for (QuerySceneInfoResponseType.SceneInfoType sceneInfoType : sceneInfoTypes) {
             List<QuerySceneInfoResponseType.SubSceneInfoType> subScenes = sceneInfoType.getSubScenes();
             for (QuerySceneInfoResponseType.SubSceneInfoType subSceneInfoType : subScenes) {
@@ -112,13 +107,9 @@ public class SceneReportService {
             }
         }
         if (MapUtils.isNotEmpty(subSceneInfoTypeMap)) {
-            List<CompareResultDto> dtos = replayCompareResultRepository.queryCompareResults(
-                    planId,
-                    Collections.singletonList(planItemId),
-                    new ArrayList<>(subSceneInfoTypeMap.keySet()),
-                    null,
-                    Arrays.asList(RECORD_ID, RECORD_TIME, REPLAY_TIME)
-            );
+            List<CompareResultDto> dtos = replayCompareResultRepository.queryCompareResults(planId,
+                Collections.singletonList(planItemId), new ArrayList<>(subSceneInfoTypeMap.keySet()), null,
+                Arrays.asList(RECORD_ID, RECORD_TIME, REPLAY_TIME));
             for (CompareResultDto dto : dtos) {
                 String recordId = dto.getRecordId();
                 QuerySceneInfoResponseType.SubSceneInfoType subSceneInfoType = subSceneInfoTypeMap.get(recordId);
@@ -132,7 +123,6 @@ public class SceneReportService {
         return response;
     }
 
-
     public boolean removeScene(RemoveRecordsAndScenesRequest request) {
         return sceneInfoRepository.removeByPlanItemId(request.getActionIdAndRecordIdsMap().keySet());
     }
@@ -143,7 +133,7 @@ public class SceneReportService {
         final String recordId = request.getRecordId();
         final Integer feedbackType = request.getFeedbackType();
 
-        //update scene
+        // update scene
         List<SceneInfo> sceneInfos = sceneInfoRepository.querySceneInfo(planId, planItemId);
         sceneInfos.forEach(sceneInfo -> {
             if (MapUtils.isNotEmpty(sceneInfo.getSubSceneInfoMap())) {
@@ -169,7 +159,7 @@ public class SceneReportService {
 
     private boolean checkAllSubScenes(SceneInfo sceneInfo) {
         boolean result = true;
-        for(SubSceneInfo subSceneInfo : sceneInfo.getSubSceneInfoMap().values()) {
+        for (SubSceneInfo subSceneInfo : sceneInfo.getSubSceneInfoMap().values()) {
             if (subSceneInfo.getCode() != DiffResultCode.COMPARED_WITHOUT_DIFFERENCE) {
                 result = false;
                 break;
@@ -182,19 +172,13 @@ public class SceneReportService {
         LOGGER.info("All the scenes has been passed");
         // query other cases in the same subScene
         List<CaseSummary> caseSummaryList = caseSummaryRepository.query(planId, planItemId);
-        List<String> recordIds = caseSummaryList.stream()
-            .filter(caseSummary -> String.valueOf(caseSummary.groupKey()).equals(groupKey))
-            .map(CaseSummary::getRecordId)
-            .collect(Collectors.toList());
+        List<String> recordIds =
+            caseSummaryList.stream().filter(caseSummary -> String.valueOf(caseSummary.groupKey()).equals(groupKey))
+                .map(CaseSummary::getRecordId).collect(Collectors.toList());
 
         // update compareResult
-        List<CompareResultDto> compareResultList = replayCompareResultRepository.queryCompareResults(
-            planId,
-            Collections.singletonList(planItemId),
-            recordIds,
-            null,
-            Arrays.asList(RECORD_ID, RECORD_TIME, REPLAY_TIME)
-        );
+        List<CompareResultDto> compareResultList = replayCompareResultRepository.queryCompareResults(planId,
+            Collections.singletonList(planItemId), recordIds, null, Arrays.asList(RECORD_ID, RECORD_TIME, REPLAY_TIME));
         for (CompareResultDto compareResult : compareResultList) {
             compareResult.setDiffResultCode(DiffResultCode.COMPARED_WITHOUT_DIFFERENCE);
         }

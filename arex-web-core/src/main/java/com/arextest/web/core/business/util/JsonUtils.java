@@ -1,9 +1,11 @@
 package com.arextest.web.core.business.util;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.arextest.common.utils.JsonTraverseUtils;
 import com.arextest.web.model.dto.CompareResultDto;
+
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 
 /**
  * @author wildeslam.

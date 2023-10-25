@@ -1,15 +1,18 @@
 package com.arextest.web.model.contract;
 
-
 public interface PagingRequest {
     Integer getPageSize();
+
     void setPageSize(Integer pageSize);
+
     Integer getPageIndex();
+
     void setPageIndex(Integer pageIndex);
+
     Boolean getNeedTotal();
+
     void setNeedTotal(Boolean needTotal);
 
-    
     default boolean checkPaging() {
         if (this.getPageIndex() == null) {
             return false;

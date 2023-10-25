@@ -1,5 +1,17 @@
 package com.arextest.web.core.business.filesystem.importexport.impl;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Component;
+
 import com.arextest.web.common.LogUtils;
 import com.arextest.web.core.business.constants.NetworkConstants;
 import com.arextest.web.core.business.filesystem.FileSystemUtils;
@@ -28,36 +40,23 @@ import com.arextest.web.model.enums.CaseSourceType;
 import com.arextest.web.model.enums.FSInfoItem;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component("ImportExport-2")
 public class PostmanImportExportImpl implements ImportExport {
 
-    @Resource
-    private ObjectMapper objectMapper;
-
-    @Resource
-    private FileSystemUtils fileSystemUtils;
-
-    @Resource
-    private ItemInfoFactory itemInfoFactory;
-
-    @Resource
-    private FSTreeRepository fsTreeRepository;
-
     private static final String PRE_REQUEST_LISTEN = "prerequest";
     private static final String TEST_LISTEN = "test";
+    @Resource
+    private ObjectMapper objectMapper;
+    @Resource
+    private FileSystemUtils fileSystemUtils;
+    @Resource
+    private ItemInfoFactory itemInfoFactory;
+    @Resource
+    private FSTreeRepository fsTreeRepository;
 
     @Override
     public boolean importItem(FSTreeDto fsTreeDto, String[] path, String importString) {
@@ -76,7 +75,6 @@ public class PostmanImportExportImpl implements ImportExport {
         if (ArrayUtils.isNotEmpty(path)) {
             parent = fileSystemUtils.findByPath(fsTreeDto.getRoots(), path);
         }
-
 
         FSNodeDto folder;
         if (parent != null) {
@@ -103,7 +101,8 @@ public class PostmanImportExportImpl implements ImportExport {
         return null;
     }
 
-    private FSNodeDto createRootFolder(Collection collection, String workSpaceId, String parentId, Integer parentNodeType) {
+    private FSNodeDto createRootFolder(Collection collection, String workSpaceId, String parentId,
+        Integer parentNodeType) {
         FSNodeDto folderNode = new FSNodeDto();
         folderNode.setNodeName(collection.getInfo().getName());
         folderNode.setNodeType(FSInfoItem.FOLDER);
@@ -113,8 +112,8 @@ public class PostmanImportExportImpl implements ImportExport {
         return getFolderNode(workSpaceId, parentId, parentNodeType, folderNode, fsFolderDto, collection.getItem());
     }
 
-    private FSNodeDto getFolderNode(String workSpaceId, String parentId, Integer parentNodeType,
-                                    FSNodeDto folderNode, FSFolderDto fsFolderDto, List<CollectionItem> items) {
+    private FSNodeDto getFolderNode(String workSpaceId, String parentId, Integer parentNodeType, FSNodeDto folderNode,
+        FSFolderDto fsFolderDto, List<CollectionItem> items) {
         fsFolderDto.setParentNodeType(parentNodeType);
         fsFolderDto.setParentId(parentId);
         fsFolderDto.setWorkspaceId(workSpaceId);
@@ -136,7 +135,8 @@ public class PostmanImportExportImpl implements ImportExport {
         return folderNode;
     }
 
-    private FSNodeDto createFolderNode(CollectionItem item, String workSpaceId, String parentId, Integer parentNodeType) {
+    private FSNodeDto createFolderNode(CollectionItem item, String workSpaceId, String parentId,
+        Integer parentNodeType) {
         FSNodeDto folderNode = new FSNodeDto();
         folderNode.setNodeName(item.getName());
         folderNode.setNodeType(FSInfoItem.FOLDER);
@@ -147,18 +147,18 @@ public class PostmanImportExportImpl implements ImportExport {
     }
 
     private FSNodeDto createInterfaceNode(CollectionItem item, String workSpaceId, String parentId,
-                                          Integer parentNodeType) {
+        Integer parentNodeType) {
         final ItemRequest itemRequest = item.getRequest();
         FSNodeDto interfaceNode = new FSNodeDto();
         interfaceNode.setNodeName(item.getName());
         interfaceNode.setNodeType(FSInfoItem.INTERFACE);
         interfaceNode.setMethod(itemRequest.getMethod());
 
-        FSInterfaceDto fsInterfaceDto = createFSInterfaceAndCaseBaseDto(
-                itemRequest, workSpaceId, parentId, parentNodeType, new FSInterfaceDto());
+        FSInterfaceDto fsInterfaceDto =
+            createFSInterfaceAndCaseBaseDto(itemRequest, workSpaceId, parentId, parentNodeType, new FSInterfaceDto());
         fsInterfaceDto.setName(item.getName());
 
-        //script
+        // script
         if (item.getEvent() != null) {
             List<ScriptBlockDto> preRequestScripts = new ArrayList<>();
             List<ScriptBlockDto> testScripts = new ArrayList<>();
@@ -178,27 +178,22 @@ public class PostmanImportExportImpl implements ImportExport {
             fsInterfaceDto.setTestScripts(testScripts);
         }
 
-
-        //body
+        // body
         if (itemRequest.getBody() != null) {
             BodyDto bodyDto = new BodyDto();
             if (StringUtils.equalsIgnoreCase(itemRequest.getBody().getMode(), NetworkConstants.RAW)) {
                 bodyDto.setBody(itemRequest.getBody().getRaw());
             }
-            String language = Optional.ofNullable(itemRequest.getBody())
-                    .map(ItemBody::getOptions)
-                    .map(ItemBody.BodyOptions::getRaw)
-                    .map(ItemBody.OptionsRaw::getLanguage)
-                    .orElse(null);
+            String language = Optional.ofNullable(itemRequest.getBody()).map(ItemBody::getOptions)
+                .map(ItemBody.BodyOptions::getRaw).map(ItemBody.OptionsRaw::getLanguage).orElse(null);
             if (StringUtils.equalsIgnoreCase(language, NetworkConstants.JSON)) {
                 bodyDto.setContentType(NetworkConstants.APPLICATION_JSON);
             }
             fsInterfaceDto.setBody(bodyDto);
         }
 
-
-        //auth: not used
-        //testAddress:not used
+        // auth: not used
+        // testAddress:not used
         fsInterfaceDto.setDescription(itemRequest.getDescription());
 
         ItemInfo itemInfo = itemInfoFactory.getItemInfo(interfaceNode.getNodeType());
@@ -213,15 +208,15 @@ public class PostmanImportExportImpl implements ImportExport {
     }
 
     private FSNodeDto createCaseNode(ItemResponse itemResponse, String workSpaceId, String parentId,
-                                     Integer parentNodeType) {
+        Integer parentNodeType) {
         final ItemRequest itemRequest = itemResponse.getOriginalRequest();
         FSNodeDto caseNode = new FSNodeDto();
         caseNode.setNodeName(itemResponse.getName());
         caseNode.setNodeType(FSInfoItem.CASE);
         caseNode.setCaseSourceType(CaseSourceType.MANUAL_CASE);
 
-        FSCaseDto fsCaseDto = createFSInterfaceAndCaseBaseDto(itemRequest, workSpaceId, parentId, parentNodeType,
-                new FSCaseDto());
+        FSCaseDto fsCaseDto =
+            createFSInterfaceAndCaseBaseDto(itemRequest, workSpaceId, parentId, parentNodeType, new FSCaseDto());
         fsCaseDto.setName(caseNode.getNodeName());
 
         ItemInfo itemInfo = itemInfoFactory.getItemInfo(caseNode.getNodeType());
@@ -230,13 +225,13 @@ public class PostmanImportExportImpl implements ImportExport {
         return caseNode;
     }
 
-    private <T extends FSInterfaceAndCaseBaseDto> T createFSInterfaceAndCaseBaseDto(
-            ItemRequest itemRequest, String workSpaceId, String parentId, Integer parentNodeType, T input) {
+    private <T extends FSInterfaceAndCaseBaseDto> T createFSInterfaceAndCaseBaseDto(ItemRequest itemRequest,
+        String workSpaceId, String parentId, Integer parentNodeType, T input) {
         input.setParentNodeType(parentNodeType);
         input.setParentId(parentId);
         input.setWorkspaceId(workSpaceId);
 
-        //address
+        // address
         AddressDto addressDto = new AddressDto();
         addressDto.setMethod(itemRequest.getMethod());
         if (itemRequest.getUrl() != null) {
@@ -244,7 +239,7 @@ public class PostmanImportExportImpl implements ImportExport {
         }
         input.setAddress(addressDto);
 
-        //header & param
+        // header & param
         List<KeyValuePairDto> headers = new ArrayList<>();
         List<KeyValuePairDto> params = new ArrayList<>();
         if (itemRequest.getHeader() != null) {
@@ -256,14 +251,14 @@ public class PostmanImportExportImpl implements ImportExport {
                 headers.add(keyValuePairDto);
             });
         }
-        Optional.ofNullable(itemRequest.getUrl()).map(ItemUrl::getQuery).ifPresent(queryList ->
-                queryList.forEach(query -> {
-                    KeyValuePairDto keyValuePairDto = new KeyValuePairDto();
-                    keyValuePairDto.setKey(query.getKey());
-                    keyValuePairDto.setValue(query.getValue());
-                    keyValuePairDto.setActive(Boolean.TRUE);
-                    params.add(keyValuePairDto);
-                }));
+        Optional.ofNullable(itemRequest.getUrl()).map(ItemUrl::getQuery)
+            .ifPresent(queryList -> queryList.forEach(query -> {
+                KeyValuePairDto keyValuePairDto = new KeyValuePairDto();
+                keyValuePairDto.setKey(query.getKey());
+                keyValuePairDto.setValue(query.getValue());
+                keyValuePairDto.setActive(Boolean.TRUE);
+                params.add(keyValuePairDto);
+            }));
 
         input.setHeaders(headers);
         input.setParams(params);

@@ -1,30 +1,5 @@
 package com.arextest.web.core.business.config.replay;
 
-import com.arextest.config.model.dto.application.ApplicationOperationConfiguration;
-import com.arextest.config.model.dto.application.ApplicationServiceConfiguration;
-import com.arextest.web.common.LogUtils;
-import com.arextest.web.core.business.config.ConfigurableHandler;
-import com.arextest.web.core.repository.AppContractRepository;
-import com.arextest.web.model.contract.contracts.common.enums.ExpirationType;
-import com.arextest.web.model.contract.contracts.config.replay.AbstractComparisonDetailsConfiguration;
-import com.arextest.web.model.contract.contracts.config.replay.ComparisonEncryptionConfiguration;
-import com.arextest.web.model.contract.contracts.config.replay.ComparisonIgnoreCategoryConfiguration;
-import com.arextest.web.model.contract.contracts.config.replay.ComparisonExclusionsConfiguration;
-import com.arextest.web.model.contract.contracts.config.replay.ComparisonInclusionsConfiguration;
-import com.arextest.web.model.contract.contracts.config.replay.ComparisonListSortConfiguration;
-import com.arextest.web.model.contract.contracts.config.replay.ComparisonReferenceConfiguration;
-import com.arextest.web.model.contract.contracts.config.replay.ComparisonSummaryConfiguration;
-import com.arextest.web.model.contract.contracts.config.replay.ReplayCompareConfig;
-import com.arextest.web.model.dao.mongodb.AppContractCollection;
-import com.arextest.web.model.dto.AppContractDto;
-import com.arextest.web.model.enums.ContractTypeEnum;
-import com.google.common.collect.ImmutableMap;
-import lombok.Data;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.CollectionUtils;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -38,6 +13,33 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.arextest.config.model.dto.application.ApplicationOperationConfiguration;
+import com.arextest.config.model.dto.application.ApplicationServiceConfiguration;
+import com.arextest.web.common.LogUtils;
+import com.arextest.web.core.business.config.ConfigurableHandler;
+import com.arextest.web.core.repository.AppContractRepository;
+import com.arextest.web.model.contract.contracts.common.enums.ExpirationType;
+import com.arextest.web.model.contract.contracts.config.replay.AbstractComparisonDetailsConfiguration;
+import com.arextest.web.model.contract.contracts.config.replay.ComparisonEncryptionConfiguration;
+import com.arextest.web.model.contract.contracts.config.replay.ComparisonExclusionsConfiguration;
+import com.arextest.web.model.contract.contracts.config.replay.ComparisonIgnoreCategoryConfiguration;
+import com.arextest.web.model.contract.contracts.config.replay.ComparisonInclusionsConfiguration;
+import com.arextest.web.model.contract.contracts.config.replay.ComparisonListSortConfiguration;
+import com.arextest.web.model.contract.contracts.config.replay.ComparisonReferenceConfiguration;
+import com.arextest.web.model.contract.contracts.config.replay.ComparisonSummaryConfiguration;
+import com.arextest.web.model.contract.contracts.config.replay.ReplayCompareConfig;
+import com.arextest.web.model.dao.mongodb.AppContractCollection;
+import com.arextest.web.model.dto.AppContractDto;
+import com.arextest.web.model.enums.ContractTypeEnum;
+import com.google.common.collect.ImmutableMap;
+
+import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Created by rchen9 on 2023/2/7.
@@ -60,7 +62,7 @@ public class ComparisonSummaryService {
         @Autowired ComparisonReferenceConfigurableHandler referenceConfigurableHandler,
         @Autowired ComparisonListSortConfigurableHandler listSortConfigurableHandler,
         @Autowired ConfigurableHandler<
-                    ApplicationServiceConfiguration> applicationServiceConfigurationConfigurableHandler,
+            ApplicationServiceConfiguration> applicationServiceConfigurationConfigurableHandler,
         @Autowired AppContractRepository appContractRepository,
         @Autowired ComparisonIgnoreCategoryConfigurableHandler ignoreCategoryConfigurableHandler) {
         this.exclusionsConfigurableHandler = exclusionsConfigurableHandler;
@@ -176,11 +178,10 @@ public class ComparisonSummaryService {
             }, operationInfoMap, appContractDtoMap);
 
         buildComparisonConfig(replayConfigurationMap, ignoreCategoryConfigurableHandler.useResultAsList(appId),
-            (configurations,  summaryConfiguration) -> {
-                List<String> ignoreCategoryTypes = configurations.stream()
-                    .map(ComparisonIgnoreCategoryConfiguration::getIgnoreCategory)
-                    .flatMap(Collection::stream)
-                    .collect(Collectors.toList());
+            (configurations, summaryConfiguration) -> {
+                List<String> ignoreCategoryTypes =
+                    configurations.stream().map(ComparisonIgnoreCategoryConfiguration::getIgnoreCategory)
+                        .flatMap(Collection::stream).collect(Collectors.toList());
                 summaryConfiguration.setIgnoreCategoryTypes(ignoreCategoryTypes);
             }, operationInfoMap, appContractDtoMap);
 
@@ -440,8 +441,8 @@ public class ComparisonSummaryService {
             }
 
             if (globalIgnoreCategoryList != null) {
-                List<String> ignoreCategoryList = tempReplayConfig.getIgnoreCategoryTypes() == null
-                    ? new ArrayList<>() : tempReplayConfig.getIgnoreCategoryTypes();
+                List<String> ignoreCategoryList = tempReplayConfig.getIgnoreCategoryTypes() == null ? new ArrayList<>()
+                    : tempReplayConfig.getIgnoreCategoryTypes();
                 ignoreCategoryList.addAll(globalIgnoreCategoryList);
                 tempReplayConfig.setIgnoreCategoryTypes(ignoreCategoryList);
 
@@ -452,7 +453,8 @@ public class ComparisonSummaryService {
                     if (dependencyConfigMap.containsKey(dependencyId)) {
                         ReplayCompareConfig.DependencyComparisonItem dependencyComparisonItem =
                             dependencyConfigMap.get(dependencyId);
-                        List<String> previousDependencyExclusionCategories = dependencyComparisonItem.getIgnoreCategoryTypes();
+                        List<String> previousDependencyExclusionCategories =
+                            dependencyComparisonItem.getIgnoreCategoryTypes();
                         List<String> dependencyExclusionCategories = previousDependencyExclusionCategories == null
                             ? new ArrayList<>() : dependencyComparisonItem.getIgnoreCategoryTypes();
                         dependencyExclusionCategories.addAll(globalIgnoreCategoryList);

@@ -1,25 +1,24 @@
 package com.arextest.web.core.business.util;
 
-
-import com.arextest.web.common.HttpUtils;
-import com.arextest.web.common.LogUtils;
-import lombok.Data;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
+import com.arextest.web.common.HttpUtils;
+import com.arextest.web.common.LogUtils;
+
+import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
+
 @Slf4j
 @Component
 public class MailUtils {
 
+    private static final String CONTENT_TYPE = "text/html; charset=UTF-8";
     @Value("${arex.email.domain}")
     private String arexEmailDomain;
-
     private String sendEmailUrl;
-
-    private static final String CONTENT_TYPE = "text/html; charset=UTF-8";
 
     public boolean sendEmail(String mailBox, String subject, String htmlMsg, int type) {
         if (StringUtils.isEmpty(sendEmailUrl)) {
@@ -52,12 +51,10 @@ public class MailUtils {
         }
     }
 
-
     @Data
     public static class SendMailResponse {
         private Body data;
     }
-
 
     @Data
     public static class Body {

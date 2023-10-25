@@ -9,10 +9,7 @@ import lombok.Getter;
  */
 @AllArgsConstructor
 public enum FeedbackTypeEnum {
-    UNKNOWN(0),
-    BUG(1),
-    BY_DESIGN(2),
-    AREX_PROBLEM(3);
+    UNKNOWN(0), BUG(1), BY_DESIGN(2), AREX_PROBLEM(3);
     ;
 
     @Getter

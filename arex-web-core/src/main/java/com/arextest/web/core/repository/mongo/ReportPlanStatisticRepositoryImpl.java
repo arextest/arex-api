@@ -1,15 +1,12 @@
 package com.arextest.web.core.repository.mongo;
 
-import com.arextest.web.core.repository.ReportPlanStatisticRepository;
-import com.arextest.web.core.repository.mongo.util.MongoHelper;
-import com.arextest.web.model.contract.contracts.QueryPlanStatisticsRequestType;
-import com.arextest.web.model.dao.mongodb.ReportPlanStatisticCollection;
-import com.arextest.web.model.dto.LatestDailySuccessPlanIdDto;
-import com.arextest.web.model.dto.ReportPlanStatisticDto;
-import com.arextest.web.model.mapper.PlanMapper;
-import com.mongodb.BasicDBObject;
-import com.mongodb.client.result.DeleteResult;
-import lombok.extern.slf4j.Slf4j;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import javax.annotation.Resource;
+
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.MutablePair;
@@ -35,12 +32,17 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
-import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.stream.Collectors;
+import com.arextest.web.core.repository.ReportPlanStatisticRepository;
+import com.arextest.web.core.repository.mongo.util.MongoHelper;
+import com.arextest.web.model.contract.contracts.QueryPlanStatisticsRequestType;
+import com.arextest.web.model.dao.mongodb.ReportPlanStatisticCollection;
+import com.arextest.web.model.dto.LatestDailySuccessPlanIdDto;
+import com.arextest.web.model.dto.ReportPlanStatisticDto;
+import com.arextest.web.model.mapper.PlanMapper;
+import com.mongodb.BasicDBObject;
+import com.mongodb.client.result.DeleteResult;
 
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
@@ -88,8 +90,8 @@ public class ReportPlanStatisticRepositoryImpl implements ReportPlanStatisticRep
         if (planId == null) {
             return null;
         }
-        ReportPlanStatisticCollection result = mongoTemplate.findOne(Query.query(Criteria.where(PLAN_ID).is(planId)),
-                ReportPlanStatisticCollection.class);
+        ReportPlanStatisticCollection result =
+            mongoTemplate.findOne(Query.query(Criteria.where(PLAN_ID).is(planId)), ReportPlanStatisticCollection.class);
         return PlanMapper.INSTANCE.dtoFromDao(result);
     }
 
@@ -166,11 +168,9 @@ public class ReportPlanStatisticRepositoryImpl implements ReportPlanStatisticRep
             update.set(CUSTOM_TAGS, result.getCustomTags());
         }
 
-        ReportPlanStatisticCollection dao = mongoTemplate.findAndModify(
-                Query.query(Criteria.where(PLAN_ID).is(result.getPlanId())),
-                update,
-                FindAndModifyOptions.options().returnNew(true).upsert(true),
-                ReportPlanStatisticCollection.class);
+        ReportPlanStatisticCollection dao =
+            mongoTemplate.findAndModify(Query.query(Criteria.where(PLAN_ID).is(result.getPlanId())), update,
+                FindAndModifyOptions.options().returnNew(true).upsert(true), ReportPlanStatisticCollection.class);
 
         return true;
     }
@@ -183,14 +183,13 @@ public class ReportPlanStatisticRepositoryImpl implements ReportPlanStatisticRep
             totalCount = mongoTemplate.count(query, ReportPlanStatisticCollection.class);
         }
 
-        Pageable pageable = PageRequest.of(request.getPageIndex() - 1,
-                request.getPageSize(),
-                Sort.by(Sort.Direction.DESC, PLAN_ID));
+        Pageable pageable =
+            PageRequest.of(request.getPageIndex() - 1, request.getPageSize(), Sort.by(Sort.Direction.DESC, PLAN_ID));
         query.with(pageable);
 
         List<ReportPlanStatisticCollection> daos = mongoTemplate.find(query, ReportPlanStatisticCollection.class);
         List<ReportPlanStatisticDto> result =
-                daos.stream().map(PlanMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
+            daos.stream().map(PlanMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
         return new MutablePair<>(result, totalCount);
     }
 
@@ -208,8 +207,7 @@ public class ReportPlanStatisticRepositoryImpl implements ReportPlanStatisticRep
 
     @Override
     public List<ReportPlanStatisticDto> findLatestSuccessPlanId(String rangeField, Long startTime, Long endTime,
-                                                                String matchField, Integer matchValue,
-                                                                String groupField, String orderField, boolean desc) {
+        String matchField, Integer matchValue, String groupField, String orderField, boolean desc) {
 
         List<AggregationOperation> operations = new ArrayList<>();
         if (!StringUtils.isEmpty(rangeField)) {
@@ -228,33 +226,23 @@ public class ReportPlanStatisticRepositoryImpl implements ReportPlanStatisticRep
         SortOperation sortOperation = Aggregation.sort(sort);
         operations.add(sortOperation);
 
-        GroupOperation groupOperation = Aggregation.group(APP_ID, APP_NAME)
-                .first(PLAN_ID)
-                .as(PLAN_ID)
-                .first(DATA_CHANGE_CREATE_TIME)
-                .as(DATA_CHANGE_CREATE_TIME);
+        GroupOperation groupOperation = Aggregation.group(APP_ID, APP_NAME).first(PLAN_ID).as(PLAN_ID)
+            .first(DATA_CHANGE_CREATE_TIME).as(DATA_CHANGE_CREATE_TIME);
         operations.add(groupOperation);
 
         ProjectionOperation projectionOperation =
-                Aggregation.project(PLAN_ID, DATA_CHANGE_CREATE_TIME, APP_ID, APP_NAME);
+            Aggregation.project(PLAN_ID, DATA_CHANGE_CREATE_TIME, APP_ID, APP_NAME);
         operations.add(projectionOperation);
         AggregationResults<BasicDBObject> aggregate = mongoTemplate.aggregate(Aggregation.newAggregation(operations),
-                ReportPlanStatisticCollection.class, BasicDBObject.class);
-        return aggregate.getMappedResults()
-                .stream()
-                .map(this::covertToReportPlanStatisticDto)
-                .collect(Collectors.toList());
+            ReportPlanStatisticCollection.class, BasicDBObject.class);
+        return aggregate.getMappedResults().stream().map(this::covertToReportPlanStatisticDto)
+            .collect(Collectors.toList());
     }
 
     @Override
-    public List<LatestDailySuccessPlanIdDto> findLatestDailySuccessPlanId(String rangeField,
-                                                                          Long startTime,
-                                                                          Long endTime,
-                                                                          List<MutablePair<Object, Object>> matches,
-                                                                          String groupField,
-                                                                          String timeDate,
-                                                                          String orderField,
-                                                                          boolean desc) {
+    public List<LatestDailySuccessPlanIdDto> findLatestDailySuccessPlanId(String rangeField, Long startTime,
+        Long endTime, List<MutablePair<Object, Object>> matches, String groupField, String timeDate, String orderField,
+        boolean desc) {
 
         List<AggregationOperation> operations = new ArrayList<>();
 
@@ -263,10 +251,9 @@ public class ReportPlanStatisticRepositoryImpl implements ReportPlanStatisticRep
         }
         if (!CollectionUtils.isEmpty(matches)) {
             matches.forEach(item -> {
-                operations.add(Aggregation.match(Criteria.where((String) item.getLeft()).is(item.getRight())));
+                operations.add(Aggregation.match(Criteria.where((String)item.getLeft()).is(item.getRight())));
             });
         }
-
 
         Sort sort = null;
         if (desc) {
@@ -277,39 +264,30 @@ public class ReportPlanStatisticRepositoryImpl implements ReportPlanStatisticRep
         SortOperation sortOperation = Aggregation.sort(sort);
         operations.add(sortOperation);
 
-        ProjectionOperation projectionOperation = Aggregation.project(PLAN_ID, DATA_CHANGE_CREATE_TIME, groupField).and(
-                DateOperators.DateToString.dateOf(new AggregationExpression() {
-                    @Override
-                    public Document toDocument(AggregationOperationContext aggregationOperationContext) {
-                        Document document = new Document("$toDate", "$dataChangeCreateTime");
-                        return document;
-                    }
-                }).toString("%Y-%m-%d").withTimezone(DateOperators.Timezone.valueOf("+08"))).as(DATE_TIME);
+        ProjectionOperation projectionOperation = Aggregation.project(PLAN_ID, DATA_CHANGE_CREATE_TIME, groupField)
+            .and(DateOperators.DateToString.dateOf(new AggregationExpression() {
+                @Override
+                public Document toDocument(AggregationOperationContext aggregationOperationContext) {
+                    Document document = new Document("$toDate", "$dataChangeCreateTime");
+                    return document;
+                }
+            }).toString("%Y-%m-%d").withTimezone(DateOperators.Timezone.valueOf("+08"))).as(DATE_TIME);
         operations.add(projectionOperation);
 
-
-        GroupOperation groupOperation = Aggregation.group(DATE_TIME, groupField)
-                .first(groupField).as(groupField)
-                .first(DATE_TIME).as(DATE_TIME)
-                .first(PLAN_ID).as(PLAN_ID)
-                .first(DATA_CHANGE_CREATE_TIME).as(DATA_CHANGE_CREATE_TIME);
+        GroupOperation groupOperation =
+            Aggregation.group(DATE_TIME, groupField).first(groupField).as(groupField).first(DATE_TIME).as(DATE_TIME)
+                .first(PLAN_ID).as(PLAN_ID).first(DATA_CHANGE_CREATE_TIME).as(DATA_CHANGE_CREATE_TIME);
         operations.add(groupOperation);
 
         AggregationResults<BasicDBObject> aggregate = mongoTemplate.aggregate(Aggregation.newAggregation(operations),
-                ReportPlanStatisticCollection.class, BasicDBObject.class);
-        return aggregate.getMappedResults()
-                .stream()
-                .map(this::covertToLatestDailySuccessPlanIdDto)
-                .collect(Collectors.toList());
+            ReportPlanStatisticCollection.class, BasicDBObject.class);
+        return aggregate.getMappedResults().stream().map(this::covertToLatestDailySuccessPlanIdDto)
+            .collect(Collectors.toList());
     }
 
-
     @Override
-    public ReportPlanStatisticDto changePlanStatus(String planId,
-                                                   Integer status,
-                                                   Integer totalCaseCount,
-                                                   String errorMessage,
-                                                   boolean rerun) {
+    public ReportPlanStatisticDto changePlanStatus(String planId, Integer status, Integer totalCaseCount,
+        String errorMessage, boolean rerun) {
         if (planId == null || planId == "") {
             return null;
         }
@@ -330,10 +308,8 @@ public class ReportPlanStatisticRepositoryImpl implements ReportPlanStatisticRep
             return null;
         }
         ReportPlanStatisticCollection plan =
-                mongoTemplate.findAndModify(Query.query(Criteria.where(PLAN_ID).is(planId)),
-                        update,
-                        FindAndModifyOptions.options().returnNew(true).upsert(true),
-                        ReportPlanStatisticCollection.class);
+            mongoTemplate.findAndModify(Query.query(Criteria.where(PLAN_ID).is(planId)), update,
+                FindAndModifyOptions.options().returnNew(true).upsert(true), ReportPlanStatisticCollection.class);
         return PlanMapper.INSTANCE.dtoFromDao(plan);
     }
 

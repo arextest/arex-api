@@ -1,12 +1,13 @@
 package com.arextest.web.model.contract.contracts.manualreport;
 
+import java.util.List;
+
 import com.arextest.web.model.contract.contracts.common.KeyValuePairType;
 import com.arextest.web.model.contract.contracts.common.ScriptBlockType;
 import com.arextest.web.model.contract.contracts.filesystem.AuthType;
 import com.arextest.web.model.contract.contracts.filesystem.BodyType;
-import lombok.Data;
 
-import java.util.List;
+import lombok.Data;
 
 @Data
 public class ReportCaseType {

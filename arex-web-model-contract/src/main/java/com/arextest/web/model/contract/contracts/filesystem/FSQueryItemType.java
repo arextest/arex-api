@@ -1,9 +1,9 @@
 package com.arextest.web.model.contract.contracts.filesystem;
 
-import lombok.Data;
-
 import java.util.List;
 import java.util.Map;
+
+import lombok.Data;
 
 /**
  * @author b_yu

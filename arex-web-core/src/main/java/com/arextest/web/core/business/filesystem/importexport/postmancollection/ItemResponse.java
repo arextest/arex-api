@@ -1,8 +1,8 @@
 package com.arextest.web.core.business.filesystem.importexport.postmancollection;
 
-import lombok.Data;
-
 import java.util.List;
+
+import lombok.Data;
 
 @Data
 public class ItemResponse {
