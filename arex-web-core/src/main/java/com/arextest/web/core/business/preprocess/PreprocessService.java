@@ -1,5 +1,17 @@
 package com.arextest.web.core.business.preprocess;
 
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Component;
+
 import com.arextest.web.common.LogUtils;
 import com.arextest.web.common.ZstdUtils;
 import com.arextest.web.core.repository.MessagePreprocessRepository;
@@ -13,17 +25,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.benmanes.caffeine.cache.LoadingCache;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
@@ -73,7 +76,7 @@ public class PreprocessService {
                         updateSchema(key, requestJson);
                     } catch (Exception e) {
                         LogUtils.error(LOGGER,
-                                String.format("failed to preprocess request. Key:%s, Id:%s", key, dto.getId()), e);
+                            String.format("failed to preprocess request. Key:%s, Id:%s", key, dto.getId()), e);
                     }
                 }
                 if (StringUtils.isNotEmpty(dto.getResponse())) {
@@ -83,7 +86,7 @@ public class PreprocessService {
                         updateSchema(key, response);
                     } catch (Exception e) {
                         LogUtils.error(LOGGER,
-                                String.format("failed to preprocess response. Key:%s, Id:%s", key, dto.getId()), e);
+                            String.format("failed to preprocess response. Key:%s, Id:%s", key, dto.getId()), e);
                     }
                 }
             }
@@ -98,7 +101,7 @@ public class PreprocessService {
             return false;
         }
 
-        PreprocessTreeNode root = (PreprocessTreeNode) schemaCache.get(key);
+        PreprocessTreeNode root = (PreprocessTreeNode)schemaCache.get(key);
         if (root == null) {
             root = new PreprocessTreeNode();
         }
@@ -107,9 +110,9 @@ public class PreprocessService {
         List<String> currentPath = new ArrayList<>();
 
         if (json instanceof ObjectNode) {
-            JsonObjectIter((ObjectNode) json, currentPath, newPaths, root);
+            JsonObjectIter((ObjectNode)json, currentPath, newPaths, root);
         } else {
-            JsonArrayIter((ArrayNode) json, currentPath, newPaths, root);
+            JsonArrayIter((ArrayNode)json, currentPath, newPaths, root);
         }
 
         saveNewNodes(key, newPaths);
@@ -117,10 +120,8 @@ public class PreprocessService {
         return true;
     }
 
-    private void JsonObjectIter(ObjectNode obj,
-                                List<String> currentPath,
-                                Set<String> newPaths,
-                                PreprocessTreeNode root) {
+    private void JsonObjectIter(ObjectNode obj, List<String> currentPath, Set<String> newPaths,
+        PreprocessTreeNode root) {
         if (obj == null) {
             return;
         }
@@ -132,9 +133,9 @@ public class PreprocessService {
             currentPath.add(key);
 
             if (value instanceof ObjectNode) {
-                JsonObjectIter((ObjectNode) value, currentPath, newPaths, root);
+                JsonObjectIter((ObjectNode)value, currentPath, newPaths, root);
             } else if (value instanceof ArrayNode) {
-                JsonArrayIter((ArrayNode) value, currentPath, newPaths, root);
+                JsonArrayIter((ArrayNode)value, currentPath, newPaths, root);
             } else {
                 String path = getPathString(currentPath);
                 if (!newPaths.contains(path) && !isExistInTree(root, currentPath)) {
@@ -145,19 +146,17 @@ public class PreprocessService {
         }
     }
 
-    private void JsonArrayIter(ArrayNode array,
-                               List<String> currentPath,
-                               Set<String> newPaths,
-                               PreprocessTreeNode root) {
+    private void JsonArrayIter(ArrayNode array, List<String> currentPath, Set<String> newPaths,
+        PreprocessTreeNode root) {
         if (array == null || array.size() == 0) {
             return;
         }
         for (int i = 0; i < array.size(); i++) {
             Object item = array.get(i);
             if (item instanceof ObjectNode) {
-                JsonObjectIter((ObjectNode) item, currentPath, newPaths, root);
+                JsonObjectIter((ObjectNode)item, currentPath, newPaths, root);
             } else if (item instanceof ArrayNode) {
-                JsonArrayIter((ArrayNode) item, currentPath, newPaths, root);
+                JsonArrayIter((ArrayNode)item, currentPath, newPaths, root);
             } else {
                 currentPath.add("%value%");
                 String path = getPathString(currentPath);

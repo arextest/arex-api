@@ -1,11 +1,12 @@
 package com.arextest.web.model.contract.contracts.config.replay;
 
-import com.arextest.config.model.dto.AbstractConfiguration;
-import lombok.Getter;
-import lombok.Setter;
-
 import java.util.Map;
 import java.util.Set;
+
+import com.arextest.config.model.dto.AbstractConfiguration;
+
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * @author jmo
@@ -16,8 +17,7 @@ import java.util.Set;
 public class ScheduleConfiguration extends AbstractConfiguration {
     private String appId;
     /**
-     * the dependent operations should be skipped when replaying
-     * the exclusion of operations: "/api/order/get/1111": []
+     * the dependent operations should be skipped when replaying the exclusion of operations: "/api/order/get/1111": []
      * the exclusion of db/redis: "htlorderidmdb_dalcluster": ["update", "query"]
      */
     private Map<String, Set<String>> excludeOperationMap;

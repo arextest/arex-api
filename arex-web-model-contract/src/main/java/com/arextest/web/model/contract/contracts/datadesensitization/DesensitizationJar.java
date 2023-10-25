@@ -1,9 +1,8 @@
 package com.arextest.web.model.contract.contracts.datadesensitization;
 
-import lombok.Data;
-
 import java.util.Date;
 
+import lombok.Data;
 
 /**
  * @author qzmo

@@ -1,11 +1,11 @@
 package com.arextest.web.model.contract.contracts.filesystem;
 
+import java.util.List;
+
 import com.arextest.web.model.contract.contracts.common.KeyValuePairType;
 import com.arextest.web.model.contract.contracts.common.ScriptBlockType;
-import lombok.Data;
 
-import java.util.List;
-import java.util.Map;
+import lombok.Data;
 
 @Data
 public class FSQueryInterfaceResponseType extends FSQueryItemType {

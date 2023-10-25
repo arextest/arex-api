@@ -1,13 +1,15 @@
 package com.arextest.web.model.dao.mongodb;
 
+import java.util.List;
+
+import org.springframework.data.mongodb.core.mapping.Document;
+
 import com.arextest.web.model.dao.mongodb.entity.AuthDao;
 import com.arextest.web.model.dao.mongodb.entity.BodyDao;
 import com.arextest.web.model.dao.mongodb.entity.KeyValuePairDao;
 import com.arextest.web.model.dao.mongodb.entity.ScriptBlockDao;
-import lombok.Data;
-import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.List;
+import lombok.Data;
 
 @Data
 @Document(collection = "ManualReportCase")

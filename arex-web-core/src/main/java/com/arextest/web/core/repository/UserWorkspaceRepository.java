@@ -1,9 +1,8 @@
 package com.arextest.web.core.repository;
 
+import java.util.List;
 
 import com.arextest.web.model.dto.filesystem.UserWorkspaceDto;
-
-import java.util.List;
 
 public interface UserWorkspaceRepository extends RepositoryProvider {
     UserWorkspaceDto queryUserWorkspace(String userName, String workspaceId);

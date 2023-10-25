@@ -1,11 +1,12 @@
 package com.arextest.web.model.dao.mongodb;
 
-import lombok.Data;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.List;
-import java.util.Map;
+import lombok.Data;
 
 /**
  * @author b_yu
@@ -27,7 +28,6 @@ public class LogsCollection {
     private Unit source;
     private Thrown thrown;
 
-
     @Data
     public static final class Unit {
         private String className;
@@ -35,7 +35,6 @@ public class LogsCollection {
         private String fileName;
         private int lineNumber;
     }
-
 
     @Data
     public static final class Thrown {

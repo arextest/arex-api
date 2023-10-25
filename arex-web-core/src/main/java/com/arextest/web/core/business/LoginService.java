@@ -1,5 +1,13 @@
 package com.arextest.web.core.business;
 
+import java.security.SecureRandom;
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Component;
+
 import com.arextest.common.utils.JwtUtil;
 import com.arextest.web.common.LoadResource;
 import com.arextest.web.core.business.beans.AsyncOperations;
@@ -16,13 +24,8 @@ import com.arextest.web.model.dto.UserDto;
 import com.arextest.web.model.enums.SendEmailType;
 import com.arextest.web.model.enums.UserStatusType;
 import com.arextest.web.model.mapper.UserMapper;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
-import java.security.SecureRandom;
-import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
@@ -55,8 +58,8 @@ public class LoginService {
         boolean success = userRepository.saveUser(user);
         if (success) {
             template = template.replace(VERIFICATION_CODE_PLACEHOLDER, user.getVerificationCode());
-            success = mailUtils.sendEmail(user.getUserName(), SEND_VERIFICATION_CODE_SUBJECT, template,
-                SendEmailType.LOGIN);
+            success =
+                mailUtils.sendEmail(user.getUserName(), SEND_VERIFICATION_CODE_SUBJECT, template, SendEmailType.LOGIN);
         }
         return success;
     }
@@ -161,10 +164,10 @@ public class LoginService {
         StringBuilder guestName = new StringBuilder(20);
         guestName.append(GUEST_PREFIX);
         for (int i = 0; i < 15; i++) {
-            guestName.append(UserStatusType.VALID_USERNAME_CHAR[random.nextInt(UserStatusType.VALID_USERNAME_CHAR.length)]);
+            guestName
+                .append(UserStatusType.VALID_USERNAME_CHAR[random.nextInt(UserStatusType.VALID_USERNAME_CHAR.length)]);
         }
         return guestName.toString();
     }
-
 
 }

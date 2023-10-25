@@ -1,6 +1,7 @@
 package com.arextest.web.model.dto.manualreport;
 
 import com.arextest.web.model.dao.mongodb.entity.AddressDao;
+
 import lombok.Data;
 
 @Data

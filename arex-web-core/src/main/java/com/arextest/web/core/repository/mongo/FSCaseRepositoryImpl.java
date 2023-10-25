@@ -1,13 +1,11 @@
 package com.arextest.web.core.repository.mongo;
 
-import com.arextest.web.core.repository.FSCaseRepository;
-import com.arextest.web.core.repository.mongo.util.MongoHelper;
-import com.arextest.web.model.dao.mongodb.FSCaseCollection;
-import com.arextest.web.model.dao.mongodb.entity.KeyValuePairDao;
-import com.arextest.web.model.dto.filesystem.FSCaseDto;
-import com.arextest.web.model.dto.filesystem.FSItemDto;
-import com.arextest.web.model.mapper.FSCaseMapper;
-import com.mongodb.client.result.DeleteResult;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import javax.annotation.Resource;
+
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
@@ -18,10 +16,14 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
+import com.arextest.web.core.repository.FSCaseRepository;
+import com.arextest.web.core.repository.mongo.util.MongoHelper;
+import com.arextest.web.model.dao.mongodb.FSCaseCollection;
+import com.arextest.web.model.dao.mongodb.entity.KeyValuePairDao;
+import com.arextest.web.model.dto.filesystem.FSCaseDto;
+import com.arextest.web.model.dto.filesystem.FSItemDto;
+import com.arextest.web.model.mapper.FSCaseMapper;
+import com.mongodb.client.result.DeleteResult;
 
 @Component
 public class FSCaseRepositoryImpl implements FSCaseRepository {
@@ -67,11 +69,8 @@ public class FSCaseRepositoryImpl implements FSCaseRepository {
                 MongoHelper.initInsertObject(dao);
             }
             if (dao.getRecordId() == null && CollectionUtils.isNotEmpty(dao.getHeaders())) {
-                dao.setRecordId(dao.getHeaders().stream()
-                        .filter(a -> StringUtils.equals(a.getKey(), RECORD_ID_KEY))
-                        .map(KeyValuePairDao::getValue)
-                        .findAny()
-                        .orElse(null));
+                dao.setRecordId(dao.getHeaders().stream().filter(a -> StringUtils.equals(a.getKey(), RECORD_ID_KEY))
+                    .map(KeyValuePairDao::getValue).findAny().orElse(null));
             }
 
             dao = mongoTemplate.save(dao);
@@ -83,10 +82,8 @@ public class FSCaseRepositoryImpl implements FSCaseRepository {
             FSCaseCollection dao = FSCaseMapper.INSTANCE.daoFromDto(dto);
             MongoHelper.appendFullProperties(update, dao);
 
-            FSCaseCollection result = mongoTemplate.findAndModify(query,
-                    update,
-                    FindAndModifyOptions.options().returnNew(true),
-                    FSCaseCollection.class);
+            FSCaseCollection result = mongoTemplate.findAndModify(query, update,
+                FindAndModifyOptions.options().returnNew(true), FSCaseCollection.class);
             return FSCaseMapper.INSTANCE.dtoFromDao(result);
         }
     }
@@ -103,7 +100,6 @@ public class FSCaseRepositoryImpl implements FSCaseRepository {
         mongoTemplate.findAndModify(query, update, FSCaseCollection.class);
         return true;
     }
-
 
     @Override
     public FSCaseDto queryCase(String id, boolean getCompareMsg) {

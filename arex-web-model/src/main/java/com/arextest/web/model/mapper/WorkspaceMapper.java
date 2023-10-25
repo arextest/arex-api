@@ -1,11 +1,12 @@
 package com.arextest.web.model.mapper;
 
-import com.arextest.web.model.contract.contracts.filesystem.WorkspaceType;
-import com.arextest.web.model.dto.WorkspaceDto;
+import java.util.List;
+
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
-import java.util.List;
+import com.arextest.web.model.contract.contracts.filesystem.WorkspaceType;
+import com.arextest.web.model.dto.WorkspaceDto;
 
 @Mapper
 public interface WorkspaceMapper {

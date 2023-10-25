@@ -1,14 +1,16 @@
 package com.arextest.web.common;
 
-import com.arextest.common.metrics.CommonMetrics;
-import com.arextest.common.utils.NetworkInterfaceManager;
-import lombok.SneakyThrows;
+import java.util.Map;
+
 import org.apache.commons.collections4.MapUtils;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
 import org.springframework.stereotype.Component;
 
-import java.util.Map;
+import com.arextest.common.metrics.CommonMetrics;
+import com.arextest.common.utils.NetworkInterfaceManager;
+
+import lombok.SneakyThrows;
 
 /**
  * @author b_yu
@@ -19,6 +21,7 @@ public class LogUtils {
     private static final String APP_TYPE = "app-type";
     private static final String AREX_API = "arex-api";
     private static final String IP = "ip";
+
     private LogUtils() {
 
     }
@@ -34,7 +37,7 @@ public class LogUtils {
     }
 
     public static void debug(Logger logger, String s) {
-        debug(logger, s, (Map<String, String>) null);
+        debug(logger, s, (Map<String, String>)null);
     }
 
     public static void debug(Logger logger, Map<String, String> tags, String s) {
@@ -59,9 +62,8 @@ public class LogUtils {
         clear();
     }
 
-
     public static void info(Logger logger, String s) {
-        info(logger, s, (Map<String, String>) null);
+        info(logger, s, (Map<String, String>)null);
     }
 
     public static void info(Logger logger, Map<String, String> tags, String s) {
@@ -86,10 +88,8 @@ public class LogUtils {
         clear();
     }
 
-
-
     public static void warn(Logger logger, String s) {
-        warn(logger, s, (Map<String, String>) null);
+        warn(logger, s, (Map<String, String>)null);
     }
 
     public static void warn(Logger logger, String s, Map<String, String> tags) {
@@ -127,9 +127,8 @@ public class LogUtils {
         clear();
     }
 
-
     public static void error(Logger logger, String s) {
-        error(logger, s, (Map<String, String>) null);
+        error(logger, s, (Map<String, String>)null);
     }
 
     public static void error(Logger logger, String s, Map<String, String> tags) {

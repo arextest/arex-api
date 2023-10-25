@@ -2,7 +2,6 @@ package com.arextest.web.model.contract.contracts.common;
 
 import lombok.Data;
 
-
 @Data
 public class PlanItemStatistic {
 
@@ -16,7 +15,6 @@ public class PlanItemStatistic {
 
     private String serviceName;
     private String appId;
-
 
     private Integer status;
     private String errorMessage;
@@ -38,7 +36,6 @@ public class PlanItemStatistic {
     private Long caseStartTime;
 
     private Long caseEndTime;
-
 
     private Integer totalCaseCount;
     private Integer errorCaseCount;

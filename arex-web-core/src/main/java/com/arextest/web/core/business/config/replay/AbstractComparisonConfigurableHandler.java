@@ -1,13 +1,18 @@
 package com.arextest.web.core.business.config.replay;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.arextest.config.repository.ConfigRepositoryProvider;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import com.arextest.config.repository.ConfigRepositoryProvider;
 import com.arextest.web.core.business.config.AbstractConfigurableHandler;
 import com.arextest.web.core.repository.AppContractRepository;
 import com.arextest.web.model.contract.contracts.common.enums.ExpirationType;
@@ -25,7 +30,7 @@ public abstract class AbstractComparisonConfigurableHandler<T extends AbstractCo
     private AppContractRepository appContractRepository;
 
     protected AbstractComparisonConfigurableHandler(ConfigRepositoryProvider<T> repositoryProvider,
-                                                    AppContractRepository appContractRepository) {
+        AppContractRepository appContractRepository) {
         super(repositoryProvider);
         this.appContractRepository = appContractRepository;
     }

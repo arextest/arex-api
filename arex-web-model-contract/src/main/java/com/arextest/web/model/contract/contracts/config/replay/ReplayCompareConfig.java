@@ -1,11 +1,12 @@
 package com.arextest.web.model.contract.contracts.config.replay;
 
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-
-import java.util.List;
 
 @Data
 public class ReplayCompareConfig {

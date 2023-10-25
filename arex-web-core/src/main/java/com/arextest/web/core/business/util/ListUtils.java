@@ -1,10 +1,10 @@
 package com.arextest.web.core.business.util;
 
-import com.arextest.web.model.contract.contracts.common.NodeEntity;
-import org.apache.commons.lang3.StringUtils;
-
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
+
+import com.arextest.web.model.contract.contracts.common.NodeEntity;
 
 public class ListUtils {
 
@@ -47,7 +47,6 @@ public class ListUtils {
         return sb.toString();
     }
 
-    
     public static void removeLast(List<?> list) {
         if (list == null || list.size() == 0) {
             return;

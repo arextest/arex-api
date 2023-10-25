@@ -1,12 +1,12 @@
 package com.arextest.web.api.service.beans;
 
-import com.arextest.web.api.service.converter.ZstdJacksonMessageConverter;
+import javax.annotation.Resource;
+
 import org.springframework.boot.autoconfigure.http.HttpMessageConverters;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import javax.annotation.Resource;
-
+import com.arextest.web.api.service.converter.ZstdJacksonMessageConverter;
 
 @Configuration
 public class ConverterConfiguration {

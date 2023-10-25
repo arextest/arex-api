@@ -5,18 +5,16 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import com.arextest.config.model.dto.application.ApplicationOperationConfiguration;
 import com.arextest.config.model.dto.application.Dependency;
 import com.arextest.config.repository.ConfigRepositoryProvider;
 import com.arextest.config.repository.impl.ApplicationOperationConfigurationRepositoryImpl;
 import com.arextest.web.core.business.config.AbstractConfigurableHandler;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
-
 import com.arextest.web.core.repository.AppContractRepository;
-
 import com.arextest.web.model.dto.AppContractDto;
 import com.arextest.web.model.enums.ContractTypeEnum;
 
@@ -31,16 +29,15 @@ import lombok.extern.slf4j.Slf4j;
 public final class ApplicationOperationConfigurableHandler
     extends AbstractConfigurableHandler<ApplicationOperationConfiguration> {
 
+    @Autowired
+    ApplicationOperationConfigurationRepositoryImpl applicationOperationConfigurationRepository;
+    @Autowired
+    private AppContractRepository appContractRepository;
+
     protected ApplicationOperationConfigurableHandler(
         @Autowired ConfigRepositoryProvider<ApplicationOperationConfiguration> repositoryProvider) {
         super(repositoryProvider);
     }
-
-    @Autowired
-    ApplicationOperationConfigurationRepositoryImpl applicationOperationConfigurationRepository;
-
-    @Autowired
-    private AppContractRepository appContractRepository;
 
     @Override
     public boolean insert(ApplicationOperationConfiguration configuration) {

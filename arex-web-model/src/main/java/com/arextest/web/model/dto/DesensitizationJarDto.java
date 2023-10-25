@@ -1,9 +1,8 @@
 package com.arextest.web.model.dto;
 
-import lombok.Data;
-
 import java.util.Date;
 
+import lombok.Data;
 
 /**
  * @author qzmo

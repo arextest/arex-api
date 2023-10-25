@@ -1,21 +1,20 @@
 package com.arextest.web.core.business.filesystem;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Component;
+
 import com.arextest.web.common.LogUtils;
 import com.arextest.web.core.repository.FSTraceLogRepository;
 import com.arextest.web.model.dto.filesystem.FSItemDto;
 import com.arextest.web.model.dto.filesystem.FSNodeDto;
 import com.arextest.web.model.dto.filesystem.FSTraceLogDto;
 import com.arextest.web.model.enums.TraceType;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author b_yu
@@ -27,42 +26,21 @@ public class FSTraceLogUtils {
     @Resource
     private FSTraceLogRepository fsTraceLogRepository;
 
-
     public void logUpdateItem(String userName, FSItemDto itemDto) {
         List<FSItemDto> items = new ArrayList<>();
         items.add(itemDto);
-        traceLog(TraceType.UPDATE_ITEM,
-                userName,
-                itemDto.getWorkspaceId(),
-                itemDto.getId(),
-                itemDto.getParentId(),
-                null,
-                items);
+        traceLog(TraceType.UPDATE_ITEM, userName, itemDto.getWorkspaceId(), itemDto.getId(), itemDto.getParentId(),
+            null, items);
     }
 
-    public void logDeleteItem(String userName,
-            String workspaceId,
-            String infoId,
-            String parentId,
-            List<FSItemDto> items,
-            FSNodeDto node) {
+    public void logDeleteItem(String userName, String workspaceId, String infoId, String parentId,
+        List<FSItemDto> items, FSNodeDto node) {
 
-        traceLog(TraceType.DELETE_ITEM,
-                userName,
-                workspaceId,
-                infoId,
-                parentId,
-                node,
-                items);
+        traceLog(TraceType.DELETE_ITEM, userName, workspaceId, infoId, parentId, node, items);
     }
 
-    public void traceLog(int traceType,
-            String userName,
-            String workspaceId,
-            String infoId,
-            String parentId,
-            FSNodeDto node,
-            List<FSItemDto> items) {
+    public void traceLog(int traceType, String userName, String workspaceId, String infoId, String parentId,
+        FSNodeDto node, List<FSItemDto> items) {
         FSTraceLogDto traceLogDto = new FSTraceLogDto();
         traceLogDto.setTraceType(traceType);
         traceLogDto.setUserName(userName);

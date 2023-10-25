@@ -1,10 +1,12 @@
 package com.arextest.web.model.contract.contracts.environment;
 
-import com.arextest.web.model.contract.contracts.common.KeyValuePairType;
-import lombok.Data;
+import java.util.List;
 
 import javax.validation.constraints.NotBlank;
-import java.util.List;
+
+import com.arextest.web.model.contract.contracts.common.KeyValuePairType;
+
+import lombok.Data;
 
 @Data
 public class EnvironmentType {

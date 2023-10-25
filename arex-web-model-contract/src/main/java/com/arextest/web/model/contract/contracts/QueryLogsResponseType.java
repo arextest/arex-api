@@ -1,9 +1,10 @@
 package com.arextest.web.model.contract.contracts;
 
-import com.arextest.web.model.contract.contracts.common.LogsType;
-import lombok.Data;
-
 import java.util.List;
+
+import com.arextest.web.model.contract.contracts.common.LogsType;
+
+import lombok.Data;
 
 /**
  * @author b_yu

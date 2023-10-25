@@ -1,5 +1,32 @@
 package com.arextest.web.core.business.filesystem;
 
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Queue;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.SetUtils;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.MutablePair;
+import org.bson.internal.Base64;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
 import com.arextest.common.utils.JwtUtil;
 import com.arextest.web.common.LoadResource;
 import com.arextest.web.common.LogUtils;
@@ -83,33 +110,9 @@ import com.arextest.web.model.mapper.UserWorkspaceMapper;
 import com.arextest.web.model.mapper.WorkspaceMapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.SetUtils;
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.MutablePair;
-import org.bson.internal.Base64;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-
-import javax.annotation.Resource;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Queue;
-import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -193,7 +196,6 @@ public class FileSystemService {
         return response;
     }
 
-
     /**
      * add item into workspace
      *
@@ -213,7 +215,6 @@ public class FileSystemService {
             if (StringUtils.isEmpty(request.getUserName())) {
                 request.setUserName(StringUtils.EMPTY);
             }
-
 
             String workspaceId = null;
             if (StringUtils.isEmpty(request.getId())) {
@@ -259,10 +260,8 @@ public class FileSystemService {
                     if (current.getChildren() == null) {
                         current.setChildren(new ArrayList<>());
                     }
-                    infoId.set(itemInfo.initItem(current.getInfoId(),
-                            current.getNodeType(),
-                            dto.getId(),
-                            request.getNodeName()));
+                    infoId.set(itemInfo.initItem(current.getInfoId(), current.getNodeType(), dto.getId(),
+                        request.getNodeName()));
                     targetTreeNodes = current.getChildren();
                 }
 
@@ -353,15 +352,14 @@ public class FileSystemService {
                 FSNodeDto current;
                 if (request.getPath().length != 1) {
                     parent = fileSystemUtils.findByPath(dto.getRoots(),
-                            Arrays.copyOfRange(request.getPath(), 0, request.getPath().length - 1));
+                        Arrays.copyOfRange(request.getPath(), 0, request.getPath().length - 1));
                     current = fileSystemUtils.findByInfoId(parent.getChildren(),
-                            request.getPath()[request.getPath().length - 1]);
+                        request.getPath()[request.getPath().length - 1]);
                 } else {
                     current = fileSystemUtils.findByInfoId(dto.getRoots(), request.getPath()[0]);
                 }
                 FSNodeDto dupNodeDto = duplicateInfo(parent == null ? null : parent.getInfoId(),
-                        current.getNodeName() + DUPLICATE_SUFFIX,
-                        current);
+                    current.getNodeName() + DUPLICATE_SUFFIX, current);
                 if (parent == null) {
                     this.addDuplicateItemFollowCurrent(dto.getRoots(), dupNodeDto, current);
                 } else {
@@ -381,7 +379,7 @@ public class FileSystemService {
         try {
             FSTreeDto treeDto = fsTreeRepository.updateFSTree(request.getId(), dto -> {
                 MutablePair<Integer, FSNodeDto> current =
-                        fileSystemUtils.findByPathWithIndex(dto.getRoots(), request.getFromNodePath());
+                    fileSystemUtils.findByPathWithIndex(dto.getRoots(), request.getFromNodePath());
                 if (current == null) {
                     return null;
                 }
@@ -389,7 +387,7 @@ public class FileSystemService {
                 FSNodeDto toParent = null;
                 if (request.getFromNodePath().length > 1) {
                     fromParent = fileSystemUtils.findByPath(dto.getRoots(),
-                            Arrays.copyOfRange(request.getFromNodePath(), 0, request.getFromNodePath().length - 1));
+                        Arrays.copyOfRange(request.getFromNodePath(), 0, request.getFromNodePath().length - 1));
                 }
                 if (request.getToParentPath() != null && request.getToParentPath().length > 0) {
                     toParent = fileSystemUtils.findByPath(dto.getRoots(), request.getToParentPath());
@@ -412,7 +410,7 @@ public class FileSystemService {
                         dto.getRoots().remove(current.getLeft().intValue());
                     }
                 } else if (fromParent != null && toParent != null
-                        && Objects.equals(fromParent.getInfoId(), toParent.getInfoId())) {
+                    && Objects.equals(fromParent.getInfoId(), toParent.getInfoId())) {
                     if (request.getToIndex() < current.getLeft()) {
                         fromParent.getChildren().remove(current.getLeft() + 1);
                     } else {
@@ -489,7 +487,7 @@ public class FileSystemService {
             return response;
         }
         Map<String, Integer> workspaceIdRoleMap = userWorkspaceDtos.stream()
-                .collect(Collectors.toMap(UserWorkspaceDto::getWorkspaceId, UserWorkspaceDto::getRole));
+            .collect(Collectors.toMap(UserWorkspaceDto::getWorkspaceId, UserWorkspaceDto::getRole));
 
         List<FSTreeDto> treeDtos = fsTreeRepository.queryFSTreeByIds(workspaceIdRoleMap.keySet());
 
@@ -508,13 +506,13 @@ public class FileSystemService {
     public FSQueryUsersByWorkspaceResponseType queryUsersByWorkspace(FSQueryUsersByWorkspaceRequestType request) {
         FSQueryUsersByWorkspaceResponseType response = new FSQueryUsersByWorkspaceResponseType();
         List<UserWorkspaceDto> userWorkspaceDtos =
-                userWorkspaceRepository.queryUsersByWorkspace(request.getWorkspaceId());
+            userWorkspaceRepository.queryUsersByWorkspace(request.getWorkspaceId());
         if (userWorkspaceDtos == null) {
             response.setUsers(new ArrayList<>());
             return response;
         }
-        List<UserType> users = userWorkspaceDtos.stream().map(UserWorkspaceMapper.INSTANCE::userTypeFromDto).collect(
-                Collectors.toList());
+        List<UserType> users =
+            userWorkspaceDtos.stream().map(UserWorkspaceMapper.INSTANCE::userTypeFromDto).collect(Collectors.toList());
         response.setUsers(users);
         return response;
     }
@@ -557,8 +555,8 @@ public class FileSystemService {
                 if (node == null) {
                     return null;
                 }
-                if (request.getAddress() != null && !Objects.equals(request.getAddress().getMethod(),
-                        node.getMethod())) {
+                if (request.getAddress() != null
+                    && !Objects.equals(request.getAddress().getMethod(), node.getMethod())) {
                     node.setMethod(request.getAddress().getMethod());
                     return dto;
                 }
@@ -624,7 +622,7 @@ public class FileSystemService {
         FSInterfaceDto fsInterfaceDto = fsInterfaceRepository.queryInterface(parentId);
         if (fsInterfaceDto != null) {
             FSQueryInterfaceResponseType fsQueryInterfaceResponseType =
-                    FSInterfaceMapper.INSTANCE.contractFromDto(fsInterfaceDto);
+                FSInterfaceMapper.INSTANCE.contractFromDto(fsInterfaceDto);
             response.setParentPreRequestScripts(fsQueryInterfaceResponseType.getPreRequestScripts());
         }
         return response;
@@ -650,7 +648,7 @@ public class FileSystemService {
             }
 
             UserWorkspaceDto userWorkspaceDto =
-                    userWorkspaceRepository.queryUserWorkspace(userName, request.getWorkspaceId());
+                userWorkspaceRepository.queryUserWorkspace(userName, request.getWorkspaceId());
             if (userWorkspaceDto != null && userWorkspaceDto.getStatus() == InvitationType.INVITED) {
                 response.getFailedUsers().add(userName);
                 continue;
@@ -660,10 +658,8 @@ public class FileSystemService {
             userWorkspaceDto.setStatus(InvitationType.INVITING);
             userWorkspaceDto.setToken(UUID.randomUUID().toString());
 
-            Boolean result = sendInviteEmail(request.getArexUiUrl(), request.getInvitor(),
-                    userName,
-                    request.getWorkspaceId(),
-                    userWorkspaceDto.getToken());
+            Boolean result = sendInviteEmail(request.getArexUiUrl(), request.getInvitor(), userName,
+                request.getWorkspaceId(), userWorkspaceDto.getToken());
             if (Boolean.TRUE.equals(result)) {
                 userWorkspaceRepository.update(userWorkspaceDto);
                 response.getSuccessUsers().add(userName);
@@ -753,7 +749,7 @@ public class FileSystemService {
             MutablePair<String, FSTreeDto> addFolder = addItem(addFolderRequest);
             if (addFolder == null) {
                 LogUtils.error(LOGGER, "Add folder failed, workspaceId: {}, nodeName: {}", request.getWorkspaceId(),
-                        request.getAppName());
+                    request.getAppName());
                 return null;
             }
             appIdNode = fileSystemUtils.findByNodeName(addFolder.getRight().getRoots(), request.getAppName());
@@ -771,7 +767,7 @@ public class FileSystemService {
             MutablePair<String, FSTreeDto> addInterface = addItem(addInterfaceRequest);
             if (addInterface == null) {
                 LogUtils.error(LOGGER, "Add interface failed, workspaceId: {}, nodeName: {}", request.getWorkspaceId(),
-                        request.getInterfaceName());
+                    request.getInterfaceName());
                 return null;
             }
             parentPath[1] = addInterface.getLeft();
@@ -870,7 +866,7 @@ public class FileSystemService {
             return false;
         }
         FSItemDto itemDto = itemInfo.queryById(request.getInfoId());
-        FSInterfaceAndCaseBaseDto interfaceDto = (FSInterfaceAndCaseBaseDto) itemDto;
+        FSInterfaceAndCaseBaseDto interfaceDto = (FSInterfaceAndCaseBaseDto)itemDto;
         interfaceDto.setRecordId(newRecordId);
         if (interfaceDto.getHeaders() == null) {
             interfaceDto.setHeaders(new ArrayList<>());
@@ -884,7 +880,7 @@ public class FileSystemService {
         String configBatchNo = storageCase.getConfigBatchNo(newRecordId);
         if (StringUtils.isNotBlank(configBatchNo)) {
             interfaceDto.getHeaders()
-                    .add(new KeyValuePairDto(AREX_REPLAY_PREPARE_DEPENDENCY, PINNED_PRE_FIX + configBatchNo, true));
+                .add(new KeyValuePairDto(AREX_REPLAY_PREPARE_DEPENDENCY, PINNED_PRE_FIX + configBatchNo, true));
         }
         itemInfo.saveItem(itemDto);
 
@@ -895,9 +891,7 @@ public class FileSystemService {
                 if (dto == null) {
                     return null;
                 }
-                FSNodeDto node = fileSystemUtils.deepFindByInfoId(
-                        dto.getRoots(), request.getInfoId()
-                );
+                FSNodeDto node = fileSystemUtils.deepFindByInfoId(dto.getRoots(), request.getInfoId());
                 if (node != null) {
                     node.setCaseSourceType(CaseSourceType.REPLAY_CASE);
                     return dto;
@@ -951,8 +945,8 @@ public class FileSystemService {
         ReportPlanStatisticDto reportPlanStatisticDto = reportPlanStatisticRepository.findByPlanId(planId);
         if (addressDto != null) {
             addressDto.setEndpoint(this.contactUrl(
-                    reportPlanStatisticDto == null ? StringUtils.EMPTY : reportPlanStatisticDto.getTargetEnv(),
-                    addressDto.getEndpoint()));
+                reportPlanStatisticDto == null ? StringUtils.EMPTY : reportPlanStatisticDto.getTargetEnv(),
+                addressDto.getEndpoint()));
         }
     }
 
@@ -987,10 +981,8 @@ public class FileSystemService {
         return result;
     }
 
-    private Map<Integer, Set<String>> removeItems(FSNodeDto fsNodeDto,
-            String userName,
-            String parentId,
-            String workspaceId) {
+    private Map<Integer, Set<String>> removeItems(FSNodeDto fsNodeDto, String userName, String parentId,
+        String workspaceId) {
         if (fsNodeDto == null) {
             return null;
         }
@@ -1015,12 +1007,7 @@ public class FileSystemService {
             itemInfo.removeItems(ids.getValue());
         }
 
-        fsTraceLogUtils.logDeleteItem(userName,
-                workspaceId,
-                fsNodeDto.getInfoId(),
-                parentId,
-                items,
-                fsNodeDto);
+        fsTraceLogUtils.logDeleteItem(userName, workspaceId, fsNodeDto.getInfoId(), parentId, items, fsNodeDto);
         return itemInfoIds;
     }
 
@@ -1059,11 +1046,8 @@ public class FileSystemService {
         }
     }
 
-    private Boolean sendInviteEmail(String arexUiUrl,
-            String invitor,
-            String invitee,
-            String workspaceId,
-            String token) {
+    private Boolean sendInviteEmail(String arexUiUrl, String invitor, String invitee, String workspaceId,
+        String token) {
         FSTreeDto workspace = fsTreeRepository.queryFSTreeById(workspaceId);
         if (workspace == null) {
             return false;
@@ -1083,12 +1067,10 @@ public class FileSystemService {
 
         String context = loadResource.getResource(INVITATION_EMAIL_TEMPLATE);
         context = context.replace(SOMEBODY_PLACEHOLDER, invitor)
-                .replace(WORKSPACE_NAME_PLACEHOLDER, workspace.getWorkspaceName())
-                .replace(LINK_PLACEHOLDER, address);
+            .replace(WORKSPACE_NAME_PLACEHOLDER, workspace.getWorkspaceName()).replace(LINK_PLACEHOLDER, address);
 
-        return mailUtils.sendEmail(invitee,
-                String.format(INVITATION_MAIL_SUBJECT, workspace.getWorkspaceName()),
-                context, SendEmailType.INVITATION);
+        return mailUtils.sendEmail(invitee, String.format(INVITATION_MAIL_SUBJECT, workspace.getWorkspaceName()),
+            context, SendEmailType.INVITATION);
     }
 
     private FSTreeDto addWorkspace(String workspaceName, String userName) {

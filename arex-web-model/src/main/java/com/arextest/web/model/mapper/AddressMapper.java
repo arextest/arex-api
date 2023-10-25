@@ -1,9 +1,10 @@
 package com.arextest.web.model.mapper;
 
-import com.arextest.web.model.contract.contracts.filesystem.AddressType;
-import com.arextest.web.model.dto.filesystem.AddressDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
+
+import com.arextest.web.model.contract.contracts.filesystem.AddressType;
+import com.arextest.web.model.dto.filesystem.AddressDto;
 
 @Mapper
 public interface AddressMapper {

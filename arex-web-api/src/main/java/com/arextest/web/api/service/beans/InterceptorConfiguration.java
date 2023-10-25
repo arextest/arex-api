@@ -1,7 +1,9 @@
 package com.arextest.web.api.service.beans;
 
-import com.arextest.web.api.service.interceptor.AuthorizationInterceptor;
-import com.arextest.web.api.service.interceptor.RefreshInterceptor;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -9,9 +11,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import com.arextest.web.api.service.interceptor.AuthorizationInterceptor;
+import com.arextest.web.api.service.interceptor.RefreshInterceptor;
 
 @Configuration
 public class InterceptorConfiguration implements WebMvcConfigurer {
@@ -27,8 +28,7 @@ public class InterceptorConfiguration implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(refreshInterceptor)
-                .addPathPatterns("/api/login/refresh/**");
+        registry.addInterceptor(refreshInterceptor).addPathPatterns("/api/login/refresh/**");
 
         List<String> defaultPatterns = new ArrayList<>(20);
         // error
@@ -76,9 +76,8 @@ public class InterceptorConfiguration implements WebMvcConfigurer {
             defaultPatterns.addAll(Arrays.asList(patterns));
         }
 
-        registry.addInterceptor(authorizationInterceptor)
-                .addPathPatterns("/**")
-                // error
-                .excludePathPatterns(defaultPatterns);
+        registry.addInterceptor(authorizationInterceptor).addPathPatterns("/**")
+            // error
+            .excludePathPatterns(defaultPatterns);
     }
 }

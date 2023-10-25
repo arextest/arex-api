@@ -1,14 +1,8 @@
 package com.arextest.web.core.repository.mongo;
 
-import com.arextest.config.repository.ConfigRepositoryProvider;
-import com.arextest.web.core.repository.mongo.util.MongoHelper;
-import com.arextest.web.model.contract.contracts.config.replay.AbstractComparisonDetailsConfiguration;
-import com.arextest.web.model.contract.contracts.config.replay.ComparisonIgnoreCategoryConfiguration;
-import com.arextest.web.model.dao.mongodb.ConfigComparisonIgnoreCategoryCollection;
-import com.arextest.web.model.dao.mongodb.entity.AbstractComparisonDetails;
-import com.arextest.web.model.mapper.ConfigComparisonIgnoreCategoryMapper;
-import com.mongodb.client.result.UpdateResult;
-import lombok.extern.slf4j.Slf4j;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -17,8 +11,15 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import com.arextest.config.repository.ConfigRepositoryProvider;
+import com.arextest.web.core.repository.mongo.util.MongoHelper;
+import com.arextest.web.model.contract.contracts.config.replay.ComparisonIgnoreCategoryConfiguration;
+import com.arextest.web.model.dao.mongodb.ConfigComparisonIgnoreCategoryCollection;
+import com.arextest.web.model.dao.mongodb.entity.AbstractComparisonDetails;
+import com.arextest.web.model.mapper.ConfigComparisonIgnoreCategoryMapper;
+import com.mongodb.client.result.UpdateResult;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author wildeslam.
@@ -48,30 +49,31 @@ public class ComparisonIgnoreCategoryConfigurationRepositoryImpl
 
     @Override
     public List<ComparisonIgnoreCategoryConfiguration> listBy(String appId, String operationId) {
-        Query query = Query
-            .query(Criteria.where(AbstractComparisonDetails.Fields.appId).is(appId).and(AbstractComparisonDetails.Fields.operationId).is(operationId));
+        Query query = Query.query(Criteria.where(AbstractComparisonDetails.Fields.appId).is(appId)
+            .and(AbstractComparisonDetails.Fields.operationId).is(operationId));
         List<ConfigComparisonIgnoreCategoryCollection> configComparisonExclusionsCollections =
             mongoTemplate.find(query, ConfigComparisonIgnoreCategoryCollection.class);
-        return configComparisonExclusionsCollections.stream().map(ConfigComparisonIgnoreCategoryMapper.INSTANCE::dtoFromDao)
-            .collect(Collectors.toList());
+        return configComparisonExclusionsCollections.stream()
+            .map(ConfigComparisonIgnoreCategoryMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
     }
 
     @Override
-    public List<ComparisonIgnoreCategoryConfiguration> queryByInterfaceIdAndOperationId(
-        String interfaceId, String operationId) {
+    public List<ComparisonIgnoreCategoryConfiguration> queryByInterfaceIdAndOperationId(String interfaceId,
+        String operationId) {
         Query query = new Query();
         if (StringUtils.isNotBlank(operationId)) {
-            Criteria fsInterfaceConfigQuery = Criteria.where(AbstractComparisonDetails.Fields.fsInterfaceId).is(interfaceId);
+            Criteria fsInterfaceConfigQuery =
+                Criteria.where(AbstractComparisonDetails.Fields.fsInterfaceId).is(interfaceId);
             Criteria operationConfigQuery = Criteria.where(AbstractComparisonDetails.Fields.operationId).is(operationId)
-                    .andOperator(Criteria.where(AbstractComparisonDetails.Fields.dependencyId).is(null));
+                .andOperator(Criteria.where(AbstractComparisonDetails.Fields.dependencyId).is(null));
             query.addCriteria(new Criteria().orOperator(fsInterfaceConfigQuery, operationConfigQuery));
         } else {
             query.addCriteria(Criteria.where(AbstractComparisonDetails.Fields.fsInterfaceId).is(interfaceId));
         }
         List<ConfigComparisonIgnoreCategoryCollection> configComparisonExclusionsCollections =
             mongoTemplate.find(query, ConfigComparisonIgnoreCategoryCollection.class);
-        return configComparisonExclusionsCollections.stream().map(ConfigComparisonIgnoreCategoryMapper.INSTANCE::dtoFromDao)
-            .collect(Collectors.toList());
+        return configComparisonExclusionsCollections.stream()
+            .map(ConfigComparisonIgnoreCategoryMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
     }
 
     @Override
@@ -80,8 +82,7 @@ public class ComparisonIgnoreCategoryConfigurationRepositoryImpl
         Update update = MongoHelper.getConfigUpdate();
         MongoHelper.appendSpecifiedProperties(update, configuration,
             ConfigComparisonIgnoreCategoryCollection.Fields.ignoreCategory,
-            AbstractComparisonDetails.Fields.expirationType,
-            AbstractComparisonDetails.Fields.expirationDate);
+            AbstractComparisonDetails.Fields.expirationType, AbstractComparisonDetails.Fields.expirationDate);
         UpdateResult updateResult =
             mongoTemplate.updateMulti(query, update, ConfigComparisonIgnoreCategoryCollection.class);
         return updateResult.getModifiedCount() > 0;

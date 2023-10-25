@@ -17,15 +17,15 @@ import java.util.stream.Collectors;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 
-import com.arextest.common.context.ArexContext;
-import com.arextest.config.model.dto.application.ApplicationOperationConfiguration;
-import com.arextest.config.repository.impl.ApplicationOperationConfigurationRepositoryImpl;
-import com.arextest.web.core.business.util.JsonUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.springframework.stereotype.Component;
 
+import com.arextest.common.context.ArexContext;
+import com.arextest.config.model.dto.application.ApplicationOperationConfiguration;
+import com.arextest.config.repository.impl.ApplicationOperationConfigurationRepositoryImpl;
 import com.arextest.web.common.LogUtils;
+import com.arextest.web.core.business.util.JsonUtils;
 import com.arextest.web.core.business.util.ListUtils;
 import com.arextest.web.core.repository.AppContractRepository;
 import com.arextest.web.core.repository.ReplayCompareResultRepository;
@@ -55,15 +55,13 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class QueryReplayMsgService {
 
+    private static final int BIG_MESSAGE_THRESHOLD = 5 * 1024 * 1024;
     @Resource
     private ReplayCompareResultRepository replayCompareResultRepository;
     @Resource
     private ApplicationOperationConfigurationRepositoryImpl applicationOperationConfigurationRepository;
-
     @Resource
     private AppContractRepository appContractRepository;
-
-    private static final int BIG_MESSAGE_THRESHOLD = 5 * 1024 * 1024;
 
     public QueryReplayMsgResponseType queryReplayMsg(QueryReplayMsgRequestType request) {
         QueryReplayMsgResponseType response = new QueryReplayMsgResponseType();
@@ -151,8 +149,7 @@ public class QueryReplayMsgService {
             response.setDesensitized(true);
         }
         List<CompareResult> compareResults = dtos.stream()
-            .map(CompareResultMapper.INSTANCE::contractFromDtoLogsLimitDisplay)
-            .collect(Collectors.toList());
+            .map(CompareResultMapper.INSTANCE::contractFromDtoLogsLimitDisplay).collect(Collectors.toList());
         response.setCompareResults(compareResults);
         return response;
     }

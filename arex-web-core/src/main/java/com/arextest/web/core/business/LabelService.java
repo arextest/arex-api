@@ -1,18 +1,20 @@
 package com.arextest.web.core.business;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.stereotype.Component;
+
 import com.arextest.web.core.repository.LabelRepository;
 import com.arextest.web.model.contract.contracts.label.LabelType;
 import com.arextest.web.model.contract.contracts.label.RemoveLabelRequestType;
 import com.arextest.web.model.contract.contracts.label.SaveLabelRequestType;
 import com.arextest.web.model.dto.LabelDto;
 import com.arextest.web.model.mapper.LabelMapper;
-import org.apache.commons.collections4.CollectionUtils;
-import org.springframework.stereotype.Component;
-
-import javax.annotation.Resource;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author b_yu

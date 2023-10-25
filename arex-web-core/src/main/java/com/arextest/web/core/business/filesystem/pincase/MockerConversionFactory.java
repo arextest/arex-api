@@ -1,10 +1,10 @@
 package com.arextest.web.core.business.filesystem.pincase;
 
-import org.springframework.stereotype.Component;
-
 import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.concurrent.ConcurrentHashMap;
+
+import org.springframework.stereotype.Component;
 
 /**
  * @author b_yu

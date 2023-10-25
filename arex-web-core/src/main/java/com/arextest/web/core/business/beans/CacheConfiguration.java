@@ -1,14 +1,16 @@
 package com.arextest.web.core.business.beans;
 
-import com.arextest.web.core.business.preprocess.PreprocessTreeCacheLoader;
-import com.github.benmanes.caffeine.cache.Caffeine;
-import com.github.benmanes.caffeine.cache.LoadingCache;
+import java.util.concurrent.TimeUnit;
+
+import javax.annotation.Resource;
+
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import javax.annotation.Resource;
-import java.util.concurrent.TimeUnit;
+import com.arextest.web.core.business.preprocess.PreprocessTreeCacheLoader;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.LoadingCache;
 
 /**
  * @author b_yu
@@ -23,11 +25,7 @@ public class CacheConfiguration {
 
     @Bean(name = "schemaCache")
     public LoadingCache schemaCache() {
-        return Caffeine.newBuilder()
-                .recordStats()
-                .maximumSize(1000)
-                .refreshAfterWrite(10, TimeUnit.SECONDS)
-                .expireAfterWrite(15, TimeUnit.SECONDS)
-                .build(cacheLoader);
+        return Caffeine.newBuilder().recordStats().maximumSize(1000).refreshAfterWrite(10, TimeUnit.SECONDS)
+            .expireAfterWrite(15, TimeUnit.SECONDS).build(cacheLoader);
     }
 }

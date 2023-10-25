@@ -1,5 +1,12 @@
 package com.arextest.web.core.business;
 
+import java.util.Date;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.stereotype.Component;
+
 import com.arextest.web.common.LogUtils;
 import com.arextest.web.core.repository.mongo.ReportPlanItemStatisticRepositoryImpl;
 import com.arextest.web.core.repository.mongo.ReportPlanStatisticRepositoryImpl;
@@ -11,13 +18,8 @@ import com.arextest.web.model.enums.ReplayStatusType;
 import com.arextest.web.model.mapper.PlanItemMapper;
 import com.arextest.web.model.mapper.PlanMapper;
 import com.google.common.collect.ImmutableMap;
+
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.CollectionUtils;
-import org.springframework.stereotype.Component;
-
-import javax.annotation.Resource;
-import java.util.Date;
-
 
 @Slf4j
 @Component
@@ -58,7 +60,8 @@ public class ReplayInfoService {
     }
 
     public boolean updatePlan(UpdateReportInfoRequestType request) {
-        LogUtils.info(LOGGER, ImmutableMap.of("planId", request.getPlanId()), "update the info of plan, request: {}", request);
+        LogUtils.info(LOGGER, ImmutableMap.of("planId", request.getPlanId()), "update the info of plan, request: {}",
+            request);
         try {
             ReportPlanStatisticDto reportPlanStatisticDto = PlanMapper.INSTANCE.dtoFromContract(request);
             reportPlanStatisticRepository.findAndModifyBaseInfo(reportPlanStatisticDto);

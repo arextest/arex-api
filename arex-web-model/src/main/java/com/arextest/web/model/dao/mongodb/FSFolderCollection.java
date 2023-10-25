@@ -1,9 +1,10 @@
 package com.arextest.web.model.dao.mongodb;
 
-import lombok.Data;
+import java.util.Map;
+
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.Map;
+import lombok.Data;
 
 @Data
 @Document(collection = "FSFolder")

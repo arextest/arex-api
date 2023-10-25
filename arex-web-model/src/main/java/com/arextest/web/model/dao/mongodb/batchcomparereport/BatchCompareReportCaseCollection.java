@@ -6,31 +6,31 @@
 // import org.springframework.data.mongodb.core.mapping.Document;
 //
 // /**
-//  * Created by rchen9 on 2023/2/7.
-//  */
+// * Created by rchen9 on 2023/2/7.
+// */
 // @Data
 // @Document(collection = "BatchCompareReportCase")
 // public class BatchCompareReportCaseCollection extends ModelBase {
 //
-//     private String planId;
+// private String planId;
 //
-//     private String interfaceId;
-//     private String caseId;
-//     private String interfaceName;
-//     private String caseName;
+// private String interfaceId;
+// private String caseId;
+// private String interfaceName;
+// private String caseName;
 //
-//     private String baseMsg;
-//     private String testMsg;
-//     private ComparisonSummaryConfiguration compareConfig;
+// private String baseMsg;
+// private String testMsg;
+// private ComparisonSummaryConfiguration compareConfig;
 //
-//     /**
-//      * @see com.arextest.web.model.contract.contracts.common.BatchCompareCaseStatusType
-//      */
-//     private int status;
+// /**
+// * @see com.arextest.web.model.contract.contracts.common.BatchCompareCaseStatusType
+// */
+// private int status;
 //
-//     private String processedBaseMsg;
-//     private String processedTestMsg;
-//     // private List<DiffDetail> diffDetails;
+// private String processedBaseMsg;
+// private String processedTestMsg;
+// // private List<DiffDetail> diffDetails;
 //
-//     private String exceptionMsg;
+// private String exceptionMsg;
 // }

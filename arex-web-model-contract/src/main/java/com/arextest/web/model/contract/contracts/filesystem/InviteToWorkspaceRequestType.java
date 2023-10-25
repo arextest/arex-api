@@ -1,10 +1,11 @@
 package com.arextest.web.model.contract.contracts.filesystem;
 
-import lombok.Data;
+import java.util.Set;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import java.util.Set;
+
+import lombok.Data;
 
 @Data
 public class InviteToWorkspaceRequestType {

@@ -1,5 +1,15 @@
 package com.arextest.web.api.service.controller;
 
+import javax.annotation.Resource;
+import javax.validation.Valid;
+
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.arextest.common.model.response.Response;
 import com.arextest.common.model.response.ResponseCode;
 import com.arextest.common.utils.ResponseUtils;
@@ -10,16 +20,8 @@ import com.arextest.web.model.contract.contracts.label.QueryLabelsByWorkspaceIdR
 import com.arextest.web.model.contract.contracts.label.QueryLabelsByWorkspaceIdResponseType;
 import com.arextest.web.model.contract.contracts.label.RemoveLabelRequestType;
 import com.arextest.web.model.contract.contracts.label.SaveLabelRequestType;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
-import javax.annotation.Resource;
-import javax.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author b_yu
@@ -39,7 +41,7 @@ public class LabelController {
 
     @PostMapping("/save")
     public Response saveLabel(@RequestHeader(name = Constants.ACCESS_TOKEN) String token,
-            @Valid @RequestBody SaveLabelRequestType request) {
+        @Valid @RequestBody SaveLabelRequestType request) {
         if (!rolePermission.checkPermissionByToken(RolePermission.EDIT_LABEL, token, request.getWorkspaceId())) {
             return ResponseUtils.errorResponse(Constants.NO_PERMISSION, ResponseCode.AUTHENTICATION_FAILED);
         }
@@ -50,7 +52,7 @@ public class LabelController {
 
     @PostMapping("/remove")
     public Response removeLabel(@RequestHeader(name = Constants.ACCESS_TOKEN) String token,
-            @Valid @RequestBody RemoveLabelRequestType request) {
+        @Valid @RequestBody RemoveLabelRequestType request) {
         if (!rolePermission.checkPermissionByToken(RolePermission.EDIT_LABEL, token, request.getWorkspaceId())) {
             return ResponseUtils.errorResponse(Constants.NO_PERMISSION, ResponseCode.AUTHENTICATION_FAILED);
         }
@@ -61,7 +63,7 @@ public class LabelController {
 
     @PostMapping("/queryLabelsByWorkspaceId")
     public Response queryLabelsByWorkspaceId(@RequestHeader(name = Constants.ACCESS_TOKEN) String token,
-            @Valid @RequestBody QueryLabelsByWorkspaceIdRequestType request) {
+        @Valid @RequestBody QueryLabelsByWorkspaceIdRequestType request) {
         if (!rolePermission.checkPermissionByToken(RolePermission.EDIT_LABEL, token, request.getWorkspaceId())) {
             return ResponseUtils.errorResponse(Constants.NO_PERMISSION, ResponseCode.AUTHENTICATION_FAILED);
         }

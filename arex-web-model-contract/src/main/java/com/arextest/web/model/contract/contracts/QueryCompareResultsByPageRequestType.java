@@ -1,8 +1,8 @@
 package com.arextest.web.model.contract.contracts;
 
 import com.arextest.web.model.contract.PagingRequest;
-import lombok.Data;
 
+import lombok.Data;
 
 @Data
 public class QueryCompareResultsByPageRequestType implements PagingRequest {

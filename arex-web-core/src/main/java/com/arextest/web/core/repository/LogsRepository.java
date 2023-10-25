@@ -1,9 +1,9 @@
 package com.arextest.web.core.repository;
 
+import java.util.List;
+
 import com.arextest.web.model.dto.LogsDto;
 import com.arextest.web.model.params.QueryLogsParam;
-
-import java.util.List;
 
 /**
  * @author b_yu

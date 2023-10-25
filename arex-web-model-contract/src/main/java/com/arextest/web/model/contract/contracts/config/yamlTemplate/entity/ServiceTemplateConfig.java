@@ -1,8 +1,8 @@
 package com.arextest.web.model.contract.contracts.config.yamlTemplate.entity;
 
-import lombok.Data;
-
 import java.util.Collection;
+
+import lombok.Data;
 
 /**
  * @see com.arextest.web.model.contract.contracts.config.record.ServiceCollectConfiguration
