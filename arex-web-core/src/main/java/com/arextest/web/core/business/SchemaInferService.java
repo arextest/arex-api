@@ -131,7 +131,7 @@ public class SchemaInferService {
         return null;
     }
 
-    public List<String> queryFlatContract(QueryContractRequestType requestType) {
+    public Set<String> queryFlatContract(QueryContractRequestType requestType) {
         AppContractDto appContractDto = queryContract(requestType);
         return SchemaUtils.getFlatContract(appContractDto.getContract());
     }
