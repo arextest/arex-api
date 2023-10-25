@@ -149,6 +149,7 @@ public class SceneReportService {
                                 sceneInfo.setCode(DiffResultCode.COMPARED_WITHOUT_DIFFERENCE);
                             }
                         }
+                        sceneInfo.setReCalculated(true);
                         sceneInfoRepository.update(sceneInfo);
                     }
                 });

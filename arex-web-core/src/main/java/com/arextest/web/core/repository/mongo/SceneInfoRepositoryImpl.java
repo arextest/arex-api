@@ -78,7 +78,11 @@ public class SceneInfoRepositoryImpl implements SceneInfoRepository {
     @Override
     public List<SceneInfo> querySceneInfo(String planId, String planItemId) {
         Query query = Query.query(Criteria.where(SceneInfoCollection.Fields.planId).is(planId)
-            .and(SceneInfoCollection.Fields.planItemId).is(planItemId).and(SceneInfoCollection.Fields.code).nin(-1, 0));
+            .and(SceneInfoCollection.Fields.planItemId).is(planItemId));
+        Criteria reCalculatedQuery = Criteria.where(SceneInfoCollection.Fields.reCalculated).is(true);
+        Criteria codeQuery = Criteria.where(SceneInfoCollection.Fields.code).nin(-1, 0);
+        query.addCriteria(new Criteria().orOperator(reCalculatedQuery, codeQuery));
+
         List<SceneInfoCollection> sceneInfoCollections = mongoTemplate.find(query, SceneInfoCollection.class);
         return sceneInfoCollections.stream().map(SceneInfoMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
     }

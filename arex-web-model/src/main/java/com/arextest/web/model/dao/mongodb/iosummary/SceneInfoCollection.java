@@ -28,6 +28,6 @@ public class SceneInfoCollection extends ModelBase {
     private String planItemId;
     private List<SubSceneInfoDao> subScenes;
     private Map<String, SubSceneInfoDao> subSceneInfoMap;
-
+    private boolean reCalculated;
     private Date dataCreateTime;
 }
