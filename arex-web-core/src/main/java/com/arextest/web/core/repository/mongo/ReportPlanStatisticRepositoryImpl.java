@@ -298,9 +298,8 @@ public class ReportPlanStatisticRepositoryImpl implements ReportPlanStatisticRep
         if (totalCaseCount != null) {
             update.set(TOTAL_CASE_COUNT, totalCaseCount);
         }
-        if (errorMessage != null) {
-            update.set(ERROR_MESSAGE, errorMessage);
-        }
+        // rerun could remove error msg with null.
+        update.set(ERROR_MESSAGE, errorMessage);
         if (!rerun) {
             update.set(REPLAY_END_TIME, System.currentTimeMillis());
         }
