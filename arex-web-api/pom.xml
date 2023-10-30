@@ -97,6 +97,38 @@
     </profile>
     <profile>
       <build>
+        <finalName>arex-platform-web-service</finalName>
+        <plugins>
+          <plugin>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <groupId>org.apache.maven.plugins</groupId>
+          </plugin>
+          <plugin>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <phase>package</phase>
+                <goals>
+                  <goal>repackage</goal>
+                </goals>
+              </execution>
+            </executions>
+
+            <configuration>
+              <includeSystemScope>true</includeSystemScope>
+              <mainClass>com.arextest.web.api.service.WebSpringBootServletInitializer</mainClass>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+      <id>jar-full</id>
+      <properties>
+        <packagingType>jar</packagingType>
+      </properties>
+    </profile>
+    <profile>
+      <build>
         <plugins>
           <plugin>
             <artifactId>maven-compiler-plugin</artifactId>
