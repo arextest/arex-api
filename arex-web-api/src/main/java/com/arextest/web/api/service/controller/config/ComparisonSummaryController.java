@@ -18,26 +18,28 @@ import javax.annotation.Resource;
 @RequestMapping("/api/config/comparison/summary")
 public class ComparisonSummaryController {
 
-    @Resource
-    ComparisonSummaryService comparisonSummaryService;
+  @Resource
+  ComparisonSummaryService comparisonSummaryService;
 
-    @RequestMapping("/queryByInterfaceId")
-    @ResponseBody
-    public final Response queryByInterfaceId(@RequestParam String interfaceId) {
-        if (StringUtils.isEmpty(interfaceId)) {
-            return InvalidResponse.REQUESTED_INTERFACE_ID_IS_EMPTY;
-        }
-        ComparisonSummaryConfiguration comparisonDetailsSummary =
-                comparisonSummaryService.getComparisonDetailsSummary(interfaceId);
-
-        return ResponseUtils.successResponse(comparisonDetailsSummary);
+  @RequestMapping("/queryByInterfaceId")
+  @ResponseBody
+  public final Response queryByInterfaceId(@RequestParam String interfaceId) {
+    if (StringUtils.isEmpty(interfaceId)) {
+      return InvalidResponse.REQUESTED_INTERFACE_ID_IS_EMPTY;
     }
+    ComparisonSummaryConfiguration comparisonDetailsSummary =
+        comparisonSummaryService.getComparisonDetailsSummary(interfaceId);
 
-    @GetMapping("/queryByAppId/{appId}")
-    @ResponseBody
-    public Response queryConfigByAppId(@PathVariable String appId) {
-        ReplayCompareConfig replayCompareConfig = comparisonSummaryService.getReplayComparisonConfig(appId);
-        return ResponseUtils.successResponse(replayCompareConfig);
-    }
+    return ResponseUtils.successResponse(comparisonDetailsSummary);
+  }
+
+  @Deprecated
+  @GetMapping("/queryByAppId/{appId}")
+  @ResponseBody
+  public Response queryConfigByAppId(@PathVariable String appId) {
+    ReplayCompareConfig replayCompareConfig = comparisonSummaryService.getReplayComparisonConfig(
+        appId);
+    return ResponseUtils.successResponse(replayCompareConfig);
+  }
 
 }

@@ -15,4 +15,8 @@ public class SystemConfig {
      * for callBackInform.
      */
     private String callbackUrl;
+
+    private Long compareIgnoreTimePrecisionMillis;
+    private Boolean compareNameToLower;
+    private Boolean compareNullEqualsEmpty;
 }

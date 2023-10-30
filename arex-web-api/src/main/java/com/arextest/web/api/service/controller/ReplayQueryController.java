@@ -30,7 +30,7 @@ import java.util.Map;
 @RequestMapping("/api/replay/query")
 public class ReplayQueryController {
 
-    @Value("${arex.storage.viewRecord.url}")
+    @Value("${arex.storage.view.record.url}")
     private String viewRecordUrl;
 
     @ResponseBody

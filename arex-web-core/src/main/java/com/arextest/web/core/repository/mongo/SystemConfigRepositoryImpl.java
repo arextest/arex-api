@@ -1,5 +1,6 @@
 package com.arextest.web.core.repository.mongo;
 
+import com.arextest.web.core.business.ConfigLoadService;
 import com.arextest.web.core.repository.SystemConfigRepository;
 import com.arextest.web.model.contract.contracts.config.SystemConfig;
 import com.arextest.web.model.dao.mongodb.ModelBase;
