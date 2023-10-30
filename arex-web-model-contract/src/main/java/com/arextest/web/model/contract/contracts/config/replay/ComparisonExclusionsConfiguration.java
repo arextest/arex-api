@@ -2,12 +2,12 @@ package com.arextest.web.model.contract.contracts.config.replay;
 
 import java.util.List;
 
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
 import org.springframework.util.CollectionUtils;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Data
 @NoArgsConstructor

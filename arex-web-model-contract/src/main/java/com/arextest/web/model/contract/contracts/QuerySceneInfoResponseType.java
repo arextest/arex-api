@@ -1,8 +1,8 @@
 package com.arextest.web.model.contract.contracts;
 
-import lombok.Data;
-
 import java.util.List;
+
+import lombok.Data;
 
 /**
  * Created by rchen9 on 2023/3/7.
@@ -25,6 +25,11 @@ public class QuerySceneInfoResponseType {
         private String replayId;
         private long recordTime;
         private long replayTime;
+        /**
+         * @see com.arextest.web.model.enums.FeedbackTypeEnum#getCode() ;
+         */
+        private Integer feedbackType;
+        private String remark;
         private List<DiffDetailType> details;
     }
 

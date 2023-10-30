@@ -1,12 +1,13 @@
 package com.arextest.web.model.mapper;
 
+import org.mapstruct.Mapper;
+import org.mapstruct.factory.Mappers;
+
 import com.arextest.web.model.contract.contracts.filesystem.FSQueryInterfaceResponseType;
 import com.arextest.web.model.contract.contracts.filesystem.FSSaveInterfaceRequestType;
 import com.arextest.web.model.dao.mongodb.FSInterfaceCollection;
 import com.arextest.web.model.dto.filesystem.FSInterfaceDto;
 import com.arextest.web.model.dto.filesystem.importexport.InterfaceItemDto;
-import org.mapstruct.Mapper;
-import org.mapstruct.factory.Mappers;
 
 @Mapper
 public interface FSInterfaceMapper {

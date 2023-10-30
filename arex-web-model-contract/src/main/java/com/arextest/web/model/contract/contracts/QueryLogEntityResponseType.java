@@ -1,6 +1,7 @@
 package com.arextest.web.model.contract.contracts;
 
 import com.arextest.web.model.contract.contracts.common.LogEntity;
+
 import lombok.Data;
 
 /**

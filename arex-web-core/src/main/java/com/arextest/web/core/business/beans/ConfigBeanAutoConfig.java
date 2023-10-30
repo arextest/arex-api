@@ -4,7 +4,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.core.MongoTemplate;
 
-import com.arextest.config.repository.impl.*;
+import com.arextest.config.repository.impl.ApplicationConfigurationRepositoryImpl;
+import com.arextest.config.repository.impl.ApplicationOperationConfigurationRepositoryImpl;
+import com.arextest.config.repository.impl.ApplicationServiceConfigurationRepositoryImpl;
+import com.arextest.config.repository.impl.DynamicClassConfigurationRepositoryImpl;
+import com.arextest.config.repository.impl.InstancesConfigurationRepositoryImpl;
+import com.arextest.config.repository.impl.ServiceCollectConfigurationRepositoryImpl;
 
 import lombok.extern.slf4j.Slf4j;
 

@@ -1,8 +1,8 @@
 package com.arextest.web.core.repository;
 
-import com.arextest.web.model.dto.AppContractDto;
-
 import java.util.List;
+
+import com.arextest.web.model.dto.AppContractDto;
 
 public interface AppContractRepository extends RepositoryProvider {
 

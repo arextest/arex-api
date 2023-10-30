@@ -1,15 +1,11 @@
 package com.arextest.web.core.repository.mongo;
 
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
-import com.arextest.web.common.LogUtils;
-import com.arextest.web.core.repository.FSFolderRepository;
-import com.arextest.web.core.repository.mongo.util.MongoHelper;
-import com.arextest.web.model.dao.mongodb.FSFolderCollection;
-import com.arextest.web.model.dto.filesystem.FSFolderDto;
-import com.arextest.web.model.dto.filesystem.FSItemDto;
-import com.arextest.web.model.mapper.FSFolderMapper;
-import com.mongodb.client.result.DeleteResult;
-import lombok.extern.slf4j.Slf4j;
+import javax.annotation.Resource;
+
 import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
@@ -19,10 +15,16 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
+import com.arextest.web.common.LogUtils;
+import com.arextest.web.core.repository.FSFolderRepository;
+import com.arextest.web.core.repository.mongo.util.MongoHelper;
+import com.arextest.web.model.dao.mongodb.FSFolderCollection;
+import com.arextest.web.model.dto.filesystem.FSFolderDto;
+import com.arextest.web.model.dto.filesystem.FSItemDto;
+import com.arextest.web.model.mapper.FSFolderMapper;
+import com.mongodb.client.result.DeleteResult;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
@@ -42,6 +44,7 @@ public class FSFolderRepositoryImpl implements FSFolderRepository {
         dao = mongoTemplate.insert(dao);
         return dao.getId();
     }
+
     @Override
     public Boolean removeFolder(String id) {
         Query query = Query.query(Criteria.where(DASH_ID).is(id));
@@ -54,6 +57,7 @@ public class FSFolderRepositoryImpl implements FSFolderRepository {
         }
 
     }
+
     @Override
     public Boolean removeFolders(Set<String> ids) {
         Set<ObjectId> objectIds = ids.stream().map(id -> new ObjectId(id)).collect(Collectors.toSet());
@@ -61,6 +65,7 @@ public class FSFolderRepositoryImpl implements FSFolderRepository {
         DeleteResult result = mongoTemplate.remove(query, FSFolderCollection.class);
         return result.getDeletedCount() > 0;
     }
+
     @Override
     public FSFolderDto queryById(String id) {
         FSFolderCollection dao = mongoTemplate.findById(new ObjectId(id), FSFolderCollection.class);
@@ -74,6 +79,7 @@ public class FSFolderRepositoryImpl implements FSFolderRepository {
         dao = mongoTemplate.insert(dao);
         return dao.getId();
     }
+
     @Override
     public List<FSItemDto> queryByIds(List<String> ids) {
         List<ObjectId> objectIds = ids.stream().map(id -> new ObjectId(id)).collect(Collectors.toList());
@@ -81,6 +87,7 @@ public class FSFolderRepositoryImpl implements FSFolderRepository {
         List<FSFolderCollection> results = mongoTemplate.find(query, FSFolderCollection.class);
         return results.stream().map(FSFolderMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
     }
+
     @Override
     public FSFolderDto saveFolder(FSFolderDto dto) {
         if (StringUtils.isEmpty(dto.getId())) {
@@ -94,10 +101,8 @@ public class FSFolderRepositoryImpl implements FSFolderRepository {
             FSFolderCollection dao = FSFolderMapper.INSTANCE.daoFromDto(dto);
             MongoHelper.appendFullProperties(update, dao);
 
-            FSFolderCollection result = mongoTemplate.findAndModify(query,
-                    update,
-                    FindAndModifyOptions.options().returnNew(true),
-                    FSFolderCollection.class);
+            FSFolderCollection result = mongoTemplate.findAndModify(query, update,
+                FindAndModifyOptions.options().returnNew(true), FSFolderCollection.class);
 
             return FSFolderMapper.INSTANCE.dtoFromDao(result);
         }

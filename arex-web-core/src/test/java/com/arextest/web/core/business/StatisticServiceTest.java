@@ -21,28 +21,28 @@
 // @MockBean({ReportPlanItemStatisticRepositoryImpl.class, ReportPlanStatisticRepository.class})
 // public class StatisticServiceTest {
 //
-//     @Resource
-//     private StatisticService service;
+// @Resource
+// private StatisticService service;
 //
-//     @Test
-//     public void statisticPlanItems() {
-//         List<CompareResultDto> results = new ArrayList<>();
-//         for (int i = 0; i < 100; i++) {
-//             CompareResultDto r = new CompareResultDto();
-//             r.setPlanItemId(Long.valueOf(i % 5));
-//             r.setReplayId("replayId" + (i % 10));
+// @Test
+// public void statisticPlanItems() {
+// List<CompareResultDto> results = new ArrayList<>();
+// for (int i = 0; i < 100; i++) {
+// CompareResultDto r = new CompareResultDto();
+// r.setPlanItemId(Long.valueOf(i % 5));
+// r.setReplayId("replayId" + (i % 10));
 //
-//             if (i % 3 == 0) {
-//                 r.setDiffResultCode(DiffResultCode.COMPARED_WITHOUT_DIFFERENCE);
+// if (i % 3 == 0) {
+// r.setDiffResultCode(DiffResultCode.COMPARED_WITHOUT_DIFFERENCE);
 //
-//             } else if (i % 3 == 1) {
-//                 r.setDiffResultCode(DiffResultCode.COMPARED_WITH_DIFFERENCE);
-//             } else {
-//                 r.setDiffResultCode(DiffResultCode.COMPARED_INTERNAL_EXCEPTION);
-//             }
-//             results.add(r);
-//         }
-//         service.statisticPlanItems(results);
-//         assertEquals(5, service.getPlanItemMap().size());
-//     }
+// } else if (i % 3 == 1) {
+// r.setDiffResultCode(DiffResultCode.COMPARED_WITH_DIFFERENCE);
+// } else {
+// r.setDiffResultCode(DiffResultCode.COMPARED_INTERNAL_EXCEPTION);
+// }
+// results.add(r);
+// }
+// service.statisticPlanItems(results);
+// assertEquals(5, service.getPlanItemMap().size());
+// }
 // }

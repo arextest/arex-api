@@ -5,18 +5,18 @@
 // import lombok.Data;
 //
 // /**
-//  * Created by rchen9 on 2023/2/9.
-//  */
+// * Created by rchen9 on 2023/2/9.
+// */
 // @Data
 // public class BatchCompareReportStatisticsDto extends BaseDto {
-//     private String planId;
-//     private String interfaceId;
-//     private int unMatchedType;
-//     private String fuzzyPath;
+// private String planId;
+// private String interfaceId;
+// private int unMatchedType;
+// private String fuzzyPath;
 //
-//     private int errorCount;
+// private int errorCount;
 //
-//     private String caseId;
-//     private String logId;
-//     private LogEntity logEntity;
+// private String caseId;
+// private String logId;
+// private LogEntity logEntity;
 // }

@@ -1,19 +1,22 @@
 package com.arextest.web.core.business.config.record;
 
-import com.arextest.config.model.dto.record.ServiceCollectConfiguration;
-import com.arextest.config.repository.ConfigRepositoryProvider;
-import com.arextest.web.core.business.config.AbstractConfigurableHandler;
-import lombok.extern.slf4j.Slf4j;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+
+import javax.annotation.Resource;
+
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import com.arextest.config.model.dto.record.ServiceCollectConfiguration;
+import com.arextest.config.repository.ConfigRepositoryProvider;
+import com.arextest.web.core.business.config.AbstractConfigurableHandler;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author jmo
@@ -27,7 +30,7 @@ public final class ServiceCollectConfigurableHandler extends AbstractConfigurabl
     private ServiceCollectConfiguration globalDefaultConfiguration;
 
     protected ServiceCollectConfigurableHandler(
-            @Autowired ConfigRepositoryProvider<ServiceCollectConfiguration> repositoryProvider) {
+        @Autowired ConfigRepositoryProvider<ServiceCollectConfiguration> repositoryProvider) {
         super(repositoryProvider);
     }
 
@@ -40,13 +43,11 @@ public final class ServiceCollectConfigurableHandler extends AbstractConfigurabl
         serviceCollectConfiguration.setTimeMock(globalDefaultConfiguration.isTimeMock());
         serviceCollectConfiguration.setAllowTimeOfDayFrom(globalDefaultConfiguration.getAllowTimeOfDayFrom());
         serviceCollectConfiguration.setAllowTimeOfDayTo(globalDefaultConfiguration.getAllowTimeOfDayTo());
-        serviceCollectConfiguration.setRecordMachineCountLimit(
-                globalDefaultConfiguration.getRecordMachineCountLimit() == null ?
-                        1 :
-                        globalDefaultConfiguration.getRecordMachineCountLimit());
+        serviceCollectConfiguration
+            .setRecordMachineCountLimit(globalDefaultConfiguration.getRecordMachineCountLimit() == null ? 1
+                : globalDefaultConfiguration.getRecordMachineCountLimit());
         return Collections.singletonList(serviceCollectConfiguration);
     }
-
 
     @Override
     public boolean update(ServiceCollectConfiguration configuration) {
@@ -54,8 +55,7 @@ public final class ServiceCollectConfigurableHandler extends AbstractConfigurabl
     }
 
     @Override
-    protected void mergeGlobalDefaultSettings(ServiceCollectConfiguration source) {
-    }
+    protected void mergeGlobalDefaultSettings(ServiceCollectConfiguration source) {}
 
     @Override
     protected boolean shouldMergeGlobalDefault() {

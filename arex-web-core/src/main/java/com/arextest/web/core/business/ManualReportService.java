@@ -1,5 +1,24 @@
 package com.arextest.web.core.business;
 
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Component;
+
+import com.arextest.web.core.repository.FSCaseRepository;
+import com.arextest.web.core.repository.FSInterfaceRepository;
+import com.arextest.web.core.repository.FSTreeRepository;
+import com.arextest.web.core.repository.ManualReportCaseRepository;
+import com.arextest.web.core.repository.ManualReportPlanItemRepository;
+import com.arextest.web.core.repository.ManualReportPlanRepository;
 import com.arextest.web.model.contract.contracts.manualreport.InitManualReportRequestType;
 import com.arextest.web.model.contract.contracts.manualreport.InitManualReportResponseType;
 import com.arextest.web.model.contract.contracts.manualreport.QueryReportCasesRequestType;
@@ -18,17 +37,6 @@ import com.arextest.web.model.dto.manualreport.SaveManualReportCaseDto;
 import com.arextest.web.model.mapper.ManualReportCaseMapper;
 import com.arextest.web.model.mapper.ManualReportPlanItemMapper;
 import com.arextest.web.model.mapper.ManualReportPlanMapper;
-import com.arextest.web.core.repository.FSCaseRepository;
-import com.arextest.web.core.repository.FSInterfaceRepository;
-import com.arextest.web.core.repository.FSTreeRepository;
-import com.arextest.web.core.repository.ManualReportCaseRepository;
-import com.arextest.web.core.repository.ManualReportPlanItemRepository;
-import com.arextest.web.core.repository.ManualReportPlanRepository;
-import org.springframework.stereotype.Component;
-
-import javax.annotation.Resource;
-import java.util.*;
-import java.util.stream.Collectors;
 
 @Component
 public class ManualReportService {
@@ -52,7 +60,7 @@ public class ManualReportService {
 
         List<FSItemDto> cases = fsCaseRepository.queryCases(request.getCaseIds(), false);
         Map<String, List<FSCaseDto>> caseMap =
-                cases.stream().map(c -> (FSCaseDto) c).collect(Collectors.groupingBy(FSCaseDto::getParentId));
+            cases.stream().map(c -> (FSCaseDto)c).collect(Collectors.groupingBy(FSCaseDto::getParentId));
         Set<String> interfaceIds = caseMap.keySet();
         Set<String> ids = cases.stream().map(c -> c.getId()).collect(Collectors.toSet());
         ids.addAll(interfaceIds);
@@ -71,7 +79,7 @@ public class ManualReportService {
                 continue;
             }
             ManualReportPlanItemDto planItemDto =
-                    ManualReportPlanItemMapper.INSTANCE.dtoFromFsInterfaceDto((FSInterfaceDto) interfaceDto);
+                ManualReportPlanItemMapper.INSTANCE.dtoFromFsInterfaceDto((FSInterfaceDto)interfaceDto);
             planItemDto.setPlanId(planDto.getId());
             planItemDto.setInterfaceName(idNameMap.get(planItemDto.getId()));
             planItemDto.setId(null);

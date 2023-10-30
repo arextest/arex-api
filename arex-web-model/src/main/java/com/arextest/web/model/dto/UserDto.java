@@ -1,8 +1,8 @@
 package com.arextest.web.model.dto;
 
-import lombok.Data;
-
 import java.util.List;
+
+import lombok.Data;
 
 @Data
 public class UserDto {

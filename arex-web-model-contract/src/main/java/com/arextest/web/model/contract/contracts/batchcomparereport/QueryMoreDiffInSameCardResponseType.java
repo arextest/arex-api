@@ -5,12 +5,12 @@
 // import java.util.List;
 //
 // /**
-//  * Created by rchen9 on 2023/2/14.
-//  */
+// * Created by rchen9 on 2023/2/14.
+// */
 // @Data
 // public class QueryMoreDiffInSameCardResponseType {
 //
-//     private List<BatchCompareMoreItem> diffs;
+// private List<BatchCompareMoreItem> diffs;
 //
-//     private long total;
+// private long total;
 // }

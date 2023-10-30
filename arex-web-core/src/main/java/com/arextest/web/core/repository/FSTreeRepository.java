@@ -1,11 +1,10 @@
 package com.arextest.web.core.repository;
 
-
-import com.arextest.web.model.dto.filesystem.FSTreeDto;
-
 import java.util.List;
 import java.util.Set;
 import java.util.function.UnaryOperator;
+
+import com.arextest.web.model.dto.filesystem.FSTreeDto;
 
 public interface FSTreeRepository extends RepositoryProvider {
     FSTreeDto initFSTree(FSTreeDto dto);

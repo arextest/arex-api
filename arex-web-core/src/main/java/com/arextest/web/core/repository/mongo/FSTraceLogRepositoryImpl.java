@@ -1,19 +1,21 @@
 package com.arextest.web.core.repository.mongo;
 
-import com.arextest.web.core.repository.FSTraceLogRepository;
-import com.arextest.web.core.repository.mongo.util.MongoHelper;
-import com.arextest.web.model.dao.mongodb.FSTraceLogCollection;
-import com.arextest.web.model.dto.filesystem.FSTraceLogDto;
-import com.arextest.web.model.mapper.FSTraceLogMapper;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import javax.annotation.Resource;
+
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
-import java.util.List;
-import java.util.stream.Collectors;
+import com.arextest.web.core.repository.FSTraceLogRepository;
+import com.arextest.web.core.repository.mongo.util.MongoHelper;
+import com.arextest.web.model.dao.mongodb.FSTraceLogCollection;
+import com.arextest.web.model.dto.filesystem.FSTraceLogDto;
+import com.arextest.web.model.mapper.FSTraceLogMapper;
 
 /**
  * @author b_yu
@@ -34,11 +36,13 @@ public class FSTraceLogRepositoryImpl implements FSTraceLogRepository {
         dao = mongoTemplate.insert(dao);
         return StringUtils.isNotBlank(dao.getId());
     }
+
     @Override
     public FSTraceLogDto queryTraceLog(String id) {
         FSTraceLogCollection dao = mongoTemplate.findById(id, FSTraceLogCollection.class);
         return FSTraceLogMapper.INSTANCE.dtoFromDao(dao);
     }
+
     @Override
     public List<FSTraceLogDto> queryTraceLogsByWorkspaceId(String workspaceId) {
         Query query = Query.query(Criteria.where(WORKSPACE_ID).is(workspaceId));

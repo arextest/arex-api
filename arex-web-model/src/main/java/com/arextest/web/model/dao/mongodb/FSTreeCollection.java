@@ -1,10 +1,12 @@
 package com.arextest.web.model.dao.mongodb;
 
-import com.arextest.web.model.dao.mongodb.entity.FSNode;
-import lombok.Data;
+import java.util.List;
+
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.List;
+import com.arextest.web.model.dao.mongodb.entity.FSNode;
+
+import lombok.Data;
 
 @Data
 @Document(collection = "FSTree")

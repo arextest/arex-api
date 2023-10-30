@@ -1,7 +1,11 @@
 package com.arextest.web.model.mapper;
 
-import cn.hutool.json.JSONUtil;
-import com.arextest.common.utils.CompressionUtils;
+import java.util.List;
+
+import org.apache.commons.lang3.StringUtils;
+import org.mapstruct.Mapper;
+import org.mapstruct.factory.Mappers;
+
 import com.arextest.web.common.ZstdUtils;
 import com.arextest.web.model.dao.mongodb.FSTraceLogCollection;
 import com.arextest.web.model.dto.filesystem.FSItemDto;
@@ -11,11 +15,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import org.apache.commons.lang3.StringUtils;
-import org.mapstruct.Mapper;
-import org.mapstruct.factory.Mappers;
 
-import java.util.List;
+import cn.hutool.json.JSONUtil;
 
 /**
  * @author b_yu
@@ -45,14 +46,12 @@ public interface FSTraceLogMapper {
             return null;
         }
         ObjectMapper objectMapper = new ObjectMapper();
-        return objectMapper.readValue(ZstdUtils.uncompressString(str), new TypeReference<List<FSItemDto>>() {
-        });
+        return objectMapper.readValue(ZstdUtils.uncompressString(str), new TypeReference<List<FSItemDto>>() {});
     }
 
     default String map(List<FSItemDto> items) throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
-        ObjectWriter objectWriter = objectMapper.writerFor(new TypeReference<List<FSItemDto>>() {
-        });
+        ObjectWriter objectWriter = objectMapper.writerFor(new TypeReference<List<FSItemDto>>() {});
         return ZstdUtils.compressString(objectWriter.writeValueAsString(items));
     }
 }

@@ -22,20 +22,18 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class ComparisonReferenceConfigurableHandler
     extends AbstractComparisonConfigurableHandler<ComparisonReferenceConfiguration> {
+    @Resource
+    FSInterfaceRepository fsInterfaceRepository;
+    @Resource
+    ComparisonListSortConfigurableHandler listSortHandler;
+    @Resource
+    ListKeyCycleDetectionHandler listKeyCycleDetectionHandler;
+
     protected ComparisonReferenceConfigurableHandler(
         @Autowired ConfigRepositoryProvider<ComparisonReferenceConfiguration> repositoryProvider,
         @Autowired AppContractRepository appContractRepository) {
         super(repositoryProvider, appContractRepository);
     }
-
-    @Resource
-    FSInterfaceRepository fsInterfaceRepository;
-
-    @Resource
-    ComparisonListSortConfigurableHandler listSortHandler;
-
-    @Resource
-    ListKeyCycleDetectionHandler listKeyCycleDetectionHandler;
 
     @Override
     public List<ComparisonReferenceConfiguration> queryByInterfaceId(String interfaceId) {

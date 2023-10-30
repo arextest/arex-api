@@ -1,15 +1,15 @@
 package com.arextest.web.model.mapper;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.mapstruct.Mapper;
+import org.mapstruct.factory.Mappers;
+
 import com.arextest.web.model.dao.mongodb.ReportDiffAggStatisticCollection;
 import com.arextest.web.model.dao.mongodb.entity.SceneDetail;
 import com.arextest.web.model.dto.DiffAggDto;
 import com.arextest.web.model.dto.SceneDetailDto;
-import org.mapstruct.Mapper;
-import org.mapstruct.factory.Mappers;
-
-import java.util.HashMap;
-import java.util.Map;
-
 
 @Mapper
 public interface DiffAggMapper {

@@ -1,9 +1,9 @@
 package com.arextest.web.model.dto.filesystem.importexport;
 
-import lombok.Data;
-
 import java.util.List;
 import java.util.Set;
+
+import lombok.Data;
 
 @Data
 public class FolderItemDto implements Item {

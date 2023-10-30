@@ -1,8 +1,8 @@
 package com.arextest.web.core.business.filesystem.importexport.postmancollection;
 
-import lombok.Data;
-
 import java.util.List;
+
+import lombok.Data;
 
 @Data
 public class CollectionEvent {
@@ -11,8 +11,6 @@ public class CollectionEvent {
      */
     private String listen;
     private Script script;
-
-
 
     @Data
     public static class Script {

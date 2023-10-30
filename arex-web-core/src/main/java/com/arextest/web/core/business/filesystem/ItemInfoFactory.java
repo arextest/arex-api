@@ -1,9 +1,10 @@
 package com.arextest.web.core.business.filesystem;
 
-import org.springframework.stereotype.Component;
+import java.util.Map;
 
 import javax.annotation.Resource;
-import java.util.Map;
+
+import org.springframework.stereotype.Component;
 
 @Component
 public class ItemInfoFactory {

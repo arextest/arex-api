@@ -1,12 +1,13 @@
 package com.arextest.web.model.dao.mongodb;
 
-import com.arextest.web.model.dao.mongodb.entity.MsgInfoDao;
-import lombok.Data;
-import lombok.experimental.FieldNameConstants;
-import org.springframework.data.mongodb.core.mapping.Document;
-
 import java.util.Date;
 
+import org.springframework.data.mongodb.core.mapping.Document;
+
+import com.arextest.web.model.dao.mongodb.entity.MsgInfoDao;
+
+import lombok.Data;
+import lombok.experimental.FieldNameConstants;
 
 @Data
 @FieldNameConstants

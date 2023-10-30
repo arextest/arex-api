@@ -1,9 +1,8 @@
 package com.arextest.web.core.repository;
 
+import java.util.List;
 
 import com.arextest.web.model.dto.EnvironmentDto;
-
-import java.util.List;
 
 public interface EnvironmentRepository extends RepositoryProvider {
 

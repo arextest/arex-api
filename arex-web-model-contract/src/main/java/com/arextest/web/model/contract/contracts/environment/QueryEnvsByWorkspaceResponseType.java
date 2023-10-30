@@ -1,8 +1,8 @@
 package com.arextest.web.model.contract.contracts.environment;
 
-import lombok.Data;
-
 import java.util.List;
+
+import lombok.Data;
 
 @Data
 public class QueryEnvsByWorkspaceResponseType {

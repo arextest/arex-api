@@ -1,18 +1,5 @@
 package com.arextest.web.core.business.filesystem.recovery;
 
-import com.arextest.web.core.business.filesystem.FileSystemUtils;
-import com.arextest.web.core.business.filesystem.ItemInfo;
-import com.arextest.web.core.business.filesystem.ItemInfoFactory;
-import com.arextest.web.core.repository.FSTreeRepository;
-import com.arextest.web.model.dto.filesystem.FSItemDto;
-import com.arextest.web.model.dto.filesystem.FSNodeDto;
-import com.arextest.web.model.dto.filesystem.FSTraceLogDto;
-import com.arextest.web.model.dto.filesystem.FSTreeDto;
-import org.apache.commons.collections4.CollectionUtils;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Component;
-
-import javax.annotation.Resource;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,6 +8,21 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Component;
+
+import com.arextest.web.core.business.filesystem.FileSystemUtils;
+import com.arextest.web.core.business.filesystem.ItemInfo;
+import com.arextest.web.core.business.filesystem.ItemInfoFactory;
+import com.arextest.web.core.repository.FSTreeRepository;
+import com.arextest.web.model.dto.filesystem.FSItemDto;
+import com.arextest.web.model.dto.filesystem.FSNodeDto;
+import com.arextest.web.model.dto.filesystem.FSTraceLogDto;
+import com.arextest.web.model.dto.filesystem.FSTreeDto;
 
 /**
  * @author b_yu
@@ -55,7 +57,7 @@ public class DeleteItemRecoveryServiceImpl implements RecoveryService {
         fsTreeRepository.updateFSTree(fsTreeDto);
 
         Map<String, FSItemDto> itemDtoMap =
-                log.getItems().stream().collect(Collectors.toMap(FSItemDto::getId, Function.identity()));
+            log.getItems().stream().collect(Collectors.toMap(FSItemDto::getId, Function.identity()));
         Map<Integer, List<FSItemDto>> tmp = new HashMap<>();
 
         Queue<FSNodeDto> queue = new ArrayDeque<>();

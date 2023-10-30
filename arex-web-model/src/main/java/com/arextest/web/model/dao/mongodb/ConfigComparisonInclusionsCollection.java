@@ -1,11 +1,16 @@
 package com.arextest.web.model.dao.mongodb;
 
-import com.arextest.web.model.dao.mongodb.entity.AbstractComparisonDetails;
-import lombok.*;
-import lombok.experimental.FieldNameConstants;
+import java.util.List;
+
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.List;
+import com.arextest.web.model.dao.mongodb.entity.AbstractComparisonDetails;
+
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
+import lombok.experimental.FieldNameConstants;
 
 @Data
 @NoArgsConstructor

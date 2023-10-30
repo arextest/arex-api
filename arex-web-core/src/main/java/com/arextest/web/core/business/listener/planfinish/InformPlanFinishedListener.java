@@ -1,5 +1,10 @@
 package com.arextest.web.core.business.listener.planfinish;
 
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.stereotype.Component;
+
 import com.arextest.web.common.HttpUtils;
 import com.arextest.web.core.business.QueryPlanStatisticsService;
 import com.arextest.web.core.repository.SystemConfigRepository;
@@ -8,11 +13,8 @@ import com.arextest.web.model.contract.contracts.QueryPlanStatisticsRequestType;
 import com.arextest.web.model.contract.contracts.QueryPlanStatisticsResponseType;
 import com.arextest.web.model.contract.contracts.common.PlanStatistic;
 import com.arextest.web.model.contract.contracts.config.SystemConfig;
+
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeansException;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
-import org.springframework.stereotype.Component;
 
 /**
  * @author wildeslam.
@@ -63,8 +65,9 @@ public class InformPlanFinishedListener implements PlanFinishedLinstener, Applic
         requestType.setWaitCaseCount(planStatistic.getWaitCaseCount());
         requestType.setElapsedMillSeconds(planStatistic.getReplayEndTime() - planStatistic.getReplayStartTime());
         if (planStatistic.getTotalCaseCount() != 0 && planStatistic.getSuccessCaseCount() != null
-        && planStatistic.getTotalCaseCount() != null) {
-            requestType.setPassRate(planStatistic.getSuccessCaseCount().doubleValue() / planStatistic.getTotalCaseCount());
+            && planStatistic.getTotalCaseCount() != null) {
+            requestType
+                .setPassRate(planStatistic.getSuccessCaseCount().doubleValue() / planStatistic.getTotalCaseCount());
         }
         return requestType;
     }
@@ -81,9 +84,8 @@ public class InformPlanFinishedListener implements PlanFinishedLinstener, Applic
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        queryPlanStatisticsService = (QueryPlanStatisticsService) applicationContext.getBean(
-            "queryPlanStatisticsService");
-        systemConfigRepository = (SystemConfigRepository) applicationContext.getBean(
-            "systemConfigRepositoryImpl");
+        queryPlanStatisticsService =
+            (QueryPlanStatisticsService)applicationContext.getBean("queryPlanStatisticsService");
+        systemConfigRepository = (SystemConfigRepository)applicationContext.getBean("systemConfigRepositoryImpl");
     }
 }

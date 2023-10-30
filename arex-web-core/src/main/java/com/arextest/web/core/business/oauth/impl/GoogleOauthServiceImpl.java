@@ -1,24 +1,23 @@
 package com.arextest.web.core.business.oauth.impl;
 
-import com.arextest.web.common.LogUtils;
-import com.arextest.web.core.business.oauth.OauthService;
-import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
-import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeTokenRequest;
-import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
-import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
-import com.google.api.client.googleapis.auth.oauth2.GooglePublicKeysManager;
-import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
-import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
-import com.google.api.client.http.HttpTransport;
-import com.google.api.client.http.javanet.NetHttpTransport;
-import com.google.api.client.json.JsonFactory;
-import com.google.api.client.json.jackson2.JacksonFactory;
-import lombok.extern.slf4j.Slf4j;
+import java.util.Collections;
+
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.util.Collections;
+import com.arextest.web.common.LogUtils;
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeTokenRequest;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
+import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
+import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+import com.google.api.client.http.HttpTransport;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.jackson2.JacksonFactory;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author b_yu
@@ -28,26 +27,30 @@ import java.util.Collections;
 @Component("GoogleOauth")
 public class GoogleOauthServiceImpl extends AbstractOauthServiceImpl {
 
+    private static final String EMAIL = "email";
+    private static final String OFFLINE = "offline";
     @Value("${arex.oauth.google.clientid}")
     private String clientId;
     @Value("${arex.oauth.google.secret}")
     private String secret;
     @Value("${arex.oauth.google.redirecturi}")
     private String redirectUri;
-    private static final String EMAIL = "email";
-    private static final String OFFLINE = "offline";
+
     @Override
     public String getClientId() {
         return clientId;
     }
+
     @Override
     public String getRedirectUri() {
         return redirectUri;
     }
+
     @Override
     public String getOauthUri() {
         return null;
     }
+
     @Override
     public String getUser(String code) {
         if (!checkOauth(clientId, secret, code)) {
@@ -61,9 +64,8 @@ public class GoogleOauthServiceImpl extends AbstractOauthServiceImpl {
             HttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();
             JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
 
-            GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
-                    httpTransport, jsonFactory, clientId, secret, Collections.singleton(EMAIL))
-                    .setAccessType(OFFLINE).build();
+            GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(httpTransport, jsonFactory,
+                clientId, secret, Collections.singleton(EMAIL)).setAccessType(OFFLINE).build();
 
             GoogleAuthorizationCodeTokenRequest tokenRequest = flow.newTokenRequest(code);
             tokenRequest.setRedirectUri(redirectUri);
@@ -71,8 +73,7 @@ public class GoogleOauthServiceImpl extends AbstractOauthServiceImpl {
 
             if (StringUtils.isNotBlank(tokenResponse.getIdToken())) {
                 GoogleIdTokenVerifier verifier =
-                        new GoogleIdTokenVerifier.Builder(flow.getTransport(), flow.getJsonFactory())
-                                .build();
+                    new GoogleIdTokenVerifier.Builder(flow.getTransport(), flow.getJsonFactory()).build();
 
                 GoogleIdToken token = verifier.verify(tokenResponse.getIdToken());
                 if (token != null) {

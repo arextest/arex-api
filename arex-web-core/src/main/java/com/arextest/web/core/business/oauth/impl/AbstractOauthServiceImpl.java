@@ -1,9 +1,11 @@
 package com.arextest.web.core.business.oauth.impl;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.arextest.web.common.LogUtils;
 import com.arextest.web.core.business.oauth.OauthService;
+
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 
 /**
  * @author b_yu

@@ -1,5 +1,12 @@
 package com.arextest.web.core.business;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Component;
+
 import com.arextest.web.core.repository.ReportDiffAggStatisticRepository;
 import com.arextest.web.model.contract.contracts.QueryDifferencesRequestType;
 import com.arextest.web.model.contract.contracts.QueryDifferencesResponseType;
@@ -11,12 +18,8 @@ import com.arextest.web.model.dto.DifferenceDto;
 import com.arextest.web.model.dto.SceneDto;
 import com.arextest.web.model.mapper.DifferenceMapper;
 import com.arextest.web.model.mapper.SceneMapper;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
@@ -28,7 +31,7 @@ public class DiffSceneService {
         QueryDifferencesResponseType response = new QueryDifferencesResponseType();
 
         List<DifferenceDto> dtos = reportDiffAggStatisticRepository.queryDifferences(request.getPlanItemId(),
-                request.getCategoryName(), request.getOperationName());
+            request.getCategoryName(), request.getOperationName());
         List<Difference> diffs = new ArrayList<>();
         dtos.forEach(dto -> {
             diffs.add(DifferenceMapper.INSTANCE.contractFromDto(dto));
@@ -41,7 +44,7 @@ public class DiffSceneService {
         QueryScenesResponseType response = new QueryScenesResponseType();
 
         List<SceneDto> sceneDtos = reportDiffAggStatisticRepository.queryScenesByDifference(request.getPlanItemId(),
-                request.getCategoryName(), request.getOperationName(), request.getDifferenceName());
+            request.getCategoryName(), request.getOperationName(), request.getDifferenceName());
         List<Scene> scenes = new ArrayList<>();
         sceneDtos.forEach(dto -> {
             scenes.add(SceneMapper.INSTANCE.contractFromDto(dto));

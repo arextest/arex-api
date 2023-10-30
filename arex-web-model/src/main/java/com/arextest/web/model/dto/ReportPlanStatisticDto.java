@@ -1,9 +1,8 @@
 package com.arextest.web.model.dto;
 
-import lombok.Data;
-
 import java.util.Map;
 
+import lombok.Data;
 
 @Data
 public class ReportPlanStatisticDto {

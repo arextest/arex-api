@@ -1,17 +1,18 @@
 package com.arextest.web.core.business;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Component;
+
 import com.arextest.web.core.repository.ReportPlanItemStatisticRepository;
 import com.arextest.web.model.contract.contracts.common.CaseCount;
 import com.arextest.web.model.dto.PlanItemDto;
 import com.google.common.collect.MapDifference;
 import com.google.common.collect.Maps;
-import org.springframework.stereotype.Component;
-
-import javax.annotation.Resource;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 
 @Component
 public class CaseCountService {
@@ -29,9 +30,9 @@ public class CaseCountService {
             CaseCount caseCount = caseCountMap.get(planItem.getPlanId());
 
             Map<String, Integer> failedCaseMap =
-                    planItem.getFailCases() == null ? new HashMap<>() : planItem.getFailCases();
+                planItem.getFailCases() == null ? new HashMap<>() : planItem.getFailCases();
             Map<String, Integer> errorCaseMap =
-                    planItem.getErrorCases() == null ? new HashMap<>() : planItem.getErrorCases();
+                planItem.getErrorCases() == null ? new HashMap<>() : planItem.getErrorCases();
             MapDifference<String, Integer> difference = Maps.difference(failedCaseMap, errorCaseMap);
 
             int errorCaseCount = errorCaseMap.size();
@@ -43,9 +44,8 @@ public class CaseCountService {
             caseCount.setReceivedCaseCount(caseCount.getReceivedCaseCount() + receivedCaseCount);
             caseCount.setErrorCaseCount(caseCount.getErrorCaseCount() + errorCaseCount);
             caseCount.setFailCaseCount(caseCount.getFailCaseCount() + failedCaseCount);
-            caseCount.setSuccessCaseCount(caseCount.getSuccessCaseCount() + receivedCaseCount
-                    - errorCaseCount
-                    - failedCaseCount);
+            caseCount.setSuccessCaseCount(
+                caseCount.getSuccessCaseCount() + receivedCaseCount - errorCaseCount - failedCaseCount);
 
             caseCount.setTotalOperationCount(caseCount.getTotalOperationCount() + 1);
             if (errorCaseCount == 0 && failedCaseCount == 0) {

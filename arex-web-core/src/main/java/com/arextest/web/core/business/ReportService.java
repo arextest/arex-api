@@ -1,5 +1,18 @@
 package com.arextest.web.core.business;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
+import org.springframework.stereotype.Component;
+
 import com.arextest.model.mock.MockCategoryType;
 import com.arextest.web.common.LogUtils;
 import com.arextest.web.core.business.iosummary.SceneReportService;
@@ -19,18 +32,8 @@ import com.arextest.web.model.dto.PlanItemDto;
 import com.arextest.web.model.dto.ReportPlanStatisticDto;
 import com.arextest.web.model.enums.ReplayStatusType;
 import com.arextest.web.model.mapper.CompareResultMapper;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.MapUtils;
-import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
@@ -61,7 +64,6 @@ public class ReportService {
             results.add(CompareResultMapper.INSTANCE.dtoFromContract(cr));
         }
 
-
         boolean success = replayCompareResultRepository.saveResults(results);
         if (!success) {
             return false;
@@ -77,10 +79,9 @@ public class ReportService {
 
     public boolean analyzeCompareResults(AnalyzeCompareResultsRequestType request) {
         List<AnalyzeCompareResultsRequestType.AnalyzeCompareInfoItem> analyzeCompareInfoItems =
-                Optional.ofNullable(request.getAnalyzeCompareInfos()).orElse(Collections.emptyList());
+            Optional.ofNullable(request.getAnalyzeCompareInfos()).orElse(Collections.emptyList());
         List<CompareResultDto> results = analyzeCompareInfoItems.stream()
-                .map(CompareResultMapper.INSTANCE::dtoFromAnalyzeContract)
-                .collect(Collectors.toList());
+            .map(CompareResultMapper.INSTANCE::dtoFromAnalyzeContract).collect(Collectors.toList());
 
         if (CollectionUtils.isNotEmpty(results)) {
             // save caseSummary to db
@@ -89,7 +90,6 @@ public class ReportService {
         }
         return true;
     }
-
 
     public boolean changeReportStatus(ChangeReplayStatusRequestType request) {
         if (request.getStatus() == ReplayStatusType.FINISHED) {
@@ -113,22 +113,12 @@ public class ReportService {
                 LogUtils.error(LOGGER, "The number of received cases does not match the declaration.");
             }
         }
-        ReportPlanStatisticDto planDto = planStatisticRepository.changePlanStatus(
-                request.getPlanId(),
-                request.getStatus(),
-                request.getTotalCaseCount(),
-                request.getErrorMessage(),
-                request.isRerun()
-        );
+        ReportPlanStatisticDto planDto = planStatisticRepository.changePlanStatus(request.getPlanId(),
+            request.getStatus(), request.getTotalCaseCount(), request.getErrorMessage(), request.isRerun());
         if (request.getItems() != null) {
             for (ChangeReplayStatusRequestType.ReplayItem item : request.getItems()) {
-                planItemStatisticRepository.changePlanItemStatus(
-                        item.getPlanItemId(),
-                        item.getStatus(),
-                        item.getTotalCaseCount(),
-                        item.getErrorMessage(),
-                        request.isRerun()
-                );
+                planItemStatisticRepository.changePlanItemStatus(item.getPlanItemId(), item.getStatus(),
+                    item.getTotalCaseCount(), item.getErrorMessage(), request.isRerun());
             }
         }
         planFinishedService.onPlanFinishEvent(planDto.getAppId(), request.getPlanId(), request.getStatus());
@@ -136,10 +126,10 @@ public class ReportService {
     }
 
     public boolean deleteReport(String planId) {
+        planStatisticRepository.deletePlan(planId);
         planItemStatisticRepository.deletePlanItemsByPlanId(planId);
         reportDiffAggStatisticRepository.deleteDiffAggByPlanId(planId);
-        replayCompareResultRepository.deleteCompareResultsByPlanId(planId);
-        return planStatisticRepository.deletePlan(planId);
+        return replayCompareResultRepository.deleteCompareResultsByPlanId(planId);
     }
 
     public boolean removeRecords(RemoveRecordsAndScenesRequest request) {
