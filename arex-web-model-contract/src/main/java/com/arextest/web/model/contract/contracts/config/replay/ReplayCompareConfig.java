@@ -9,12 +9,19 @@ import lombok.ToString;
 @Data
 public class ReplayCompareConfig {
 
+  GlobalComparisonItem globalComparisonItem;
+
   /**
    * comparison configuration
    */
   List<ReplayComparisonItem> replayComparisonItems;
 
   private Boolean skipAssemble = Boolean.TRUE;
+
+
+  public static class GlobalComparisonItem extends ComparisonSummaryConfiguration {
+
+  }
 
   @Data
   @EqualsAndHashCode(callSuper = true)

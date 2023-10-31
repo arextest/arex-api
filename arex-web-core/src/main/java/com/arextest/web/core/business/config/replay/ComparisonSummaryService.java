@@ -85,14 +85,6 @@ public class ComparisonSummaryService {
     return comparisonSummaryConfiguration;
   }
 
-//  public ReplayCompareConfig getReplayComparisonConfig(
-//      QueryScheduleCompareConfigRequestType requestType) {
-//    String appId = requestType.getAppId();
-//    ReplayCompareConfig replayComparisonConfig = this.getReplayComparisonConfig(appId);
-//    this.postProcessReplayComparisonConfig(replayComparisonConfig, requestType);
-//    return replayComparisonConfig;
-//  }
-
   public ReplayCompareConfig getReplayComparisonConfig(String appId) {
     ReplayCompareConfig result = new ReplayCompareConfig();
     // store all config items, key is operationId and null, the null for global config
@@ -111,13 +103,14 @@ public class ComparisonSummaryService {
     this.mergeGlobalComparisonConfig(replayComparisonItemMap, operationInfoMap, appContractDtoMap);
 
     // build global config
-//    ReplayCompareConfig.GlobalComparisonItem globalComparisonItem = new ReplayCompareConfig.GlobalComparisonItem();
-//    ReplayCompareConfig.ReplayComparisonItem replayComparisonItem = replayComparisonItemMap.get(
-//        null);
-//    if (replayComparisonItem != null) {
-//      BeanUtils.copyProperties(replayComparisonItem, globalComparisonItem);
-//      result.setGlobalComparisonItem(globalComparisonItem);
-//    }
+    ReplayCompareConfig.GlobalComparisonItem globalComparisonItem = new ReplayCompareConfig.GlobalComparisonItem();
+    ReplayCompareConfig.ReplayComparisonItem replayComparisonItem = replayComparisonItemMap.get(
+        null);
+    if (replayComparisonItem != null) {
+      BeanUtils.copyProperties(replayComparisonItem, globalComparisonItem);
+      result.setGlobalComparisonItem(globalComparisonItem);
+    }
+
     ReplayComparisonItem globalReplayComparison = replayComparisonItemMap.get(null);
     List<ReplayComparisonItem> operationReplayComparison = replayComparisonItemMap.entrySet()
         .stream()
@@ -127,14 +120,6 @@ public class ComparisonSummaryService {
     this.setDefaultWhenMissingDependency(globalReplayComparison, result);
     return result;
   }
-
-//  protected void postProcessReplayComparisonConfig(ReplayCompareConfig replayCompareConfig,
-//      QueryScheduleCompareConfigRequestType requestType) {
-//    if (replayCompareConfig == null) {
-//      return;
-//    }
-//
-//  }
 
   protected void getComparisonExclusionsConfiguration(String interfaceId,
       ComparisonSummaryConfiguration comparisonSummaryConfiguration) {
@@ -264,8 +249,6 @@ public class ComparisonSummaryService {
                   }));
           summaryConfiguration.setReferenceMap(operationReferenceMap);
         }, operationInfoMap, appContractDtoMap);
-
-//    mergeGlobalComparisonConfig(replayConfigurationMap, operationInfoMap, appContractDtoMap);
     return replayConfigurationMap;
   }
 
