@@ -52,6 +52,6 @@ public class SystemConfigController {
     } catch (RuntimeException e) {
       LOGGER.error("getCompareIgnoredTimePrecisionMillis error", e);
     }
-    return ResponseUtils.successResponse(systemConfigRepository.getLatestSystemConfig());
+    return ResponseUtils.successResponse(latestSystemConfig);
   }
 }
