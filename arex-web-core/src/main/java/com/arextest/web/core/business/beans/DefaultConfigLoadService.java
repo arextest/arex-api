@@ -13,7 +13,6 @@ public class DefaultConfigLoadService implements ConfigLoadService {
 
   }
 
-  // 先从额外的取，没有再从默认(配置文件)取
   @Override
   public Object getProperty(String key, Object defaultValue) {
     if (environment.getProperty(key) == null) {
