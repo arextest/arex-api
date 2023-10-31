@@ -28,7 +28,7 @@ public class SystemConfigController {
   private SystemConfigRepository systemConfigRepository;
 
   @Resource
-  ConfigLoadService configLoadService;
+  private ConfigLoadService configLoadService;
 
   @PostMapping("/save")
   @ResponseBody
