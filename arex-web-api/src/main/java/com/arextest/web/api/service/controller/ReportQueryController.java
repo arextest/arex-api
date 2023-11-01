@@ -1,5 +1,6 @@
 package com.arextest.web.api.service.controller;
 
+import com.arextest.web.model.contract.contracts.common.PlanItemStatistic;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
@@ -201,6 +202,13 @@ public class ReportQueryController {
         }
         QueryPlanItemStatisticsResponseType response = queryPlanItemStatisticService.planItemStatistic(request);
         return ResponseUtils.successResponse(response);
+    }
+
+    @GetMapping("/getPlanItemStatistic/{planItemId}")
+    @ResponseBody
+    public Response queryPlanItemStatistics(@PathVariable String planItemId) {
+        PlanItemStatistic planItemStatistic = queryPlanItemStatisticService.planItemStatistic(planItemId);
+        return ResponseUtils.successResponse(planItemStatistic);
     }
 
     @PostMapping("/queryResponseTypeStatistic")

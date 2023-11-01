@@ -50,6 +50,18 @@ public class QueryPlanItemStatisticService {
         return response;
     }
 
+    public PlanItemStatistic planItemStatistic(String planItemId) {
+
+        PlanItemDto planItemDto = reportPlanItemStatisticRepository.findByPlanItemId(planItemId);
+        if (planItemDto == null) {
+            return null;
+        }
+
+        ReportPlanStatisticDto planStatisticDto = reportPlanStatisticRepository.findByPlanId(planItemDto.getPlanId());
+
+        return covert(planItemDto, planStatisticDto);
+    }
+
     private PlanItemStatistic covert(PlanItemDto dto, ReportPlanStatisticDto planStatisticDto) {
         PlanItemStatistic planItemStatistic = new PlanItemStatistic();
         if (dto == null) {
@@ -81,6 +93,7 @@ public class QueryPlanItemStatisticService {
 
         if (planStatisticDto != null) {
             planItemStatistic.setAppId(planStatisticDto.getAppId());
+            planItemStatistic.setAppName(planItemStatistic.getAppName());
             planItemStatistic.setCaseSourceType(planStatisticDto.getCaseSourceType());
             planItemStatistic.setCaseStartTime(planStatisticDto.getCaseStartTime());
             planItemStatistic.setCaseEndTime(planStatisticDto.getCaseEndTime());
