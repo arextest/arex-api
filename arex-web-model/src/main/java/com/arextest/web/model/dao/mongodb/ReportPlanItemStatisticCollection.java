@@ -1,35 +1,33 @@
 package com.arextest.web.model.dao.mongodb;
 
 import java.util.Map;
-
-import org.springframework.data.mongodb.core.mapping.Document;
-
 import lombok.Data;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
 @Document(collection = "ReportPlanItemStatistic")
 public class ReportPlanItemStatisticCollection {
 
-    private String planItemId;
+  private String planItemId;
 
-    private String planId;
+  private String planId;
 
-    private String operationId;
+  private String operationId;
 
-    private String operationName;
+  private String operationName;
 
-    private String serviceName;
+  private String serviceName;
 
-    private Integer status;
-    private String errorMessage;
+  private Integer status;
+  private String errorMessage;
 
-    private Long replayStartTime;
-    private Long replayEndTime;
+  private Long replayStartTime;
+  private Long replayEndTime;
 
-    private Integer totalCaseCount;
+  private Integer totalCaseCount;
 
-    // key: replayId value:count
-    private Map<String, Integer> cases;
-    private Map<String, Integer> failCases;
-    private Map<String, Integer> errorCases;
+  // key: replayId value:count
+  private Map<String, Integer> cases;
+  private Map<String, Integer> failCases;
+  private Map<String, Integer> errorCases;
 }

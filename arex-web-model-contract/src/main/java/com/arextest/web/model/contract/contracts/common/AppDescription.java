@@ -9,13 +9,13 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class AppDescription {
 
-    private String appId;
+  private String appId;
 
-    private String owner;
+  private String owner;
 
-    private Integer appCount;
+  private Integer appCount;
 
-    private Integer operationCount;
+  private Integer operationCount;
 
-    private Integer replayCount;
+  private Integer replayCount;
 }

@@ -4,15 +4,16 @@ import lombok.Data;
 
 @Data
 public class OverwriteContractRequestType {
-    private String appId;
 
-    private String operationId;
+  private String appId;
 
-    /**
-     * the key of dependency
-     */
-    private String operationName;
-    private String operationType;
+  private String operationId;
 
-    private String operationResponse;
+  /**
+   * the key of dependency
+   */
+  private String operationName;
+  private String operationType;
+
+  private String operationResponse;
 }

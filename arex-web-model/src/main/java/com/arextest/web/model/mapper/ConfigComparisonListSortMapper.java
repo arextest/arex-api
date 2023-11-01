@@ -1,12 +1,11 @@
 package com.arextest.web.model.mapper;
 
+import com.arextest.web.model.contract.contracts.config.replay.ComparisonListSortConfiguration;
+import com.arextest.web.model.dao.mongodb.ConfigComparisonListSortCollection;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
 import org.mapstruct.factory.Mappers;
-
-import com.arextest.web.model.contract.contracts.config.replay.ComparisonListSortConfiguration;
-import com.arextest.web.model.dao.mongodb.ConfigComparisonListSortCollection;
 
 /**
  * Created by rchen9 on 2022/9/16.
@@ -14,14 +13,14 @@ import com.arextest.web.model.dao.mongodb.ConfigComparisonListSortCollection;
 @Mapper
 public interface ConfigComparisonListSortMapper {
 
-    ConfigComparisonListSortMapper INSTANCE = Mappers.getMapper(ConfigComparisonListSortMapper.class);
+  ConfigComparisonListSortMapper INSTANCE = Mappers.getMapper(ConfigComparisonListSortMapper.class);
 
-    @Mappings({@Mapping(target = "modifiedTime",
-        expression = "java(dao.getDataChangeUpdateTime() == null ? null : new java.sql.Timestamp(dao.getDataChangeUpdateTime()))")})
-    ComparisonListSortConfiguration dtoFromDao(ConfigComparisonListSortCollection dao);
+  @Mappings({@Mapping(target = "modifiedTime",
+      expression = "java(dao.getDataChangeUpdateTime() == null ? null : new java.sql.Timestamp(dao.getDataChangeUpdateTime()))")})
+  ComparisonListSortConfiguration dtoFromDao(ConfigComparisonListSortCollection dao);
 
-    @Mappings({@Mapping(target = "id", expression = "java(null)"),
-        @Mapping(target = "dataChangeCreateTime", expression = "java(System.currentTimeMillis())"),
-        @Mapping(target = "dataChangeUpdateTime", expression = "java(System.currentTimeMillis())")})
-    ConfigComparisonListSortCollection daoFromDto(ComparisonListSortConfiguration dto);
+  @Mappings({@Mapping(target = "id", expression = "java(null)"),
+      @Mapping(target = "dataChangeCreateTime", expression = "java(System.currentTimeMillis())"),
+      @Mapping(target = "dataChangeUpdateTime", expression = "java(System.currentTimeMillis())")})
+  ConfigComparisonListSortCollection daoFromDto(ComparisonListSortConfiguration dto);
 }

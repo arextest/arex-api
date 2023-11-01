@@ -1,13 +1,11 @@
 package com.arextest.web.model.contract.contracts;
 
-import java.util.List;
-
 import com.arextest.web.model.contract.contracts.common.Difference;
-
+import java.util.List;
 import lombok.Data;
 
 @Data
 public class QueryDifferencesResponseType {
 
-    private List<Difference> differences;
+  private List<Difference> differences;
 }

@@ -4,5 +4,6 @@ import lombok.Data;
 
 @Data
 public class FSSaveInterfaceResponseType {
-    private Boolean success;
+
+  private Boolean success;
 }

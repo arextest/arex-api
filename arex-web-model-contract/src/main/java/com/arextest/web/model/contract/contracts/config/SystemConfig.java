@@ -9,14 +9,14 @@ import lombok.Data;
 @Data
 public class SystemConfig {
 
-    private String operator;
+  private String operator;
 
-    /**
-     * for callBackInform.
-     */
-    private String callbackUrl;
+  /**
+   * for callBackInform.
+   */
+  private String callbackUrl;
 
-    private Long compareIgnoreTimePrecisionMillis;
-    private Boolean compareNameToLower;
-    private Boolean compareNullEqualsEmpty;
+  private Long compareIgnoreTimePrecisionMillis;
+  private Boolean compareNameToLower;
+  private Boolean compareNullEqualsEmpty;
 }

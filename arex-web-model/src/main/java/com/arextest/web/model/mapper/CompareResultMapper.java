@@ -1,14 +1,5 @@
 package com.arextest.web.model.mapper;
 
-import java.util.Arrays;
-import java.util.List;
-
-import org.apache.commons.lang3.StringUtils;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.Mappings;
-import org.mapstruct.factory.Mappers;
-
 import com.arextest.common.utils.SerializationUtils;
 import com.arextest.web.model.contract.contracts.CompareResultDetail;
 import com.arextest.web.model.contract.contracts.common.CompareResult;
@@ -16,49 +7,60 @@ import com.arextest.web.model.contract.contracts.common.LogEntity;
 import com.arextest.web.model.contract.contracts.replay.AnalyzeCompareResultsRequestType;
 import com.arextest.web.model.dao.mongodb.ReplayCompareResultCollection;
 import com.arextest.web.model.dto.CompareResultDto;
+import java.util.Arrays;
+import java.util.List;
+import org.apache.commons.lang3.StringUtils;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.Mappings;
+import org.mapstruct.factory.Mappers;
 
 @Mapper
 public interface CompareResultMapper extends BaseMapper {
 
-    CompareResultMapper INSTANCE = Mappers.getMapper(CompareResultMapper.class);
+  CompareResultMapper INSTANCE = Mappers.getMapper(CompareResultMapper.class);
 
-    @Mappings({
-        @Mapping(target = "dataChangeCreateTime",
-            expression = "java(" + "dto.getDataChangeCreateTime() == null" + "?System.currentTimeMillis()"
-                + ":dto.getDataChangeCreateTime())"),
-        @Mapping(target = "dataChangeUpdateTime", expression = "java(" + "dto.getDataChangeUpdateTime() == null"
-            + "?System.currentTimeMillis()" + ":dto.getDataChangeUpdateTime())")})
-    ReplayCompareResultCollection daoFromDto(CompareResultDto dto);
+  @Mappings({
+      @Mapping(target = "dataChangeCreateTime",
+          expression = "java(" + "dto.getDataChangeCreateTime() == null"
+              + "?System.currentTimeMillis()"
+              + ":dto.getDataChangeCreateTime())"),
+      @Mapping(target = "dataChangeUpdateTime", expression = "java("
+          + "dto.getDataChangeUpdateTime() == null"
+          + "?System.currentTimeMillis()" + ":dto.getDataChangeUpdateTime())")})
+  ReplayCompareResultCollection daoFromDto(CompareResultDto dto);
 
-    @Mappings({@Mapping(target = "baseMsg", qualifiedByName = "decompressMsg"),
-        @Mapping(target = "testMsg", qualifiedByName = "decompressMsg")})
-    CompareResultDto dtoFromDao(ReplayCompareResultCollection dao);
+  @Mappings({@Mapping(target = "baseMsg", qualifiedByName = "decompressMsg"),
+      @Mapping(target = "testMsg", qualifiedByName = "decompressMsg")})
+  CompareResultDto dtoFromDao(ReplayCompareResultCollection dao);
 
-    @Mappings({@Mapping(target = "dataCreateTime", expression = "java(new java.util.Date())"),})
-    CompareResultDto dtoFromContract(CompareResult contract);
+  @Mappings({@Mapping(target = "dataCreateTime", expression = "java(new java.util.Date())"),})
+  CompareResultDto dtoFromContract(CompareResult contract);
 
-    CompareResult contractFromDto(CompareResultDto dto);
+  CompareResult contractFromDto(CompareResultDto dto);
 
-    CompareResultDetail detailFromDto(CompareResultDto dto);
+  CompareResultDetail detailFromDto(CompareResultDto dto);
 
-    @Mappings({@Mapping(target = "logs", expression = "java(dto.getDiffResultCode() == 2 ? dto.getLogs() : null)"),})
-    CompareResult contractFromDtoLogsLimitDisplay(CompareResultDto dto);
+  @Mappings({
+      @Mapping(target = "logs", expression = "java(dto.getDiffResultCode() == 2 ? dto.getLogs() : null)"),})
+  CompareResult contractFromDtoLogsLimitDisplay(CompareResultDto dto);
 
-    CompareResultDto
-        dtoFromAnalyzeContract(AnalyzeCompareResultsRequestType.AnalyzeCompareInfoItem analyzeCompareInfoItem);
+  CompareResultDto
+  dtoFromAnalyzeContract(
+      AnalyzeCompareResultsRequestType.AnalyzeCompareInfoItem analyzeCompareInfoItem);
 
-    default String map(List<LogEntity> logs) {
-        if (logs == null) {
-            return StringUtils.EMPTY;
-        }
-        return SerializationUtils.useZstdSerializeToBase64(logs.toArray());
+  default String map(List<LogEntity> logs) {
+    if (logs == null) {
+      return StringUtils.EMPTY;
     }
+    return SerializationUtils.useZstdSerializeToBase64(logs.toArray());
+  }
 
-    default List<LogEntity> map(String logs) {
-        LogEntity[] logEntities = SerializationUtils.useZstdDeserialize(logs, LogEntity[].class);
-        if (logEntities == null) {
-            return null;
-        }
-        return Arrays.asList(logEntities);
+  default List<LogEntity> map(String logs) {
+    LogEntity[] logEntities = SerializationUtils.useZstdDeserialize(logs, LogEntity[].class);
+    if (logEntities == null) {
+      return null;
     }
+    return Arrays.asList(logEntities);
+  }
 }

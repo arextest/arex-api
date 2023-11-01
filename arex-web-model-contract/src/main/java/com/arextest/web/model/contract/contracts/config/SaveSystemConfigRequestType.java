@@ -8,5 +8,6 @@ import lombok.Data;
  */
 @Data
 public class SaveSystemConfigRequestType {
-    private SystemConfig systemConfig;
+
+  private SystemConfig systemConfig;
 }

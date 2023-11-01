@@ -1,7 +1,6 @@
 package com.arextest.web.model.dto;
 
 import java.util.Date;
-
 import lombok.Data;
 
 /**
@@ -10,7 +9,8 @@ import lombok.Data;
  */
 @Data
 public class DesensitizationJarDto extends BaseDto {
-    private String jarUrl;
-    private String remark;
-    private Date uploadDate;
+
+  private String jarUrl;
+  private String remark;
+  private Date uploadDate;
 }

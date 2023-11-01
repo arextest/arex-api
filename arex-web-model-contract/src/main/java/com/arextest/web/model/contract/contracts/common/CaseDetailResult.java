@@ -5,11 +5,11 @@ import lombok.Data;
 @Data
 public class CaseDetailResult {
 
-    private String replayId;
+  private String replayId;
 
-    private String recordId;
+  private String recordId;
 
-    private String instanceId;
+  private String instanceId;
 
-    private Integer diffResultCode;
+  private Integer diffResultCode;
 }

@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class NodeEntity {
-    private String nodeName;
-    private int index;
+
+  private String nodeName;
+  private int index;
 }

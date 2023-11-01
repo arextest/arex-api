@@ -1,7 +1,6 @@
 package com.arextest.web.model.contract.contracts.label;
 
 import java.util.List;
-
 import lombok.Data;
 
 /**
@@ -10,5 +9,6 @@ import lombok.Data;
  */
 @Data
 public class QueryLabelsByWorkspaceIdResponseType {
-    private List<LabelType> labels;
+
+  private List<LabelType> labels;
 }

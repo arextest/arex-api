@@ -1,26 +1,27 @@
 package com.arextest.web.core.repository;
 
+import com.arextest.web.model.dto.PlanItemDto;
 import java.util.List;
 
-import com.arextest.web.model.dto.PlanItemDto;
-
 public interface ReportPlanItemStatisticRepository extends RepositoryProvider {
-    PlanItemDto updatePlanItems(PlanItemDto planItem);
 
-    boolean findAndModifyBaseInfo(PlanItemDto result);
+  PlanItemDto updatePlanItems(PlanItemDto planItem);
 
-    List<PlanItemDto> findByPlanIdAndPlanItemId(String planId, String planItemId);
+  boolean findAndModifyBaseInfo(PlanItemDto result);
 
-    PlanItemDto findByPlanItemId(String planItemId);
+  List<PlanItemDto> findByPlanIdAndPlanItemId(String planId, String planItemId);
 
-    List<PlanItemDto> findByPlanIds(List<String> planIds);
+  PlanItemDto findByPlanItemId(String planItemId);
 
-    List<Integer> findStatusesByPlanId(String planId);
+  List<PlanItemDto> findByPlanIds(List<String> planIds);
 
-    PlanItemDto changePlanItemStatus(String planItemId, Integer status, Integer totalCaseCount, String errorMessage,
-        boolean rerun);
+  List<Integer> findStatusesByPlanId(String planId);
 
-    boolean deletePlanItemsByPlanId(String planId);
+  PlanItemDto changePlanItemStatus(String planItemId, Integer status, Integer totalCaseCount,
+      String errorMessage,
+      boolean rerun);
 
-    boolean findAndModifyCaseMap(PlanItemDto result);
+  boolean deletePlanItemsByPlanId(String planId);
+
+  boolean findAndModifyCaseMap(PlanItemDto result);
 }

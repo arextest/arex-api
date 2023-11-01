@@ -1,9 +1,7 @@
 package com.arextest.web.core.business.filesystem.recovery;
 
 import java.util.Map;
-
 import javax.annotation.Resource;
-
 import org.springframework.stereotype.Component;
 
 /**
@@ -12,16 +10,17 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class RecoveryFactory {
-    private static final String RECOVERY_DASH = "Recovery-";
 
-    @Resource
-    private Map<String, RecoveryService> recoveryMap;
+  private static final String RECOVERY_DASH = "Recovery-";
 
-    public RecoveryService getRecoveryService(Integer type) {
-        String key = RECOVERY_DASH + type.toString();
-        if (recoveryMap.containsKey(key)) {
-            return recoveryMap.get(key);
-        }
-        return null;
+  @Resource
+  private Map<String, RecoveryService> recoveryMap;
+
+  public RecoveryService getRecoveryService(Integer type) {
+    String key = RECOVERY_DASH + type.toString();
+    if (recoveryMap.containsKey(key)) {
+      return recoveryMap.get(key);
     }
+    return null;
+  }
 }

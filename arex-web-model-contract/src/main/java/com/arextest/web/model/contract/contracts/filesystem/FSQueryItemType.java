@@ -2,7 +2,6 @@ package com.arextest.web.model.contract.contracts.filesystem;
 
 import java.util.List;
 import java.util.Map;
-
 import lombok.Data;
 
 /**
@@ -11,15 +10,17 @@ import lombok.Data;
  */
 @Data
 public class FSQueryItemType {
+
+  private String id;
+  private String name;
+  private Map<String, Object> customTags;
+  private List<ParentNodeType> parentPath;
+
+  @Data
+  public static class ParentNodeType {
+
     private String id;
     private String name;
-    private Map<String, Object> customTags;
-    private List<ParentNodeType> parentPath;
-
-    @Data
-    public static class ParentNodeType {
-        private String id;
-        private String name;
-        private Integer nodeType;
-    }
+    private Integer nodeType;
+  }
 }

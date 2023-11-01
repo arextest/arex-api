@@ -1,21 +1,20 @@
 package com.arextest.web.model.contract.contracts;
 
-import javax.validation.constraints.NotBlank;
-
 import com.arextest.web.model.contract.PagingRequest;
-
+import javax.validation.constraints.NotBlank;
 import lombok.Data;
 
 @Data
 public class QueryReplayCaseRequestType implements PagingRequest {
-    private Integer pageIndex;
-    private Integer pageSize;
-    private Boolean needTotal;
 
-    @NotBlank(message = "PlanItemId cannot be empty")
-    private String planItemId;
+  private Integer pageIndex;
+  private Integer pageSize;
+  private Boolean needTotal;
 
-    private Integer diffResultCode;
+  @NotBlank(message = "PlanItemId cannot be empty")
+  private String planItemId;
 
-    private String keyWord;
+  private Integer diffResultCode;
+
+  private String keyWord;
 }

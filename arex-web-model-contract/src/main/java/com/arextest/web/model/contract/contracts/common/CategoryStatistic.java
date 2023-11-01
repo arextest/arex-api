@@ -5,12 +5,12 @@ import lombok.Data;
 @Data
 public class CategoryStatistic {
 
-    private String categoryName;
+  private String categoryName;
 
-    private String operationName;
+  private String operationName;
 
-    private Integer totalCaseCount;
-    private Integer successCaseCount;
-    private Integer failCaseCount;
-    private Integer errorCaseCount;
+  private Integer totalCaseCount;
+  private Integer successCaseCount;
+  private Integer failCaseCount;
+  private Integer errorCaseCount;
 }

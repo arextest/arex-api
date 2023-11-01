@@ -5,11 +5,11 @@ import lombok.Data;
 @Data
 public class QueryDiffAggInfoRequestType {
 
-    private String planId;
+  private String planId;
 
-    private String operationId;
+  private String operationId;
 
-    private String categoryName;
+  private String categoryName;
 
-    private String operationName;
+  private String operationName;
 }

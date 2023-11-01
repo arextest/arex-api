@@ -1,27 +1,27 @@
 package com.arextest.web.model.mapper;
 
-import org.mapstruct.Mapper;
-import org.mapstruct.factory.Mappers;
-
 import com.arextest.web.model.contract.contracts.filesystem.FSQueryFolderResponseType;
 import com.arextest.web.model.contract.contracts.filesystem.FSSaveFolderRequestType;
 import com.arextest.web.model.dao.mongodb.FSFolderCollection;
 import com.arextest.web.model.dto.filesystem.FSFolderDto;
 import com.arextest.web.model.dto.filesystem.importexport.FolderItemDto;
+import org.mapstruct.Mapper;
+import org.mapstruct.factory.Mappers;
 
 @Mapper
 public interface FSFolderMapper {
-    FSFolderMapper INSTANCE = Mappers.getMapper(FSFolderMapper.class);
 
-    FSFolderDto dtoFromContract(FSSaveFolderRequestType contract);
+  FSFolderMapper INSTANCE = Mappers.getMapper(FSFolderMapper.class);
 
-    FSQueryFolderResponseType contractFromDto(FSFolderDto dto);
+  FSFolderDto dtoFromContract(FSSaveFolderRequestType contract);
 
-    FSFolderDto dtoFromDao(FSFolderCollection dao);
+  FSQueryFolderResponseType contractFromDto(FSFolderDto dto);
 
-    FSFolderCollection daoFromDto(FSFolderDto dto);
+  FSFolderDto dtoFromDao(FSFolderCollection dao);
 
-    FolderItemDto ieItemFromFsItemDto(FSFolderDto dto);
+  FSFolderCollection daoFromDto(FSFolderDto dto);
 
-    FSFolderDto fsItemFromIeItemDto(FolderItemDto dto);
+  FolderItemDto ieItemFromFsItemDto(FSFolderDto dto);
+
+  FSFolderDto fsItemFromIeItemDto(FolderItemDto dto);
 }

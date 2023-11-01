@@ -7,19 +7,19 @@ import lombok.Getter;
  * @since 2022/2/7
  */
 public enum CompareConfigType {
-    /**
-     * the config of comparison, which is main entrance
-     */
-    REPLAY_MAIN(0),
-    /**
-     * the config of comparison, which is collection
-     */
-    COLLECTION(1);
+  /**
+   * the config of comparison, which is main entrance
+   */
+  REPLAY_MAIN(0),
+  /**
+   * the config of comparison, which is collection
+   */
+  COLLECTION(1);
 
-    @Getter
-    private final int codeValue;
+  @Getter
+  private final int codeValue;
 
-    CompareConfigType(int codeValue) {
-        this.codeValue = codeValue;
-    }
+  CompareConfigType(int codeValue) {
+    this.codeValue = codeValue;
+  }
 }

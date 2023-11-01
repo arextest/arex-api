@@ -4,5 +4,6 @@ import lombok.Data;
 
 @Data
 public class FSExportItemResponseType {
-    private String exportString;
+
+  private String exportString;
 }

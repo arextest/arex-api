@@ -1,14 +1,5 @@
 package com.arextest.web.core.business.config.replay;
 
-import java.util.List;
-import java.util.Set;
-
-import javax.annotation.Resource;
-
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import com.arextest.config.model.dto.application.ApplicationOperationConfiguration;
 import com.arextest.config.repository.ConfigRepositoryProvider;
 import com.arextest.config.repository.impl.ApplicationOperationConfigurationRepositoryImpl;
@@ -18,6 +9,12 @@ import com.arextest.web.core.repository.AppContractRepository;
 import com.arextest.web.core.repository.FSInterfaceRepository;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonIgnoreCategoryConfiguration;
 import com.arextest.web.model.dto.filesystem.FSInterfaceDto;
+import java.util.List;
+import java.util.Set;
+import javax.annotation.Resource;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /**
  * @author wildeslam.
@@ -27,68 +24,69 @@ import com.arextest.web.model.dto.filesystem.FSInterfaceDto;
 public class ComparisonIgnoreCategoryConfigurableHandler
     extends AbstractComparisonConfigurableHandler<ComparisonIgnoreCategoryConfiguration> {
 
-    private static final Set<String> CATEGORIES =
-        MockCategoryType.DEFAULTS.stream().map(MockCategoryType::getName).collect(java.util.stream.Collectors.toSet());
-    @Resource
-    FSInterfaceRepository fsInterfaceRepository;
-    @Resource
-    ApplicationOperationConfigurableHandler applicationOperationConfigurableHandler;
-    @Resource
-    private ApplicationOperationConfigurationRepositoryImpl applicationOperationConfigurationRepository;
+  private static final Set<String> CATEGORIES =
+      MockCategoryType.DEFAULTS.stream().map(MockCategoryType::getName)
+          .collect(java.util.stream.Collectors.toSet());
+  @Resource
+  FSInterfaceRepository fsInterfaceRepository;
+  @Resource
+  ApplicationOperationConfigurableHandler applicationOperationConfigurableHandler;
+  @Resource
+  private ApplicationOperationConfigurationRepositoryImpl applicationOperationConfigurationRepository;
 
-    protected ComparisonIgnoreCategoryConfigurableHandler(
-        @Autowired ConfigRepositoryProvider<ComparisonIgnoreCategoryConfiguration> repositoryProvider,
-        @Autowired AppContractRepository appContractRepository) {
-        super(repositoryProvider, appContractRepository);
+  protected ComparisonIgnoreCategoryConfigurableHandler(
+      @Autowired ConfigRepositoryProvider<ComparisonIgnoreCategoryConfiguration> repositoryProvider,
+      @Autowired AppContractRepository appContractRepository) {
+    super(repositoryProvider, appContractRepository);
+  }
+
+  @Override
+  public List<ComparisonIgnoreCategoryConfiguration> queryByInterfaceId(String interfaceId) {
+    // get operationId
+    FSInterfaceDto fsInterfaceDto = fsInterfaceRepository.queryInterface(interfaceId);
+    String operationId = fsInterfaceDto == null ? null : fsInterfaceDto.getOperationId();
+
+    List<ComparisonIgnoreCategoryConfiguration> result =
+        this.queryByOperationIdAndInterfaceId(interfaceId, operationId);
+    if (StringUtils.isNotEmpty(operationId)) {
+      ApplicationOperationConfiguration applicationOperationConfiguration =
+          applicationOperationConfigurableHandler.useResultByOperationId(operationId);
+      List<ComparisonIgnoreCategoryConfiguration> globalConfig =
+          this.useResultAsList(applicationOperationConfiguration.getAppId(), null);
+      result.addAll(globalConfig);
     }
+    return result;
+  }
 
-    @Override
-    public List<ComparisonIgnoreCategoryConfiguration> queryByInterfaceId(String interfaceId) {
-        // get operationId
-        FSInterfaceDto fsInterfaceDto = fsInterfaceRepository.queryInterface(interfaceId);
-        String operationId = fsInterfaceDto == null ? null : fsInterfaceDto.getOperationId();
-
-        List<ComparisonIgnoreCategoryConfiguration> result =
-            this.queryByOperationIdAndInterfaceId(interfaceId, operationId);
-        if (StringUtils.isNotEmpty(operationId)) {
-            ApplicationOperationConfiguration applicationOperationConfiguration =
-                applicationOperationConfigurableHandler.useResultByOperationId(operationId);
-            List<ComparisonIgnoreCategoryConfiguration> globalConfig =
-                this.useResultAsList(applicationOperationConfiguration.getAppId(), null);
-            result.addAll(globalConfig);
-        }
-        return result;
+  private void checkBeforeModify(ComparisonIgnoreCategoryConfiguration configuration) {
+    if (configuration.getIgnoreCategory() == null) {
+      return;
     }
-
-    private void checkBeforeModify(ComparisonIgnoreCategoryConfiguration configuration) {
-        if (configuration.getIgnoreCategory() == null) {
-            return;
-        }
-        for (String category : configuration.getIgnoreCategory()) {
-            if (!CATEGORIES.contains(category)) {
-                throw new IllegalArgumentException("Invalid category: " + category);
-            }
-            if (MockCategoryType.create(category).isEntryPoint()) {
-                throw new IllegalArgumentException("Cannot ignore entrypoint category: " + category);
-            }
-        }
+    for (String category : configuration.getIgnoreCategory()) {
+      if (!CATEGORIES.contains(category)) {
+        throw new IllegalArgumentException("Invalid category: " + category);
+      }
+      if (MockCategoryType.create(category).isEntryPoint()) {
+        throw new IllegalArgumentException("Cannot ignore entrypoint category: " + category);
+      }
     }
+  }
 
-    @Override
-    public boolean insert(ComparisonIgnoreCategoryConfiguration configuration) {
-        checkBeforeModify(configuration);
-        return super.insert(configuration);
-    }
+  @Override
+  public boolean insert(ComparisonIgnoreCategoryConfiguration configuration) {
+    checkBeforeModify(configuration);
+    return super.insert(configuration);
+  }
 
-    @Override
-    public boolean remove(ComparisonIgnoreCategoryConfiguration configuration) {
-        checkBeforeModify(configuration);
-        return super.remove(configuration);
-    }
+  @Override
+  public boolean remove(ComparisonIgnoreCategoryConfiguration configuration) {
+    checkBeforeModify(configuration);
+    return super.remove(configuration);
+  }
 
-    @Override
-    public boolean update(ComparisonIgnoreCategoryConfiguration configuration) {
-        checkBeforeModify(configuration);
-        return super.update(configuration);
-    }
+  @Override
+  public boolean update(ComparisonIgnoreCategoryConfiguration configuration) {
+    checkBeforeModify(configuration);
+    return super.update(configuration);
+  }
 }

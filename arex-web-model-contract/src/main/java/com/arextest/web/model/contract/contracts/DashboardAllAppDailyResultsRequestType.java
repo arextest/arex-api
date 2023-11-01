@@ -5,10 +5,10 @@ import lombok.Data;
 @Data
 public class DashboardAllAppDailyResultsRequestType {
 
-    private String appId;
+  private String appId;
 
-    private Long startTime;
+  private Long startTime;
 
-    private Long endTime;
+  private Long endTime;
 
 }

@@ -1,35 +1,33 @@
 package com.arextest.web.model.dao.mongodb;
 
-import java.util.List;
-import java.util.Map;
-
-import org.springframework.data.mongodb.core.mapping.Document;
-
 import com.arextest.web.model.dao.mongodb.entity.AddressDao;
 import com.arextest.web.model.dao.mongodb.entity.AuthDao;
 import com.arextest.web.model.dao.mongodb.entity.BodyDao;
 import com.arextest.web.model.dao.mongodb.entity.KeyValuePairDao;
 import com.arextest.web.model.dao.mongodb.entity.ScriptBlockDao;
-
+import java.util.List;
+import java.util.Map;
 import lombok.Data;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
 @Document(collection = "FSInterface")
 public class FSInterfaceCollection extends ModelBase {
-    private String name;
-    private String workspaceId;
-    private AddressDao address;
-    private List<ScriptBlockDao> preRequestScripts;
-    private List<ScriptBlockDao> testScripts;
-    private BodyDao body;
-    private List<KeyValuePairDao> headers;
-    private List<KeyValuePairDao> params;
-    private AuthDao auth;
-    private AddressDao testAddress;
-    private String parentId;
-    private Integer parentNodeType;
-    private String description;
-    private Map<String, Object> customTags;
-    private String operationId;
-    private String operationResponse;
+
+  private String name;
+  private String workspaceId;
+  private AddressDao address;
+  private List<ScriptBlockDao> preRequestScripts;
+  private List<ScriptBlockDao> testScripts;
+  private BodyDao body;
+  private List<KeyValuePairDao> headers;
+  private List<KeyValuePairDao> params;
+  private AuthDao auth;
+  private AddressDao testAddress;
+  private String parentId;
+  private Integer parentNodeType;
+  private String description;
+  private Map<String, Object> customTags;
+  private String operationId;
+  private String operationResponse;
 }

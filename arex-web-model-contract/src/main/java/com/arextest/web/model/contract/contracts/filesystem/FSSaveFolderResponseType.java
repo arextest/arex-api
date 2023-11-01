@@ -7,5 +7,6 @@ import lombok.Data;
  */
 @Data
 public class FSSaveFolderResponseType {
-    private Boolean success;
+
+  private Boolean success;
 }

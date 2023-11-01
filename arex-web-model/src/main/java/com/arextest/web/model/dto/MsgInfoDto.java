@@ -7,5 +7,6 @@ import lombok.Data;
  */
 @Data
 public class MsgInfoDto {
-    private int msgMiss;
+
+  private int msgMiss;
 }

@@ -4,14 +4,15 @@ import lombok.Data;
 
 @Data
 public class ReplayCaseCountRequest {
-    private String appId;
 
-    private Long beginTime;
+  private String appId;
 
-    private Long endTime;
-    private String service;
-    private String operation;
-    private String subject;
+  private Long beginTime;
 
-    private Integer env;
+  private Long endTime;
+  private String service;
+  private String operation;
+  private String subject;
+
+  private Integer env;
 }

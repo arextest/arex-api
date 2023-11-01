@@ -9,18 +9,17 @@ import lombok.Getter;
  */
 @AllArgsConstructor
 public enum FeedbackTypeEnum {
-    UNKNOWN(0), BUG(1), BY_DESIGN(2), AREX_PROBLEM(3);
-    ;
+  UNKNOWN(0), BUG(1), BY_DESIGN(2), AREX_PROBLEM(3);;
 
-    @Getter
-    private final Integer code;
+  @Getter
+  private final Integer code;
 
-    public static FeedbackTypeEnum from(int code) {
-        for (FeedbackTypeEnum type : FeedbackTypeEnum.values()) {
-            if (type.getCode() == code) {
-                return type;
-            }
-        }
-        return UNKNOWN;
+  public static FeedbackTypeEnum from(int code) {
+    for (FeedbackTypeEnum type : FeedbackTypeEnum.values()) {
+      if (type.getCode() == code) {
+        return type;
+      }
     }
+    return UNKNOWN;
+  }
 }

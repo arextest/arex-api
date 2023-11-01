@@ -1,25 +1,24 @@
 package com.arextest.web.model.mapper;
 
-import java.util.List;
-
-import org.mapstruct.Mapper;
-import org.mapstruct.factory.Mappers;
-
 import com.arextest.web.model.contract.contracts.environment.EnvironmentType;
 import com.arextest.web.model.dao.mongodb.EnvironmentCollection;
 import com.arextest.web.model.dto.EnvironmentDto;
+import java.util.List;
+import org.mapstruct.Mapper;
+import org.mapstruct.factory.Mappers;
 
 @Mapper
 public interface EnvironmentMapper {
-    EnvironmentMapper INSTANCE = Mappers.getMapper(EnvironmentMapper.class);
 
-    EnvironmentCollection daoFromDto(EnvironmentDto dto);
+  EnvironmentMapper INSTANCE = Mappers.getMapper(EnvironmentMapper.class);
 
-    EnvironmentDto dtoFromDao(EnvironmentCollection dao);
+  EnvironmentCollection daoFromDto(EnvironmentDto dto);
 
-    List<EnvironmentDto> dtoFromDaoList(List<EnvironmentCollection> dao);
+  EnvironmentDto dtoFromDao(EnvironmentCollection dao);
 
-    EnvironmentDto dtoFromContract(EnvironmentType contract);
+  List<EnvironmentDto> dtoFromDaoList(List<EnvironmentCollection> dao);
 
-    List<EnvironmentType> contractFromDtoList(List<EnvironmentDto> dto);
+  EnvironmentDto dtoFromContract(EnvironmentType contract);
+
+  List<EnvironmentType> contractFromDtoList(List<EnvironmentDto> dto);
 }

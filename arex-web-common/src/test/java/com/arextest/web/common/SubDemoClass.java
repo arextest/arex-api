@@ -4,6 +4,7 @@ import lombok.Data;
 
 @Data
 public class SubDemoClass {
-    private String subName;
-    private int number;
+
+  private String subName;
+  private int number;
 }

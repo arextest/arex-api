@@ -5,9 +5,9 @@ import lombok.Data;
 @Data
 public class ReportDiffPathAggSummary {
 
-    private Integer caseCount;
+  private Integer caseCount;
 
-    private Integer groupTypeId;
+  private Integer groupTypeId;
 
-    // private List<SceneDetail> msgList;
+  // private List<SceneDetail> msgList;
 }

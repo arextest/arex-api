@@ -5,9 +5,9 @@ import lombok.Data;
 @Data
 public class PageQuery {
 
-    private Integer pageIndex;
+  private Integer pageIndex;
 
-    private Integer pageSize;
+  private Integer pageSize;
 
-    private Boolean queryTotalNum;
+  private Boolean queryTotalNum;
 }
