@@ -4,7 +4,8 @@ import lombok.Data;
 
 @Data
 public class BaseDto {
-    private String id;
-    private Long dataChangeCreateTime;
-    private Long dataChangeUpdateTime;
+
+  private String id;
+  private Long dataChangeCreateTime;
+  private Long dataChangeUpdateTime;
 }

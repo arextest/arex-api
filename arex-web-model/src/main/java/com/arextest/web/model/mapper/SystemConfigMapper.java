@@ -1,12 +1,11 @@
 package com.arextest.web.model.mapper;
 
+import com.arextest.web.model.contract.contracts.config.SystemConfig;
+import com.arextest.web.model.dao.mongodb.SystemConfigCollection;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
 import org.mapstruct.factory.Mappers;
-
-import com.arextest.web.model.contract.contracts.config.SystemConfig;
-import com.arextest.web.model.dao.mongodb.SystemConfigCollection;
 
 /**
  * @author wildeslam.
@@ -14,13 +13,14 @@ import com.arextest.web.model.dao.mongodb.SystemConfigCollection;
  */
 @Mapper
 public interface SystemConfigMapper {
-    SystemConfigMapper INSTANCE = Mappers.getMapper(SystemConfigMapper.class);
 
-    SystemConfig dtoFromDao(SystemConfigCollection dao);
+  SystemConfigMapper INSTANCE = Mappers.getMapper(SystemConfigMapper.class);
 
-    @Mappings({@Mapping(target = "id", expression = "java(null)"),
-        @Mapping(target = "dataChangeCreateTime", expression = "java(System.currentTimeMillis())"),
-        @Mapping(target = "dataChangeUpdateTime", expression = "java(System.currentTimeMillis())")})
-    SystemConfigCollection daoFromDto(SystemConfig dto);
+  SystemConfig dtoFromDao(SystemConfigCollection dao);
+
+  @Mappings({@Mapping(target = "id", expression = "java(null)"),
+      @Mapping(target = "dataChangeCreateTime", expression = "java(System.currentTimeMillis())"),
+      @Mapping(target = "dataChangeUpdateTime", expression = "java(System.currentTimeMillis())")})
+  SystemConfigCollection daoFromDto(SystemConfig dto);
 
 }

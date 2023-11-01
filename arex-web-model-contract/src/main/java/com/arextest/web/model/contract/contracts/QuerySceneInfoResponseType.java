@@ -1,7 +1,6 @@
 package com.arextest.web.model.contract.contracts;
 
 import java.util.List;
-
 import lombok.Data;
 
 /**
@@ -10,33 +9,36 @@ import lombok.Data;
 @Data
 public class QuerySceneInfoResponseType {
 
-    private List<SceneInfoType> sceneInfos;
+  private List<SceneInfoType> sceneInfos;
 
-    @Data
-    public static class SceneInfoType {
-        private int count;
-        private List<SubSceneInfoType> subScenes;
-    }
+  @Data
+  public static class SceneInfoType {
 
-    @Data
-    public static class SubSceneInfoType {
-        private int count;
-        private String recordId;
-        private String replayId;
-        private long recordTime;
-        private long replayTime;
-        /**
-         * @see com.arextest.web.model.enums.FeedbackTypeEnum#getCode() ;
-         */
-        private Integer feedbackType;
-        private String remark;
-        private List<DiffDetailType> details;
-    }
+    private int count;
+    private List<SubSceneInfoType> subScenes;
+  }
 
-    @Data
-    public static class DiffDetailType {
-        private int code;
-        private String categoryName;
-        private String operationName;
-    }
+  @Data
+  public static class SubSceneInfoType {
+
+    private int count;
+    private String recordId;
+    private String replayId;
+    private long recordTime;
+    private long replayTime;
+    /**
+     * @see com.arextest.web.model.enums.FeedbackTypeEnum#getCode() ;
+     */
+    private Integer feedbackType;
+    private String remark;
+    private List<DiffDetailType> details;
+  }
+
+  @Data
+  public static class DiffDetailType {
+
+    private int code;
+    private String categoryName;
+    private String operationName;
+  }
 }

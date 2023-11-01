@@ -1,7 +1,6 @@
 package com.arextest.web.model.contract.contracts.replay;
 
 import java.util.List;
-
 import lombok.Data;
 
 /**
@@ -10,35 +9,36 @@ import lombok.Data;
 @Data
 public class AnalyzeCompareResultsRequestType {
 
-    private List<AnalyzeCompareInfoItem> analyzeCompareInfos;
+  private List<AnalyzeCompareInfoItem> analyzeCompareInfos;
 
-    @Data
-    public static class AnalyzeCompareInfoItem {
+  @Data
+  public static class AnalyzeCompareInfoItem {
 
-        private String planId;
+    private String planId;
 
-        private String planItemId;
+    private String planItemId;
 
-        private String operationId;
+    private String operationId;
 
-        private String serviceName;
+    private String serviceName;
 
-        private String categoryName;
+    private String categoryName;
 
-        private String operationName;
+    private String operationName;
 
-        private String replayId;
+    private String replayId;
 
-        private String recordId;
+    private String recordId;
 
-        private Integer diffResultCode;
+    private Integer diffResultCode;
 
-        private MsgInfo msgInfo;
+    private MsgInfo msgInfo;
 
-    }
+  }
 
-    @Data
-    public static class MsgInfo {
-        private int msgMiss;
-    }
+  @Data
+  public static class MsgInfo {
+
+    private int msgMiss;
+  }
 }

@@ -1,18 +1,14 @@
 package com.arextest.web.core.business;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
-import javax.annotation.Resource;
-
-import org.springframework.stereotype.Service;
-
 import com.arextest.web.core.repository.DesensitizationJarRepository;
 import com.arextest.web.model.contract.contracts.datadesensitization.DesensitizationJar;
 import com.arextest.web.model.dto.DesensitizationJarDto;
 import com.arextest.web.model.mapper.DesensitizationJarMapper;
-
+import java.util.List;
+import java.util.stream.Collectors;
+import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 
 /**
  * Created by Qzmo on 2023/8/16
@@ -20,23 +16,24 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 public class DesensitizationService {
-    @Resource
-    private DesensitizationJarRepository jarRepository;
 
-    public boolean saveJar(String uri, String remark) {
-        jarRepository.deleteAll();
-        DesensitizationJarDto jarDto = new DesensitizationJarDto();
-        jarDto.setJarUrl(uri);
-        jarDto.setRemark(remark);
-        return jarRepository.saveJar(jarDto);
-    }
+  @Resource
+  private DesensitizationJarRepository jarRepository;
 
-    public boolean deleteJar(String jarId) {
-        return jarRepository.deleteJar(jarId);
-    }
+  public boolean saveJar(String uri, String remark) {
+    jarRepository.deleteAll();
+    DesensitizationJarDto jarDto = new DesensitizationJarDto();
+    jarDto.setJarUrl(uri);
+    jarDto.setRemark(remark);
+    return jarRepository.saveJar(jarDto);
+  }
 
-    public List<DesensitizationJar> listAllJars() {
-        return jarRepository.queryAll().stream().map(DesensitizationJarMapper.INSTANCE::contractFromDto)
-            .collect(Collectors.toList());
-    }
+  public boolean deleteJar(String jarId) {
+    return jarRepository.deleteJar(jarId);
+  }
+
+  public List<DesensitizationJar> listAllJars() {
+    return jarRepository.queryAll().stream().map(DesensitizationJarMapper.INSTANCE::contractFromDto)
+        .collect(Collectors.toList());
+  }
 }

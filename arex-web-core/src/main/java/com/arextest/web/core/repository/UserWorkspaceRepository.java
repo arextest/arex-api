@@ -1,21 +1,21 @@
 package com.arextest.web.core.repository;
 
+import com.arextest.web.model.dto.filesystem.UserWorkspaceDto;
 import java.util.List;
 
-import com.arextest.web.model.dto.filesystem.UserWorkspaceDto;
-
 public interface UserWorkspaceRepository extends RepositoryProvider {
-    UserWorkspaceDto queryUserWorkspace(String userName, String workspaceId);
 
-    UserWorkspaceDto update(UserWorkspaceDto dto);
+  UserWorkspaceDto queryUserWorkspace(String userName, String workspaceId);
 
-    Boolean verify(UserWorkspaceDto dto);
+  UserWorkspaceDto update(UserWorkspaceDto dto);
 
-    List<UserWorkspaceDto> queryWorkspacesByUser(String userName);
+  Boolean verify(UserWorkspaceDto dto);
 
-    List<UserWorkspaceDto> queryUsersByWorkspace(String workspaceId);
+  List<UserWorkspaceDto> queryWorkspacesByUser(String userName);
 
-    Boolean remove(String userName, String workspaceId);
+  List<UserWorkspaceDto> queryUsersByWorkspace(String workspaceId);
 
-    Boolean removeByWorkspaceId(String workspaceId);
+  Boolean remove(String userName, String workspaceId);
+
+  Boolean removeByWorkspaceId(String workspaceId);
 }

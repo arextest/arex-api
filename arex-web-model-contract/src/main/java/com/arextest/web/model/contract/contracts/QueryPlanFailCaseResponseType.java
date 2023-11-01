@@ -2,7 +2,6 @@ package com.arextest.web.model.contract.contracts;
 
 import java.util.List;
 import java.util.Set;
-
 import lombok.Data;
 
 /**
@@ -10,11 +9,13 @@ import lombok.Data;
  */
 @Data
 public class QueryPlanFailCaseResponseType {
-    private List<FailCaseInfo> failCaseInfoList;
 
-    @Data
-    public static class FailCaseInfo {
-        private String operationId;
-        private Set<String> replayIdList;
-    }
+  private List<FailCaseInfo> failCaseInfoList;
+
+  @Data
+  public static class FailCaseInfo {
+
+    private String operationId;
+    private Set<String> replayIdList;
+  }
 }

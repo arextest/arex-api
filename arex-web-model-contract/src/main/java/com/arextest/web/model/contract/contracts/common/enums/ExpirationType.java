@@ -7,19 +7,20 @@ import lombok.Getter;
  * @since 2022/2/7
  */
 public enum ExpirationType {
-    /**
-     * pinned forever use it
-     */
-    PINNED_NEVER_EXPIRED(0),
-    /**
-     * after timeout, still displayed but not work.
-     */
-    SOFT_TIME_EXPIRED(1),;
+  /**
+   * pinned forever use it
+   */
+  PINNED_NEVER_EXPIRED(0),
+  /**
+   * after timeout, still displayed but not work.
+   */
+  SOFT_TIME_EXPIRED(1),
+  ;
 
-    @Getter
-    private final int codeValue;
+  @Getter
+  private final int codeValue;
 
-    ExpirationType(int codeValue) {
-        this.codeValue = codeValue;
-    }
+  ExpirationType(int codeValue) {
+    this.codeValue = codeValue;
+  }
 }

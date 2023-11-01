@@ -4,7 +4,8 @@ import lombok.Data;
 
 @Data
 public class AddDependencyToSystemResponseType {
-    private String appId;
-    private String operationId;
-    private String dependencyId;
+
+  private String appId;
+  private String operationId;
+  private String dependencyId;
 }

@@ -7,5 +7,6 @@ import com.arextest.web.model.dto.filesystem.FSTraceLogDto;
  * @since 2023/2/7
  */
 public interface RecoveryService {
-    boolean recovery(FSTraceLogDto log);
+
+  boolean recovery(FSTraceLogDto log);
 }

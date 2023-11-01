@@ -1,32 +1,5 @@
 package com.arextest.web.core.business.filesystem;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Queue;
-import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
-
-import javax.annotation.Resource;
-
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.SetUtils;
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.MutablePair;
-import org.bson.internal.Base64;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-
 import com.arextest.common.utils.JwtUtil;
 import com.arextest.web.common.LoadResource;
 import com.arextest.web.common.LogUtils;
@@ -110,1055 +83,1101 @@ import com.arextest.web.model.mapper.UserWorkspaceMapper;
 import com.arextest.web.model.mapper.WorkspaceMapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Queue;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
+import javax.annotation.Resource;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.SetUtils;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.MutablePair;
+import org.bson.internal.Base64;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
 public class FileSystemService {
-    private static final String DEFAULT_WORKSPACE_NAME = "MyWorkSpace";
-    private static final String DEFAULT_INTERFACE_NAME = "Default Interface";
-    private static final String DUPLICATE_SUFFIX = "_copy";
-    private static final String INVITATION_EMAIL_TEMPLATE = "classpath:invitationEmailTemplate.htm";
-    private static final String SOMEBODY_PLACEHOLDER = "{{somebody}}";
-    private static final String WORKSPACE_NAME_PLACEHOLDER = "{{workspaceName}}";
-    private static final String LINK_PLACEHOLDER = "{{link}}";
-    private static final String GET_METHOD = "GET";
-    private static final String AREX_RECORD_ID = "arex-record-id";
-    private static final String AREX_REPLAY_PREPARE_DEPENDENCY = "arex_replay_prepare_dependency";
-    private static final String PINNED_PRE_FIX = "pinned_";
 
-    @Value("${arex.api.case.inherited}")
-    private String arexCaseInherited;
+  private static final String DEFAULT_WORKSPACE_NAME = "MyWorkSpace";
+  private static final String DEFAULT_INTERFACE_NAME = "Default Interface";
+  private static final String DUPLICATE_SUFFIX = "_copy";
+  private static final String INVITATION_EMAIL_TEMPLATE = "classpath:invitationEmailTemplate.htm";
+  private static final String SOMEBODY_PLACEHOLDER = "{{somebody}}";
+  private static final String WORKSPACE_NAME_PLACEHOLDER = "{{workspaceName}}";
+  private static final String LINK_PLACEHOLDER = "{{link}}";
+  private static final String GET_METHOD = "GET";
+  private static final String AREX_RECORD_ID = "arex-record-id";
+  private static final String AREX_REPLAY_PREPARE_DEPENDENCY = "arex_replay_prepare_dependency";
+  private static final String PINNED_PRE_FIX = "pinned_";
 
-    @Resource
-    private FSTreeRepository fsTreeRepository;
+  @Value("${arex.api.case.inherited}")
+  private String arexCaseInherited;
 
-    @Resource
-    private FSFolderRepository fsFolderRepository;
+  @Resource
+  private FSTreeRepository fsTreeRepository;
 
-    @Resource
-    private FSInterfaceRepository fsInterfaceRepository;
+  @Resource
+  private FSFolderRepository fsFolderRepository;
 
-    @Resource
-    private FSCaseRepository fsCaseRepository;
+  @Resource
+  private FSInterfaceRepository fsInterfaceRepository;
 
-    @Resource
-    private UserWorkspaceRepository userWorkspaceRepository;
+  @Resource
+  private FSCaseRepository fsCaseRepository;
 
-    @Resource
-    private UserRepository userRepository;
+  @Resource
+  private UserWorkspaceRepository userWorkspaceRepository;
 
-    @Resource
-    private FSTraceLogRepository fsTraceLogRepository;
+  @Resource
+  private UserRepository userRepository;
 
-    @Resource
-    private ItemInfoFactory itemInfoFactory;
+  @Resource
+  private FSTraceLogRepository fsTraceLogRepository;
 
-    @Resource
-    private MailUtils mailUtils;
+  @Resource
+  private ItemInfoFactory itemInfoFactory;
 
-    @Resource
-    private StorageCase storageCase;
+  @Resource
+  private MailUtils mailUtils;
 
-    @Resource
-    private LoadResource loadResource;
+  @Resource
+  private StorageCase storageCase;
 
-    @Resource
-    private ImportExportFactory importExportFactory;
+  @Resource
+  private LoadResource loadResource;
 
-    @Resource
-    private FileSystemUtils fileSystemUtils;
+  @Resource
+  private ImportExportFactory importExportFactory;
 
-    @Resource
-    private FSTraceLogUtils fsTraceLogUtils;
+  @Resource
+  private FileSystemUtils fileSystemUtils;
 
-    @Resource
-    private RecoveryFactory recoveryFactory;
+  @Resource
+  private FSTraceLogUtils fsTraceLogUtils;
 
-    @Resource
-    private ReportPlanStatisticRepository reportPlanStatisticRepository;
+  @Resource
+  private RecoveryFactory recoveryFactory;
 
-    @Resource
-    private ObjectMapper objectMapper;
+  @Resource
+  private ReportPlanStatisticRepository reportPlanStatisticRepository;
 
-    public FSAddItemResponseType addItemForController(FSAddItemRequestType request) {
-        FSAddItemResponseType response = new FSAddItemResponseType();
-        MutablePair<String, FSTreeDto> tuple = addItem(request);
-        if (tuple == null) {
-            response.setSuccess(false);
-            return response;
-        }
-        response.setSuccess(true);
-        response.setInfoId(tuple.getLeft());
-        response.setWorkspaceId(tuple.getRight().getId());
-        return response;
+  @Resource
+  private ObjectMapper objectMapper;
+
+  public FSAddItemResponseType addItemForController(FSAddItemRequestType request) {
+    FSAddItemResponseType response = new FSAddItemResponseType();
+    MutablePair<String, FSTreeDto> tuple = addItem(request);
+    if (tuple == null) {
+      response.setSuccess(false);
+      return response;
+    }
+    response.setSuccess(true);
+    response.setInfoId(tuple.getLeft());
+    response.setWorkspaceId(tuple.getRight().getId());
+    return response;
+  }
+
+  /**
+   * add item into workspace
+   *
+   * @return <InfoId, FSTreeDto>
+   */
+  public MutablePair<String, FSTreeDto> addItem(FSAddItemRequestType request) {
+
+    ItemInfo itemInfo = itemInfoFactory.getItemInfo(request.getNodeType());
+    if (itemInfo == null) {
+      return null;
     }
 
-    /**
-     * add item into workspace
-     *
-     * @return <InfoId, FSTreeDto>
-     */
-    public MutablePair<String, FSTreeDto> addItem(FSAddItemRequestType request) {
+    try {
+      if (StringUtils.isEmpty(request.getWorkspaceName())) {
+        request.setWorkspaceName(DEFAULT_WORKSPACE_NAME);
+      }
+      if (StringUtils.isEmpty(request.getUserName())) {
+        request.setUserName(StringUtils.EMPTY);
+      }
 
-        ItemInfo itemInfo = itemInfoFactory.getItemInfo(request.getNodeType());
-        if (itemInfo == null) {
+      String workspaceId = null;
+      if (StringUtils.isEmpty(request.getId())) {
+        FSTreeDto dto = addWorkspace(request.getWorkspaceName(), request.getUserName());
+        workspaceId = dto.getId();
+      } else {
+        workspaceId = request.getId();
+      }
+
+      AtomicReference<String> infoId = new AtomicReference<>();
+
+      FSTreeDto workspace = fsTreeRepository.updateFSTree(workspaceId, dto -> {
+        List<FSNodeDto> targetTreeNodes = null;
+        if (request.getParentPath() == null || request.getParentPath().length == 0) {
+          infoId.set(itemInfo.initItem(null, null, dto.getId(), request.getNodeName()));
+          targetTreeNodes = dto.getRoots();
+        } else {
+          String[] nodes = request.getParentPath();
+
+          FSNodeDto current = fileSystemUtils.findByInfoId(dto.getRoots(), nodes[0]);
+          if (current == null) {
             return null;
+          }
+
+          boolean error = false;
+          for (int i = 1; i < nodes.length; i++) {
+            String node = nodes[i];
+            if (current.getChildren() == null || current.getChildren().size() == 0) {
+              error = true;
+              break;
+            }
+            current = fileSystemUtils.findByInfoId(current.getChildren(), node);
+
+            if (current == null) {
+              error = true;
+              break;
+            }
+          }
+          if (error) {
+            return null;
+          }
+
+          if (current.getChildren() == null) {
+            current.setChildren(new ArrayList<>());
+          }
+          infoId.set(itemInfo.initItem(current.getInfoId(), current.getNodeType(), dto.getId(),
+              request.getNodeName()));
+          targetTreeNodes = current.getChildren();
         }
 
-        try {
-            if (StringUtils.isEmpty(request.getWorkspaceName())) {
-                request.setWorkspaceName(DEFAULT_WORKSPACE_NAME);
-            }
-            if (StringUtils.isEmpty(request.getUserName())) {
-                request.setUserName(StringUtils.EMPTY);
-            }
+        FSNodeDto nodeDto = new FSNodeDto();
+        nodeDto.setNodeName(request.getNodeName());
+        nodeDto.setInfoId(infoId.get());
+        nodeDto.setNodeType(request.getNodeType());
+        if (request.getNodeType() == FSInfoItem.CASE) {
+          nodeDto.setCaseSourceType(request.getCaseSourceType());
+        }
+        if (request.getNodeType() == FSInfoItem.INTERFACE) {
+          nodeDto.setMethod(GET_METHOD);
+        }
+        targetTreeNodes.add(0, nodeDto);
+        return dto;
+      });
+      if (workspace != null) {
+        return new MutablePair<>(infoId.get(), workspace);
+      }
+    } catch (Exception e) {
+      LogUtils.error(LOGGER, "failed to add item to filesystem", e);
+      return null;
+    }
+    return null;
+  }
 
-            String workspaceId = null;
-            if (StringUtils.isEmpty(request.getId())) {
-                FSTreeDto dto = addWorkspace(request.getWorkspaceName(), request.getUserName());
-                workspaceId = dto.getId();
-            } else {
-                workspaceId = request.getId();
-            }
+  public Boolean removeItem(FSRemoveItemRequestType request, String userName) {
 
-            AtomicReference<String> infoId = new AtomicReference<>();
+    FSTreeDto treeDto = fsTreeRepository.updateFSTree(request.getId(), dto -> {
+      if (dto == null) {
+        return null;
+      }
+      List<FSNodeDto> current = dto.getRoots();
+      if (current == null) {
+        return null;
+      }
 
-            FSTreeDto workspace = fsTreeRepository.updateFSTree(workspaceId, dto -> {
-                List<FSNodeDto> targetTreeNodes = null;
-                if (request.getParentPath() == null || request.getParentPath().length == 0) {
-                    infoId.set(itemInfo.initItem(null, null, dto.getId(), request.getNodeName()));
-                    targetTreeNodes = dto.getRoots();
-                } else {
-                    String[] nodes = request.getParentPath();
+      String parentId = null;
+      String[] nodes = request.getRemoveNodePath();
+      for (int i = 0; i < nodes.length - 1; i++) {
 
-                    FSNodeDto current = fileSystemUtils.findByInfoId(dto.getRoots(), nodes[0]);
-                    if (current == null) {
-                        return null;
-                    }
+        String node = nodes[i];
+        FSNodeDto find = fileSystemUtils.findByInfoId(current, node);
 
-                    boolean error = false;
-                    for (int i = 1; i < nodes.length; i++) {
-                        String node = nodes[i];
-                        if (current.getChildren() == null || current.getChildren().size() == 0) {
-                            error = true;
-                            break;
-                        }
-                        current = fileSystemUtils.findByInfoId(current.getChildren(), node);
+        if (find == null || find.getChildren() == null) {
+          return null;
+        }
+        current = find.getChildren();
+        parentId = find.getInfoId();
+      }
 
-                        if (current == null) {
-                            error = true;
-                            break;
-                        }
-                    }
-                    if (error) {
-                        return null;
-                    }
+      FSNodeDto needRemove = fileSystemUtils.findByInfoId(current, nodes[nodes.length - 1]);
+      removeItems(needRemove, userName, parentId, request.getId());
+      current.remove(needRemove);
+      return dto;
+    });
 
-                    if (current.getChildren() == null) {
-                        current.setChildren(new ArrayList<>());
-                    }
-                    infoId.set(itemInfo.initItem(current.getInfoId(), current.getNodeType(), dto.getId(),
-                        request.getNodeName()));
-                    targetTreeNodes = current.getChildren();
-                }
+    return treeDto != null ? true : false;
+  }
 
-                FSNodeDto nodeDto = new FSNodeDto();
-                nodeDto.setNodeName(request.getNodeName());
-                nodeDto.setInfoId(infoId.get());
-                nodeDto.setNodeType(request.getNodeType());
-                if (request.getNodeType() == FSInfoItem.CASE) {
-                    nodeDto.setCaseSourceType(request.getCaseSourceType());
-                }
-                if (request.getNodeType() == FSInfoItem.INTERFACE) {
-                    nodeDto.setMethod(GET_METHOD);
-                }
-                targetTreeNodes.add(0, nodeDto);
-                return dto;
-            });
-            if (workspace != null) {
-                return new MutablePair<>(infoId.get(), workspace);
-            }
-        } catch (Exception e) {
-            LogUtils.error(LOGGER, "failed to add item to filesystem", e);
-            return null;
+  public Boolean rename(FSRenameRequestType request) {
+
+    FSTreeDto fsTreeDto = fsTreeRepository.updateFSTree(request.getId(), dto -> {
+      if (dto == null) {
+        return null;
+      }
+      FSNodeDto fsNodeDto = fileSystemUtils.findByPath(dto.getRoots(), request.getPath());
+      if (fsNodeDto == null) {
+        return null;
+      }
+      ItemInfo itemInfo = itemInfoFactory.getItemInfo(fsNodeDto.getNodeType());
+      FSItemDto itemDto = itemInfo.queryById(request.getPath()[request.getPath().length - 1]);
+      if (itemInfo == null) {
+        return null;
+      }
+      itemDto.setName(request.getNewName());
+      itemInfo.saveItem(itemDto);
+      fsNodeDto.setNodeName(request.getNewName());
+      return dto;
+    });
+    return fsTreeDto != null ? true : false;
+  }
+
+  public Boolean duplicate(FSDuplicateRequestType request) {
+    try {
+      FSTreeDto treeDto = fsTreeRepository.updateFSTree(request.getId(), dto -> {
+        FSNodeDto parent = null;
+        FSNodeDto current;
+        if (request.getPath().length != 1) {
+          parent = fileSystemUtils.findByPath(dto.getRoots(),
+              Arrays.copyOfRange(request.getPath(), 0, request.getPath().length - 1));
+          current = fileSystemUtils.findByInfoId(parent.getChildren(),
+              request.getPath()[request.getPath().length - 1]);
+        } else {
+          current = fileSystemUtils.findByInfoId(dto.getRoots(), request.getPath()[0]);
+        }
+        FSNodeDto dupNodeDto = duplicateInfo(parent == null ? null : parent.getInfoId(),
+            current.getNodeName() + DUPLICATE_SUFFIX, current);
+        if (parent == null) {
+          this.addDuplicateItemFollowCurrent(dto.getRoots(), dupNodeDto, current);
+        } else {
+          this.addDuplicateItemFollowCurrent(parent.getChildren(), dupNodeDto, current);
+        }
+        return dto;
+      });
+
+      return treeDto != null ? true : false;
+    } catch (Exception e) {
+      LogUtils.error(LOGGER, "failed to duplicate item", e);
+      return false;
+    }
+  }
+
+  public Boolean move(FSMoveItemRequestType request) {
+    try {
+      FSTreeDto treeDto = fsTreeRepository.updateFSTree(request.getId(), dto -> {
+        MutablePair<Integer, FSNodeDto> current =
+            fileSystemUtils.findByPathWithIndex(dto.getRoots(), request.getFromNodePath());
+        if (current == null) {
+          return null;
+        }
+        FSNodeDto fromParent = null;
+        FSNodeDto toParent = null;
+        if (request.getFromNodePath().length > 1) {
+          fromParent = fileSystemUtils.findByPath(dto.getRoots(),
+              Arrays.copyOfRange(request.getFromNodePath(), 0,
+                  request.getFromNodePath().length - 1));
+        }
+        if (request.getToParentPath() != null && request.getToParentPath().length > 0) {
+          toParent = fileSystemUtils.findByPath(dto.getRoots(), request.getToParentPath());
+        }
+        Integer toIndex = request.getToIndex() == null ? 0 : request.getToIndex();
+        if (toParent == null) {
+          dto.getRoots().add(toIndex, current.getRight());
+          updateParentId(current.getRight(), "", 0);
+        } else {
+          if (toParent.getChildren() == null) {
+            toParent.setChildren(new ArrayList<>());
+          }
+          toParent.getChildren().add(toIndex, current.getRight());
+          updateParentId(current.getRight(), toParent.getInfoId(), toParent.getNodeType());
+        }
+        if (fromParent == null && toParent == null) {
+          if (request.getToIndex() < current.getLeft()) {
+            dto.getRoots().remove(current.getLeft() + 1);
+          } else {
+            dto.getRoots().remove(current.getLeft().intValue());
+          }
+        } else if (fromParent != null && toParent != null
+            && Objects.equals(fromParent.getInfoId(), toParent.getInfoId())) {
+          if (request.getToIndex() < current.getLeft()) {
+            fromParent.getChildren().remove(current.getLeft() + 1);
+          } else {
+            fromParent.getChildren().remove(current.getLeft().intValue());
+          }
+        } else {
+          if (fromParent == null) {
+            dto.getRoots().remove(current.getLeft().intValue());
+          } else {
+            fromParent.getChildren().remove(current.getLeft().intValue());
+          }
+        }
+        return dto;
+      });
+      return treeDto != null ? true : false;
+    } catch (Exception e) {
+      LogUtils.error(LOGGER, "failed to move item", e);
+      return false;
+    }
+  }
+
+  public Boolean renameWorkspace(FSRenameWorkspaceRequestType request) {
+    try {
+      FSTreeDto treeDto = fsTreeRepository.updateFSTree(request.getId(), dto -> {
+        dto.setWorkspaceName(request.getWorkspaceName());
+        return dto;
+      });
+      return treeDto != null ? true : false;
+    } catch (Exception e) {
+      LogUtils.error(LOGGER, "failed to rename workspace", e);
+      return false;
+    }
+  }
+
+  public Boolean deleteWorkspace(String id) {
+    FSTreeDto treeDto = fsTreeRepository.queryFSTreeById(id);
+    Map<Integer, Set<String>> itemMap = new HashMap<>();
+    Queue<FSNodeDto> queue = new ArrayDeque<>(treeDto.getRoots());
+
+    while (!queue.isEmpty()) {
+      FSNodeDto node = queue.poll();
+      if (!itemMap.containsKey(node.getNodeType())) {
+        itemMap.put(node.getNodeType(), new HashSet<>());
+      }
+      itemMap.get(node.getNodeType()).add(node.getInfoId());
+      if (node.getChildren() != null && node.getChildren().size() > 0) {
+        queue.addAll(node.getChildren());
+      }
+    }
+    if (itemMap.size() > 0) {
+      for (Map.Entry<Integer, Set<String>> items : itemMap.entrySet()) {
+        ItemInfo itemInfo = itemInfoFactory.getItemInfo(items.getKey());
+        itemInfo.removeItems(items.getValue());
+      }
+    }
+    Boolean result = userWorkspaceRepository.removeByWorkspaceId(id);
+    result &= fsTreeRepository.deleteFSTree(id);
+    return result;
+  }
+
+  public FSQueryWorkspaceResponseType queryWorkspaceById(FSQueryWorkspaceRequestType request) {
+    FSQueryWorkspaceResponseType response = new FSQueryWorkspaceResponseType();
+    FSTreeDto treeDto = fsTreeRepository.queryFSTreeById(request.getId());
+    FSTreeType treeType = FSTreeMapper.INSTANCE.contractFromDto(treeDto);
+    response.setFsTree(treeType);
+    return response;
+  }
+
+  public FSQueryWorkspacesResponseType queryWorkspacesByUser(FSQueryWorkspacesRequestType request) {
+    FSQueryWorkspacesResponseType response = new FSQueryWorkspacesResponseType();
+    List<UserWorkspaceDto> userWorkspaceDtos = userWorkspaceRepository.queryWorkspacesByUser(
+        request.getUserName());
+    if (userWorkspaceDtos == null) {
+      response.setWorkspaces(new ArrayList<>());
+      return response;
+    }
+    Map<String, Integer> workspaceIdRoleMap = userWorkspaceDtos.stream()
+        .collect(Collectors.toMap(UserWorkspaceDto::getWorkspaceId, UserWorkspaceDto::getRole));
+
+    List<FSTreeDto> treeDtos = fsTreeRepository.queryFSTreeByIds(workspaceIdRoleMap.keySet());
+
+    List<WorkspaceDto> workspaces = new ArrayList<>();
+    treeDtos.forEach(tree -> {
+      WorkspaceDto dto = new WorkspaceDto();
+      dto.setId(tree.getId());
+      dto.setWorkspaceName(tree.getWorkspaceName());
+      dto.setRole(workspaceIdRoleMap.get(dto.getId()));
+      workspaces.add(dto);
+    });
+    response.setWorkspaces(WorkspaceMapper.INSTANCE.contractFromDtoList(workspaces));
+    return response;
+  }
+
+  public FSQueryUsersByWorkspaceResponseType queryUsersByWorkspace(
+      FSQueryUsersByWorkspaceRequestType request) {
+    FSQueryUsersByWorkspaceResponseType response = new FSQueryUsersByWorkspaceResponseType();
+    List<UserWorkspaceDto> userWorkspaceDtos =
+        userWorkspaceRepository.queryUsersByWorkspace(request.getWorkspaceId());
+    if (userWorkspaceDtos == null) {
+      response.setUsers(new ArrayList<>());
+      return response;
+    }
+    List<UserType> users =
+        userWorkspaceDtos.stream().map(UserWorkspaceMapper.INSTANCE::userTypeFromDto)
+            .collect(Collectors.toList());
+    response.setUsers(users);
+    return response;
+  }
+
+  public FSSaveFolderResponseType saveFolder(FSSaveFolderRequestType request, String userName) {
+    FSSaveFolderResponseType response = new FSSaveFolderResponseType();
+    FSFolderDto dto = FSFolderMapper.INSTANCE.dtoFromContract(request);
+
+    try {
+      dto = fsFolderRepository.saveFolder(dto);
+      fsTraceLogUtils.logUpdateItem(userName, dto);
+      response.setSuccess(true);
+    } catch (Exception e) {
+      response.setSuccess(false);
+    }
+    return response;
+  }
+
+  public FSQueryFolderResponseType queryFolder(FSQueryFolderRequestType request) {
+    FSFolderDto dto = fsFolderRepository.queryById(request.getId());
+    if (dto == null) {
+      return new FSQueryFolderResponseType();
+    }
+    FSQueryFolderResponseType response = FSFolderMapper.INSTANCE.contractFromDto(dto);
+    response.setParentPath(getParentPath(dto.getParentId(), dto.getParentNodeType()));
+    return response;
+  }
+
+  public boolean saveInterface(FSSaveInterfaceRequestType request, String userName) {
+    FSInterfaceDto interfaceDto = FSInterfaceMapper.INSTANCE.dtoFromContract(request);
+    try {
+      interfaceDto = fsInterfaceRepository.saveInterface(interfaceDto);
+      fsTraceLogUtils.logUpdateItem(userName, interfaceDto);
+      // update method in workspace tree
+      fsTreeRepository.updateFSTree(request.getWorkspaceId(), dto -> {
+        if (dto == null) {
+          return null;
+        }
+        FSNodeDto node = fileSystemUtils.deepFindByInfoId(dto.getRoots(), request.getId());
+        if (node == null) {
+          return null;
+        }
+        if (request.getAddress() != null
+            && !Objects.equals(request.getAddress().getMethod(), node.getMethod())) {
+          node.setMethod(request.getAddress().getMethod());
+          return dto;
         }
         return null;
+      });
+      return true;
+    } catch (Exception e) {
+      LOGGER.error("Failed to save interface", e);
+      return false;
     }
+  }
 
-    public Boolean removeItem(FSRemoveItemRequestType request, String userName) {
-
-        FSTreeDto treeDto = fsTreeRepository.updateFSTree(request.getId(), dto -> {
-            if (dto == null) {
-                return null;
-            }
-            List<FSNodeDto> current = dto.getRoots();
-            if (current == null) {
-                return null;
-            }
-
-            String parentId = null;
-            String[] nodes = request.getRemoveNodePath();
-            for (int i = 0; i < nodes.length - 1; i++) {
-
-                String node = nodes[i];
-                FSNodeDto find = fileSystemUtils.findByInfoId(current, node);
-
-                if (find == null || find.getChildren() == null) {
-                    return null;
-                }
-                current = find.getChildren();
-                parentId = find.getInfoId();
-            }
-
-            FSNodeDto needRemove = fileSystemUtils.findByInfoId(current, nodes[nodes.length - 1]);
-            removeItems(needRemove, userName, parentId, request.getId());
-            current.remove(needRemove);
-            return dto;
-        });
-
-        return treeDto != null ? true : false;
+  public FSQueryInterfaceResponseType queryInterface(FSQueryInterfaceRequestType request) {
+    FSInterfaceDto dto = fsInterfaceRepository.queryInterface(request.getId());
+    if (dto == null) {
+      return new FSQueryInterfaceResponseType();
     }
+    FSQueryInterfaceResponseType response = FSInterfaceMapper.INSTANCE.contractFromDto(dto);
+    response.setParentPath(getParentPath(dto.getParentId(), dto.getParentNodeType()));
+    return response;
+  }
 
-    public Boolean rename(FSRenameRequestType request) {
-
-        FSTreeDto fsTreeDto = fsTreeRepository.updateFSTree(request.getId(), dto -> {
-            if (dto == null) {
-                return null;
-            }
-            FSNodeDto fsNodeDto = fileSystemUtils.findByPath(dto.getRoots(), request.getPath());
-            if (fsNodeDto == null) {
-                return null;
-            }
-            ItemInfo itemInfo = itemInfoFactory.getItemInfo(fsNodeDto.getNodeType());
-            FSItemDto itemDto = itemInfo.queryById(request.getPath()[request.getPath().length - 1]);
-            if (itemInfo == null) {
-                return null;
-            }
-            itemDto.setName(request.getNewName());
-            itemInfo.saveItem(itemDto);
-            fsNodeDto.setNodeName(request.getNewName());
-            return dto;
-        });
-        return fsTreeDto != null ? true : false;
-    }
-
-    public Boolean duplicate(FSDuplicateRequestType request) {
-        try {
-            FSTreeDto treeDto = fsTreeRepository.updateFSTree(request.getId(), dto -> {
-                FSNodeDto parent = null;
-                FSNodeDto current;
-                if (request.getPath().length != 1) {
-                    parent = fileSystemUtils.findByPath(dto.getRoots(),
-                        Arrays.copyOfRange(request.getPath(), 0, request.getPath().length - 1));
-                    current = fileSystemUtils.findByInfoId(parent.getChildren(),
-                        request.getPath()[request.getPath().length - 1]);
-                } else {
-                    current = fileSystemUtils.findByInfoId(dto.getRoots(), request.getPath()[0]);
-                }
-                FSNodeDto dupNodeDto = duplicateInfo(parent == null ? null : parent.getInfoId(),
-                    current.getNodeName() + DUPLICATE_SUFFIX, current);
-                if (parent == null) {
-                    this.addDuplicateItemFollowCurrent(dto.getRoots(), dupNodeDto, current);
-                } else {
-                    this.addDuplicateItemFollowCurrent(parent.getChildren(), dupNodeDto, current);
-                }
-                return dto;
-            });
-
-            return treeDto != null ? true : false;
-        } catch (Exception e) {
-            LogUtils.error(LOGGER, "failed to duplicate item", e);
-            return false;
-        }
-    }
-
-    public Boolean move(FSMoveItemRequestType request) {
-        try {
-            FSTreeDto treeDto = fsTreeRepository.updateFSTree(request.getId(), dto -> {
-                MutablePair<Integer, FSNodeDto> current =
-                    fileSystemUtils.findByPathWithIndex(dto.getRoots(), request.getFromNodePath());
-                if (current == null) {
-                    return null;
-                }
-                FSNodeDto fromParent = null;
-                FSNodeDto toParent = null;
-                if (request.getFromNodePath().length > 1) {
-                    fromParent = fileSystemUtils.findByPath(dto.getRoots(),
-                        Arrays.copyOfRange(request.getFromNodePath(), 0, request.getFromNodePath().length - 1));
-                }
-                if (request.getToParentPath() != null && request.getToParentPath().length > 0) {
-                    toParent = fileSystemUtils.findByPath(dto.getRoots(), request.getToParentPath());
-                }
-                Integer toIndex = request.getToIndex() == null ? 0 : request.getToIndex();
-                if (toParent == null) {
-                    dto.getRoots().add(toIndex, current.getRight());
-                    updateParentId(current.getRight(), "", 0);
-                } else {
-                    if (toParent.getChildren() == null) {
-                        toParent.setChildren(new ArrayList<>());
-                    }
-                    toParent.getChildren().add(toIndex, current.getRight());
-                    updateParentId(current.getRight(), toParent.getInfoId(), toParent.getNodeType());
-                }
-                if (fromParent == null && toParent == null) {
-                    if (request.getToIndex() < current.getLeft()) {
-                        dto.getRoots().remove(current.getLeft() + 1);
-                    } else {
-                        dto.getRoots().remove(current.getLeft().intValue());
-                    }
-                } else if (fromParent != null && toParent != null
-                    && Objects.equals(fromParent.getInfoId(), toParent.getInfoId())) {
-                    if (request.getToIndex() < current.getLeft()) {
-                        fromParent.getChildren().remove(current.getLeft() + 1);
-                    } else {
-                        fromParent.getChildren().remove(current.getLeft().intValue());
-                    }
-                } else {
-                    if (fromParent == null) {
-                        dto.getRoots().remove(current.getLeft().intValue());
-                    } else {
-                        fromParent.getChildren().remove(current.getLeft().intValue());
-                    }
-                }
-                return dto;
-            });
-            return treeDto != null ? true : false;
-        } catch (Exception e) {
-            LogUtils.error(LOGGER, "failed to move item", e);
-            return false;
-        }
-    }
-
-    public Boolean renameWorkspace(FSRenameWorkspaceRequestType request) {
-        try {
-            FSTreeDto treeDto = fsTreeRepository.updateFSTree(request.getId(), dto -> {
-                dto.setWorkspaceName(request.getWorkspaceName());
-                return dto;
-            });
-            return treeDto != null ? true : false;
-        } catch (Exception e) {
-            LogUtils.error(LOGGER, "failed to rename workspace", e);
-            return false;
-        }
-    }
-
-    public Boolean deleteWorkspace(String id) {
-        FSTreeDto treeDto = fsTreeRepository.queryFSTreeById(id);
-        Map<Integer, Set<String>> itemMap = new HashMap<>();
-        Queue<FSNodeDto> queue = new ArrayDeque<>(treeDto.getRoots());
-
-        while (!queue.isEmpty()) {
-            FSNodeDto node = queue.poll();
-            if (!itemMap.containsKey(node.getNodeType())) {
-                itemMap.put(node.getNodeType(), new HashSet<>());
-            }
-            itemMap.get(node.getNodeType()).add(node.getInfoId());
-            if (node.getChildren() != null && node.getChildren().size() > 0) {
-                queue.addAll(node.getChildren());
-            }
-        }
-        if (itemMap.size() > 0) {
-            for (Map.Entry<Integer, Set<String>> items : itemMap.entrySet()) {
-                ItemInfo itemInfo = itemInfoFactory.getItemInfo(items.getKey());
-                itemInfo.removeItems(items.getValue());
-            }
-        }
-        Boolean result = userWorkspaceRepository.removeByWorkspaceId(id);
-        result &= fsTreeRepository.deleteFSTree(id);
-        return result;
-    }
-
-    public FSQueryWorkspaceResponseType queryWorkspaceById(FSQueryWorkspaceRequestType request) {
-        FSQueryWorkspaceResponseType response = new FSQueryWorkspaceResponseType();
-        FSTreeDto treeDto = fsTreeRepository.queryFSTreeById(request.getId());
-        FSTreeType treeType = FSTreeMapper.INSTANCE.contractFromDto(treeDto);
-        response.setFsTree(treeType);
-        return response;
-    }
-
-    public FSQueryWorkspacesResponseType queryWorkspacesByUser(FSQueryWorkspacesRequestType request) {
-        FSQueryWorkspacesResponseType response = new FSQueryWorkspacesResponseType();
-        List<UserWorkspaceDto> userWorkspaceDtos = userWorkspaceRepository.queryWorkspacesByUser(request.getUserName());
-        if (userWorkspaceDtos == null) {
-            response.setWorkspaces(new ArrayList<>());
-            return response;
-        }
-        Map<String, Integer> workspaceIdRoleMap = userWorkspaceDtos.stream()
-            .collect(Collectors.toMap(UserWorkspaceDto::getWorkspaceId, UserWorkspaceDto::getRole));
-
-        List<FSTreeDto> treeDtos = fsTreeRepository.queryFSTreeByIds(workspaceIdRoleMap.keySet());
-
-        List<WorkspaceDto> workspaces = new ArrayList<>();
-        treeDtos.forEach(tree -> {
-            WorkspaceDto dto = new WorkspaceDto();
-            dto.setId(tree.getId());
-            dto.setWorkspaceName(tree.getWorkspaceName());
-            dto.setRole(workspaceIdRoleMap.get(dto.getId()));
-            workspaces.add(dto);
-        });
-        response.setWorkspaces(WorkspaceMapper.INSTANCE.contractFromDtoList(workspaces));
-        return response;
-    }
-
-    public FSQueryUsersByWorkspaceResponseType queryUsersByWorkspace(FSQueryUsersByWorkspaceRequestType request) {
-        FSQueryUsersByWorkspaceResponseType response = new FSQueryUsersByWorkspaceResponseType();
-        List<UserWorkspaceDto> userWorkspaceDtos =
-            userWorkspaceRepository.queryUsersByWorkspace(request.getWorkspaceId());
-        if (userWorkspaceDtos == null) {
-            response.setUsers(new ArrayList<>());
-            return response;
-        }
-        List<UserType> users =
-            userWorkspaceDtos.stream().map(UserWorkspaceMapper.INSTANCE::userTypeFromDto).collect(Collectors.toList());
-        response.setUsers(users);
-        return response;
-    }
-
-    public FSSaveFolderResponseType saveFolder(FSSaveFolderRequestType request, String userName) {
-        FSSaveFolderResponseType response = new FSSaveFolderResponseType();
-        FSFolderDto dto = FSFolderMapper.INSTANCE.dtoFromContract(request);
-
-        try {
-            dto = fsFolderRepository.saveFolder(dto);
-            fsTraceLogUtils.logUpdateItem(userName, dto);
-            response.setSuccess(true);
-        } catch (Exception e) {
-            response.setSuccess(false);
-        }
-        return response;
-    }
-
-    public FSQueryFolderResponseType queryFolder(FSQueryFolderRequestType request) {
-        FSFolderDto dto = fsFolderRepository.queryById(request.getId());
+  public boolean saveCase(FSSaveCaseRequestType request, String userName) {
+    FSCaseDto caseDto = FSCaseMapper.INSTANCE.dtoFromContract(request);
+    try {
+      caseDto = fsCaseRepository.saveCase(caseDto);
+      fsTraceLogUtils.logUpdateItem(userName, caseDto);
+      // update labels in workspace tree
+      fsTreeRepository.updateFSTree(request.getWorkspaceId(), dto -> {
         if (dto == null) {
-            return new FSQueryFolderResponseType();
+          return null;
         }
-        FSQueryFolderResponseType response = FSFolderMapper.INSTANCE.contractFromDto(dto);
-        response.setParentPath(getParentPath(dto.getParentId(), dto.getParentNodeType()));
-        return response;
+        FSNodeDto node = fileSystemUtils.deepFindByInfoId(dto.getRoots(), request.getId());
+        if (node == null) {
+          return null;
+        }
+        if (!SetUtils.isEqualSet(node.getLabelIds(), request.getLabelIds())) {
+          node.setLabelIds(request.getLabelIds());
+          return dto;
+        }
+        return null;
+      });
+
+      return true;
+    } catch (Exception e) {
+      LOGGER.error("Failed to save case", e);
+      return false;
+    }
+  }
+
+  public FSQueryCaseResponseType queryCase(FSQueryCaseRequestType request) {
+    FSCaseDto dto = fsCaseRepository.queryCase(request.getId(), request.isGetCompareMsg());
+    if (dto == null) {
+      return new FSQueryCaseResponseType();
+    }
+    if (dto.getInherited() == null) {
+      dto.setInherited("true".equalsIgnoreCase(arexCaseInherited) ? Boolean.TRUE : Boolean.FALSE);
     }
 
-    public boolean saveInterface(FSSaveInterfaceRequestType request, String userName) {
-        FSInterfaceDto interfaceDto = FSInterfaceMapper.INSTANCE.dtoFromContract(request);
-        try {
-            interfaceDto = fsInterfaceRepository.saveInterface(interfaceDto);
-            fsTraceLogUtils.logUpdateItem(userName, interfaceDto);
-            // update method in workspace tree
-            fsTreeRepository.updateFSTree(request.getWorkspaceId(), dto -> {
-                if (dto == null) {
-                    return null;
-                }
-                FSNodeDto node = fileSystemUtils.deepFindByInfoId(dto.getRoots(), request.getId());
-                if (node == null) {
-                    return null;
-                }
-                if (request.getAddress() != null
-                    && !Objects.equals(request.getAddress().getMethod(), node.getMethod())) {
-                    node.setMethod(request.getAddress().getMethod());
-                    return dto;
-                }
-                return null;
-            });
-            return true;
-        } catch (Exception e) {
-            LOGGER.error("Failed to save interface", e);
-            return false;
-        }
+    FSQueryCaseResponseType response = FSCaseMapper.INSTANCE.contractFromDto(dto);
+    response.setParentPath(getParentPath(dto.getParentId(), dto.getParentNodeType()));
+    String parentId = dto.getParentId();
+    FSInterfaceDto fsInterfaceDto = fsInterfaceRepository.queryInterface(parentId);
+    if (fsInterfaceDto != null) {
+      FSQueryInterfaceResponseType fsQueryInterfaceResponseType =
+          FSInterfaceMapper.INSTANCE.contractFromDto(fsInterfaceDto);
+      response.setParentPreRequestScripts(fsQueryInterfaceResponseType.getPreRequestScripts());
     }
+    return response;
+  }
 
-    public FSQueryInterfaceResponseType queryInterface(FSQueryInterfaceRequestType request) {
-        FSInterfaceDto dto = fsInterfaceRepository.queryInterface(request.getId());
-        if (dto == null) {
-            return new FSQueryInterfaceResponseType();
-        }
-        FSQueryInterfaceResponseType response = FSInterfaceMapper.INSTANCE.contractFromDto(dto);
-        response.setParentPath(getParentPath(dto.getParentId(), dto.getParentNodeType()));
-        return response;
-    }
+  public FSAddWorkspaceResponseType addWorkspace(FSAddWorkspaceRequestType request) {
+    FSAddWorkspaceResponseType response = new FSAddWorkspaceResponseType();
+    FSTreeDto dto = addWorkspace(request.getWorkspaceName(), request.getUserName());
+    response.setWorkspaceId(dto.getId());
+    return response;
+  }
 
-    public boolean saveCase(FSSaveCaseRequestType request, String userName) {
-        FSCaseDto caseDto = FSCaseMapper.INSTANCE.dtoFromContract(request);
-        try {
-            caseDto = fsCaseRepository.saveCase(caseDto);
-            fsTraceLogUtils.logUpdateItem(userName, caseDto);
-            // update labels in workspace tree
-            fsTreeRepository.updateFSTree(request.getWorkspaceId(), dto -> {
-                if (dto == null) {
-                    return null;
-                }
-                FSNodeDto node = fileSystemUtils.deepFindByInfoId(dto.getRoots(), request.getId());
-                if (node == null) {
-                    return null;
-                }
-                if (!SetUtils.isEqualSet(node.getLabelIds(), request.getLabelIds())) {
-                    node.setLabelIds(request.getLabelIds());
-                    return dto;
-                }
-                return null;
-            });
+  public InviteToWorkspaceResponseType inviteToWorkspace(InviteToWorkspaceRequestType request) {
+    InviteToWorkspaceResponseType response = new InviteToWorkspaceResponseType();
+    response.setSuccessUsers(new HashSet<>());
+    response.setFailedUsers(new HashSet<>());
+    for (String userName : request.getUserNames()) {
+      UserDto userDto = userRepository.queryUserProfile(userName);
+      if (userDto == null) {
+        userDto = new UserDto();
+        userDto.setUserName(userName);
+        userRepository.updateUserProfile(userDto);
+      }
 
-            return true;
-        } catch (Exception e) {
-            LOGGER.error("Failed to save case", e);
-            return false;
-        }
-    }
+      UserWorkspaceDto userWorkspaceDto =
+          userWorkspaceRepository.queryUserWorkspace(userName, request.getWorkspaceId());
+      if (userWorkspaceDto != null && userWorkspaceDto.getStatus() == InvitationType.INVITED) {
+        response.getFailedUsers().add(userName);
+        continue;
+      }
+      userWorkspaceDto = UserWorkspaceMapper.INSTANCE.dtoFromContract(request);
+      userWorkspaceDto.setUserName(userName);
+      userWorkspaceDto.setStatus(InvitationType.INVITING);
+      userWorkspaceDto.setToken(UUID.randomUUID().toString());
 
-    public FSQueryCaseResponseType queryCase(FSQueryCaseRequestType request) {
-        FSCaseDto dto = fsCaseRepository.queryCase(request.getId(), request.isGetCompareMsg());
-        if (dto == null) {
-            return new FSQueryCaseResponseType();
-        }
-        if (dto.getInherited() == null) {
-            dto.setInherited("true".equalsIgnoreCase(arexCaseInherited) ? Boolean.TRUE : Boolean.FALSE);
-        }
-
-        FSQueryCaseResponseType response = FSCaseMapper.INSTANCE.contractFromDto(dto);
-        response.setParentPath(getParentPath(dto.getParentId(), dto.getParentNodeType()));
-        String parentId = dto.getParentId();
-        FSInterfaceDto fsInterfaceDto = fsInterfaceRepository.queryInterface(parentId);
-        if (fsInterfaceDto != null) {
-            FSQueryInterfaceResponseType fsQueryInterfaceResponseType =
-                FSInterfaceMapper.INSTANCE.contractFromDto(fsInterfaceDto);
-            response.setParentPreRequestScripts(fsQueryInterfaceResponseType.getPreRequestScripts());
-        }
-        return response;
-    }
-
-    public FSAddWorkspaceResponseType addWorkspace(FSAddWorkspaceRequestType request) {
-        FSAddWorkspaceResponseType response = new FSAddWorkspaceResponseType();
-        FSTreeDto dto = addWorkspace(request.getWorkspaceName(), request.getUserName());
-        response.setWorkspaceId(dto.getId());
-        return response;
-    }
-
-    public InviteToWorkspaceResponseType inviteToWorkspace(InviteToWorkspaceRequestType request) {
-        InviteToWorkspaceResponseType response = new InviteToWorkspaceResponseType();
-        response.setSuccessUsers(new HashSet<>());
-        response.setFailedUsers(new HashSet<>());
-        for (String userName : request.getUserNames()) {
-            UserDto userDto = userRepository.queryUserProfile(userName);
-            if (userDto == null) {
-                userDto = new UserDto();
-                userDto.setUserName(userName);
-                userRepository.updateUserProfile(userDto);
-            }
-
-            UserWorkspaceDto userWorkspaceDto =
-                userWorkspaceRepository.queryUserWorkspace(userName, request.getWorkspaceId());
-            if (userWorkspaceDto != null && userWorkspaceDto.getStatus() == InvitationType.INVITED) {
-                response.getFailedUsers().add(userName);
-                continue;
-            }
-            userWorkspaceDto = UserWorkspaceMapper.INSTANCE.dtoFromContract(request);
-            userWorkspaceDto.setUserName(userName);
-            userWorkspaceDto.setStatus(InvitationType.INVITING);
-            userWorkspaceDto.setToken(UUID.randomUUID().toString());
-
-            Boolean result = sendInviteEmail(request.getArexUiUrl(), request.getInvitor(), userName,
-                request.getWorkspaceId(), userWorkspaceDto.getToken());
-            if (Boolean.TRUE.equals(result)) {
-                userWorkspaceRepository.update(userWorkspaceDto);
-                response.getSuccessUsers().add(userName);
-            } else {
-                response.getFailedUsers().add(userName);
-            }
-        }
-        return response;
-    }
-
-    public boolean leaveWorkspace(String userName, String workspaceId) {
-        return userWorkspaceRepository.remove(userName, workspaceId);
-    }
-
-    public boolean changeRole(ChangeRoleRequestType request) {
-        UserWorkspaceDto dto = UserWorkspaceMapper.INSTANCE.dtoFromContract(request);
-        try {
-            userWorkspaceRepository.update(dto);
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    public ValidInvitationResponseType validInvitation(ValidInvitationRequestType request) {
-        ValidInvitationResponseType response = new ValidInvitationResponseType();
-        UserWorkspaceDto userWorkspaceDto = UserWorkspaceMapper.INSTANCE.dtoFromContract(request);
-        Boolean result = userWorkspaceRepository.verify(userWorkspaceDto);
-        if (Boolean.TRUE.equals(result)) {
-            userWorkspaceDto.setStatus(InvitationType.INVITED);
-            userWorkspaceRepository.update(userWorkspaceDto);
-            response.setAccessToken(JwtUtil.makeAccessToken(request.getUserName()));
-            response.setRefreshToken(JwtUtil.makeRefreshToken(request.getUserName()));
-        }
-        response.setSuccess(result);
-        return response;
-    }
-
-    public FSQueryCaseResponseType queryDebuggingCase(String planId, String recordId) {
-        if (StringUtils.isBlank(planId)) {
-            return new FSQueryCaseResponseType();
-        }
-        if (StringUtils.isBlank(recordId)) {
-            return new FSQueryCaseResponseType();
-        }
-        FSCaseDto caseDto = storageCase.getViewRecord(recordId);
-        if (caseDto == null) {
-            return new FSQueryCaseResponseType();
-        }
-        if (caseDto.getHeaders() == null) {
-            caseDto.setHeaders(new ArrayList<>());
-        }
-        KeyValuePairDto header = new KeyValuePairDto();
-        header.setKey(AREX_RECORD_ID);
-        header.setValue(recordId);
-        header.setActive(true);
-        caseDto.getHeaders().add(0, header);
-
-        setAddressEndpoint(planId, caseDto.getAddress());
-
-        return FSCaseMapper.INSTANCE.contractFromDto(caseDto);
-    }
-
-    /**
-     * Add item from record by default path. default path rule: AppName/InterfaceName/NodeName
-     */
-    public MutablePair<String, String> addItemFromRecordByDefault(FsAddItemFromRecordByDefaultRequestType request) {
-        FSAddItemFromRecordRequestType fsAddItemFromRecordRequest = new FSAddItemFromRecordRequestType();
-        fsAddItemFromRecordRequest.setWorkspaceId(request.getWorkspaceId());
-        fsAddItemFromRecordRequest.setNodeName(request.getNodeName());
-        fsAddItemFromRecordRequest.setPlanId(request.getPlanId());
-        fsAddItemFromRecordRequest.setRecordId(request.getRecordId());
-        fsAddItemFromRecordRequest.setOperationId(request.getOperationId());
-
-        FSTreeDto treeDto = fsTreeRepository.queryFSTreeById(request.getWorkspaceId());
-        if (treeDto == null) {
-            LogUtils.error(LOGGER, "Workspace not found, workspaceId: {}", request.getWorkspaceId());
-            return null;
-        }
-        String[] parentPath = new String[2];
-        FSNodeDto appIdNode = fileSystemUtils.findByNodeName(treeDto.getRoots(), request.getAppName());
-        if (appIdNode == null) {
-            FSAddItemRequestType addFolderRequest = new FSAddItemRequestType();
-            addFolderRequest.setId(treeDto.getId());
-            addFolderRequest.setNodeName(request.getAppName());
-            addFolderRequest.setNodeType(FSInfoItem.FOLDER);
-            MutablePair<String, FSTreeDto> addFolder = addItem(addFolderRequest);
-            if (addFolder == null) {
-                LogUtils.error(LOGGER, "Add folder failed, workspaceId: {}, nodeName: {}", request.getWorkspaceId(),
-                    request.getAppName());
-                return null;
-            }
-            appIdNode = fileSystemUtils.findByNodeName(addFolder.getRight().getRoots(), request.getAppName());
-            parentPath[0] = addFolder.getLeft();
-        } else {
-            parentPath[0] = appIdNode.getInfoId();
-        }
-        FSNodeDto interfaceNode = fileSystemUtils.findByNodeName(appIdNode.getChildren(), request.getInterfaceName());
-        if (interfaceNode == null) {
-            FSAddItemRequestType addInterfaceRequest = new FSAddItemRequestType();
-            addInterfaceRequest.setId(treeDto.getId());
-            addInterfaceRequest.setNodeName(request.getInterfaceName());
-            addInterfaceRequest.setNodeType(FSInfoItem.INTERFACE);
-            addInterfaceRequest.setParentPath(new String[] {parentPath[0]});
-            MutablePair<String, FSTreeDto> addInterface = addItem(addInterfaceRequest);
-            if (addInterface == null) {
-                LogUtils.error(LOGGER, "Add interface failed, workspaceId: {}, nodeName: {}", request.getWorkspaceId(),
-                    request.getInterfaceName());
-                return null;
-            }
-            parentPath[1] = addInterface.getLeft();
-        } else {
-            parentPath[1] = interfaceNode.getInfoId();
-        }
-
-        fsAddItemFromRecordRequest.setParentPath(parentPath);
-        return addItemFromRecord(fsAddItemFromRecordRequest);
-    }
-
-    /**
-     * @return : Tuple<workspaceId,InfoId>
-     */
-    public MutablePair<String, String> addItemFromRecord(FSAddItemFromRecordRequestType request) {
-
-        FSTreeDto treeDto = fsTreeRepository.queryFSTreeById(request.getWorkspaceId());
-        if (treeDto == null) {
-            return null;
-        }
-
-        FSCaseDto caseDto = storageCase.getViewRecord(request.getRecordId());
-        if (caseDto == null) {
-            return null;
-        }
-
-        FSNodeDto parentNode = fileSystemUtils.findByPath(treeDto.getRoots(), request.getParentPath());
-        if (parentNode == null) {
-            return null;
-        }
-        if (parentNode.getNodeType() == FSInfoItem.CASE) {
-            return null;
-        }
-        List<String> path = new ArrayList<>(Arrays.asList(request.getParentPath()));
-        // add default interface if the parent path is Folder
-        if (parentNode.getNodeType() == FSInfoItem.FOLDER) {
-            FSAddItemRequestType addInterface = new FSAddItemRequestType();
-            addInterface.setId(treeDto.getId());
-            addInterface.setNodeName(DEFAULT_INTERFACE_NAME);
-            addInterface.setNodeType(FSInfoItem.INTERFACE);
-            addInterface.setParentPath(request.getParentPath());
-            MutablePair<String, FSTreeDto> addInterfaceResponse = addItem(addInterface);
-            path.add(addInterfaceResponse.getLeft());
-        }
-
-        // add the related information about the replay interface to the manual interface
-        this.addReplayInfoToManual(request.getOperationId(), path);
-
-        FSAddItemRequestType addCase = new FSAddItemRequestType();
-        addCase.setId(treeDto.getId());
-        addCase.setNodeName(request.getNodeName());
-        addCase.setNodeType(FSInfoItem.CASE);
-        addCase.setParentPath(path.toArray(new String[path.size()]));
-        addCase.setCaseSourceType(CaseSourceType.REPLAY_CASE);
-        MutablePair<String, FSTreeDto> addCaseResponse = addItem(addCase);
-
-        caseDto.setParentId(path.get(path.size() - 1));
-        caseDto.setId(addCaseResponse.getLeft());
-        String newRecordId = storageCase.getNewRecordId(request.getRecordId());
-        caseDto.setRecordId(newRecordId);
-
-        KeyValuePairDto recordHeader = new KeyValuePairDto();
-        recordHeader.setKey(AREX_RECORD_ID);
-        recordHeader.setValue(newRecordId);
-        recordHeader.setActive(true);
-        caseDto.getHeaders().removeIf(item -> Objects.equals(item.getKey(), AREX_RECORD_ID));
-        caseDto.getHeaders().add(0, recordHeader);
-
-        // modify the address of fsCase(domain + request path)
-        setAddressEndpoint(request.getPlanId(), caseDto.getAddress());
-
-        // when fix the case form replay, don't inherit the address of the parent interface
-        caseDto.setInherited(false);
-
-        if (!storageCase.pinnedCase(request.getRecordId(), newRecordId)) {
-            return null;
-        }
-
-        fsCaseRepository.saveCase(caseDto);
-        return new MutablePair<>(treeDto.getId(), addCaseResponse.getLeft());
-    }
-
-    public boolean pinMock(FSPinMockRequestType request) {
-        if (request.getNodeType() == FSInfoItem.FOLDER) {
-            LogUtils.error(LOGGER, "Not support NodeType:{} in pinMock operation", request.getNodeType());
-            return false;
-        }
-        String newRecordId = storageCase.getNewRecordId(request.getRecordId());
-        boolean success = storageCase.pinnedCase(request.getRecordId(), newRecordId);
-        if (!success) {
-            LogUtils.error(LOGGER, "Pin Case failed.recordId:{}", request.getRecordId());
-            return false;
-        }
-        ItemInfo itemInfo = itemInfoFactory.getItemInfo(request.getNodeType());
-        if (itemInfo == null) {
-            return false;
-        }
-        FSItemDto itemDto = itemInfo.queryById(request.getInfoId());
-        FSInterfaceAndCaseBaseDto interfaceDto = (FSInterfaceAndCaseBaseDto)itemDto;
-        interfaceDto.setRecordId(newRecordId);
-        if (interfaceDto.getHeaders() == null) {
-            interfaceDto.setHeaders(new ArrayList<>());
-        }
-        KeyValuePairDto kvDto = new KeyValuePairDto();
-        kvDto.setKey(AREX_RECORD_ID);
-        kvDto.setValue(newRecordId);
-        kvDto.setActive(true);
-        interfaceDto.getHeaders().add(0, kvDto);
-
-        String configBatchNo = storageCase.getConfigBatchNo(newRecordId);
-        if (StringUtils.isNotBlank(configBatchNo)) {
-            interfaceDto.getHeaders()
-                .add(new KeyValuePairDto(AREX_REPLAY_PREPARE_DEPENDENCY, PINNED_PRE_FIX + configBatchNo, true));
-        }
-        itemInfo.saveItem(itemDto);
-
-        // update tree
-        if (request.getNodeType() == FSInfoItem.CASE) {
-
-            fsTreeRepository.updateFSTree(request.getWorkspaceId(), dto -> {
-                if (dto == null) {
-                    return null;
-                }
-                FSNodeDto node = fileSystemUtils.deepFindByInfoId(dto.getRoots(), request.getInfoId());
-                if (node != null) {
-                    node.setCaseSourceType(CaseSourceType.REPLAY_CASE);
-                    return dto;
-                }
-                return null;
-            });
-        }
-
-        return true;
-    }
-
-    public boolean recovery(RecoverItemInfoRequestType request) {
-        FSTraceLogDto traceLogDto = fsTraceLogRepository.queryTraceLog(request.getRecoveryId());
-        RecoveryService recoveryService = recoveryFactory.getRecoveryService(traceLogDto.getTraceType());
-        return recoveryService.recovery(traceLogDto);
-    }
-
-    public MutablePair<Boolean, String> exportItem(FSExportItemRequestType request) {
-        FSTreeDto treeDto = fsTreeRepository.queryFSTreeById(request.getWorkspaceId());
-        List<FSNodeDto> nodes;
-        if (ArrayUtils.isEmpty(request.getPath())) {
-            nodes = treeDto.getRoots();
-        } else {
-            FSNodeDto node = fileSystemUtils.findByPath(treeDto.getRoots(), request.getPath());
-            nodes = Arrays.asList(node);
-        }
-        Map<Integer, List<String>> itemInfoIds = getItemInfoIds(nodes);
-        Map<String, FSItemDto> itemInfos = getItemInfos(itemInfoIds);
-
-        ImportExport ie = importExportFactory.getImportExport(request.getType());
-        if (ie == null) {
-            return new MutablePair<>(false, null);
-        }
-        String exportString = ie.exportItem(nodes, itemInfos);
-        return new MutablePair<>(true, exportString);
-    }
-
-    public boolean importItem(FSImportItemRequestType request) {
-        FSTreeDto treeDto = fsTreeRepository.queryFSTreeById(request.getWorkspaceId());
-        if (treeDto == null) {
-            return false;
-        }
-        ImportExport ie = importExportFactory.getImportExport(request.getType());
-        if (ie == null) {
-            return false;
-        }
-        return ie.importItem(treeDto, request.getPath(), request.getImportString());
-    }
-
-    private void setAddressEndpoint(String planId, AddressDto addressDto) {
-        ReportPlanStatisticDto reportPlanStatisticDto = reportPlanStatisticRepository.findByPlanId(planId);
-        if (addressDto != null) {
-            addressDto.setEndpoint(this.contactUrl(
-                reportPlanStatisticDto == null ? StringUtils.EMPTY : reportPlanStatisticDto.getTargetEnv(),
-                addressDto.getEndpoint()));
-        }
-    }
-
-    private Map<Integer, List<String>> getItemInfoIds(List<FSNodeDto> list) {
-        Map<Integer, List<String>> typeInfoIdsMap = new HashMap<>();
-        if (CollectionUtils.isEmpty(list)) {
-            return Collections.EMPTY_MAP;
-        }
-        Queue<FSNodeDto> queue = new ArrayDeque<>(list);
-        while (!queue.isEmpty()) {
-            FSNodeDto node = queue.poll();
-            if (!typeInfoIdsMap.containsKey(node.getNodeType())) {
-                typeInfoIdsMap.put(node.getNodeType(), new ArrayList<>());
-            }
-            typeInfoIdsMap.get(node.getNodeType()).add(node.getInfoId());
-            if (CollectionUtils.isNotEmpty(node.getChildren())) {
-                queue.addAll(node.getChildren());
-            }
-        }
-        return typeInfoIdsMap;
-    }
-
-    private Map<String, FSItemDto> getItemInfos(Map<Integer, List<String>> typeInfoIdsMap) {
-        Map<String, FSItemDto> result = new HashMap<>();
-        for (Map.Entry<Integer, List<String>> entry : typeInfoIdsMap.entrySet()) {
-            ItemInfo itemInfo = itemInfoFactory.getItemInfo(entry.getKey());
-            List<FSItemDto> items = itemInfo.queryByIds(entry.getValue());
-            if (CollectionUtils.isNotEmpty(items)) {
-                items.forEach(item -> result.put(item.getId(), item));
-            }
-        }
-        return result;
-    }
-
-    private Map<Integer, Set<String>> removeItems(FSNodeDto fsNodeDto, String userName, String parentId,
-        String workspaceId) {
-        if (fsNodeDto == null) {
-            return null;
-        }
-        Queue<FSNodeDto> queue = new ArrayDeque<>();
-        queue.add(fsNodeDto);
-        Map<Integer, Set<String>> itemInfoIds = new HashMap<>();
-
-        while (!queue.isEmpty()) {
-            FSNodeDto dto = queue.poll();
-            if (dto.getChildren() != null && dto.getChildren().size() > 0) {
-                queue.addAll(dto.getChildren());
-            }
-            if (!itemInfoIds.containsKey(dto.getNodeType())) {
-                itemInfoIds.put(dto.getNodeType(), new HashSet<>());
-            }
-            itemInfoIds.get(dto.getNodeType()).add(dto.getInfoId());
-        }
-        List<FSItemDto> items = new ArrayList<>();
-        for (Map.Entry<Integer, Set<String>> ids : itemInfoIds.entrySet()) {
-            ItemInfo itemInfo = itemInfoFactory.getItemInfo(ids.getKey());
-            items.addAll(itemInfo.queryByIds(new ArrayList<>(ids.getValue())));
-            itemInfo.removeItems(ids.getValue());
-        }
-
-        fsTraceLogUtils.logDeleteItem(userName, workspaceId, fsNodeDto.getInfoId(), parentId, items, fsNodeDto);
-        return itemInfoIds;
-    }
-
-    private FSNodeDto duplicateInfo(String parentId, String nodeName, FSNodeDto old) {
-        FSNodeDto dto = new FSNodeDto();
-        ItemInfo itemInfo = itemInfoFactory.getItemInfo(old.getNodeType());
-        String dupInfoId = itemInfo.duplicate(parentId, old.getInfoId(), nodeName);
-        dto.setNodeName(nodeName);
-        dto.setInfoId(dupInfoId);
-        dto.setMethod(old.getMethod());
-        dto.setNodeType(old.getNodeType());
-        dto.setLabelIds(old.getLabelIds());
-        if (old.getNodeType() == FSInfoItem.CASE) {
-            dto.setCaseSourceType(old.getCaseSourceType());
-        }
-        if (old.getChildren() != null) {
-            dto.setChildren(new ArrayList<>(old.getChildren().size()));
-            for (FSNodeDto oldChild : old.getChildren()) {
-                FSNodeDto dupChild = duplicateInfo(dupInfoId, oldChild.getNodeName(), oldChild);
-                dto.getChildren().add(dupChild);
-            }
-        }
-        return dto;
-    }
-
-    private void updateParentId(FSNodeDto fsNodeDto, String parentId, Integer parentNodeType) {
-        if (fsNodeDto == null) {
-            return;
-        }
-        ItemInfo itemInfo = itemInfoFactory.getItemInfo(fsNodeDto.getNodeType());
-        FSItemDto fsItemDto = itemInfo.queryById(fsNodeDto.getInfoId());
-        if (fsItemDto != null) {
-            fsItemDto.setParentId(parentId);
-            fsItemDto.setParentNodeType(parentNodeType);
-            itemInfo.saveItem(fsItemDto);
-        }
-    }
-
-    private Boolean sendInviteEmail(String arexUiUrl, String invitor, String invitee, String workspaceId,
-        String token) {
-        FSTreeDto workspace = fsTreeRepository.queryFSTreeById(workspaceId);
-        if (workspace == null) {
-            return false;
-        }
-        final String INVITATION_MAIL_SUBJECT = "[ArexTest]You are invited to '%s' workspace";
-
-        InviteObject inviteObject = new InviteObject(invitee, workspaceId, token);
-        String message;
-        try {
-            message = objectMapper.writeValueAsString(inviteObject);
-        } catch (JsonProcessingException e) {
-            LogUtils.error(LOGGER, String.format("sendInviteEmail writeValueAsString fail, invitor: %s", invitor));
-            return false;
-        }
-
-        String address = arexUiUrl + "/click/?upn=" + Base64.encode(message.getBytes());
-
-        String context = loadResource.getResource(INVITATION_EMAIL_TEMPLATE);
-        context = context.replace(SOMEBODY_PLACEHOLDER, invitor)
-            .replace(WORKSPACE_NAME_PLACEHOLDER, workspace.getWorkspaceName()).replace(LINK_PLACEHOLDER, address);
-
-        return mailUtils.sendEmail(invitee, String.format(INVITATION_MAIL_SUBJECT, workspace.getWorkspaceName()),
-            context, SendEmailType.INVITATION);
-    }
-
-    private FSTreeDto addWorkspace(String workspaceName, String userName) {
-
-        if (StringUtils.isEmpty(userName)) {
-            userName = DEFAULT_WORKSPACE_NAME;
-        }
-        FSTreeDto dto = new FSTreeDto();
-        dto.setWorkspaceName(workspaceName);
-        dto.setUserName(userName);
-        dto.setRoots(new ArrayList<>());
-        dto = fsTreeRepository.initFSTree(dto);
-
-        // add user workspace
-        UserWorkspaceDto userWorkspaceDto = new UserWorkspaceDto();
-        userWorkspaceDto.setWorkspaceId(dto.getId());
-        userWorkspaceDto.setUserName(dto.getUserName());
-        userWorkspaceDto.setRole(RoleType.ADMIN);
-        userWorkspaceDto.setStatus(InvitationType.INVITED);
+      Boolean result = sendInviteEmail(request.getArexUiUrl(), request.getInvitor(), userName,
+          request.getWorkspaceId(), userWorkspaceDto.getToken());
+      if (Boolean.TRUE.equals(result)) {
         userWorkspaceRepository.update(userWorkspaceDto);
-        return dto;
+        response.getSuccessUsers().add(userName);
+      } else {
+        response.getFailedUsers().add(userName);
+      }
+    }
+    return response;
+  }
+
+  public boolean leaveWorkspace(String userName, String workspaceId) {
+    return userWorkspaceRepository.remove(userName, workspaceId);
+  }
+
+  public boolean changeRole(ChangeRoleRequestType request) {
+    UserWorkspaceDto dto = UserWorkspaceMapper.INSTANCE.dtoFromContract(request);
+    try {
+      userWorkspaceRepository.update(dto);
+      return true;
+    } catch (Exception e) {
+      return false;
+    }
+  }
+
+  public ValidInvitationResponseType validInvitation(ValidInvitationRequestType request) {
+    ValidInvitationResponseType response = new ValidInvitationResponseType();
+    UserWorkspaceDto userWorkspaceDto = UserWorkspaceMapper.INSTANCE.dtoFromContract(request);
+    Boolean result = userWorkspaceRepository.verify(userWorkspaceDto);
+    if (Boolean.TRUE.equals(result)) {
+      userWorkspaceDto.setStatus(InvitationType.INVITED);
+      userWorkspaceRepository.update(userWorkspaceDto);
+      response.setAccessToken(JwtUtil.makeAccessToken(request.getUserName()));
+      response.setRefreshToken(JwtUtil.makeRefreshToken(request.getUserName()));
+    }
+    response.setSuccess(result);
+    return response;
+  }
+
+  public FSQueryCaseResponseType queryDebuggingCase(String planId, String recordId) {
+    if (StringUtils.isBlank(planId)) {
+      return new FSQueryCaseResponseType();
+    }
+    if (StringUtils.isBlank(recordId)) {
+      return new FSQueryCaseResponseType();
+    }
+    FSCaseDto caseDto = storageCase.getViewRecord(recordId);
+    if (caseDto == null) {
+      return new FSQueryCaseResponseType();
+    }
+    if (caseDto.getHeaders() == null) {
+      caseDto.setHeaders(new ArrayList<>());
+    }
+    KeyValuePairDto header = new KeyValuePairDto();
+    header.setKey(AREX_RECORD_ID);
+    header.setValue(recordId);
+    header.setActive(true);
+    caseDto.getHeaders().add(0, header);
+
+    setAddressEndpoint(planId, caseDto.getAddress());
+
+    return FSCaseMapper.INSTANCE.contractFromDto(caseDto);
+  }
+
+  /**
+   * Add item from record by default path. default path rule: AppName/InterfaceName/NodeName
+   */
+  public MutablePair<String, String> addItemFromRecordByDefault(
+      FsAddItemFromRecordByDefaultRequestType request) {
+    FSAddItemFromRecordRequestType fsAddItemFromRecordRequest = new FSAddItemFromRecordRequestType();
+    fsAddItemFromRecordRequest.setWorkspaceId(request.getWorkspaceId());
+    fsAddItemFromRecordRequest.setNodeName(request.getNodeName());
+    fsAddItemFromRecordRequest.setPlanId(request.getPlanId());
+    fsAddItemFromRecordRequest.setRecordId(request.getRecordId());
+    fsAddItemFromRecordRequest.setOperationId(request.getOperationId());
+
+    FSTreeDto treeDto = fsTreeRepository.queryFSTreeById(request.getWorkspaceId());
+    if (treeDto == null) {
+      LogUtils.error(LOGGER, "Workspace not found, workspaceId: {}", request.getWorkspaceId());
+      return null;
+    }
+    String[] parentPath = new String[2];
+    FSNodeDto appIdNode = fileSystemUtils.findByNodeName(treeDto.getRoots(), request.getAppName());
+    if (appIdNode == null) {
+      FSAddItemRequestType addFolderRequest = new FSAddItemRequestType();
+      addFolderRequest.setId(treeDto.getId());
+      addFolderRequest.setNodeName(request.getAppName());
+      addFolderRequest.setNodeType(FSInfoItem.FOLDER);
+      MutablePair<String, FSTreeDto> addFolder = addItem(addFolderRequest);
+      if (addFolder == null) {
+        LogUtils.error(LOGGER, "Add folder failed, workspaceId: {}, nodeName: {}",
+            request.getWorkspaceId(),
+            request.getAppName());
+        return null;
+      }
+      appIdNode = fileSystemUtils.findByNodeName(addFolder.getRight().getRoots(),
+          request.getAppName());
+      parentPath[0] = addFolder.getLeft();
+    } else {
+      parentPath[0] = appIdNode.getInfoId();
+    }
+    FSNodeDto interfaceNode = fileSystemUtils.findByNodeName(appIdNode.getChildren(),
+        request.getInterfaceName());
+    if (interfaceNode == null) {
+      FSAddItemRequestType addInterfaceRequest = new FSAddItemRequestType();
+      addInterfaceRequest.setId(treeDto.getId());
+      addInterfaceRequest.setNodeName(request.getInterfaceName());
+      addInterfaceRequest.setNodeType(FSInfoItem.INTERFACE);
+      addInterfaceRequest.setParentPath(new String[]{parentPath[0]});
+      MutablePair<String, FSTreeDto> addInterface = addItem(addInterfaceRequest);
+      if (addInterface == null) {
+        LogUtils.error(LOGGER, "Add interface failed, workspaceId: {}, nodeName: {}",
+            request.getWorkspaceId(),
+            request.getInterfaceName());
+        return null;
+      }
+      parentPath[1] = addInterface.getLeft();
+    } else {
+      parentPath[1] = interfaceNode.getInfoId();
     }
 
-    private void addReplayInfoToManual(String operationId, List<String> path) {
-        if (CollectionUtils.isNotEmpty(path)) {
-            FSInterfaceDto fsInterfaceDto = new FSInterfaceDto();
-            fsInterfaceDto.setId(path.get(path.size() - 1));
-            fsInterfaceDto.setOperationId(operationId);
-            fsInterfaceRepository.saveInterface(fsInterfaceDto);
+    fsAddItemFromRecordRequest.setParentPath(parentPath);
+    return addItemFromRecord(fsAddItemFromRecordRequest);
+  }
+
+  /**
+   * @return : Tuple<workspaceId,InfoId>
+   */
+  public MutablePair<String, String> addItemFromRecord(FSAddItemFromRecordRequestType request) {
+
+    FSTreeDto treeDto = fsTreeRepository.queryFSTreeById(request.getWorkspaceId());
+    if (treeDto == null) {
+      return null;
+    }
+
+    FSCaseDto caseDto = storageCase.getViewRecord(request.getRecordId());
+    if (caseDto == null) {
+      return null;
+    }
+
+    FSNodeDto parentNode = fileSystemUtils.findByPath(treeDto.getRoots(), request.getParentPath());
+    if (parentNode == null) {
+      return null;
+    }
+    if (parentNode.getNodeType() == FSInfoItem.CASE) {
+      return null;
+    }
+    List<String> path = new ArrayList<>(Arrays.asList(request.getParentPath()));
+    // add default interface if the parent path is Folder
+    if (parentNode.getNodeType() == FSInfoItem.FOLDER) {
+      FSAddItemRequestType addInterface = new FSAddItemRequestType();
+      addInterface.setId(treeDto.getId());
+      addInterface.setNodeName(DEFAULT_INTERFACE_NAME);
+      addInterface.setNodeType(FSInfoItem.INTERFACE);
+      addInterface.setParentPath(request.getParentPath());
+      MutablePair<String, FSTreeDto> addInterfaceResponse = addItem(addInterface);
+      path.add(addInterfaceResponse.getLeft());
+    }
+
+    // add the related information about the replay interface to the manual interface
+    this.addReplayInfoToManual(request.getOperationId(), path);
+
+    FSAddItemRequestType addCase = new FSAddItemRequestType();
+    addCase.setId(treeDto.getId());
+    addCase.setNodeName(request.getNodeName());
+    addCase.setNodeType(FSInfoItem.CASE);
+    addCase.setParentPath(path.toArray(new String[path.size()]));
+    addCase.setCaseSourceType(CaseSourceType.REPLAY_CASE);
+    MutablePair<String, FSTreeDto> addCaseResponse = addItem(addCase);
+
+    caseDto.setParentId(path.get(path.size() - 1));
+    caseDto.setId(addCaseResponse.getLeft());
+    String newRecordId = storageCase.getNewRecordId(request.getRecordId());
+    caseDto.setRecordId(newRecordId);
+
+    KeyValuePairDto recordHeader = new KeyValuePairDto();
+    recordHeader.setKey(AREX_RECORD_ID);
+    recordHeader.setValue(newRecordId);
+    recordHeader.setActive(true);
+    caseDto.getHeaders().removeIf(item -> Objects.equals(item.getKey(), AREX_RECORD_ID));
+    caseDto.getHeaders().add(0, recordHeader);
+
+    // modify the address of fsCase(domain + request path)
+    setAddressEndpoint(request.getPlanId(), caseDto.getAddress());
+
+    // when fix the case form replay, don't inherit the address of the parent interface
+    caseDto.setInherited(false);
+
+    if (!storageCase.pinnedCase(request.getRecordId(), newRecordId)) {
+      return null;
+    }
+
+    fsCaseRepository.saveCase(caseDto);
+    return new MutablePair<>(treeDto.getId(), addCaseResponse.getLeft());
+  }
+
+  public boolean pinMock(FSPinMockRequestType request) {
+    if (request.getNodeType() == FSInfoItem.FOLDER) {
+      LogUtils.error(LOGGER, "Not support NodeType:{} in pinMock operation", request.getNodeType());
+      return false;
+    }
+    String newRecordId = storageCase.getNewRecordId(request.getRecordId());
+    boolean success = storageCase.pinnedCase(request.getRecordId(), newRecordId);
+    if (!success) {
+      LogUtils.error(LOGGER, "Pin Case failed.recordId:{}", request.getRecordId());
+      return false;
+    }
+    ItemInfo itemInfo = itemInfoFactory.getItemInfo(request.getNodeType());
+    if (itemInfo == null) {
+      return false;
+    }
+    FSItemDto itemDto = itemInfo.queryById(request.getInfoId());
+    FSInterfaceAndCaseBaseDto interfaceDto = (FSInterfaceAndCaseBaseDto) itemDto;
+    interfaceDto.setRecordId(newRecordId);
+    if (interfaceDto.getHeaders() == null) {
+      interfaceDto.setHeaders(new ArrayList<>());
+    }
+    KeyValuePairDto kvDto = new KeyValuePairDto();
+    kvDto.setKey(AREX_RECORD_ID);
+    kvDto.setValue(newRecordId);
+    kvDto.setActive(true);
+    interfaceDto.getHeaders().add(0, kvDto);
+
+    String configBatchNo = storageCase.getConfigBatchNo(newRecordId);
+    if (StringUtils.isNotBlank(configBatchNo)) {
+      interfaceDto.getHeaders()
+          .add(new KeyValuePairDto(AREX_REPLAY_PREPARE_DEPENDENCY, PINNED_PRE_FIX + configBatchNo,
+              true));
+    }
+    itemInfo.saveItem(itemDto);
+
+    // update tree
+    if (request.getNodeType() == FSInfoItem.CASE) {
+
+      fsTreeRepository.updateFSTree(request.getWorkspaceId(), dto -> {
+        if (dto == null) {
+          return null;
         }
-    }
-
-    private void addDuplicateItemFollowCurrent(List<FSNodeDto> treeDtos, FSNodeDto dupNodeDto, FSNodeDto currentDto) {
-        int size = treeDtos.size();
-        int targetIndex = size;
-        for (int i = 0; i < size; i++) {
-            if (Objects.equals(treeDtos.get(i).getInfoId(), currentDto.getInfoId())) {
-                targetIndex = i + 1;
-                break;
-            }
+        FSNodeDto node = fileSystemUtils.deepFindByInfoId(dto.getRoots(), request.getInfoId());
+        if (node != null) {
+          node.setCaseSourceType(CaseSourceType.REPLAY_CASE);
+          return dto;
         }
-        treeDtos.add(targetIndex, dupNodeDto);
+        return null;
+      });
     }
 
-    private String contactUrl(String domain, String operation) {
-        String result = null;
-        domain = Optional.ofNullable(domain).orElse(StringUtils.EMPTY);
-        operation = Optional.ofNullable(operation).orElse(StringUtils.EMPTY);
-        boolean domainContain = StringUtils.endsWith(domain, "/");
-        boolean operationContain = StringUtils.startsWith(operation, "/");
-        if (domainContain && operationContain) {
-            result = domain + operation.substring(1);
-        } else if (!domainContain && !operationContain) {
-            result = domain + "/" + operation;
-        } else {
-            result = domain + operation;
-        }
-        return result;
+    return true;
+  }
+
+  public boolean recovery(RecoverItemInfoRequestType request) {
+    FSTraceLogDto traceLogDto = fsTraceLogRepository.queryTraceLog(request.getRecoveryId());
+    RecoveryService recoveryService = recoveryFactory.getRecoveryService(
+        traceLogDto.getTraceType());
+    return recoveryService.recovery(traceLogDto);
+  }
+
+  public MutablePair<Boolean, String> exportItem(FSExportItemRequestType request) {
+    FSTreeDto treeDto = fsTreeRepository.queryFSTreeById(request.getWorkspaceId());
+    List<FSNodeDto> nodes;
+    if (ArrayUtils.isEmpty(request.getPath())) {
+      nodes = treeDto.getRoots();
+    } else {
+      FSNodeDto node = fileSystemUtils.findByPath(treeDto.getRoots(), request.getPath());
+      nodes = Arrays.asList(node);
+    }
+    Map<Integer, List<String>> itemInfoIds = getItemInfoIds(nodes);
+    Map<String, FSItemDto> itemInfos = getItemInfos(itemInfoIds);
+
+    ImportExport ie = importExportFactory.getImportExport(request.getType());
+    if (ie == null) {
+      return new MutablePair<>(false, null);
+    }
+    String exportString = ie.exportItem(nodes, itemInfos);
+    return new MutablePair<>(true, exportString);
+  }
+
+  public boolean importItem(FSImportItemRequestType request) {
+    FSTreeDto treeDto = fsTreeRepository.queryFSTreeById(request.getWorkspaceId());
+    if (treeDto == null) {
+      return false;
+    }
+    ImportExport ie = importExportFactory.getImportExport(request.getType());
+    if (ie == null) {
+      return false;
+    }
+    return ie.importItem(treeDto, request.getPath(), request.getImportString());
+  }
+
+  private void setAddressEndpoint(String planId, AddressDto addressDto) {
+    ReportPlanStatisticDto reportPlanStatisticDto = reportPlanStatisticRepository.findByPlanId(
+        planId);
+    if (addressDto != null) {
+      addressDto.setEndpoint(this.contactUrl(
+          reportPlanStatisticDto == null ? StringUtils.EMPTY
+              : reportPlanStatisticDto.getTargetEnv(),
+          addressDto.getEndpoint()));
+    }
+  }
+
+  private Map<Integer, List<String>> getItemInfoIds(List<FSNodeDto> list) {
+    Map<Integer, List<String>> typeInfoIdsMap = new HashMap<>();
+    if (CollectionUtils.isEmpty(list)) {
+      return Collections.EMPTY_MAP;
+    }
+    Queue<FSNodeDto> queue = new ArrayDeque<>(list);
+    while (!queue.isEmpty()) {
+      FSNodeDto node = queue.poll();
+      if (!typeInfoIdsMap.containsKey(node.getNodeType())) {
+        typeInfoIdsMap.put(node.getNodeType(), new ArrayList<>());
+      }
+      typeInfoIdsMap.get(node.getNodeType()).add(node.getInfoId());
+      if (CollectionUtils.isNotEmpty(node.getChildren())) {
+        queue.addAll(node.getChildren());
+      }
+    }
+    return typeInfoIdsMap;
+  }
+
+  private Map<String, FSItemDto> getItemInfos(Map<Integer, List<String>> typeInfoIdsMap) {
+    Map<String, FSItemDto> result = new HashMap<>();
+    for (Map.Entry<Integer, List<String>> entry : typeInfoIdsMap.entrySet()) {
+      ItemInfo itemInfo = itemInfoFactory.getItemInfo(entry.getKey());
+      List<FSItemDto> items = itemInfo.queryByIds(entry.getValue());
+      if (CollectionUtils.isNotEmpty(items)) {
+        items.forEach(item -> result.put(item.getId(), item));
+      }
+    }
+    return result;
+  }
+
+  private Map<Integer, Set<String>> removeItems(FSNodeDto fsNodeDto, String userName,
+      String parentId,
+      String workspaceId) {
+    if (fsNodeDto == null) {
+      return null;
+    }
+    Queue<FSNodeDto> queue = new ArrayDeque<>();
+    queue.add(fsNodeDto);
+    Map<Integer, Set<String>> itemInfoIds = new HashMap<>();
+
+    while (!queue.isEmpty()) {
+      FSNodeDto dto = queue.poll();
+      if (dto.getChildren() != null && dto.getChildren().size() > 0) {
+        queue.addAll(dto.getChildren());
+      }
+      if (!itemInfoIds.containsKey(dto.getNodeType())) {
+        itemInfoIds.put(dto.getNodeType(), new HashSet<>());
+      }
+      itemInfoIds.get(dto.getNodeType()).add(dto.getInfoId());
+    }
+    List<FSItemDto> items = new ArrayList<>();
+    for (Map.Entry<Integer, Set<String>> ids : itemInfoIds.entrySet()) {
+      ItemInfo itemInfo = itemInfoFactory.getItemInfo(ids.getKey());
+      items.addAll(itemInfo.queryByIds(new ArrayList<>(ids.getValue())));
+      itemInfo.removeItems(ids.getValue());
     }
 
-    private List<FSQueryItemType.ParentNodeType> getParentPath(String parentInfoId, Integer parentNodeType) {
-        List<FSQueryItemType.ParentNodeType> parentPath = new ArrayList<>();
-        while (StringUtils.isNotBlank(parentInfoId) && parentNodeType != null) {
-            FSItemDto itemDto = itemInfoFactory.getItemInfo(parentNodeType).queryById(parentInfoId);
-            if (itemDto == null) {
-                break;
-            }
-            FSQueryItemType.ParentNodeType parentNode = new FSQueryItemType.ParentNodeType();
-            parentNode.setId(itemDto.getId());
-            parentNode.setNodeType(parentNodeType);
-            parentNode.setName(itemDto.getName());
-            parentPath.add(0, parentNode);
-            parentInfoId = itemDto.getParentId();
-            parentNodeType = itemDto.getParentNodeType();
-        }
-        return parentPath;
+    fsTraceLogUtils.logDeleteItem(userName, workspaceId, fsNodeDto.getInfoId(), parentId, items,
+        fsNodeDto);
+    return itemInfoIds;
+  }
+
+  private FSNodeDto duplicateInfo(String parentId, String nodeName, FSNodeDto old) {
+    FSNodeDto dto = new FSNodeDto();
+    ItemInfo itemInfo = itemInfoFactory.getItemInfo(old.getNodeType());
+    String dupInfoId = itemInfo.duplicate(parentId, old.getInfoId(), nodeName);
+    dto.setNodeName(nodeName);
+    dto.setInfoId(dupInfoId);
+    dto.setMethod(old.getMethod());
+    dto.setNodeType(old.getNodeType());
+    dto.setLabelIds(old.getLabelIds());
+    if (old.getNodeType() == FSInfoItem.CASE) {
+      dto.setCaseSourceType(old.getCaseSourceType());
+    }
+    if (old.getChildren() != null) {
+      dto.setChildren(new ArrayList<>(old.getChildren().size()));
+      for (FSNodeDto oldChild : old.getChildren()) {
+        FSNodeDto dupChild = duplicateInfo(dupInfoId, oldChild.getNodeName(), oldChild);
+        dto.getChildren().add(dupChild);
+      }
+    }
+    return dto;
+  }
+
+  private void updateParentId(FSNodeDto fsNodeDto, String parentId, Integer parentNodeType) {
+    if (fsNodeDto == null) {
+      return;
+    }
+    ItemInfo itemInfo = itemInfoFactory.getItemInfo(fsNodeDto.getNodeType());
+    FSItemDto fsItemDto = itemInfo.queryById(fsNodeDto.getInfoId());
+    if (fsItemDto != null) {
+      fsItemDto.setParentId(parentId);
+      fsItemDto.setParentNodeType(parentNodeType);
+      itemInfo.saveItem(fsItemDto);
+    }
+  }
+
+  private Boolean sendInviteEmail(String arexUiUrl, String invitor, String invitee,
+      String workspaceId,
+      String token) {
+    FSTreeDto workspace = fsTreeRepository.queryFSTreeById(workspaceId);
+    if (workspace == null) {
+      return false;
+    }
+    final String INVITATION_MAIL_SUBJECT = "[ArexTest]You are invited to '%s' workspace";
+
+    InviteObject inviteObject = new InviteObject(invitee, workspaceId, token);
+    String message;
+    try {
+      message = objectMapper.writeValueAsString(inviteObject);
+    } catch (JsonProcessingException e) {
+      LogUtils.error(LOGGER,
+          String.format("sendInviteEmail writeValueAsString fail, invitor: %s", invitor));
+      return false;
     }
 
-    @Data
-    public class InviteObject {
-        private String mail;
-        private String workSpaceId;
-        private String token;
+    String address = arexUiUrl + "/click/?upn=" + Base64.encode(message.getBytes());
 
-        public InviteObject(String mail, String workSpaceId, String token) {
-            this.mail = mail;
-            this.workSpaceId = workSpaceId;
-            this.token = token;
-        }
+    String context = loadResource.getResource(INVITATION_EMAIL_TEMPLATE);
+    context = context.replace(SOMEBODY_PLACEHOLDER, invitor)
+        .replace(WORKSPACE_NAME_PLACEHOLDER, workspace.getWorkspaceName())
+        .replace(LINK_PLACEHOLDER, address);
+
+    return mailUtils.sendEmail(invitee,
+        String.format(INVITATION_MAIL_SUBJECT, workspace.getWorkspaceName()),
+        context, SendEmailType.INVITATION);
+  }
+
+  private FSTreeDto addWorkspace(String workspaceName, String userName) {
+
+    if (StringUtils.isEmpty(userName)) {
+      userName = DEFAULT_WORKSPACE_NAME;
     }
+    FSTreeDto dto = new FSTreeDto();
+    dto.setWorkspaceName(workspaceName);
+    dto.setUserName(userName);
+    dto.setRoots(new ArrayList<>());
+    dto = fsTreeRepository.initFSTree(dto);
+
+    // add user workspace
+    UserWorkspaceDto userWorkspaceDto = new UserWorkspaceDto();
+    userWorkspaceDto.setWorkspaceId(dto.getId());
+    userWorkspaceDto.setUserName(dto.getUserName());
+    userWorkspaceDto.setRole(RoleType.ADMIN);
+    userWorkspaceDto.setStatus(InvitationType.INVITED);
+    userWorkspaceRepository.update(userWorkspaceDto);
+    return dto;
+  }
+
+  private void addReplayInfoToManual(String operationId, List<String> path) {
+    if (CollectionUtils.isNotEmpty(path)) {
+      FSInterfaceDto fsInterfaceDto = new FSInterfaceDto();
+      fsInterfaceDto.setId(path.get(path.size() - 1));
+      fsInterfaceDto.setOperationId(operationId);
+      fsInterfaceRepository.saveInterface(fsInterfaceDto);
+    }
+  }
+
+  private void addDuplicateItemFollowCurrent(List<FSNodeDto> treeDtos, FSNodeDto dupNodeDto,
+      FSNodeDto currentDto) {
+    int size = treeDtos.size();
+    int targetIndex = size;
+    for (int i = 0; i < size; i++) {
+      if (Objects.equals(treeDtos.get(i).getInfoId(), currentDto.getInfoId())) {
+        targetIndex = i + 1;
+        break;
+      }
+    }
+    treeDtos.add(targetIndex, dupNodeDto);
+  }
+
+  private String contactUrl(String domain, String operation) {
+    String result = null;
+    domain = Optional.ofNullable(domain).orElse(StringUtils.EMPTY);
+    operation = Optional.ofNullable(operation).orElse(StringUtils.EMPTY);
+    boolean domainContain = StringUtils.endsWith(domain, "/");
+    boolean operationContain = StringUtils.startsWith(operation, "/");
+    if (domainContain && operationContain) {
+      result = domain + operation.substring(1);
+    } else if (!domainContain && !operationContain) {
+      result = domain + "/" + operation;
+    } else {
+      result = domain + operation;
+    }
+    return result;
+  }
+
+  private List<FSQueryItemType.ParentNodeType> getParentPath(String parentInfoId,
+      Integer parentNodeType) {
+    List<FSQueryItemType.ParentNodeType> parentPath = new ArrayList<>();
+    while (StringUtils.isNotBlank(parentInfoId) && parentNodeType != null) {
+      FSItemDto itemDto = itemInfoFactory.getItemInfo(parentNodeType).queryById(parentInfoId);
+      if (itemDto == null) {
+        break;
+      }
+      FSQueryItemType.ParentNodeType parentNode = new FSQueryItemType.ParentNodeType();
+      parentNode.setId(itemDto.getId());
+      parentNode.setNodeType(parentNodeType);
+      parentNode.setName(itemDto.getName());
+      parentPath.add(0, parentNode);
+      parentInfoId = itemDto.getParentId();
+      parentNodeType = itemDto.getParentNodeType();
+    }
+    return parentPath;
+  }
+
+  @Data
+  public class InviteObject {
+
+    private String mail;
+    private String workSpaceId;
+    private String token;
+
+    public InviteObject(String mail, String workSpaceId, String token) {
+      this.mail = mail;
+      this.workSpaceId = workSpaceId;
+      this.token = token;
+    }
+  }
 }

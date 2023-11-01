@@ -1,52 +1,52 @@
 package com.arextest.web.model.dto;
 
 import java.util.Map;
-
 import lombok.Data;
 
 @Data
 public class ReportPlanStatisticDto {
-    private String planId;
 
-    private Integer status;
-    private String appId;
-    private String appName;
+  private String planId;
 
-    private String planName;
-    private String creator;
-    private String targetImageId;
-    private String targetImageName;
+  private Integer status;
+  private String appId;
+  private String appName;
 
-    private Integer caseSourceType;
-    private String sourceEnv;
-    private String targetEnv;
-    private String sourceHost;
-    private String targetHost;
+  private String planName;
+  private String creator;
+  private String targetImageId;
+  private String targetImageName;
 
-    private String coreVersion;
+  private Integer caseSourceType;
+  private String sourceEnv;
+  private String targetEnv;
+  private String sourceHost;
+  private String targetHost;
 
-    private String extVersion;
+  private String coreVersion;
 
-    private String caseRecordVersion;
+  private String extVersion;
 
-    private Long replayStartTime;
+  private String caseRecordVersion;
 
-    private Long replayEndTime;
+  private Long replayStartTime;
 
-    private Long caseStartTime;
+  private Long replayEndTime;
 
-    private Long caseEndTime;
+  private Long caseStartTime;
 
-    private Integer totalCaseCount;
-    private Integer errorCaseCount;
-    private Integer successCaseCount;
-    private Integer failCaseCount;
-    private Integer waitCaseCount;
+  private Long caseEndTime;
 
-    private Integer totalOperationCount;
-    private Integer successOperationCount;
-    private Long dataChangeCreateTime;
-    private String errorMessage;
+  private Integer totalCaseCount;
+  private Integer errorCaseCount;
+  private Integer successCaseCount;
+  private Integer failCaseCount;
+  private Integer waitCaseCount;
 
-    private Map<String, Object> customTags;
+  private Integer totalOperationCount;
+  private Integer successOperationCount;
+  private Long dataChangeCreateTime;
+  private String errorMessage;
+
+  private Map<String, Object> customTags;
 }

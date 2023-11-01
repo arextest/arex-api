@@ -12,12 +12,13 @@ import org.springframework.web.filter.CorsFilter;
  */
 @SpringBootConfiguration
 public class GlobalCrossOriginConfiguration {
-    @Bean
-    public CorsFilter corsFilter() {
-        CorsConfiguration config = new CorsConfiguration();
-        config.applyPermitDefaultValues();
-        UrlBasedCorsConfigurationSource corsConfigurationSource = new UrlBasedCorsConfigurationSource();
-        corsConfigurationSource.registerCorsConfiguration("/**", config);
-        return new CorsFilter(corsConfigurationSource);
-    }
+
+  @Bean
+  public CorsFilter corsFilter() {
+    CorsConfiguration config = new CorsConfiguration();
+    config.applyPermitDefaultValues();
+    UrlBasedCorsConfigurationSource corsConfigurationSource = new UrlBasedCorsConfigurationSource();
+    corsConfigurationSource.registerCorsConfiguration("/**", config);
+    return new CorsFilter(corsConfigurationSource);
+  }
 }

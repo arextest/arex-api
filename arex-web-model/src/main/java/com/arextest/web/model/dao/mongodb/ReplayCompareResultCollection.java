@@ -1,50 +1,47 @@
 package com.arextest.web.model.dao.mongodb;
 
-import java.util.Date;
-
-import org.springframework.data.mongodb.core.mapping.Document;
-
 import com.arextest.web.model.dao.mongodb.entity.MsgInfoDao;
-
+import java.util.Date;
 import lombok.Data;
 import lombok.experimental.FieldNameConstants;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
 @FieldNameConstants
 @Document(collection = "ReplayCompareResult")
 public class ReplayCompareResultCollection extends ModelBase {
 
-    private String planId;
+  private String planId;
 
-    private String operationId;
+  private String operationId;
 
-    private String serviceName;
+  private String serviceName;
 
-    private String categoryName;
+  private String categoryName;
 
-    private String operationName;
+  private String operationName;
 
-    private String replayId;
+  private String replayId;
 
-    private String recordId;
+  private String recordId;
 
-    private long recordTime;
+  private long recordTime;
 
-    private long replayTime;
+  private long replayTime;
 
-    private String instanceId;
+  private String instanceId;
 
-    private String baseMsg;
+  private String baseMsg;
 
-    private String testMsg;
+  private String testMsg;
 
-    private String logs;
-    // planItemId
-    private String planItemId;
+  private String logs;
+  // planItemId
+  private String planItemId;
 
-    private int diffResultCode;
+  private int diffResultCode;
 
-    private MsgInfoDao msgInfo;
+  private MsgInfoDao msgInfo;
 
-    private Date dataCreateTime;
+  private Date dataCreateTime;
 }

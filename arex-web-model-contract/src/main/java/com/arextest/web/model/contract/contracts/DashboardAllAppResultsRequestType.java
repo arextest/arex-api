@@ -5,7 +5,7 @@ import lombok.Data;
 @Data
 public class DashboardAllAppResultsRequestType {
 
-    private Long startTime;
+  private Long startTime;
 
-    private Long endTime;
+  private Long endTime;
 }

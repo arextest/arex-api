@@ -8,7 +8,8 @@ import com.arextest.web.model.dto.filesystem.FSCaseDto;
  * @since 2022/12/12
  */
 public interface MockerConversion {
-    String getCategoryName();
 
-    FSCaseDto mockerConvertToFsCase(AREXMocker mocker);
+  String getCategoryName();
+
+  FSCaseDto mockerConvertToFsCase(AREXMocker mocker);
 }

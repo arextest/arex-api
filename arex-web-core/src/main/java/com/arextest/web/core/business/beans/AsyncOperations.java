@@ -1,13 +1,11 @@
 package com.arextest.web.core.business.beans;
 
+import com.arextest.web.core.business.util.MailUtils;
+import com.arextest.web.model.enums.SendEmailType;
 import javax.annotation.Resource;
-
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
-
-import com.arextest.web.core.business.util.MailUtils;
-import com.arextest.web.model.enums.SendEmailType;
 
 /**
  * @author b_yu
@@ -16,11 +14,11 @@ import com.arextest.web.model.enums.SendEmailType;
 @Component
 public class AsyncOperations {
 
-    @Resource
-    private MailUtils mailUtils;
+  @Resource
+  private MailUtils mailUtils;
 
-    @Async("sending-mail-executor")
-    public void sendMailAsGuest(String userName, String subject) {
-        mailUtils.sendEmail(userName, subject, StringUtils.EMPTY, SendEmailType.LOGIN_AS_GUEST);
-    }
+  @Async("sending-mail-executor")
+  public void sendMailAsGuest(String userName, String subject) {
+    mailUtils.sendEmail(userName, subject, StringUtils.EMPTY, SendEmailType.LOGIN_AS_GUEST);
+  }
 }

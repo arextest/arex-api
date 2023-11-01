@@ -4,6 +4,7 @@ import lombok.Data;
 
 @Data
 public class ReportCaseIdNameType {
-    private String id;
-    private String caseName;
+
+  private String id;
+  private String caseName;
 }

@@ -8,8 +8,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class DiffDetail {
-    int code;
-    String categoryName;
-    String operationName;
+
+  int code;
+  String categoryName;
+  String operationName;
 
 }

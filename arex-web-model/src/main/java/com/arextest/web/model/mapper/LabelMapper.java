@@ -1,12 +1,11 @@
 package com.arextest.web.model.mapper;
 
-import org.mapstruct.Mapper;
-import org.mapstruct.factory.Mappers;
-
 import com.arextest.web.model.contract.contracts.label.LabelType;
 import com.arextest.web.model.contract.contracts.label.SaveLabelRequestType;
 import com.arextest.web.model.dao.mongodb.LabelCollection;
 import com.arextest.web.model.dto.LabelDto;
+import org.mapstruct.Mapper;
+import org.mapstruct.factory.Mappers;
 
 /**
  * @author b_yu
@@ -14,13 +13,14 @@ import com.arextest.web.model.dto.LabelDto;
  */
 @Mapper
 public interface LabelMapper {
-    LabelMapper INSTANCE = Mappers.getMapper(LabelMapper.class);
 
-    LabelCollection daoFromDto(LabelDto dto);
+  LabelMapper INSTANCE = Mappers.getMapper(LabelMapper.class);
 
-    LabelDto dtoFromDao(LabelCollection dao);
+  LabelCollection daoFromDto(LabelDto dto);
 
-    LabelDto dtoFromContract(SaveLabelRequestType request);
+  LabelDto dtoFromDao(LabelCollection dao);
 
-    LabelType contractFromDto(LabelDto dto);
+  LabelDto dtoFromContract(SaveLabelRequestType request);
+
+  LabelType contractFromDto(LabelDto dto);
 }

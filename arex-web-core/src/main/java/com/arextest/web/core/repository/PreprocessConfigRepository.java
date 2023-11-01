@@ -7,7 +7,8 @@ import com.arextest.web.model.dto.PreprocessConfigDto;
  * @since 2022/6/6
  */
 public interface PreprocessConfigRepository extends RepositoryProvider {
-    PreprocessConfigDto updateIndex(String name, String index);
 
-    PreprocessConfigDto queryConfig(String name);
+  PreprocessConfigDto updateIndex(String name, String index);
+
+  PreprocessConfigDto queryConfig(String name);
 }

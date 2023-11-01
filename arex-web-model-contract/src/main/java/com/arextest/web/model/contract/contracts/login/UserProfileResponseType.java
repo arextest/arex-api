@@ -4,6 +4,7 @@ import lombok.Data;
 
 @Data
 public class UserProfileResponseType {
-    private String userName;
-    private String profile;
+
+  private String userName;
+  private String profile;
 }

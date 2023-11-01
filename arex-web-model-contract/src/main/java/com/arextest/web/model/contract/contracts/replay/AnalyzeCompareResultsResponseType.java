@@ -7,5 +7,6 @@ import lombok.Data;
  */
 @Data
 public class AnalyzeCompareResultsResponseType {
-    private boolean success;
+
+  private boolean success;
 }

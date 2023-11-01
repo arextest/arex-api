@@ -1,7 +1,6 @@
 package com.arextest.web.model.contract.contracts.datadesensitization;
 
 import java.util.Date;
-
 import lombok.Data;
 
 /**
@@ -10,8 +9,9 @@ import lombok.Data;
  */
 @Data
 public class DesensitizationJar {
-    private String id;
-    private String jarUrl;
-    private String remark;
-    private Date uploadDate;
+
+  private String id;
+  private String jarUrl;
+  private String remark;
+  private Date uploadDate;
 }

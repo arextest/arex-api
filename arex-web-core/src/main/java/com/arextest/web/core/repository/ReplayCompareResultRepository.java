@@ -1,47 +1,51 @@
 package com.arextest.web.core.repository;
 
+import com.arextest.web.model.dto.CompareResultDto;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import org.apache.commons.lang3.tuple.Pair;
 
-import com.arextest.web.model.dto.CompareResultDto;
-
 public interface ReplayCompareResultRepository extends RepositoryProvider {
-    boolean saveResults(List<CompareResultDto> results);
 
-    boolean updateResults(List<CompareResultDto> results);
+  boolean saveResults(List<CompareResultDto> results);
 
-    List<CompareResultDto> findResultWithoutMsg(String planItemId);
+  boolean updateResults(List<CompareResultDto> results);
 
-    List<CompareResultDto> findResultWithoutMsg(String planItemId, String keyWord);
+  List<CompareResultDto> findResultWithoutMsg(String planItemId);
 
-    // Pair<List<CompareResultDto>, Long> pageQueryWithoutMsg(Long planId, Long planItemId, String categoryName,
-    // Integer resultType, String keyWord,
-    // Integer pageIndex, Integer pageSize, Boolean needTotal);
+  List<CompareResultDto> findResultWithoutMsg(String planItemId, String keyWord);
 
-    Pair<List<CompareResultDto>, Long> queryCompareResultByPage(String planId, Integer pageSize, Integer pageIndex);
+  // Pair<List<CompareResultDto>, Long> pageQueryWithoutMsg(Long planId, Long planItemId, String categoryName,
+  // Integer resultType, String keyWord,
+  // Integer pageIndex, Integer pageSize, Boolean needTotal);
 
-    Pair<List<CompareResultDto>, Long> queryAllDiffMsgByPage(String planItemId, String recordId,
-        List<Integer> diffResultCodeList, Integer pageSize, Integer pageIndex, Boolean needTotal);
+  Pair<List<CompareResultDto>, Long> queryCompareResultByPage(String planId, Integer pageSize,
+      Integer pageIndex);
 
-    CompareResultDto queryCompareResultsById(String objectId);
+  Pair<List<CompareResultDto>, Long> queryAllDiffMsgByPage(String planItemId, String recordId,
+      List<Integer> diffResultCodeList, Integer pageSize, Integer pageIndex, Boolean needTotal);
 
-    List<CompareResultDto> queryCompareResultsByRecordId(String planItemId, String recordId);
+  CompareResultDto queryCompareResultsById(String objectId);
 
-    boolean deleteCompareResultsByPlanId(String planId);
+  List<CompareResultDto> queryCompareResultsByRecordId(String planItemId, String recordId);
 
-    int queryCompareResultCountByPlanId(String planId);
+  boolean deleteCompareResultsByPlanId(String planId);
 
-    List<CompareResultDto> queryCompareResults(String planId, List<String> planItemIdList, List<String> recordIdList,
-        List<Integer> diffResultCodeList, List<String> showFields);
+  int queryCompareResultCountByPlanId(String planId);
 
-    List<CompareResultDto> queryCompareResults(List<String> planItemIdList, List<String> recordIdList);
+  List<CompareResultDto> queryCompareResults(String planId, List<String> planItemIdList,
+      List<String> recordIdList,
+      List<Integer> diffResultCodeList, List<String> showFields);
 
-    List<CompareResultDto> queryLatestEntryPointCompareResult(String operationId, Set<String> operationTypes,
-        int limit);
+  List<CompareResultDto> queryCompareResults(List<String> planItemIdList,
+      List<String> recordIdList);
 
-    Map<String, List<CompareResultDto>> queryLatestCompareResultMap(String operationId, List<String> operationNames,
-        List<String> operationTypes);
+  List<CompareResultDto> queryLatestEntryPointCompareResult(String operationId,
+      Set<String> operationTypes,
+      int limit);
+
+  Map<String, List<CompareResultDto>> queryLatestCompareResultMap(String operationId,
+      List<String> operationNames,
+      List<String> operationTypes);
 }

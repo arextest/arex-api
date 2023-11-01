@@ -1,7 +1,6 @@
 package com.arextest.web.model.contract.contracts.filesystem;
 
 import javax.validation.constraints.NotBlank;
-
 import lombok.Data;
 
 /**
@@ -10,6 +9,7 @@ import lombok.Data;
  */
 @Data
 public class RecoverItemInfoRequestType {
-    @NotBlank(message = "Recovery Id cannot be empty")
-    private String recoveryId;
+
+  @NotBlank(message = "Recovery Id cannot be empty")
+  private String recoveryId;
 }

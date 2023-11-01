@@ -5,6 +5,6 @@ package com.arextest.web.core.business.listener.planfinish;
  */
 public interface PlanFinishedLinstener {
 
-    String planFinishedAction(String appId, String planId, Integer status);
+  String planFinishedAction(String appId, String planId, Integer status);
 
 }

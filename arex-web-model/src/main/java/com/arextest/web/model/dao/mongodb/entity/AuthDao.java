@@ -4,7 +4,8 @@ import lombok.Data;
 
 @Data
 public class AuthDao {
-    private String authType;
-    private Boolean authActive;
-    private String token;
+
+  private String authType;
+  private Boolean authActive;
+  private String token;
 }

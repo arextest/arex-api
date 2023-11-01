@@ -5,7 +5,7 @@ import lombok.Data;
 @Data
 public class QueryMsgWithDiffRequestType {
 
-    private String compareResultId;
+  private String compareResultId;
 
-    private String logIndexes;
+  private String logIndexes;
 }

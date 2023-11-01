@@ -4,6 +4,7 @@ import lombok.Data;
 
 @Data
 public class BodyType {
-    private String contentType;
-    private String body;
+
+  private String contentType;
+  private String body;
 }

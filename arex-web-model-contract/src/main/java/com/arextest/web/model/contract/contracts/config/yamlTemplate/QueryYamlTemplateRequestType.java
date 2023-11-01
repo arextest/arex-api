@@ -4,5 +4,6 @@ import lombok.Data;
 
 @Data
 public class QueryYamlTemplateRequestType {
-    private String appId;
+
+  private String appId;
 }

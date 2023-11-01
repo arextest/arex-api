@@ -4,5 +4,6 @@ import lombok.Data;
 
 @Data
 public class DashboardSummaryRequestType {
-    private String appId;
+
+  private String appId;
 }

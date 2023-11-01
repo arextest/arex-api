@@ -4,11 +4,12 @@ import lombok.Data;
 
 @Data
 public class ReportAppConfigSummery {
-    private String name;
 
-    private Integer appCount;
+  private String name;
 
-    private Integer serviceCount;
+  private Integer appCount;
 
-    private Integer operationCount;
+  private Integer serviceCount;
+
+  private Integer operationCount;
 }

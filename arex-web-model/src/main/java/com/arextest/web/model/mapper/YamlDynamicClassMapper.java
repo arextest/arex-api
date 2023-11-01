@@ -1,18 +1,17 @@
 package com.arextest.web.model.mapper;
 
-import org.mapstruct.Mapper;
-import org.mapstruct.factory.Mappers;
-
 import com.arextest.config.model.dto.record.DynamicClassConfiguration;
 import com.arextest.web.model.contract.contracts.config.yamlTemplate.entity.DynamicClassTemplateConfig;
+import org.mapstruct.Mapper;
+import org.mapstruct.factory.Mappers;
 
 @Mapper
 public interface YamlDynamicClassMapper {
 
-    YamlDynamicClassMapper INSTANCE = Mappers.getMapper(YamlDynamicClassMapper.class);
+  YamlDynamicClassMapper INSTANCE = Mappers.getMapper(YamlDynamicClassMapper.class);
 
-    DynamicClassTemplateConfig toYaml(DynamicClassConfiguration dynamicClassConfiguration);
+  DynamicClassTemplateConfig toYaml(DynamicClassConfiguration dynamicClassConfiguration);
 
-    DynamicClassConfiguration fromYaml(DynamicClassTemplateConfig dynamicClassTemplateConfig);
+  DynamicClassConfiguration fromYaml(DynamicClassTemplateConfig dynamicClassTemplateConfig);
 
 }

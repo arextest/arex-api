@@ -1,23 +1,23 @@
 package com.arextest.web.core.repository;
 
+import com.arextest.web.model.dto.iosummary.SceneInfo;
 import java.util.List;
 import java.util.Set;
-
-import com.arextest.web.model.dto.iosummary.SceneInfo;
 
 /**
  * Created by rchen9 on 2023/2/28.
  */
 public interface SceneInfoRepository extends RepositoryProvider {
-    boolean save(List<SceneInfo> sceneInfos);
 
-    SceneInfo save(SceneInfo sceneInfo);
+  boolean save(List<SceneInfo> sceneInfos);
 
-    List<SceneInfo> querySceneInfo(String planId, String planItemId);
+  SceneInfo save(SceneInfo sceneInfo);
 
-    boolean removeByPlanItemId(Set<String> planItemIds);
+  List<SceneInfo> querySceneInfo(String planId, String planItemId);
 
-    boolean removeById(Set<String> ids);
+  boolean removeByPlanItemId(Set<String> planItemIds);
 
-    boolean update(SceneInfo sceneInfo);
+  boolean removeById(Set<String> ids);
+
+  boolean update(SceneInfo sceneInfo);
 }

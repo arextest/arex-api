@@ -8,16 +8,17 @@ import lombok.Data;
  */
 @Data
 public class CallbackInformRequestType {
-    private String appId;
-    private String appName;
-    private String planName;
-    private Integer status;
-    private Integer totalCaseCount;
-    private Integer successCaseCount;
-    private Integer failCaseCount;
-    private Integer errorCaseCount;
-    private Integer waitCaseCount;
-    private Double passRate;
-    private Long elapsedMillSeconds;
-    private String creator;
+
+  private String appId;
+  private String appName;
+  private String planName;
+  private Integer status;
+  private Integer totalCaseCount;
+  private Integer successCaseCount;
+  private Integer failCaseCount;
+  private Integer errorCaseCount;
+  private Integer waitCaseCount;
+  private Double passRate;
+  private Long elapsedMillSeconds;
+  private String creator;
 }
