@@ -1,11 +1,10 @@
 package com.arextest.web.core.repository.mongo;
 
-import com.arextest.web.core.repository.MessagePreprocessRepository;
-import com.arextest.web.core.repository.mongo.util.MongoHelper;
-import com.arextest.web.model.dao.mongodb.MessagePreprocessCollection;
-import com.arextest.web.model.dto.MessagePreprocessDto;
-import com.arextest.web.model.mapper.MessagePreprocessMapper;
-import lombok.extern.slf4j.Slf4j;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import javax.annotation.Resource;
+
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -13,9 +12,13 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
-import java.util.List;
-import java.util.stream.Collectors;
+import com.arextest.web.core.repository.MessagePreprocessRepository;
+import com.arextest.web.core.repository.mongo.util.MongoHelper;
+import com.arextest.web.model.dao.mongodb.MessagePreprocessCollection;
+import com.arextest.web.model.dto.MessagePreprocessDto;
+import com.arextest.web.model.mapper.MessagePreprocessMapper;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
@@ -35,20 +38,17 @@ public class MessagePreprocessRepositoryImpl implements MessagePreprocessReposit
         Update update = MongoHelper.getUpdate();
         update.setOnInsert(PUBLISH_DATE, System.currentTimeMillis());
 
-        Query query = Query.query(Criteria.where(KEY).is(dto.getKey())
-                .and(PATH).is(dto.getPath()));
+        Query query = Query.query(Criteria.where(KEY).is(dto.getKey()).and(PATH).is(dto.getPath()));
 
-        MessagePreprocessCollection dao = mongoTemplate.findAndModify(query,
-                update,
-                FindAndModifyOptions.options().upsert(true).returnNew(true),
-                MessagePreprocessCollection.class);
+        MessagePreprocessCollection dao = mongoTemplate.findAndModify(query, update,
+            FindAndModifyOptions.options().upsert(true).returnNew(true), MessagePreprocessCollection.class);
         return MessagePreprocessMapper.INSTANCE.dtoFromDao(dao);
     }
 
     @Override
     public List<MessagePreprocessDto> queryMessagesByKey(String key) {
-        List<MessagePreprocessCollection> result = mongoTemplate.find(Query.query(Criteria.where(KEY).is(key)),
-                MessagePreprocessCollection.class);
+        List<MessagePreprocessCollection> result =
+            mongoTemplate.find(Query.query(Criteria.where(KEY).is(key)), MessagePreprocessCollection.class);
         return result.stream().map(MessagePreprocessMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
     }
 }

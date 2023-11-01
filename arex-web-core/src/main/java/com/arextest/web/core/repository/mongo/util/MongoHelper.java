@@ -1,14 +1,16 @@
 package com.arextest.web.core.repository.mongo.util;
 
-import com.arextest.web.common.LogUtils;
-import com.arextest.web.core.repository.RepositoryProvider;
-import com.arextest.web.model.dao.mongodb.ModelBase;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.mongodb.core.query.Update;
-
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.springframework.data.mongodb.core.query.Update;
+
+import com.arextest.web.common.LogUtils;
+import com.arextest.web.core.repository.RepositoryProvider;
+import com.arextest.web.model.dao.mongodb.ModelBase;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class MongoHelper {
@@ -29,9 +31,7 @@ public class MongoHelper {
                 }
             } catch (IllegalAccessException e) {
                 LogUtils.error(LOGGER,
-                        String.format("Class:[%s]. failed to get field %s",
-                                obj.getClass().getName(),
-                                field.getName()), e);
+                    String.format("Class:[%s]. failed to get field %s", obj.getClass().getName(), field.getName()), e);
             }
         }
     }

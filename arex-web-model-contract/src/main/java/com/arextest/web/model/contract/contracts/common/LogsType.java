@@ -1,9 +1,9 @@
 package com.arextest.web.model.contract.contracts.common;
 
-import lombok.Data;
-
 import java.util.List;
 import java.util.Map;
+
+import lombok.Data;
 
 /**
  * @author b_yu
@@ -23,7 +23,6 @@ public class LogsType {
     private UnitType source;
     private ThrownType thrown;
 
-
     @Data
     public static final class UnitType {
         private String className;
@@ -31,7 +30,6 @@ public class LogsType {
         private String fileName;
         private int lineNumber;
     }
-
 
     @Data
     public static class ThrownType {

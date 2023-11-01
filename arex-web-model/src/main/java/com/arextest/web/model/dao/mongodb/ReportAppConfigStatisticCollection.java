@@ -1,10 +1,10 @@
 package com.arextest.web.model.dao.mongodb;
 
-import com.arextest.web.model.dao.mongodb.entity.ReportAppConfigSummery;
-import lombok.Data;
-
 import java.util.List;
 
+import com.arextest.web.model.dao.mongodb.entity.ReportAppConfigSummery;
+
+import lombok.Data;
 
 @Data
 public class ReportAppConfigStatisticCollection {

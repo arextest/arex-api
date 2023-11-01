@@ -7,17 +7,17 @@
 // import org.mapstruct.factory.Mappers;
 //
 // /**
-//  * Created by rchen9 on 2023/2/7.
-//  */
+// * Created by rchen9 on 2023/2/7.
+// */
 // @Mapper
 // public interface BatchCompareReportCaseMapper {
 //
-//     BatchCompareReportCaseMapper INSTANCE = Mappers.getMapper(BatchCompareReportCaseMapper.class);
+// BatchCompareReportCaseMapper INSTANCE = Mappers.getMapper(BatchCompareReportCaseMapper.class);
 //
-//     BatchCompareReportCaseCollection daoFromDto(BatchCompareReportCaseDto dto);
+// BatchCompareReportCaseCollection daoFromDto(BatchCompareReportCaseDto dto);
 //
-//     BatchCompareReportCaseDto dtoFromDao(BatchCompareReportCaseCollection dao);
+// BatchCompareReportCaseDto dtoFromDao(BatchCompareReportCaseCollection dao);
 //
-//     BatchCompareReportCaseDto dtoFromRequest(UpdateBatchCompareCaseRequestType request);
+// BatchCompareReportCaseDto dtoFromRequest(UpdateBatchCompareCaseRequestType request);
 //
 // }

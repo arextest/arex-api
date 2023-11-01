@@ -1,8 +1,8 @@
 package com.arextest.web.model.params;
 
-import lombok.Data;
-
 import java.util.Map;
+
+import lombok.Data;
 
 /**
  * @author b_yu

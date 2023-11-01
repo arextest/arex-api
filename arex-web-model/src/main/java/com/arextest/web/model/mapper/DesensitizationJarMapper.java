@@ -1,13 +1,13 @@
 package com.arextest.web.model.mapper;
 
-
-import com.arextest.web.model.contract.contracts.datadesensitization.DesensitizationJar;
-import com.arextest.web.model.dao.mongodb.DesensitizationJarCollection;
-import com.arextest.web.model.dto.DesensitizationJarDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
 import org.mapstruct.factory.Mappers;
+
+import com.arextest.web.model.contract.contracts.datadesensitization.DesensitizationJar;
+import com.arextest.web.model.dao.mongodb.DesensitizationJarCollection;
+import com.arextest.web.model.dto.DesensitizationJarDto;
 
 /**
  * Created by rchen9 on 2022/9/16.
@@ -19,12 +19,10 @@ public interface DesensitizationJarMapper {
 
     DesensitizationJarDto dtoFromDao(DesensitizationJarCollection dao);
 
-    @Mappings({
-            @Mapping(target = "id", expression = "java(null)"),
-            @Mapping(target = "dataChangeCreateTime", expression = "java(System.currentTimeMillis())"),
-            @Mapping(target = "dataChangeUpdateTime", expression = "java(System.currentTimeMillis())"),
-            @Mapping(target = "uploadDate", expression = "java(new java.util.Date())"),
-    })
+    @Mappings({@Mapping(target = "id", expression = "java(null)"),
+        @Mapping(target = "dataChangeCreateTime", expression = "java(System.currentTimeMillis())"),
+        @Mapping(target = "dataChangeUpdateTime", expression = "java(System.currentTimeMillis())"),
+        @Mapping(target = "uploadDate", expression = "java(new java.util.Date())"),})
     DesensitizationJarCollection daoFromDto(DesensitizationJarDto dto);
 
     DesensitizationJar contractFromDto(DesensitizationJarDto dao);

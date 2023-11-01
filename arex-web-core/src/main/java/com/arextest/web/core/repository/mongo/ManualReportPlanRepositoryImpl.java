@@ -1,14 +1,15 @@
 package com.arextest.web.core.repository.mongo;
 
+import javax.annotation.Resource;
+
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.stereotype.Component;
+
 import com.arextest.web.core.repository.ManualReportPlanRepository;
 import com.arextest.web.core.repository.mongo.util.MongoHelper;
 import com.arextest.web.model.dao.mongodb.ManualReportPlanCollection;
 import com.arextest.web.model.dto.manualreport.ManualReportPlanDto;
 import com.arextest.web.model.mapper.ManualReportPlanMapper;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.stereotype.Component;
-
-import javax.annotation.Resource;
 
 @Component
 public class ManualReportPlanRepositoryImpl implements ManualReportPlanRepository {

@@ -1,8 +1,8 @@
 package com.arextest.web.model.dto.filesystem;
 
-import lombok.Data;
-
 import java.util.List;
+
+import lombok.Data;
 
 /**
  * @author b_yu

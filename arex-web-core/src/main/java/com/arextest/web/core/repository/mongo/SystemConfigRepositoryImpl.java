@@ -1,17 +1,19 @@
 package com.arextest.web.core.repository.mongo;
 
-import com.arextest.web.core.repository.SystemConfigRepository;
-import com.arextest.web.model.contract.contracts.config.SystemConfig;
-import com.arextest.web.model.dao.mongodb.ModelBase;
-import com.arextest.web.model.dao.mongodb.SystemConfigCollection;
-import com.arextest.web.model.mapper.SystemConfigMapper;
-import lombok.extern.slf4j.Slf4j;
+import javax.annotation.Resource;
+
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
 
-import javax.annotation.Resource;
+import com.arextest.web.core.repository.SystemConfigRepository;
+import com.arextest.web.model.contract.contracts.config.SystemConfig;
+import com.arextest.web.model.dao.mongodb.ModelBase;
+import com.arextest.web.model.dao.mongodb.SystemConfigCollection;
+import com.arextest.web.model.mapper.SystemConfigMapper;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author wildeslam.

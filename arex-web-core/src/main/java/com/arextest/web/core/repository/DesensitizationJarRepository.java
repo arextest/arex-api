@@ -1,9 +1,8 @@
 package com.arextest.web.core.repository;
 
-import com.arextest.web.model.dto.DesensitizationJarDto;
-import com.arextest.web.model.dto.LabelDto;
-
 import java.util.List;
+
+import com.arextest.web.model.dto.DesensitizationJarDto;
 
 /**
  * @author qzmo
@@ -11,7 +10,10 @@ import java.util.List;
  */
 public interface DesensitizationJarRepository extends RepositoryProvider {
     boolean saveJar(DesensitizationJarDto dto);
+
     boolean deleteJar(String jarId);
+
     boolean deleteAll();
+
     List<DesensitizationJarDto> queryAll();
 }

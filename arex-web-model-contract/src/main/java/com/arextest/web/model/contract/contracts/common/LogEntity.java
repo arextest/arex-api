@@ -2,7 +2,6 @@ package com.arextest.web.model.contract.contracts.common;
 
 import lombok.Data;
 
-
 @Data
 public class LogEntity {
     private Object baseValue;

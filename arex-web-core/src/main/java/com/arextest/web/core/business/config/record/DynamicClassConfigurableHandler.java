@@ -1,12 +1,13 @@
 package com.arextest.web.core.business.config.record;
 
-import com.arextest.config.model.dto.record.DynamicClassConfiguration;
-import com.arextest.config.repository.ConfigRepositoryProvider;
-import com.arextest.web.core.business.config.AbstractConfigurableHandler;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import com.arextest.config.model.dto.record.DynamicClassConfiguration;
+import com.arextest.config.repository.ConfigRepositoryProvider;
+import com.arextest.web.core.business.config.AbstractConfigurableHandler;
 
 /**
  * @author jmo
@@ -14,7 +15,8 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public final class DynamicClassConfigurableHandler extends AbstractConfigurableHandler<DynamicClassConfiguration> {
-    protected DynamicClassConfigurableHandler(@Autowired ConfigRepositoryProvider<DynamicClassConfiguration> repositoryProvider) {
+    protected DynamicClassConfigurableHandler(
+        @Autowired ConfigRepositoryProvider<DynamicClassConfiguration> repositoryProvider) {
         super(repositoryProvider);
     }
 

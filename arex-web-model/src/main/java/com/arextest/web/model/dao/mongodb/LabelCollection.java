@@ -1,7 +1,8 @@
 package com.arextest.web.model.dao.mongodb;
 
-import lombok.Data;
 import org.springframework.data.mongodb.core.mapping.Document;
+
+import lombok.Data;
 
 /**
  * @author b_yu

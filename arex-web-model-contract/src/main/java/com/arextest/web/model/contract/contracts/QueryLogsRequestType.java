@@ -1,9 +1,10 @@
 package com.arextest.web.model.contract.contracts;
 
-import com.arextest.web.model.contract.PagingRequest;
-import lombok.Data;
-
 import java.util.Map;
+
+import com.arextest.web.model.contract.PagingRequest;
+
+import lombok.Data;
 
 /**
  * @author b_yu

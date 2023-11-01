@@ -9,5 +9,6 @@ import com.arextest.web.model.dto.filesystem.FSCaseDto;
  */
 public interface MockerConversion {
     String getCategoryName();
+
     FSCaseDto mockerConvertToFsCase(AREXMocker mocker);
 }

@@ -1,11 +1,12 @@
 package com.arextest.web.model.contract.contracts;
 
-import com.arextest.web.model.contract.contracts.common.CompareResult;
-import lombok.Data;
-
-import javax.validation.constraints.NotNull;
 import java.util.List;
 
+import javax.validation.constraints.NotNull;
+
+import com.arextest.web.model.contract.contracts.common.CompareResult;
+
+import lombok.Data;
 
 @Data
 public class PushCompareResultsRequestType {

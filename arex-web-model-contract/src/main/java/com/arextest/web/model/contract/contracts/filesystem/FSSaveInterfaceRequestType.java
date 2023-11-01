@@ -1,12 +1,14 @@
 package com.arextest.web.model.contract.contracts.filesystem;
 
-import com.arextest.web.model.contract.contracts.common.KeyValuePairType;
-import com.arextest.web.model.contract.contracts.common.ScriptBlockType;
-import lombok.Data;
-
-import javax.validation.constraints.NotBlank;
 import java.util.List;
 import java.util.Map;
+
+import javax.validation.constraints.NotBlank;
+
+import com.arextest.web.model.contract.contracts.common.KeyValuePairType;
+import com.arextest.web.model.contract.contracts.common.ScriptBlockType;
+
+import lombok.Data;
 
 @Data
 public class FSSaveInterfaceRequestType {

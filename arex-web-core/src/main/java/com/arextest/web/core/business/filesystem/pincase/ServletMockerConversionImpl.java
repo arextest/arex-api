@@ -1,5 +1,14 @@
 package com.arextest.web.core.business.filesystem.pincase;
 
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.http.HttpMethod;
+
 import com.arextest.model.mock.AREXMocker;
 import com.arextest.model.mock.Mocker;
 import com.arextest.web.common.LogUtils;
@@ -8,15 +17,8 @@ import com.arextest.web.model.dto.KeyValuePairDto;
 import com.arextest.web.model.dto.filesystem.AddressDto;
 import com.arextest.web.model.dto.filesystem.BodyDto;
 import com.arextest.web.model.dto.filesystem.FSCaseDto;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.http.HttpMethod;
 
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author b_yu
@@ -57,7 +59,7 @@ public class ServletMockerConversionImpl implements MockerConversion {
 
             String contentType = StringUtils.EMPTY;
 
-            Map<String, String> headers = (Map<String, String>) targetRequest.getAttribute("Headers");
+            Map<String, String> headers = (Map<String, String>)targetRequest.getAttribute("Headers");
             if (headers != null) {
                 List<KeyValuePairDto> kvPair = new ArrayList<>(headers.size());
                 for (Map.Entry<String, String> header : headers.entrySet()) {

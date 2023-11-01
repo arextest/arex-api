@@ -1,7 +1,5 @@
 package com.arextest.web.core.business.oauth;
 
-import com.arextest.web.model.contract.contracts.login.VerifyResponseType;
-
 /**
  * @author b_yu
  * @since 2023/8/15
@@ -14,7 +12,10 @@ public interface OauthService {
     String EMAIL = "email";
 
     String getClientId();
+
     String getRedirectUri();
+
     String getOauthUri();
+
     String getUser(String code);
 }

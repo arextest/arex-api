@@ -6,10 +6,10 @@
 // import java.util.List;
 //
 // /**
-//  * Created by rchen9 on 2022/10/27.
-//  */
+// * Created by rchen9 on 2022/10/27.
+// */
 // @Data
 // public class ComparisonMsgType {
-//     private int diffResultCode;
-//     private List<DiffDetail> diffDetails;
+// private int diffResultCode;
+// private List<DiffDetail> diffDetails;
 // }

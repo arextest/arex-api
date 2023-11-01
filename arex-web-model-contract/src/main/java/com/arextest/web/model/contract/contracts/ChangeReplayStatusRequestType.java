@@ -1,10 +1,10 @@
 package com.arextest.web.model.contract.contracts;
 
-import lombok.Data;
-
-import javax.validation.constraints.NotBlank;
 import java.util.List;
 
+import javax.validation.constraints.NotBlank;
+
+import lombok.Data;
 
 @Data
 public class ChangeReplayStatusRequestType {
@@ -15,7 +15,6 @@ public class ChangeReplayStatusRequestType {
     private String errorMessage;
     private List<ReplayItem> items;
     private boolean rerun;
-
 
     @Data
     public static class ReplayItem {

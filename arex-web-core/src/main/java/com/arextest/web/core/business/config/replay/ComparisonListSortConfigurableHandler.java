@@ -4,11 +4,11 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
-import com.arextest.config.repository.ConfigRepositoryProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
+import com.arextest.config.repository.ConfigRepositoryProvider;
 import com.arextest.web.core.repository.AppContractRepository;
 import com.arextest.web.core.repository.FSInterfaceRepository;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonListSortConfiguration;
@@ -20,12 +20,6 @@ import com.arextest.web.model.dto.filesystem.FSInterfaceDto;
 @Component
 public class ComparisonListSortConfigurableHandler
     extends AbstractComparisonConfigurableHandler<ComparisonListSortConfiguration> {
-    protected ComparisonListSortConfigurableHandler(
-        @Autowired ConfigRepositoryProvider<ComparisonListSortConfiguration> repositoryProvider,
-        @Autowired AppContractRepository appContractRepository) {
-        super(repositoryProvider, appContractRepository);
-    }
-
     @Resource
     FSInterfaceRepository fsInterfaceRepository;
     @Lazy
@@ -33,6 +27,11 @@ public class ComparisonListSortConfigurableHandler
     ComparisonReferenceConfigurableHandler referenceHandler;
     @Resource
     ListKeyCycleDetectionHandler listKeyCycleDetectionHandler;
+    protected ComparisonListSortConfigurableHandler(
+        @Autowired ConfigRepositoryProvider<ComparisonListSortConfiguration> repositoryProvider,
+        @Autowired AppContractRepository appContractRepository) {
+        super(repositoryProvider, appContractRepository);
+    }
 
     @Override
     public List<ComparisonListSortConfiguration> queryByInterfaceId(String interfaceId) {

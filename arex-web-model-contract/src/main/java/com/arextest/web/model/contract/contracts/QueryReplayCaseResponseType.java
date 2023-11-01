@@ -1,11 +1,11 @@
 package com.arextest.web.model.contract.contracts;
 
-import com.arextest.web.model.contract.PagingResponse;
-import com.arextest.web.model.contract.contracts.common.CaseDetailResult;
-import lombok.Data;
-
 import java.util.List;
 
+import com.arextest.web.model.contract.PagingResponse;
+import com.arextest.web.model.contract.contracts.common.CaseDetailResult;
+
+import lombok.Data;
 
 @Data
 public class QueryReplayCaseResponseType implements PagingResponse {

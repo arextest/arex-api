@@ -1,9 +1,9 @@
 package com.arextest.web.model.dao.mongodb;
 
-import lombok.Data;
-import lombok.experimental.FieldNameConstants;
 import org.springframework.data.annotation.Id;
 
+import lombok.Data;
+import lombok.experimental.FieldNameConstants;
 
 @Data
 @FieldNameConstants

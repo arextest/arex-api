@@ -2,10 +2,9 @@ package com.arextest.web.model.contract.contracts.config.replay;
 
 import java.util.Date;
 
-import com.arextest.config.model.dto.AbstractConfiguration;
-import lombok.experimental.FieldNameConstants;
 import org.apache.commons.lang3.StringUtils;
 
+import com.arextest.config.model.dto.AbstractConfiguration;
 import com.arextest.web.model.contract.contracts.common.enums.CompareConfigType;
 import com.arextest.web.model.contract.contracts.common.enums.ExpirationType;
 

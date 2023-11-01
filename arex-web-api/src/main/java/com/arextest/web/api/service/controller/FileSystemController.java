@@ -1,5 +1,20 @@
 package com.arextest.web.api.service.controller;
 
+import javax.annotation.Resource;
+import javax.validation.Valid;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.MutablePair;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
 import com.arextest.common.model.response.Response;
 import com.arextest.common.model.response.ResponseCode;
 import com.arextest.common.utils.JwtUtil;
@@ -52,21 +67,8 @@ import com.arextest.web.model.contract.contracts.filesystem.RecoverItemInfoReque
 import com.arextest.web.model.contract.contracts.filesystem.RemoveUserFromWorkspaceType;
 import com.arextest.web.model.contract.contracts.filesystem.ValidInvitationRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.ValidInvitationResponseType;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.MutablePair;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 
-import javax.annotation.Resource;
-import javax.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Controller
@@ -83,11 +85,9 @@ public class FileSystemController {
     @PostMapping("/addItem")
     @ResponseBody
     public Response addItem(@RequestHeader(name = Constants.ACCESS_TOKEN) String token,
-            @Valid @RequestBody FSAddItemRequestType request) {
-        if (StringUtils.isNotEmpty(request.getId()) &&
-                !rolePermission.checkPermissionByToken(RolePermission.EDIT_ITEM,
-                        token,
-                        request.getId())) {
+        @Valid @RequestBody FSAddItemRequestType request) {
+        if (StringUtils.isNotEmpty(request.getId())
+            && !rolePermission.checkPermissionByToken(RolePermission.EDIT_ITEM, token, request.getId())) {
             return ResponseUtils.errorResponse(Constants.NO_PERMISSION, ResponseCode.AUTHENTICATION_FAILED);
         }
         String userName = JwtUtil.getUserName(token);
@@ -99,7 +99,7 @@ public class FileSystemController {
     @PostMapping("/removeItem")
     @ResponseBody
     public Response removeItem(@RequestHeader(name = Constants.ACCESS_TOKEN) String token,
-            @Valid @RequestBody FSRemoveItemRequestType request) {
+        @Valid @RequestBody FSRemoveItemRequestType request) {
         if (!rolePermission.checkPermissionByToken(RolePermission.EDIT_ITEM, token, request.getId())) {
             return ResponseUtils.errorResponse(Constants.NO_PERMISSION, ResponseCode.AUTHENTICATION_FAILED);
         }
@@ -112,7 +112,7 @@ public class FileSystemController {
     @PostMapping("/rename")
     @ResponseBody
     public Response rename(@RequestHeader(name = Constants.ACCESS_TOKEN) String token,
-            @Valid @RequestBody FSRenameRequestType request) {
+        @Valid @RequestBody FSRenameRequestType request) {
         if (!rolePermission.checkPermissionByToken(RolePermission.EDIT_ITEM, token, request.getId())) {
             return ResponseUtils.errorResponse(Constants.NO_PERMISSION, ResponseCode.AUTHENTICATION_FAILED);
         }
@@ -125,7 +125,7 @@ public class FileSystemController {
     @PostMapping("/duplicate")
     @ResponseBody
     public Response duplicate(@RequestHeader(name = Constants.ACCESS_TOKEN) String token,
-            @Valid @RequestBody FSDuplicateRequestType request) {
+        @Valid @RequestBody FSDuplicateRequestType request) {
         if (!rolePermission.checkPermissionByToken(RolePermission.EDIT_ITEM, token, request.getId())) {
             return ResponseUtils.errorResponse(Constants.NO_PERMISSION, ResponseCode.AUTHENTICATION_FAILED);
         }
@@ -152,10 +152,8 @@ public class FileSystemController {
     @PostMapping("/deleteWorkspace")
     @ResponseBody
     public Response deleteWorkspace(@RequestHeader(name = Constants.ACCESS_TOKEN) String token,
-            @Valid @RequestBody FSDeleteWorkspaceRequestType request) {
-        if (!rolePermission.checkPermissionByToken(RolePermission.EDIT_WORKSPACE,
-                token,
-                request.getWorkspaceId())) {
+        @Valid @RequestBody FSDeleteWorkspaceRequestType request) {
+        if (!rolePermission.checkPermissionByToken(RolePermission.EDIT_WORKSPACE, token, request.getWorkspaceId())) {
             return ResponseUtils.errorResponse(Constants.NO_PERMISSION, ResponseCode.AUTHENTICATION_FAILED);
         }
         SuccessResponseType response = new SuccessResponseType();
@@ -166,7 +164,7 @@ public class FileSystemController {
     @PostMapping("/renameWorkspace")
     @ResponseBody
     public Response renameWorkspace(@RequestHeader(name = Constants.ACCESS_TOKEN) String token,
-            @Valid @RequestBody FSRenameWorkspaceRequestType request) {
+        @Valid @RequestBody FSRenameWorkspaceRequestType request) {
         if (!rolePermission.checkPermissionByToken(RolePermission.EDIT_WORKSPACE, token, request.getId())) {
             return ResponseUtils.errorResponse(Constants.NO_PERMISSION, ResponseCode.AUTHENTICATION_FAILED);
         }
@@ -178,7 +176,7 @@ public class FileSystemController {
     @PostMapping("/queryWorkspaceById")
     @ResponseBody
     public Response queryWorkspaceById(@RequestHeader(name = Constants.ACCESS_TOKEN) String token,
-            @RequestBody FSQueryWorkspaceRequestType request) {
+        @RequestBody FSQueryWorkspaceRequestType request) {
         if (!rolePermission.checkPermissionByToken(RolePermission.VIEW_WORKSPACE, token, request.getId())) {
             return ResponseUtils.errorResponse(Constants.NO_PERMISSION, ResponseCode.AUTHENTICATION_FAILED);
         }
@@ -203,7 +201,7 @@ public class FileSystemController {
     @PostMapping("/saveFolder")
     @ResponseBody
     public Response saveFolder(@RequestHeader(name = Constants.ACCESS_TOKEN) String token,
-            @RequestBody FSSaveFolderRequestType request) {
+        @RequestBody FSSaveFolderRequestType request) {
         String userName = JwtUtil.getUserName(token);
         FSSaveFolderResponseType response = fileSystemService.saveFolder(request, userName);
         return ResponseUtils.successResponse(response);
@@ -219,7 +217,7 @@ public class FileSystemController {
     @PostMapping("/saveInterface")
     @ResponseBody
     public Response saveInterface(@RequestHeader(name = Constants.ACCESS_TOKEN) String token,
-            @RequestBody FSSaveInterfaceRequestType request) {
+        @RequestBody FSSaveInterfaceRequestType request) {
         String userName = JwtUtil.getUserName(token);
         FSSaveInterfaceResponseType response = new FSSaveInterfaceResponseType();
         response.setSuccess(fileSystemService.saveInterface(request, userName));
@@ -236,7 +234,7 @@ public class FileSystemController {
     @PostMapping("/saveCase")
     @ResponseBody
     public Response saveCase(@RequestHeader(name = Constants.ACCESS_TOKEN) String token,
-            @RequestBody FSSaveCaseRequestType request) {
+        @RequestBody FSSaveCaseRequestType request) {
         String userName = JwtUtil.getUserName(token);
         FSSaveCaseResponseType response = new FSSaveCaseResponseType();
         response.setSuccess(fileSystemService.saveCase(request, userName));
@@ -260,10 +258,9 @@ public class FileSystemController {
     @PostMapping("/inviteToWorkspace")
     @ResponseBody
     public Response inviteToWorkspace(@RequestHeader(name = Constants.ACCESS_TOKEN) String token,
-            @Valid @RequestBody InviteToWorkspaceRequestType request) {
-        if (!rolePermission.checkPermissionByToken(RolePermission.INVITE_TO_WORKSPACE,
-                token,
-                request.getWorkspaceId())) {
+        @Valid @RequestBody InviteToWorkspaceRequestType request) {
+        if (!rolePermission.checkPermissionByToken(RolePermission.INVITE_TO_WORKSPACE, token,
+            request.getWorkspaceId())) {
             return ResponseUtils.errorResponse(Constants.NO_PERMISSION, ResponseCode.AUTHENTICATION_FAILED);
         }
         InviteToWorkspaceResponseType response = fileSystemService.inviteToWorkspace(request);
@@ -281,10 +278,8 @@ public class FileSystemController {
     @PostMapping("/removeUserFromWorkspace")
     @ResponseBody
     public Response removeUserFromWorkspace(@RequestHeader(name = Constants.ACCESS_TOKEN) String token,
-            @Valid @RequestBody RemoveUserFromWorkspaceType request) {
-        if (!rolePermission.checkPermissionByToken(RolePermission.EDIT_WORKSPACE,
-                token,
-                request.getWorkspaceId())) {
+        @Valid @RequestBody RemoveUserFromWorkspaceType request) {
+        if (!rolePermission.checkPermissionByToken(RolePermission.EDIT_WORKSPACE, token, request.getWorkspaceId())) {
             return ResponseUtils.errorResponse(Constants.NO_PERMISSION, ResponseCode.AUTHENTICATION_FAILED);
         }
         SuccessResponseType response = new SuccessResponseType();
@@ -295,10 +290,8 @@ public class FileSystemController {
     @PostMapping("/changeRole")
     @ResponseBody
     public Response changeRole(@RequestHeader(name = Constants.ACCESS_TOKEN) String token,
-            @Valid @RequestBody ChangeRoleRequestType request) {
-        if (!rolePermission.checkPermissionByToken(RolePermission.EDIT_WORKSPACE,
-                token,
-                request.getWorkspaceId())) {
+        @Valid @RequestBody ChangeRoleRequestType request) {
+        if (!rolePermission.checkPermissionByToken(RolePermission.EDIT_WORKSPACE, token, request.getWorkspaceId())) {
             return ResponseUtils.errorResponse(Constants.NO_PERMISSION, ResponseCode.AUTHENTICATION_FAILED);
         }
         SuccessResponseType response = new SuccessResponseType();
@@ -309,11 +302,11 @@ public class FileSystemController {
     @PostMapping("/leaveWorkspace")
     @ResponseBody
     public Response leaveWorkspace(@RequestHeader(name = Constants.ACCESS_TOKEN) String token,
-            @Valid @RequestBody LeaveWorkspaceRequestType request) {
+        @Valid @RequestBody LeaveWorkspaceRequestType request) {
         String userName = JwtUtil.getUserName(token);
         if (StringUtils.isEmpty(userName)) {
             return ResponseUtils.errorResponse("Incorrect token. Please login again.",
-                    ResponseCode.REQUESTED_PARAMETER_INVALID);
+                ResponseCode.REQUESTED_PARAMETER_INVALID);
         }
         SuccessResponseType response = new SuccessResponseType();
         response.setSuccess(fileSystemService.leaveWorkspace(userName, request.getWorkspaceId()));
@@ -333,7 +326,7 @@ public class FileSystemController {
         MutablePair<String, String> result = fileSystemService.addItemFromRecord(request);
         if (result == null) {
             return ResponseUtils.errorResponse("Failed to add record case to workspace",
-                    ResponseCode.REQUESTED_HANDLE_EXCEPTION);
+                ResponseCode.REQUESTED_HANDLE_EXCEPTION);
         }
         FSAddItemFromRecordResponseType response = new FSAddItemFromRecordResponseType();
         response.setSuccess(true);
@@ -348,7 +341,7 @@ public class FileSystemController {
         MutablePair<String, String> result = fileSystemService.addItemFromRecordByDefault(request);
         if (result == null) {
             return ResponseUtils.errorResponse("Failed to add record case to workspace by default path",
-                    ResponseCode.REQUESTED_HANDLE_EXCEPTION);
+                ResponseCode.REQUESTED_HANDLE_EXCEPTION);
         }
         FSAddItemFromRecordResponseType response = new FSAddItemFromRecordResponseType();
         response.setSuccess(true);

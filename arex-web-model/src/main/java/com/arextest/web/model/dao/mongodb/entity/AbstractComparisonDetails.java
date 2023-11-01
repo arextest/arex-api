@@ -1,12 +1,13 @@
 package com.arextest.web.model.dao.mongodb.entity;
 
+import java.util.Date;
+
 import com.arextest.web.model.dao.mongodb.ModelBase;
+
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
 import lombok.experimental.FieldNameConstants;
-
-import java.util.Date;
 
 /**
  * Created by rchen9 on 2022/9/16.

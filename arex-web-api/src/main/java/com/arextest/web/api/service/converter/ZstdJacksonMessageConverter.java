@@ -1,7 +1,9 @@
 package com.arextest.web.api.service.converter;
 
-import com.arextest.common.utils.SerializationUtils;
-import com.arextest.web.model.contract.contracts.PushCompareResultsRequestType;
+import static org.springframework.http.converter.json.AbstractJackson2HttpMessageConverter.DEFAULT_CHARSET;
+
+import java.io.IOException;
+
 import org.springframework.http.HttpInputMessage;
 import org.springframework.http.HttpOutputMessage;
 import org.springframework.http.MediaType;
@@ -10,14 +12,11 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.converter.HttpMessageNotWritableException;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
-
-import static org.springframework.http.converter.json.AbstractJackson2HttpMessageConverter.DEFAULT_CHARSET;
-
+import com.arextest.common.utils.SerializationUtils;
+import com.arextest.web.model.contract.contracts.PushCompareResultsRequestType;
 
 @Component
 public final class ZstdJacksonMessageConverter extends AbstractHttpMessageConverter<Object> {
-
 
     public static final String ZSTD_JSON_MEDIA_TYPE = "application/zstd-json;charset=UTF-8";
 
@@ -35,14 +34,14 @@ public final class ZstdJacksonMessageConverter extends AbstractHttpMessageConver
     }
 
     @Override
-    protected Object readInternal(Class<?> clazz, HttpInputMessage inputMessage) throws IOException,
-            HttpMessageNotReadableException {
+    protected Object readInternal(Class<?> clazz, HttpInputMessage inputMessage)
+        throws IOException, HttpMessageNotReadableException {
         return SerializationUtils.useZstdDeserialize(inputMessage.getBody(), clazz);
     }
 
     @Override
-    protected void writeInternal(Object o, HttpOutputMessage outputMessage) throws IOException,
-            HttpMessageNotWritableException {
+    protected void writeInternal(Object o, HttpOutputMessage outputMessage)
+        throws IOException, HttpMessageNotWritableException {
         SerializationUtils.useZstdSerializeTo(outputMessage.getBody(), o);
     }
 }

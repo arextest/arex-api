@@ -16,46 +16,46 @@
 // import javax.annotation.Resource;
 //
 // /**
-//  * Created by rchen9 on 2022/6/29.
-//  */
+// * Created by rchen9 on 2022/6/29.
+// */
 // @Slf4j
 // @Controller
 // @RequestMapping("/api/compare/")
 // @CrossOrigin(origins = "*", maxAge = 3600)
 // public class CompareController {
 //
-//     @Resource
-//     CompareService compareService;
+// @Resource
+// CompareService compareService;
 //
-//     // Comparison of a single case
-//     @PostMapping("/quickCompare")
-//     @ResponseBody
-//     public Response quickCompare(@RequestBody QuickCompareRequestType request) {
-//         QuickCompareResponseType response = compareService.quickCompareCompressMsg(request.getMsgCombination());
-//         return ResponseUtils.successResponse(response);
-//     }
+// // Comparison of a single case
+// @PostMapping("/quickCompare")
+// @ResponseBody
+// public Response quickCompare(@RequestBody QuickCompareRequestType request) {
+// QuickCompareResponseType response = compareService.quickCompareCompressMsg(request.getMsgCombination());
+// return ResponseUtils.successResponse(response);
+// }
 //
-//     // Aggregate comparison of multiple cases
-//     @Deprecated
-//     @PostMapping("/aggCompare")
-//     @ResponseBody
-//     public Response aggCompare(@RequestBody AggCompareRequestType request) {
-//         compareService.aggCompare(request.getMsgCombinations());
-//         return ResponseUtils.successResponse(null);
-//     }
+// // Aggregate comparison of multiple cases
+// @Deprecated
+// @PostMapping("/aggCompare")
+// @ResponseBody
+// public Response aggCompare(@RequestBody AggCompareRequestType request) {
+// compareService.aggCompare(request.getMsgCombinations());
+// return ResponseUtils.successResponse(null);
+// }
 //
-//     // exception handler
-//     @PostMapping("/sendException")
-//     @ResponseBody
-//     public Response sendException(@RequestBody SendExceptionRequestType request) {
-//         compareService.sendException( request.getExceptionMsgs());
-//         return ResponseUtils.successResponse(null);
-//     }
+// // exception handler
+// @PostMapping("/sendException")
+// @ResponseBody
+// public Response sendException(@RequestBody SendExceptionRequestType request) {
+// compareService.sendException( request.getExceptionMsgs());
+// return ResponseUtils.successResponse(null);
+// }
 //
-//     @PostMapping("/caseCompare")
-//     @ResponseBody
-//     public Response caseCompare(@RequestBody CaseCompareRequestType request){
-//         CaseCompareResponseType response = compareService.caseCompare(request.getMsgCombination());
-//         return ResponseUtils.successResponse(response);
-//     }
+// @PostMapping("/caseCompare")
+// @ResponseBody
+// public Response caseCompare(@RequestBody CaseCompareRequestType request){
+// CaseCompareResponseType response = compareService.caseCompare(request.getMsgCombination());
+// return ResponseUtils.successResponse(response);
+// }
 // }

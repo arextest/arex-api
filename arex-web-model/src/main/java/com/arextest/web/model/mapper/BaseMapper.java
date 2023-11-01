@@ -1,7 +1,8 @@
 package com.arextest.web.model.mapper;
 
-import com.arextest.web.common.ZstdUtils;
 import org.mapstruct.Named;
+
+import com.arextest.web.common.ZstdUtils;
 
 public interface BaseMapper {
     @Named("compressMsg")

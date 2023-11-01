@@ -1,10 +1,11 @@
 package com.arextest.web.api.service.controller.config;
 
-import com.arextest.web.core.business.config.ConfigurableHandler;
-import com.arextest.web.model.contract.contracts.config.replay.ScheduleConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+
+import com.arextest.web.core.business.config.ConfigurableHandler;
+import com.arextest.web.model.contract.contracts.config.replay.ScheduleConfiguration;
 
 /**
  * @author jmo

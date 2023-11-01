@@ -15,4 +15,5 @@ public class FeedbackSceneRequest {
      */
     private Integer feedbackType;
     private String recordId;
+    private String remark;
 }

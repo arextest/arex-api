@@ -10,20 +10,20 @@
 // import org.mapstruct.factory.Mappers;
 //
 // /**
-//  * Created by rchen9 on 2023/2/9.
-//  */
+// * Created by rchen9 on 2023/2/9.
+// */
 // @Mapper
 // public interface BatchCompareReportResultMapper {
-//     BatchCompareReportResultMapper INSTANCE = Mappers.getMapper(BatchCompareReportResultMapper.class);
+// BatchCompareReportResultMapper INSTANCE = Mappers.getMapper(BatchCompareReportResultMapper.class);
 //
-//     BatchCompareReportResultCollection daoFromDto(BatchCompareReportResultDto dto);
+// BatchCompareReportResultCollection daoFromDto(BatchCompareReportResultDto dto);
 //
-//     BatchCompareReportResultDto dtoFromDao(BatchCompareReportResultCollection dao);
+// BatchCompareReportResultDto dtoFromDao(BatchCompareReportResultCollection dao);
 //
-//     BatchCompareReportResultDto dtoFromRequest(QueryMoreDiffInSameCardRequestType request);
+// BatchCompareReportResultDto dtoFromRequest(QueryMoreDiffInSameCardRequestType request);
 //
-//     @Mappings({
-//             @Mapping(target = "logId", source = "id")
-//     })
-//     BatchCompareMoreItem itemFromDto(BatchCompareReportResultDto dto);
+// @Mappings({
+// @Mapping(target = "logId", source = "id")
+// })
+// BatchCompareMoreItem itemFromDto(BatchCompareReportResultDto dto);
 // }

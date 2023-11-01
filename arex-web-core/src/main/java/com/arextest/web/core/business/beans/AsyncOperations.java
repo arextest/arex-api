@@ -1,13 +1,13 @@
 package com.arextest.web.core.business.beans;
 
-import com.arextest.web.core.business.util.MailUtils;
-import com.arextest.web.model.enums.SendEmailType;
+import javax.annotation.Resource;
+
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
+import com.arextest.web.core.business.util.MailUtils;
+import com.arextest.web.model.enums.SendEmailType;
 
 /**
  * @author b_yu

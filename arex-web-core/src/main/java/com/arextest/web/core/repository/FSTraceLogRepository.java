@@ -1,8 +1,8 @@
 package com.arextest.web.core.repository;
 
-import com.arextest.web.model.dto.filesystem.FSTraceLogDto;
-
 import java.util.List;
+
+import com.arextest.web.model.dto.filesystem.FSTraceLogDto;
 
 /**
  * @author b_yu
@@ -10,6 +10,8 @@ import java.util.List;
  */
 public interface FSTraceLogRepository {
     boolean saveTraceLog(FSTraceLogDto traceLogDto);
+
     FSTraceLogDto queryTraceLog(String id);
+
     List<FSTraceLogDto> queryTraceLogsByWorkspaceId(String workspaceId);
 }

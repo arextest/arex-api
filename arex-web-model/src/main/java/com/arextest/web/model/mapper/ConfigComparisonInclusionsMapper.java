@@ -1,27 +1,24 @@
 package com.arextest.web.model.mapper;
 
-
-import com.arextest.web.model.contract.contracts.config.replay.ComparisonInclusionsConfiguration;
-import com.arextest.web.model.dao.mongodb.ConfigComparisonInclusionsCollection;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
 import org.mapstruct.factory.Mappers;
+
+import com.arextest.web.model.contract.contracts.config.replay.ComparisonInclusionsConfiguration;
+import com.arextest.web.model.dao.mongodb.ConfigComparisonInclusionsCollection;
 
 @Mapper
 public interface ConfigComparisonInclusionsMapper {
 
     ConfigComparisonInclusionsMapper INSTANCE = Mappers.getMapper(ConfigComparisonInclusionsMapper.class);
 
-    @Mappings({
-            @Mapping(target = "modifiedTime", expression = "java(dao.getDataChangeUpdateTime() == null ? null : new java.sql.Timestamp(dao.getDataChangeUpdateTime()))")
-    })
+    @Mappings({@Mapping(target = "modifiedTime",
+        expression = "java(dao.getDataChangeUpdateTime() == null ? null : new java.sql.Timestamp(dao.getDataChangeUpdateTime()))")})
     ComparisonInclusionsConfiguration dtoFromDao(ConfigComparisonInclusionsCollection dao);
 
-    @Mappings({
-            @Mapping(target = "id", expression = "java(null)"),
-            @Mapping(target = "dataChangeCreateTime", expression = "java(System.currentTimeMillis())"),
-            @Mapping(target = "dataChangeUpdateTime", expression = "java(System.currentTimeMillis())")
-    })
+    @Mappings({@Mapping(target = "id", expression = "java(null)"),
+        @Mapping(target = "dataChangeCreateTime", expression = "java(System.currentTimeMillis())"),
+        @Mapping(target = "dataChangeUpdateTime", expression = "java(System.currentTimeMillis())")})
     ConfigComparisonInclusionsCollection daoFromDto(ComparisonInclusionsConfiguration dto);
 }

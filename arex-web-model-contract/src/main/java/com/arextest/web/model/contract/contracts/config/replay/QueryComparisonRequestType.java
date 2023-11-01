@@ -1,8 +1,8 @@
 package com.arextest.web.model.contract.contracts.config.replay;
 
-import lombok.Data;
-
 import javax.validation.constraints.NotNull;
+
+import lombok.Data;
 
 @Data
 public class QueryComparisonRequestType {

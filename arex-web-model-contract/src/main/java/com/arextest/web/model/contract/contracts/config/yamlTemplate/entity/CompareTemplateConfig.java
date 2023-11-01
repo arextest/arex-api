@@ -1,9 +1,8 @@
 package com.arextest.web.model.contract.contracts.config.yamlTemplate.entity;
 
-import lombok.Data;
-
 import java.util.List;
 
+import lombok.Data;
 
 @Data
 public class CompareTemplateConfig {

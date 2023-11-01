@@ -1,19 +1,22 @@
 package com.arextest.web.core.repository.mongo;
 
-import com.arextest.web.core.repository.DesensitizationJarRepository;
-import com.arextest.web.model.dao.mongodb.DesensitizationJarCollection;
-import com.arextest.web.model.dto.DesensitizationJarDto;
-import com.arextest.web.model.mapper.DesensitizationJarMapper;
-import lombok.extern.slf4j.Slf4j;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import javax.annotation.Resource;
+
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
-import java.util.List;
-import java.util.stream.Collectors;
+import com.arextest.web.core.repository.DesensitizationJarRepository;
+import com.arextest.web.model.dao.mongodb.DesensitizationJarCollection;
+import com.arextest.web.model.dto.DesensitizationJarDto;
+import com.arextest.web.model.mapper.DesensitizationJarMapper;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author qzmo
@@ -33,7 +36,8 @@ public class DesensitizationJarRepoImpl implements DesensitizationJarRepository 
 
     @Override
     public boolean deleteJar(String jarId) {
-        DesensitizationJarCollection res = mongoTemplate.findAndRemove(Query.query(Criteria.where(DASH_ID).is(jarId)), DesensitizationJarCollection.class);
+        DesensitizationJarCollection res = mongoTemplate.findAndRemove(Query.query(Criteria.where(DASH_ID).is(jarId)),
+            DesensitizationJarCollection.class);
         return res != null;
     }
 
@@ -46,7 +50,6 @@ public class DesensitizationJarRepoImpl implements DesensitizationJarRepository 
     @Override
     public List<DesensitizationJarDto> queryAll() {
         return mongoTemplate.findAll(DesensitizationJarCollection.class).stream()
-                .map(DesensitizationJarMapper.INSTANCE::dtoFromDao)
-                .collect(Collectors.toList());
+            .map(DesensitizationJarMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
     }
 }
