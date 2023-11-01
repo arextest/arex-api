@@ -4,5 +4,6 @@ import lombok.Data;
 
 @Data
 public class ReplayCaseCountResponse {
-    private Integer count;
+
+  private Integer count;
 }

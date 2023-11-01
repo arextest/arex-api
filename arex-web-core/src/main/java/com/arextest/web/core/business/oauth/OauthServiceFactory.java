@@ -1,9 +1,7 @@
 package com.arextest.web.core.business.oauth;
 
 import java.util.Map;
-
 import javax.annotation.Resource;
-
 import org.springframework.stereotype.Component;
 
 /**
@@ -12,10 +10,11 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class OauthServiceFactory {
-    @Resource
-    private Map<String, OauthService> oauthServiceMap;
 
-    public OauthService getOauthService(String type) {
-        return oauthServiceMap.get(type);
-    }
+  @Resource
+  private Map<String, OauthService> oauthServiceMap;
+
+  public OauthService getOauthService(String type) {
+    return oauthServiceMap.get(type);
+  }
 }

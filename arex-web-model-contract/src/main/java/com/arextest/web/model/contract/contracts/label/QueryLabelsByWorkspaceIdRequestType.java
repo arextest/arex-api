@@ -1,7 +1,6 @@
 package com.arextest.web.model.contract.contracts.label;
 
 import javax.validation.constraints.NotBlank;
-
 import lombok.Data;
 
 /**
@@ -10,6 +9,7 @@ import lombok.Data;
  */
 @Data
 public class QueryLabelsByWorkspaceIdRequestType {
-    @NotBlank(message = "Workspace id cannot be empty")
-    private String workspaceId;
+
+  @NotBlank(message = "Workspace id cannot be empty")
+  private String workspaceId;
 }

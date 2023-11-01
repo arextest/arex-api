@@ -4,7 +4,8 @@ import lombok.Data;
 
 @Data
 public class KeyValuePairDao {
-    private String key;
-    private String value;
-    private Boolean active;
+
+  private String key;
+  private String value;
+  private Boolean active;
 }

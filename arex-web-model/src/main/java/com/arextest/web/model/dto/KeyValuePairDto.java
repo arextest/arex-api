@@ -8,7 +8,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class KeyValuePairDto {
-    private String key;
-    private String value;
-    private Boolean active;
+
+  private String key;
+  private String value;
+  private Boolean active;
 }

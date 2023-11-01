@@ -1,22 +1,22 @@
 package com.arextest.web.model.mapper;
 
-import org.mapstruct.Mapper;
-import org.mapstruct.factory.Mappers;
-
 import com.arextest.web.model.contract.contracts.manualreport.ReportInterfaceType;
 import com.arextest.web.model.dao.mongodb.ManualReportPlanItemCollection;
 import com.arextest.web.model.dto.filesystem.FSInterfaceDto;
 import com.arextest.web.model.dto.manualreport.ManualReportPlanItemDto;
+import org.mapstruct.Mapper;
+import org.mapstruct.factory.Mappers;
 
 @Mapper
 public interface ManualReportPlanItemMapper {
-    ManualReportPlanItemMapper INSTANCE = Mappers.getMapper(ManualReportPlanItemMapper.class);
 
-    ManualReportPlanItemDto dtoFromFsInterfaceDto(FSInterfaceDto dto);
+  ManualReportPlanItemMapper INSTANCE = Mappers.getMapper(ManualReportPlanItemMapper.class);
 
-    ManualReportPlanItemDto dtoFromDao(ManualReportPlanItemCollection dao);
+  ManualReportPlanItemDto dtoFromFsInterfaceDto(FSInterfaceDto dto);
 
-    ManualReportPlanItemCollection daoFromDto(ManualReportPlanItemDto dto);
+  ManualReportPlanItemDto dtoFromDao(ManualReportPlanItemCollection dao);
 
-    ReportInterfaceType contractFromDto(ManualReportPlanItemDto dto);
+  ManualReportPlanItemCollection daoFromDto(ManualReportPlanItemDto dto);
+
+  ReportInterfaceType contractFromDto(ManualReportPlanItemDto dto);
 }

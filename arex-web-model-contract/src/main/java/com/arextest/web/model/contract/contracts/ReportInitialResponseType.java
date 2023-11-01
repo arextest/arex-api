@@ -4,5 +4,6 @@ import lombok.Data;
 
 @Data
 public class ReportInitialResponseType {
-    private boolean success;
+
+  private boolean success;
 }

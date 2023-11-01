@@ -4,6 +4,7 @@ import lombok.Data;
 
 @Data
 public class FSInterfaceDto extends FSInterfaceAndCaseBaseDto {
-    private String operationId;
-    private String operationResponse;
+
+  private String operationId;
+  private String operationResponse;
 }

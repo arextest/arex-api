@@ -7,6 +7,7 @@ import lombok.Data;
  */
 @Data
 public class ReferenceTemplateConfig {
-    private String pkPath;
-    private String fkPath;
+
+  private String pkPath;
+  private String fkPath;
 }

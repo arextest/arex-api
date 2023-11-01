@@ -4,12 +4,13 @@ import lombok.Data;
 
 @Data
 public class CountRecordRequestType {
-    private String appId;
-    private String operationName;
-    /**
-     * milliseconds
-     */
-    private Long beginTime;
-    private Long endTime;
+
+  private String appId;
+  private String operationName;
+  /**
+   * milliseconds
+   */
+  private Long beginTime;
+  private Long endTime;
 
 }

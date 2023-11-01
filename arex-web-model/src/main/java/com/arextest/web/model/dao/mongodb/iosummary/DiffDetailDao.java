@@ -11,7 +11,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class DiffDetailDao {
-    int code;
-    String categoryName;
-    String operationName;
+
+  int code;
+  String categoryName;
+  String operationName;
 }

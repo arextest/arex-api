@@ -1,7 +1,6 @@
 package com.arextest.web.model.contract.contracts.filesystem;
 
 import javax.validation.constraints.NotBlank;
-
 import lombok.Data;
 
 /**
@@ -10,8 +9,9 @@ import lombok.Data;
  */
 @Data
 public class RemoveUserFromWorkspaceType {
-    @NotBlank(message = "UserName cannot be empty")
-    private String userName;
-    @NotBlank(message = "Workspace Id cannot be empty")
-    private String workspaceId;
+
+  @NotBlank(message = "UserName cannot be empty")
+  private String userName;
+  @NotBlank(message = "Workspace Id cannot be empty")
+  private String workspaceId;
 }

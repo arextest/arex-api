@@ -8,5 +8,6 @@ import lombok.Data;
  */
 @Data
 public class SuccessResponse {
-    private boolean success;
+
+  private boolean success;
 }

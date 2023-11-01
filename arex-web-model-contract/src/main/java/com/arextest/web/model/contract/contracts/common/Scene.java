@@ -4,7 +4,8 @@ import lombok.Data;
 
 @Data
 public class Scene {
-    private String sceneName;
-    private String compareResultId;
-    private String logIndexes;
+
+  private String sceneName;
+  private String compareResultId;
+  private String logIndexes;
 }

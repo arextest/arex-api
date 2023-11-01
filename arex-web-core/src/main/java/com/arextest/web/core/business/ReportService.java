@@ -1,18 +1,5 @@
 package com.arextest.web.core.business;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import javax.annotation.Resource;
-
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.MapUtils;
-import org.springframework.stereotype.Component;
-
 import com.arextest.model.mock.MockCategoryType;
 import com.arextest.web.common.LogUtils;
 import com.arextest.web.core.business.iosummary.SceneReportService;
@@ -32,131 +19,144 @@ import com.arextest.web.model.dto.PlanItemDto;
 import com.arextest.web.model.dto.ReportPlanStatisticDto;
 import com.arextest.web.model.enums.ReplayStatusType;
 import com.arextest.web.model.mapper.CompareResultMapper;
-
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
+import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
 public class ReportService {
-    @Resource
-    private ReplayCompareResultRepository replayCompareResultRepository;
-    @Resource
-    private ReportPlanStatisticRepository planStatisticRepository;
-    @Resource
-    private ReportPlanItemStatisticRepository planItemStatisticRepository;
-    @Resource
-    private ReportDiffAggStatisticRepository reportDiffAggStatisticRepository;
-    @Resource
-    private StatisticService statisticService;
-    @Resource
-    private SceneService sceneService;
-    @Resource
-    private PlanFinishedService planFinishedService;
-    @Resource
-    private SummaryService summaryService;
-    @Resource
-    private SceneReportService sceneReportService;
 
-    @Deprecated
-    public boolean saveCompareResults(PushCompareResultsRequestType request) {
-        List<CompareResultDto> results = new ArrayList<>(request.getResults().size());
-        for (CompareResult cr : request.getResults()) {
-            results.add(CompareResultMapper.INSTANCE.dtoFromContract(cr));
-        }
+  @Resource
+  private ReplayCompareResultRepository replayCompareResultRepository;
+  @Resource
+  private ReportPlanStatisticRepository planStatisticRepository;
+  @Resource
+  private ReportPlanItemStatisticRepository planItemStatisticRepository;
+  @Resource
+  private ReportDiffAggStatisticRepository reportDiffAggStatisticRepository;
+  @Resource
+  private StatisticService statisticService;
+  @Resource
+  private SceneService sceneService;
+  @Resource
+  private PlanFinishedService planFinishedService;
+  @Resource
+  private SummaryService summaryService;
+  @Resource
+  private SceneReportService sceneReportService;
 
-        boolean success = replayCompareResultRepository.saveResults(results);
-        if (!success) {
-            return false;
-        }
-        // save caseSummary to db
-        summaryService.analysis(results);
-
-        statisticService.statisticPlanItems(results);
-
-        sceneService.statisticScenes(results);
-        return true;
+  @Deprecated
+  public boolean saveCompareResults(PushCompareResultsRequestType request) {
+    List<CompareResultDto> results = new ArrayList<>(request.getResults().size());
+    for (CompareResult cr : request.getResults()) {
+      results.add(CompareResultMapper.INSTANCE.dtoFromContract(cr));
     }
 
-    public boolean analyzeCompareResults(AnalyzeCompareResultsRequestType request) {
-        List<AnalyzeCompareResultsRequestType.AnalyzeCompareInfoItem> analyzeCompareInfoItems =
-            Optional.ofNullable(request.getAnalyzeCompareInfos()).orElse(Collections.emptyList());
-        List<CompareResultDto> results = analyzeCompareInfoItems.stream()
-            .map(CompareResultMapper.INSTANCE::dtoFromAnalyzeContract).collect(Collectors.toList());
-
-        if (CollectionUtils.isNotEmpty(results)) {
-            // save caseSummary to db
-            summaryService.analysis(results);
-            statisticService.statisticPlanItems(results);
-        }
-        return true;
+    boolean success = replayCompareResultRepository.saveResults(results);
+    if (!success) {
+      return false;
     }
+    // save caseSummary to db
+    summaryService.analysis(results);
 
-    public boolean changeReportStatus(ChangeReplayStatusRequestType request) {
-        if (request.getStatus() == ReplayStatusType.FINISHED) {
-            ReportPlanStatisticDto plan = planStatisticRepository.findByPlanId(request.getPlanId());
-            int retryTimes = 3;
-            boolean match = false;
-            for (int i = 0; i < retryTimes; i++) {
-                int count = replayCompareResultRepository.queryCompareResultCountByPlanId(request.getPlanId());
-                if (!Objects.equals(count, plan.getTotalCaseCount())) {
-                    try {
-                        Thread.sleep(6000);
-                    } catch (InterruptedException e) {
-                        LogUtils.error(LOGGER, e.getMessage(), e);
-                    }
-                } else {
-                    match = true;
-                    break;
-                }
-            }
-            if (!match) {
-                LogUtils.error(LOGGER, "The number of received cases does not match the declaration.");
-            }
-        }
-        ReportPlanStatisticDto planDto = planStatisticRepository.changePlanStatus(request.getPlanId(),
-            request.getStatus(), request.getTotalCaseCount(), request.getErrorMessage(), request.isRerun());
-        if (request.getItems() != null) {
-            for (ChangeReplayStatusRequestType.ReplayItem item : request.getItems()) {
-                planItemStatisticRepository.changePlanItemStatus(item.getPlanItemId(), item.getStatus(),
-                    item.getTotalCaseCount(), item.getErrorMessage(), request.isRerun());
-            }
-        }
-        planFinishedService.onPlanFinishEvent(planDto.getAppId(), request.getPlanId(), request.getStatus());
-        return true;
+    statisticService.statisticPlanItems(results);
+
+    sceneService.statisticScenes(results);
+    return true;
+  }
+
+  public boolean analyzeCompareResults(AnalyzeCompareResultsRequestType request) {
+    List<AnalyzeCompareResultsRequestType.AnalyzeCompareInfoItem> analyzeCompareInfoItems =
+        Optional.ofNullable(request.getAnalyzeCompareInfos()).orElse(Collections.emptyList());
+    List<CompareResultDto> results = analyzeCompareInfoItems.stream()
+        .map(CompareResultMapper.INSTANCE::dtoFromAnalyzeContract).collect(Collectors.toList());
+
+    if (CollectionUtils.isNotEmpty(results)) {
+      // save caseSummary to db
+      summaryService.analysis(results);
+      statisticService.statisticPlanItems(results);
     }
+    return true;
+  }
 
-    public boolean deleteReport(String planId) {
-        planStatisticRepository.deletePlan(planId);
-        planItemStatisticRepository.deletePlanItemsByPlanId(planId);
-        reportDiffAggStatisticRepository.deleteDiffAggByPlanId(planId);
-        return replayCompareResultRepository.deleteCompareResultsByPlanId(planId);
-    }
-
-    public boolean removeRecords(RemoveRecordsAndScenesRequest request) {
-        if (MapUtils.isEmpty(request.getActionIdAndRecordIdsMap())) {
-            return false;
+  public boolean changeReportStatus(ChangeReplayStatusRequestType request) {
+    if (request.getStatus() == ReplayStatusType.FINISHED) {
+      ReportPlanStatisticDto plan = planStatisticRepository.findByPlanId(request.getPlanId());
+      int retryTimes = 3;
+      boolean match = false;
+      for (int i = 0; i < retryTimes; i++) {
+        int count = replayCompareResultRepository.queryCompareResultCountByPlanId(
+            request.getPlanId());
+        if (!Objects.equals(count, plan.getTotalCaseCount())) {
+          try {
+            Thread.sleep(6000);
+          } catch (InterruptedException e) {
+            LogUtils.error(LOGGER, e.getMessage(), e);
+          }
+        } else {
+          match = true;
+          break;
         }
-        request.getActionIdAndRecordIdsMap().forEach((actionId, recordIds) -> {
-            PlanItemDto planItemDto = planItemStatisticRepository.findByPlanItemId(actionId);
-            if (planItemDto != null) {
-                recordIds.forEach(recordId -> {
-                    if (planItemDto.getCases() != null) {
-                        planItemDto.getCases().remove(recordId);
-                    }
-                    if (planItemDto.getFailCases() != null) {
-                        planItemDto.getFailCases().remove(recordId);
-                    }
-                    if (planItemDto.getErrorCases() != null) {
-                        planItemDto.getErrorCases().remove(recordId);
-                    }
-                });
-                planItemStatisticRepository.findAndModifyCaseMap(planItemDto);
-            }
+      }
+      if (!match) {
+        LogUtils.error(LOGGER, "The number of received cases does not match the declaration.");
+      }
+    }
+    ReportPlanStatisticDto planDto = planStatisticRepository.changePlanStatus(request.getPlanId(),
+        request.getStatus(), request.getTotalCaseCount(), request.getErrorMessage(),
+        request.isRerun());
+    if (request.getItems() != null) {
+      for (ChangeReplayStatusRequestType.ReplayItem item : request.getItems()) {
+        planItemStatisticRepository.changePlanItemStatus(item.getPlanItemId(), item.getStatus(),
+            item.getTotalCaseCount(), item.getErrorMessage(), request.isRerun());
+      }
+    }
+    planFinishedService.onPlanFinishEvent(planDto.getAppId(), request.getPlanId(),
+        request.getStatus());
+    return true;
+  }
+
+  public boolean deleteReport(String planId) {
+    planStatisticRepository.deletePlan(planId);
+    planItemStatisticRepository.deletePlanItemsByPlanId(planId);
+    reportDiffAggStatisticRepository.deleteDiffAggByPlanId(planId);
+    return replayCompareResultRepository.deleteCompareResultsByPlanId(planId);
+  }
+
+  public boolean removeRecords(RemoveRecordsAndScenesRequest request) {
+    if (MapUtils.isEmpty(request.getActionIdAndRecordIdsMap())) {
+      return false;
+    }
+    request.getActionIdAndRecordIdsMap().forEach((actionId, recordIds) -> {
+      PlanItemDto planItemDto = planItemStatisticRepository.findByPlanItemId(actionId);
+      if (planItemDto != null) {
+        recordIds.forEach(recordId -> {
+          if (planItemDto.getCases() != null) {
+            planItemDto.getCases().remove(recordId);
+          }
+          if (planItemDto.getFailCases() != null) {
+            planItemDto.getFailCases().remove(recordId);
+          }
+          if (planItemDto.getErrorCases() != null) {
+            planItemDto.getErrorCases().remove(recordId);
+          }
         });
-        return true;
-    }
+        planItemStatisticRepository.findAndModifyCaseMap(planItemDto);
+      }
+    });
+    return true;
+  }
 
-    public List<MockCategoryType> listCategoryType() {
-        return new ArrayList<>(MockCategoryType.DEFAULTS);
-    }
+  public List<MockCategoryType> listCategoryType() {
+    return new ArrayList<>(MockCategoryType.DEFAULTS);
+  }
 }

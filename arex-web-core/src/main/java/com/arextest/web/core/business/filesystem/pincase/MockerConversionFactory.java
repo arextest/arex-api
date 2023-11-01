@@ -3,7 +3,6 @@ package com.arextest.web.core.business.filesystem.pincase;
 import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.concurrent.ConcurrentHashMap;
-
 import org.springframework.stereotype.Component;
 
 /**
@@ -12,17 +11,18 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class MockerConversionFactory {
-    private Map<String, MockerConversion> mockerConversions;
 
-    public MockerConversionFactory() {
-        ServiceLoader<MockerConversion> cacheConversions = ServiceLoader.load(MockerConversion.class);
-        mockerConversions = new ConcurrentHashMap<>();
-        for (MockerConversion mockerConversion : cacheConversions) {
-            mockerConversions.putIfAbsent(mockerConversion.getCategoryName(), mockerConversion);
-        }
-    }
+  private Map<String, MockerConversion> mockerConversions;
 
-    public MockerConversion get(String categoryName) {
-        return mockerConversions.get(categoryName);
+  public MockerConversionFactory() {
+    ServiceLoader<MockerConversion> cacheConversions = ServiceLoader.load(MockerConversion.class);
+    mockerConversions = new ConcurrentHashMap<>();
+    for (MockerConversion mockerConversion : cacheConversions) {
+      mockerConversions.putIfAbsent(mockerConversion.getCategoryName(), mockerConversion);
     }
+  }
+
+  public MockerConversion get(String categoryName) {
+    return mockerConversions.get(categoryName);
+  }
 }

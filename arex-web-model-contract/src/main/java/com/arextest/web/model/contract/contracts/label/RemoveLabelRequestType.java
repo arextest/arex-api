@@ -1,7 +1,6 @@
 package com.arextest.web.model.contract.contracts.label;
 
 import javax.validation.constraints.NotBlank;
-
 import lombok.Data;
 
 /**
@@ -10,8 +9,9 @@ import lombok.Data;
  */
 @Data
 public class RemoveLabelRequestType {
-    @NotBlank(message = "Label Id cannot be empty")
-    private String id;
-    @NotBlank(message = "Workspace Id cannot be empty")
-    private String workspaceId;
+
+  @NotBlank(message = "Label Id cannot be empty")
+  private String id;
+  @NotBlank(message = "Workspace Id cannot be empty")
+  private String workspaceId;
 }

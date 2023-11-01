@@ -4,6 +4,7 @@ import lombok.Data;
 
 @Data
 public class AddressType {
-    private String method;
-    private String endpoint;
+
+  private String method;
+  private String endpoint;
 }

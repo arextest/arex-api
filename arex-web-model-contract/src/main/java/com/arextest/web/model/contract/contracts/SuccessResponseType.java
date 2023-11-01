@@ -4,5 +4,6 @@ import lombok.Data;
 
 @Data
 public class SuccessResponseType {
-    private Boolean success;
+
+  private Boolean success;
 }

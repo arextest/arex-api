@@ -1,11 +1,9 @@
 package com.arextest.web.model.contract.contracts;
 
-import java.util.List;
-
 import com.arextest.model.mock.AREXMocker;
 import com.arextest.model.response.Response;
 import com.arextest.model.response.ResponseStatusType;
-
+import java.util.List;
 import lombok.Data;
 
 /**
@@ -14,7 +12,8 @@ import lombok.Data;
  */
 @Data
 public class ViewRecordResponseType implements Response {
-    private ResponseStatusType responseStatusType;
-    private List<AREXMocker> recordResult;
-    private boolean desensitized;
+
+  private ResponseStatusType responseStatusType;
+  private List<AREXMocker> recordResult;
+  private boolean desensitized;
 }

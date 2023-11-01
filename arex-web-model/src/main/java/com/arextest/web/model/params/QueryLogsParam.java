@@ -1,7 +1,6 @@
 package com.arextest.web.model.params;
 
 import java.util.Map;
-
 import lombok.Data;
 
 /**
@@ -10,11 +9,12 @@ import lombok.Data;
  */
 @Data
 public class QueryLogsParam {
-    private Integer pageSize;
 
-    private String previousId;
-    private String level;
-    private Long startTime;
-    private Long endTime;
-    private Map<String, String> tags;
+  private Integer pageSize;
+
+  private String previousId;
+  private String level;
+  private Long startTime;
+  private Long endTime;
+  private Map<String, String> tags;
 }

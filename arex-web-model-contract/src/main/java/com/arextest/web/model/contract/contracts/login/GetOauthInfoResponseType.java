@@ -8,7 +8,8 @@ import lombok.Data;
  */
 @Data
 public class GetOauthInfoResponseType {
-    private String clientId;
-    private String redirectUri;
-    private String oauthUri;
+
+  private String clientId;
+  private String redirectUri;
+  private String oauthUri;
 }

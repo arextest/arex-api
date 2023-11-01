@@ -7,5 +7,6 @@ import lombok.Data;
  */
 @Data
 public class QueryDiffMsgByIdResponseType {
-    CompareResultDetail compareResultDetail;
+
+  CompareResultDetail compareResultDetail;
 }

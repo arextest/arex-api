@@ -4,6 +4,7 @@ import lombok.Data;
 
 @Data
 public class SaveEnvironmentResponseType {
-    private Boolean success;
-    private String environmentId;
+
+  private Boolean success;
+  private String environmentId;
 }

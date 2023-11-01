@@ -1,14 +1,5 @@
 package com.arextest.web.model.mapper;
 
-import java.util.Arrays;
-import java.util.List;
-
-import org.apache.commons.lang3.StringUtils;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.Mappings;
-import org.mapstruct.factory.Mappers;
-
 import com.arextest.common.utils.SerializationUtils;
 import com.arextest.web.model.contract.contracts.common.LogEntity;
 import com.arextest.web.model.contract.contracts.manualreport.ReportCaseType;
@@ -16,35 +7,43 @@ import com.arextest.web.model.dao.mongodb.ManualReportCaseCollection;
 import com.arextest.web.model.dto.filesystem.FSCaseDto;
 import com.arextest.web.model.dto.manualreport.ManualReportCaseDto;
 import com.arextest.web.model.dto.manualreport.SaveManualReportCaseDto;
+import java.util.Arrays;
+import java.util.List;
+import org.apache.commons.lang3.StringUtils;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.Mappings;
+import org.mapstruct.factory.Mappers;
 
 @Mapper
 public interface ManualReportCaseMapper extends BaseMapper {
-    ManualReportCaseMapper INSTANCE = Mappers.getMapper(ManualReportCaseMapper.class);
 
-    List<ManualReportCaseDto> dtoFromFsCaseDto(List<FSCaseDto> dtos);
+  ManualReportCaseMapper INSTANCE = Mappers.getMapper(ManualReportCaseMapper.class);
 
-    List<ManualReportCaseCollection> daoFromDtoList(List<ManualReportCaseDto> dtos);
+  List<ManualReportCaseDto> dtoFromFsCaseDto(List<FSCaseDto> dtos);
 
-    @Mappings({@Mapping(target = "baseMsg", qualifiedByName = "compressMsg"),
-        @Mapping(target = "testMsg", qualifiedByName = "compressMsg")})
-    ManualReportCaseCollection daoFromDto(SaveManualReportCaseDto dto);
+  List<ManualReportCaseCollection> daoFromDtoList(List<ManualReportCaseDto> dtos);
 
-    ReportCaseType contractFromDto(ManualReportCaseDto dto);
+  @Mappings({@Mapping(target = "baseMsg", qualifiedByName = "compressMsg"),
+      @Mapping(target = "testMsg", qualifiedByName = "compressMsg")})
+  ManualReportCaseCollection daoFromDto(SaveManualReportCaseDto dto);
 
-    ManualReportCaseDto dtoFromDao(ManualReportCaseCollection dao);
+  ReportCaseType contractFromDto(ManualReportCaseDto dto);
 
-    default String map(List<LogEntity> logs) {
-        if (logs == null) {
-            return StringUtils.EMPTY;
-        }
-        return SerializationUtils.useZstdSerializeToBase64(logs.toArray());
+  ManualReportCaseDto dtoFromDao(ManualReportCaseCollection dao);
+
+  default String map(List<LogEntity> logs) {
+    if (logs == null) {
+      return StringUtils.EMPTY;
     }
+    return SerializationUtils.useZstdSerializeToBase64(logs.toArray());
+  }
 
-    default List<LogEntity> map(String logs) {
-        LogEntity[] logEntities = SerializationUtils.useZstdDeserialize(logs, LogEntity[].class);
-        if (logEntities == null) {
-            return null;
-        }
-        return Arrays.asList(logEntities);
+  default List<LogEntity> map(String logs) {
+    LogEntity[] logEntities = SerializationUtils.useZstdDeserialize(logs, LogEntity[].class);
+    if (logEntities == null) {
+      return null;
     }
+    return Arrays.asList(logEntities);
+  }
 }

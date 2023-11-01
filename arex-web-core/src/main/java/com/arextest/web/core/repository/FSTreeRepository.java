@@ -1,21 +1,21 @@
 package com.arextest.web.core.repository;
 
+import com.arextest.web.model.dto.filesystem.FSTreeDto;
 import java.util.List;
 import java.util.Set;
 import java.util.function.UnaryOperator;
 
-import com.arextest.web.model.dto.filesystem.FSTreeDto;
-
 public interface FSTreeRepository extends RepositoryProvider {
-    FSTreeDto initFSTree(FSTreeDto dto);
 
-    FSTreeDto updateFSTree(FSTreeDto dto);
+  FSTreeDto initFSTree(FSTreeDto dto);
 
-    FSTreeDto updateFSTree(String workspaceId, UnaryOperator<FSTreeDto> unaryOperator);
+  FSTreeDto updateFSTree(FSTreeDto dto);
 
-    FSTreeDto queryFSTreeById(String id);
+  FSTreeDto updateFSTree(String workspaceId, UnaryOperator<FSTreeDto> unaryOperator);
 
-    List<FSTreeDto> queryFSTreeByIds(Set<String> ids);
+  FSTreeDto queryFSTreeById(String id);
 
-    Boolean deleteFSTree(String id);
+  List<FSTreeDto> queryFSTreeByIds(Set<String> ids);
+
+  Boolean deleteFSTree(String id);
 }

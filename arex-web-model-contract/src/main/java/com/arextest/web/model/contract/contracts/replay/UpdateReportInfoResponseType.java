@@ -7,5 +7,6 @@ import lombok.Data;
  */
 @Data
 public class UpdateReportInfoResponseType {
-    boolean success;
+
+  boolean success;
 }

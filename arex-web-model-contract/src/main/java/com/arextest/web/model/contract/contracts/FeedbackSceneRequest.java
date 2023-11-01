@@ -8,12 +8,13 @@ import lombok.Data;
  */
 @Data
 public class FeedbackSceneRequest {
-    private String planId;
-    private String planItemId;
-    /**
-     * @see com.arextest.web.model.enums.FeedbackTypeEnum
-     */
-    private Integer feedbackType;
-    private String recordId;
-    private String remark;
+
+  private String planId;
+  private String planItemId;
+  /**
+   * @see com.arextest.web.model.enums.FeedbackTypeEnum
+   */
+  private Integer feedbackType;
+  private String recordId;
+  private String remark;
 }

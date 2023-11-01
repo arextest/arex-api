@@ -8,8 +8,9 @@ import lombok.Data;
  */
 @Data
 public class LabelType {
-    private String id;
-    private String labelName;
-    private String color;
-    private String workspaceId;
+
+  private String id;
+  private String labelName;
+  private String color;
+  private String workspaceId;
 }

@@ -1,23 +1,23 @@
 package com.arextest.web.core.repository;
 
+import com.arextest.web.model.dto.filesystem.FSInterfaceDto;
+import com.arextest.web.model.dto.filesystem.FSItemDto;
 import java.util.List;
 import java.util.Set;
 
-import com.arextest.web.model.dto.filesystem.FSInterfaceDto;
-import com.arextest.web.model.dto.filesystem.FSItemDto;
-
 public interface FSInterfaceRepository extends RepositoryProvider {
-    String initInterface(String parentId, Integer parentNodeType, String workspaceId, String name);
 
-    Boolean removeInterface(String id);
+  String initInterface(String parentId, Integer parentNodeType, String workspaceId, String name);
 
-    Boolean removeInterfaces(Set<String> ids);
+  Boolean removeInterface(String id);
 
-    FSInterfaceDto saveInterface(FSInterfaceDto interfaceDto);
+  Boolean removeInterfaces(Set<String> ids);
 
-    FSInterfaceDto queryInterface(String id);
+  FSInterfaceDto saveInterface(FSInterfaceDto interfaceDto);
 
-    List<FSItemDto> queryInterfaces(Set<String> ids);
+  FSInterfaceDto queryInterface(String id);
 
-    String duplicate(FSInterfaceDto dto);
+  List<FSItemDto> queryInterfaces(Set<String> ids);
+
+  String duplicate(FSInterfaceDto dto);
 }

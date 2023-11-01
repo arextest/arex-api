@@ -4,5 +4,6 @@ import lombok.Data;
 
 @Data
 public class LoginAsGuestRequestType {
-    private String userName;
+
+  private String userName;
 }

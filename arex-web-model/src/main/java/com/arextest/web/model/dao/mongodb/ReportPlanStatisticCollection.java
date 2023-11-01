@@ -1,48 +1,46 @@
 package com.arextest.web.model.dao.mongodb;
 
 import java.util.Map;
-
-import org.springframework.data.mongodb.core.mapping.Document;
-
 import lombok.Data;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
 @Document(collection = "ReportPlanStatistic")
 public class ReportPlanStatisticCollection extends ModelBase {
 
-    private String planId;
+  private String planId;
 
-    private Integer status;
-    private String appId;
-    private String appName;
+  private Integer status;
+  private String appId;
+  private String appName;
 
-    private Boolean approvePassed;
-    private String approveReason;
-    private String approveOperator;
+  private Boolean approvePassed;
+  private String approveReason;
+  private String approveOperator;
 
-    private String planName;
-    private String creator;
-    private String targetImageId;
-    private String targetImageName;
+  private String planName;
+  private String creator;
+  private String targetImageId;
+  private String targetImageName;
 
-    private Integer caseSourceType;
-    private String sourceEnv;
-    private String targetEnv;
-    private String sourceHost;
-    private String targetHost;
+  private Integer caseSourceType;
+  private String sourceEnv;
+  private String targetEnv;
+  private String sourceHost;
+  private String targetHost;
 
-    private String coreVersion;
+  private String coreVersion;
 
-    private String extVersion;
+  private String extVersion;
 
-    private String caseRecordVersion;
+  private String caseRecordVersion;
 
-    private Long replayStartTime;
-    private Long replayEndTime;
-    private Long caseStartTime;
-    private Long caseEndTime;
+  private Long replayStartTime;
+  private Long replayEndTime;
+  private Long caseStartTime;
+  private Long caseEndTime;
 
-    private Integer totalCaseCount;
-    private String errorMessage;
-    private Map<String, Object> customTags;
+  private Integer totalCaseCount;
+  private String errorMessage;
+  private Map<String, Object> customTags;
 }

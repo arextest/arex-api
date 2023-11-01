@@ -1,25 +1,25 @@
 package com.arextest.web.core.repository;
 
+import com.arextest.web.model.dto.filesystem.FSCaseDto;
+import com.arextest.web.model.dto.filesystem.FSItemDto;
 import java.util.List;
 import java.util.Set;
 
-import com.arextest.web.model.dto.filesystem.FSCaseDto;
-import com.arextest.web.model.dto.filesystem.FSItemDto;
-
 public interface FSCaseRepository extends RepositoryProvider {
-    String initCase(String parentId, Integer parentNodeType, String workspaceId, String name);
 
-    Boolean removeCase(String id);
+  String initCase(String parentId, Integer parentNodeType, String workspaceId, String name);
 
-    Boolean removeCases(Set<String> ids);
+  Boolean removeCase(String id);
 
-    FSCaseDto saveCase(FSCaseDto dto);
+  Boolean removeCases(Set<String> ids);
 
-    boolean updateCase(FSCaseDto dto);
+  FSCaseDto saveCase(FSCaseDto dto);
 
-    FSCaseDto queryCase(String id, boolean getCompareMsg);
+  boolean updateCase(FSCaseDto dto);
 
-    List<FSItemDto> queryCases(List<String> ids, boolean getCompareMsg);
+  FSCaseDto queryCase(String id, boolean getCompareMsg);
 
-    String duplicate(FSCaseDto dto);
+  List<FSItemDto> queryCases(List<String> ids, boolean getCompareMsg);
+
+  String duplicate(FSCaseDto dto);
 }

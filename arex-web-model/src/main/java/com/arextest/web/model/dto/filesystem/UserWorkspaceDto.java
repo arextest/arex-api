@@ -4,9 +4,10 @@ import lombok.Data;
 
 @Data
 public class UserWorkspaceDto {
-    private String userName;
-    private String workspaceId;
-    private Integer role;
-    private Integer status;
-    private String token;
+
+  private String userName;
+  private String workspaceId;
+  private Integer role;
+  private Integer status;
+  private String token;
 }

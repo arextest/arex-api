@@ -1,7 +1,6 @@
 package com.arextest.web.model.contract.contracts;
 
 import com.arextest.web.model.contract.contracts.common.LogEntity;
-
 import lombok.Data;
 
 /**
@@ -9,6 +8,7 @@ import lombok.Data;
  */
 @Data
 public class QueryLogEntityResponseType {
-    private int diffResultCode;
-    private LogEntity logEntity;
+
+  private int diffResultCode;
+  private LogEntity logEntity;
 }

@@ -7,5 +7,6 @@ import lombok.Data;
  */
 @Data
 public class FSQueryFolderRequestType {
-    private String id;
+
+  private String id;
 }

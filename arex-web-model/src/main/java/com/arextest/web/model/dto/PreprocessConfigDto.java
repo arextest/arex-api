@@ -4,6 +4,7 @@ import lombok.Data;
 
 @Data
 public class PreprocessConfigDto {
-    private String name;
-    private String index;
+
+  private String name;
+  private String index;
 }

@@ -4,5 +4,6 @@ import lombok.Data;
 
 @Data
 public class QueryMsgSchemaResponseType {
-    private String schema;
+
+  private String schema;
 }
