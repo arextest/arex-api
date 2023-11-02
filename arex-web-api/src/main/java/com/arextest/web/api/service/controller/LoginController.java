@@ -106,7 +106,7 @@ public class LoginController {
   @ResponseBody
   public Response oauthLogin(@RequestBody OauthLoginRequestType request) {
     VerifyResponseType response = oauthHandler.oauthLogin(request.getCode(),
-        request.getOauthType());
+        request.getOauthType(), request.getRedirectUri());
     return ResponseUtils.successResponse(response);
   }
 

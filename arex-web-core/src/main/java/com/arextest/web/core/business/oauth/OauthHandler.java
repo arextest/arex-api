@@ -21,11 +21,11 @@ public class OauthHandler {
   @Resource
   private UserRepository userRepository;
 
-  public VerifyResponseType oauthLogin(String code, String oauthType) {
+  public VerifyResponseType oauthLogin(String code, String oauthType, String redirectUri) {
     OauthService oauthService = oauthServiceFactory.getOauthService(oauthType);
     VerifyResponseType response = new VerifyResponseType();
 
-    String userName = oauthService.getUser(code);
+    String userName = oauthService.getUser(code, redirectUri);
     if (StringUtils.isBlank(userName)) {
       response.setSuccess(false);
       response.setReason("oauth login failed");
@@ -48,7 +48,6 @@ public class OauthHandler {
     GetOauthInfoResponseType response = new GetOauthInfoResponseType();
     OauthService oauthService = oauthServiceFactory.getOauthService(oauthType);
     response.setClientId(oauthService.getClientId());
-    response.setRedirectUri(oauthService.getRedirectUri());
     response.setOauthUri(oauthService.getOauthUri());
     return response;
   }

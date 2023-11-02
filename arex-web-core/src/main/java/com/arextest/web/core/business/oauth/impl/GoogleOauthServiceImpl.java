@@ -30,17 +30,10 @@ public class GoogleOauthServiceImpl extends AbstractOauthServiceImpl {
   private String clientId;
   @Value("${arex.oauth.google.secret}")
   private String secret;
-  @Value("${arex.oauth.google.redirecturi}")
-  private String redirectUri;
 
   @Override
   public String getClientId() {
     return clientId;
-  }
-
-  @Override
-  public String getRedirectUri() {
-    return redirectUri;
   }
 
   @Override
@@ -49,7 +42,7 @@ public class GoogleOauthServiceImpl extends AbstractOauthServiceImpl {
   }
 
   @Override
-  public String getUser(String code) {
+  public String getUser(String code, String redirectUri) {
     if (!checkOauth(clientId, secret, code)) {
       return null;
     }
