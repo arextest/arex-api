@@ -14,4 +14,6 @@ public class OauthLoginRequestType {
   private String oauthType;
   @NotBlank(message = "code cannot be blank")
   private String code;
+
+  private String redirectUri;
 }
