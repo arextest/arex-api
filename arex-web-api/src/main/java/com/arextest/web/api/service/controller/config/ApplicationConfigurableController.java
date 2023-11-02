@@ -49,8 +49,8 @@ public class ApplicationConfigurableController extends
     HttpServletRequest request = requestAttributes.getRequest();
     String accessToken = request.getHeader("access-token");
     String userName = JwtUtil.getUserName(accessToken);
-    List<ApplicationConfiguration> sourceList = this.configurableHandler.useResultAsList();
-    sourceList = sourceList.stream()
+    List<ApplicationConfiguration> sourceList = this.configurableHandler.useResultAsList()
+        .stream()
         .filter(applicationConfiguration -> visibilityCheck(applicationConfiguration, userName))
         .collect(Collectors.toList());
     Map<String, ScheduleConfiguration> scheduleMap = scheduleHandler.useResultAsList().stream()
