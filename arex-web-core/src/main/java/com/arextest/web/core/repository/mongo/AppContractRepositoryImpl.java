@@ -170,4 +170,14 @@ public class AppContractRepositoryImpl implements AppContractRepository {
         AppContractCollection dao = mongoTemplate.findOne(query, AppContractCollection.class);
         return AppContractMapper.INSTANCE.dtoFromDao(dao);
     }
+
+    @Override
+    public AppContractDto queryDependencyWithAppId(String appId, String operationName,
+        String operationType) {
+        Query query = Query.query(Criteria.where(AppContractCollection.Fields.appId).is(appId)
+            .and(AppContractCollection.Fields.operationName).is(operationName)
+            .and(AppContractCollection.Fields.operationType).is(operationType));
+        AppContractCollection dao = mongoTemplate.findOne(query, AppContractCollection.class);
+        return AppContractMapper.INSTANCE.dtoFromDao(dao);
+    }
 }

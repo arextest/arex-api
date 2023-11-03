@@ -4,12 +4,15 @@ import com.arextest.common.model.response.Response;
 import com.arextest.common.utils.ResponseUtils;
 import com.arextest.web.core.business.config.replay.ComparisonSummaryService;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonSummaryConfiguration;
+import com.arextest.web.model.contract.contracts.config.replay.QueryConfigOfCategoryRequestType;
 import com.arextest.web.model.contract.contracts.config.replay.ReplayCompareConfig;
 import javax.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -36,13 +39,20 @@ public class ComparisonSummaryController {
     return ResponseUtils.successResponse(comparisonDetailsSummary);
   }
 
-  @Deprecated
   @GetMapping("/queryByAppId/{appId}")
   @ResponseBody
   public Response queryConfigByAppId(@PathVariable String appId) {
     ReplayCompareConfig replayCompareConfig = comparisonSummaryService.getReplayComparisonConfig(
         appId);
     return ResponseUtils.successResponse(replayCompareConfig);
+  }
+
+  @PostMapping("/queryConfigOfCategory")
+  @ResponseBody
+  public Response queryConfigOfCategory(@RequestBody QueryConfigOfCategoryRequestType request) {
+    return ResponseUtils.successResponse(
+        comparisonSummaryService.queryConfigOfCategory(request)
+    );
   }
 
 }
