@@ -5,6 +5,7 @@ import com.arextest.common.utils.JwtUtil;
 import com.arextest.common.utils.ResponseUtils;
 import com.arextest.config.model.dto.application.ApplicationConfiguration;
 import com.arextest.model.replay.AppVisibilityLevelEnum;
+import com.arextest.web.api.service.controller.Constants;
 import com.arextest.web.core.business.config.ConfigurableHandler;
 import com.arextest.web.core.business.config.replay.ScheduleConfigurableHandler;
 import com.arextest.web.model.contract.contracts.config.replay.ScheduleConfiguration;
@@ -14,15 +15,14 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
 import lombok.Data;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
 /**
  * @author jmo
@@ -43,12 +43,8 @@ public class ApplicationConfigurableController extends
 
   @GetMapping("/regressionList")
   @ResponseBody
-  public Response regressionList() {
-    ServletRequestAttributes requestAttributes =
-        (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-    HttpServletRequest request = requestAttributes.getRequest();
-    String accessToken = request.getHeader("access-token");
-    String userName = JwtUtil.getUserName(accessToken);
+  public Response regressionList(@RequestHeader(name = Constants.ACCESS_TOKEN) String token) {
+    String userName = JwtUtil.getUserName(token);
     List<ApplicationConfiguration> sourceList = this.configurableHandler.useResultAsList()
         .stream()
         .filter(applicationConfiguration -> visibilityCheck(applicationConfiguration, userName))
@@ -75,6 +71,12 @@ public class ApplicationConfigurableController extends
 
   private boolean visibilityCheck(ApplicationConfiguration applicationConfiguration,
       String userName) {
+    if (applicationConfiguration == null) {
+      return false;
+    }
+    if (CollectionUtils.isEmpty(applicationConfiguration.getOwners())) {
+      return true;
+    }
     return applicationConfiguration.getVisibilityLevel()
         == AppVisibilityLevelEnum.ALL_VISIBLE.getCode()
         || (applicationConfiguration.getVisibilityLevel()
