@@ -4,5 +4,6 @@ import lombok.Data;
 
 @Data
 public class CountRecordResponseType {
-    private long recordedCaseCount;
+
+  private long recordedCaseCount;
 }

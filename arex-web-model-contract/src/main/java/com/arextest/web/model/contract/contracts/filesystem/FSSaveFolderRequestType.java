@@ -1,9 +1,7 @@
 package com.arextest.web.model.contract.contracts.filesystem;
 
 import java.util.Map;
-
 import javax.validation.constraints.NotBlank;
-
 import lombok.Data;
 
 /**
@@ -11,9 +9,10 @@ import lombok.Data;
  */
 @Data
 public class FSSaveFolderRequestType {
-    @NotBlank(message = "Folder id cannot be empty")
-    private String id;
-    private String workspaceId;
 
-    private Map<String, Object> customTags;
+  @NotBlank(message = "Folder id cannot be empty")
+  private String id;
+  private String workspaceId;
+
+  private Map<String, Object> customTags;
 }

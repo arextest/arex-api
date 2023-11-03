@@ -1,39 +1,38 @@
 package com.arextest.web.model.contract.contracts.common;
 
 import java.util.List;
-
 import lombok.Data;
 
 @Data
 public class CompareResult {
 
-    private String planId;
+  private String planId;
 
-    private String operationId;
+  private String operationId;
 
-    private String serviceName;
+  private String serviceName;
 
-    private String categoryName;
+  private String categoryName;
 
-    private Integer diffResultCode;
+  private Integer diffResultCode;
 
-    private String operationName;
+  private String operationName;
 
-    private String replayId;
+  private String replayId;
 
-    private String recordId;
+  private String recordId;
 
-    private long recordTime;
+  private long recordTime;
 
-    private long replayTime;
+  private long replayTime;
 
-    private String instanceId;
+  private String instanceId;
 
-    private String baseMsg;
+  private String baseMsg;
 
-    private String testMsg;
+  private String testMsg;
 
-    private String planItemId;
+  private String planItemId;
 
-    private List<LogEntity> logs;
+  private List<LogEntity> logs;
 }

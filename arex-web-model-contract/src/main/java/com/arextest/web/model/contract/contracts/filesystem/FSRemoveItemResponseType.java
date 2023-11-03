@@ -4,5 +4,6 @@ import lombok.Data;
 
 @Data
 public class FSRemoveItemResponseType {
-    private Boolean success;
+
+  private Boolean success;
 }

@@ -5,17 +5,16 @@ package com.arextest.web.core.business.oauth;
  * @since 2023/8/15
  */
 public interface OauthService {
-    int TIMEOUT = 5000;
-    String APPLICATION_JSON = "application/json";
-    String AUTHORIZATION = "Authorization";
-    String ACCESS_TOKEN = "access_token";
-    String EMAIL = "email";
 
-    String getClientId();
+  int TIMEOUT = 5000;
+  String APPLICATION_JSON = "application/json";
+  String AUTHORIZATION = "Authorization";
+  String ACCESS_TOKEN = "access_token";
+  String EMAIL = "email";
 
-    String getRedirectUri();
+  String getClientId();
 
-    String getOauthUri();
+  String getOauthUri();
 
-    String getUser(String code);
+  String getUser(String code, String redirectUri);
 }

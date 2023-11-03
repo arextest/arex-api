@@ -1,25 +1,25 @@
 package com.arextest.web.model.dto.filesystem.importexport;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import java.util.List;
 import java.util.Set;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
 public interface Item {
-    List<Item> getItems();
 
-    void setItems(List<Item> items);
+  List<Item> getItems();
 
-    String getNodeName();
+  void setItems(List<Item> items);
 
-    void setNodeName(String nodeName);
+  String getNodeName();
 
-    Integer getNodeType();
+  void setNodeName(String nodeName);
 
-    void setNodeType(Integer nodeType);
+  Integer getNodeType();
 
-    Set<String> getLabelIds();
+  void setNodeType(Integer nodeType);
 
-    void setLabelIds(Set<String> labelIds);
+  Set<String> getLabelIds();
+
+  void setLabelIds(Set<String> labelIds);
 }

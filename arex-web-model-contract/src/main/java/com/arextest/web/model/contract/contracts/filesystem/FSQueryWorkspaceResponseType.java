@@ -4,5 +4,6 @@ import lombok.Data;
 
 @Data
 public class FSQueryWorkspaceResponseType {
-    private FSTreeType fsTree;
+
+  private FSTreeType fsTree;
 }

@@ -4,5 +4,6 @@ import lombok.Data;
 
 @Data
 public class FSQueryUsersByWorkspaceRequestType {
-    private String workspaceId;
+
+  private String workspaceId;
 }

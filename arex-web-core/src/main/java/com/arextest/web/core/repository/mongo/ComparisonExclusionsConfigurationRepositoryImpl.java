@@ -7,10 +7,10 @@ import com.arextest.web.model.contract.contracts.common.enums.CompareConfigType;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonExclusionsConfiguration;
 import com.arextest.web.model.dao.mongodb.ConfigComparisonExclusionsCollection;
 import com.arextest.web.model.dao.mongodb.entity.AbstractComparisonDetails;
-import com.arextest.web.model.dao.mongodb.entity.AbstractComparisonDetails.Fields;
 import com.arextest.web.model.mapper.ConfigComparisonExclusionsMapper;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
+import com.arextest.web.model.dao.mongodb.entity.AbstractComparisonDetails.Fields;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -37,181 +37,195 @@ import org.springframework.stereotype.Repository;
 public class ComparisonExclusionsConfigurationRepositoryImpl
     implements ConfigRepositoryProvider<ComparisonExclusionsConfiguration> {
 
-    @Autowired
-    MongoTemplate mongoTemplate;
+  @Autowired
+  MongoTemplate mongoTemplate;
 
-    @Override
-    public List<ComparisonExclusionsConfiguration> list() {
-        throw new UnsupportedOperationException("this method is not implemented");
+  @Override
+  public List<ComparisonExclusionsConfiguration> list() {
+    throw new UnsupportedOperationException("this method is not implemented");
+  }
+
+  @Override
+  public List<ComparisonExclusionsConfiguration> listBy(String appId) {
+    Query query = Query.query(Criteria.where(AbstractComparisonDetails.Fields.appId).is(appId));
+    List<ConfigComparisonExclusionsCollection> configComparisonExclusionsCollections =
+        mongoTemplate.find(query, ConfigComparisonExclusionsCollection.class);
+    return configComparisonExclusionsCollections.stream()
+        .map(ConfigComparisonExclusionsMapper.INSTANCE::dtoFromDao)
+        .collect(Collectors.toList());
+  }
+
+  @Override
+  public List<ComparisonExclusionsConfiguration> listBy(String appId, String operationId) {
+    Query query = Query.query(Criteria.where(AbstractComparisonDetails.Fields.appId).is(appId)
+        .and(AbstractComparisonDetails.Fields.operationId).is(operationId));
+    List<ConfigComparisonExclusionsCollection> configComparisonExclusionsCollections =
+        mongoTemplate.find(query, ConfigComparisonExclusionsCollection.class);
+    return configComparisonExclusionsCollections.stream()
+        .map(ConfigComparisonExclusionsMapper.INSTANCE::dtoFromDao)
+        .collect(Collectors.toList());
+  }
+
+  @Override
+  public List<ComparisonExclusionsConfiguration> queryByInterfaceIdAndOperationId(
+      String interfaceId,
+      String operationId) {
+    Query query = new Query();
+    if (StringUtils.isNotBlank(operationId)) {
+      Criteria fsInterfaceConfigQuery =
+          Criteria.where(AbstractComparisonDetails.Fields.fsInterfaceId).is(interfaceId);
+      Criteria operationConfigQuery = Criteria.where(AbstractComparisonDetails.Fields.operationId)
+          .is(operationId)
+          .andOperator(Criteria.where(AbstractComparisonDetails.Fields.dependencyId).is(null));
+      query.addCriteria(new Criteria().orOperator(fsInterfaceConfigQuery, operationConfigQuery));
+    } else {
+      query.addCriteria(
+          Criteria.where(AbstractComparisonDetails.Fields.fsInterfaceId).is(interfaceId));
     }
+    List<ConfigComparisonExclusionsCollection> configComparisonExclusionsCollections =
+        mongoTemplate.find(query, ConfigComparisonExclusionsCollection.class);
+    return configComparisonExclusionsCollections.stream()
+        .map(ConfigComparisonExclusionsMapper.INSTANCE::dtoFromDao)
+        .collect(Collectors.toList());
+  }
 
-    @Override
-    public List<ComparisonExclusionsConfiguration> listBy(String appId) {
-        Query query = Query.query(Criteria.where(AbstractComparisonDetails.Fields.appId).is(appId));
-        List<ConfigComparisonExclusionsCollection> configComparisonExclusionsCollections =
-            mongoTemplate.find(query, ConfigComparisonExclusionsCollection.class);
-        return configComparisonExclusionsCollections.stream().map(ConfigComparisonExclusionsMapper.INSTANCE::dtoFromDao)
-            .collect(Collectors.toList());
+  @Override
+  public boolean update(ComparisonExclusionsConfiguration configuration) {
+    Query query = Query.query(Criteria.where(DASH_ID).is(configuration.getId()));
+    Update update = MongoHelper.getConfigUpdate();
+    MongoHelper.appendSpecifiedProperties(update, configuration,
+        ConfigComparisonExclusionsCollection.Fields.exclusions,
+        AbstractComparisonDetails.Fields.expirationType,
+        AbstractComparisonDetails.Fields.expirationDate);
+    UpdateResult updateResult =
+        mongoTemplate.updateMulti(query, update, ConfigComparisonExclusionsCollection.class);
+    return updateResult.getModifiedCount() > 0;
+  }
+
+  @Override
+  public boolean remove(ComparisonExclusionsConfiguration configuration) {
+    Query query = Query.query(Criteria.where(DASH_ID).is(configuration.getId()));
+    DeleteResult remove = mongoTemplate.remove(query, ConfigComparisonExclusionsCollection.class);
+    return remove.getDeletedCount() > 0;
+  }
+
+  @Override
+  public boolean insert(ComparisonExclusionsConfiguration configuration) {
+    ConfigComparisonExclusionsCollection configComparisonExclusionsCollection =
+        ConfigComparisonExclusionsMapper.INSTANCE.daoFromDto(configuration);
+
+    Update update = new Update();
+    MongoHelper.appendFullProperties(update, configComparisonExclusionsCollection);
+
+    Query query = Query.query(Criteria.where(AbstractComparisonDetails.Fields.appId)
+        .is(configComparisonExclusionsCollection.getAppId())
+        .and(AbstractComparisonDetails.Fields.operationId)
+        .is(configComparisonExclusionsCollection.getOperationId())
+        .and(AbstractComparisonDetails.Fields.compareConfigType)
+        .is(configComparisonExclusionsCollection.getCompareConfigType())
+        .and(AbstractComparisonDetails.Fields.fsInterfaceId)
+        .is(configComparisonExclusionsCollection.getFsInterfaceId())
+        .and(AbstractComparisonDetails.Fields.dependencyId)
+        .is(configComparisonExclusionsCollection.getDependencyId())
+        .and(ConfigComparisonExclusionsCollection.Fields.exclusions)
+        .is(configComparisonExclusionsCollection.getExclusions()));
+
+    ConfigComparisonExclusionsCollection dao = mongoTemplate.findAndModify(query, update,
+        FindAndModifyOptions.options().returnNew(true).upsert(true),
+        ConfigComparisonExclusionsCollection.class);
+    return dao != null;
+  }
+
+  @Override
+  public boolean insertList(List<ComparisonExclusionsConfiguration> configurationList) {
+    if (CollectionUtils.isEmpty(configurationList)) {
+      return false;
     }
-
-    @Override
-    public List<ComparisonExclusionsConfiguration> listBy(String appId, String operationId) {
-        Query query = Query.query(Criteria.where(AbstractComparisonDetails.Fields.appId).is(appId)
-            .and(AbstractComparisonDetails.Fields.operationId).is(operationId));
-        List<ConfigComparisonExclusionsCollection> configComparisonExclusionsCollections =
-            mongoTemplate.find(query, ConfigComparisonExclusionsCollection.class);
-        return configComparisonExclusionsCollections.stream().map(ConfigComparisonExclusionsMapper.INSTANCE::dtoFromDao)
-            .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<ComparisonExclusionsConfiguration> queryByInterfaceIdAndOperationId(String interfaceId,
-        String operationId) {
-        Query query = new Query();
-        if (StringUtils.isNotBlank(operationId)) {
-            Criteria fsInterfaceConfigQuery =
-                Criteria.where(AbstractComparisonDetails.Fields.fsInterfaceId).is(interfaceId);
-            Criteria operationConfigQuery = Criteria.where(AbstractComparisonDetails.Fields.operationId).is(operationId)
-                .andOperator(Criteria.where(AbstractComparisonDetails.Fields.dependencyId).is(null));
-            query.addCriteria(new Criteria().orOperator(fsInterfaceConfigQuery, operationConfigQuery));
-        } else {
-            query.addCriteria(Criteria.where(AbstractComparisonDetails.Fields.fsInterfaceId).is(interfaceId));
-        }
-        List<ConfigComparisonExclusionsCollection> configComparisonExclusionsCollections =
-            mongoTemplate.find(query, ConfigComparisonExclusionsCollection.class);
-        return configComparisonExclusionsCollections.stream().map(ConfigComparisonExclusionsMapper.INSTANCE::dtoFromDao)
-            .collect(Collectors.toList());
-    }
-
-    @Override
-    public boolean update(ComparisonExclusionsConfiguration configuration) {
-        Query query = Query.query(Criteria.where(DASH_ID).is(configuration.getId()));
-        Update update = MongoHelper.getConfigUpdate();
-        MongoHelper.appendSpecifiedProperties(update, configuration,
-            ConfigComparisonExclusionsCollection.Fields.exclusions, AbstractComparisonDetails.Fields.expirationType,
-            AbstractComparisonDetails.Fields.expirationDate);
-        UpdateResult updateResult =
-            mongoTemplate.updateMulti(query, update, ConfigComparisonExclusionsCollection.class);
-        return updateResult.getModifiedCount() > 0;
-    }
-
-    @Override
-    public boolean remove(ComparisonExclusionsConfiguration configuration) {
-        Query query = Query.query(Criteria.where(DASH_ID).is(configuration.getId()));
-        DeleteResult remove = mongoTemplate.remove(query, ConfigComparisonExclusionsCollection.class);
-        return remove.getDeletedCount() > 0;
-    }
-
-    @Override
-    public boolean insert(ComparisonExclusionsConfiguration configuration) {
-        ConfigComparisonExclusionsCollection configComparisonExclusionsCollection =
-            ConfigComparisonExclusionsMapper.INSTANCE.daoFromDto(configuration);
-
+    List<ConfigComparisonExclusionsCollection> exclusionsCollections = configurationList.stream()
+        .map(ConfigComparisonExclusionsMapper.INSTANCE::daoFromDto).collect(Collectors.toList());
+    try {
+      BulkOperations bulkOperations =
+          mongoTemplate.bulkOps(BulkOperations.BulkMode.UNORDERED,
+              ConfigComparisonExclusionsCollection.class);
+      for (ConfigComparisonExclusionsCollection exclusionsCollection : exclusionsCollections) {
         Update update = new Update();
-        MongoHelper.appendFullProperties(update, configComparisonExclusionsCollection);
+        MongoHelper.appendFullProperties(update, exclusionsCollection);
 
         Query query = Query.query(Criteria.where(AbstractComparisonDetails.Fields.appId)
-            .is(configComparisonExclusionsCollection.getAppId()).and(AbstractComparisonDetails.Fields.operationId)
-            .is(configComparisonExclusionsCollection.getOperationId())
+            .is(exclusionsCollection.getAppId()).and(AbstractComparisonDetails.Fields.operationId)
+            .is(exclusionsCollection.getOperationId())
             .and(AbstractComparisonDetails.Fields.compareConfigType)
-            .is(configComparisonExclusionsCollection.getCompareConfigType())
+            .is(exclusionsCollection.getCompareConfigType())
             .and(AbstractComparisonDetails.Fields.fsInterfaceId)
-            .is(configComparisonExclusionsCollection.getFsInterfaceId())
+            .is(exclusionsCollection.getFsInterfaceId())
             .and(AbstractComparisonDetails.Fields.dependencyId)
-            .is(configComparisonExclusionsCollection.getDependencyId())
+            .is(exclusionsCollection.getDependencyId())
             .and(ConfigComparisonExclusionsCollection.Fields.exclusions)
-            .is(configComparisonExclusionsCollection.getExclusions()));
-
-        ConfigComparisonExclusionsCollection dao = mongoTemplate.findAndModify(query, update,
-            FindAndModifyOptions.options().returnNew(true).upsert(true), ConfigComparisonExclusionsCollection.class);
-        return dao != null;
+            .is(exclusionsCollection.getExclusions()));
+        bulkOperations.upsert(query, update);
+      }
+      bulkOperations.execute();
+    } catch (Exception e) {
+      LogUtils.error(LOGGER, "exclusion insertList failed! list:{}, exception:{}",
+          configurationList, e);
+      return false;
     }
+    return true;
+  }
 
-    @Override
-    public boolean insertList(List<ComparisonExclusionsConfiguration> configurationList) {
-        if (CollectionUtils.isEmpty(configurationList)) {
-            return false;
-        }
-        List<ConfigComparisonExclusionsCollection> exclusionsCollections = configurationList.stream()
-            .map(ConfigComparisonExclusionsMapper.INSTANCE::daoFromDto).collect(Collectors.toList());
-        try {
-            BulkOperations bulkOperations =
-                mongoTemplate.bulkOps(BulkOperations.BulkMode.UNORDERED, ConfigComparisonExclusionsCollection.class);
-            for (ConfigComparisonExclusionsCollection exclusionsCollection : exclusionsCollections) {
-                Update update = new Update();
-                MongoHelper.appendFullProperties(update, exclusionsCollection);
+  @Override
+  public boolean removeByAppId(String appId) {
+    Query query = Query.query(Criteria.where(AbstractComparisonDetails.Fields.appId).is(appId));
+    DeleteResult remove = mongoTemplate.remove(query, ConfigComparisonExclusionsCollection.class);
+    return remove.getDeletedCount() > 0;
+  }
 
-                Query query = Query.query(Criteria.where(AbstractComparisonDetails.Fields.appId)
-                    .is(exclusionsCollection.getAppId()).and(AbstractComparisonDetails.Fields.operationId)
-                    .is(exclusionsCollection.getOperationId()).and(AbstractComparisonDetails.Fields.compareConfigType)
-                    .is(exclusionsCollection.getCompareConfigType()).and(AbstractComparisonDetails.Fields.fsInterfaceId)
-                    .is(exclusionsCollection.getFsInterfaceId()).and(AbstractComparisonDetails.Fields.dependencyId)
-                    .is(exclusionsCollection.getDependencyId())
-                    .and(ConfigComparisonExclusionsCollection.Fields.exclusions)
-                    .is(exclusionsCollection.getExclusions()));
-                bulkOperations.upsert(query, update);
-            }
-            bulkOperations.execute();
-        } catch (Exception e) {
-            LogUtils.error(LOGGER, "exclusion insertList failed! list:{}, exception:{}", configurationList, e);
-            return false;
-        }
-        return true;
-    }
+  @Override
+  public ComparisonExclusionsConfiguration queryById(String id) {
+    Query query = Query.query(Criteria.where(DASH_ID).is(id));
+    ConfigComparisonExclusionsCollection dao =
+        mongoTemplate.findOne(query, ConfigComparisonExclusionsCollection.class);
+    return ConfigComparisonExclusionsMapper.INSTANCE.dtoFromDao(dao);
+  }
 
-    @Override
-    public boolean removeByAppId(String appId) {
-        Query query = Query.query(Criteria.where(AbstractComparisonDetails.Fields.appId).is(appId));
-        DeleteResult remove = mongoTemplate.remove(query, ConfigComparisonExclusionsCollection.class);
-        return remove.getDeletedCount() > 0;
-    }
+  public List<ComparisonExclusionsConfiguration> queryByMultiConditionsWithGlobal(Map<String, Object> conditions, String appId, boolean orGlobal){
+      Query query = new Query();
 
-    @Override
-    public ComparisonExclusionsConfiguration queryById(String id) {
-        Query query = Query.query(Criteria.where(DASH_ID).is(id));
-        ConfigComparisonExclusionsCollection dao =
-            mongoTemplate.findOne(query, ConfigComparisonExclusionsCollection.class);
-        return ConfigComparisonExclusionsMapper.INSTANCE.dtoFromDao(dao);
-    }
+      List<Criteria> criteriaList = new ArrayList<>();
+      for (Map.Entry<String, Object> entry : conditions.entrySet()) {
+          if (entry.getValue() == null){
+              continue;
+          }
+          criteriaList.add(Criteria.where(entry.getKey()).is(entry.getValue()));
+      }
 
-    public List<ComparisonExclusionsConfiguration> queryByMultiConditionsWithGlobal(Map<String, Object> conditions, String appId, boolean orGlobal){
-        Query query = new Query();
+      List<Criteria> globalCriteriaList = null;
+      if (orGlobal){
+          globalCriteriaList = Arrays.asList(
+              Criteria.where(Fields.appId).is(appId),
+              Criteria.where(Fields.operationId).is(null),
+              Criteria.where(Fields.compareConfigType).is(CompareConfigType.REPLAY_MAIN.getCodeValue())
 
-        List<Criteria> criteriaList = new ArrayList<>();
-        for (Map.Entry<String, Object> entry : conditions.entrySet()) {
-            if (entry.getValue() == null){
-                continue;
-            }
-            criteriaList.add(Criteria.where(entry.getKey()).is(entry.getValue()));
-        }
+          );
+      }
 
-        List<Criteria> globalCriteriaList = null;
-        if (orGlobal){
-            globalCriteriaList = Arrays.asList(
-                Criteria.where(Fields.appId).is(appId),
-                Criteria.where(Fields.operationId).is(null),
-                Criteria.where(Fields.compareConfigType).is(CompareConfigType.REPLAY_MAIN.getCodeValue())
+      if (CollectionUtils.isEmpty(criteriaList) && CollectionUtils.isEmpty(globalCriteriaList)){
+          return Collections.emptyList();
+      }else if (CollectionUtils.isNotEmpty(criteriaList) && CollectionUtils.isNotEmpty(globalCriteriaList)) {
+          query.addCriteria(
+              new Criteria().orOperator(
+                  new Criteria().andOperator(criteriaList),
+                  new Criteria().andOperator(globalCriteriaList)
+              )
+          );
+      }else if (CollectionUtils.isNotEmpty(criteriaList)){
+          query.addCriteria(new Criteria().andOperator(criteriaList));
+      }else {
+          query.addCriteria(new Criteria().andOperator(globalCriteriaList));
+      }
 
-            );
-        }
-
-        if (CollectionUtils.isEmpty(criteriaList) && CollectionUtils.isEmpty(globalCriteriaList)){
-            return Collections.emptyList();
-        }else if (CollectionUtils.isNotEmpty(criteriaList) && CollectionUtils.isNotEmpty(globalCriteriaList)) {
-            query.addCriteria(
-                new Criteria().orOperator(
-                    new Criteria().andOperator(criteriaList),
-                    new Criteria().andOperator(globalCriteriaList)
-                )
-            );
-        }else if (CollectionUtils.isNotEmpty(criteriaList)){
-            query.addCriteria(new Criteria().andOperator(criteriaList));
-        }else {
-            query.addCriteria(new Criteria().andOperator(globalCriteriaList));
-        }
-
-        List<ConfigComparisonExclusionsCollection> daos =
-            mongoTemplate.find(query, ConfigComparisonExclusionsCollection.class);
-        return daos.stream().map(ConfigComparisonExclusionsMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
-    }
+      List<ConfigComparisonExclusionsCollection> daos =
+          mongoTemplate.find(query, ConfigComparisonExclusionsCollection.class);
+      return daos.stream().map(ConfigComparisonExclusionsMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
+  }
 }

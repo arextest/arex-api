@@ -1,28 +1,29 @@
 package com.arextest.web.model.contract;
 
 public interface PagingRequest {
-    Integer getPageSize();
 
-    void setPageSize(Integer pageSize);
+  Integer getPageSize();
 
-    Integer getPageIndex();
+  void setPageSize(Integer pageSize);
 
-    void setPageIndex(Integer pageIndex);
+  Integer getPageIndex();
 
-    Boolean getNeedTotal();
+  void setPageIndex(Integer pageIndex);
 
-    void setNeedTotal(Boolean needTotal);
+  Boolean getNeedTotal();
 
-    default boolean checkPaging() {
-        if (this.getPageIndex() == null) {
-            return false;
-        }
-        if (this.getPageSize() == null || this.getPageSize() == 0) {
-            return false;
-        }
-        if (this.getPageSize() > 100) {
-            return false;
-        }
-        return true;
+  void setNeedTotal(Boolean needTotal);
+
+  default boolean checkPaging() {
+    if (this.getPageIndex() == null) {
+      return false;
     }
+    if (this.getPageSize() == null || this.getPageSize() == 0) {
+      return false;
+    }
+    if (this.getPageSize() > 100) {
+      return false;
+    }
+    return true;
+  }
 }

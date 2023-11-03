@@ -1,24 +1,24 @@
 package com.arextest.web.model.dto;
 
 import java.util.Date;
-
 import lombok.Data;
 
 @Data
 public class ReportAppDateReplayStatisticDto {
-    private String appId;
-    private String date;
 
-    private ReportPlanStatisticDto lastValidReplayInfo;
+  private String appId;
+  private String date;
 
-    private Integer replayNum;
+  private ReportPlanStatisticDto lastValidReplayInfo;
 
-    private Integer recordCaseNum;
+  private Integer replayNum;
 
-    private Integer replayTotalNum;
+  private Integer recordCaseNum;
 
-    private Integer recordCaseTotalNum;
+  private Integer replayTotalNum;
 
-    private Date dataCreateTime;
-    private Date dataUpdateTime;
+  private Integer recordCaseTotalNum;
+
+  private Date dataCreateTime;
+  private Date dataUpdateTime;
 }

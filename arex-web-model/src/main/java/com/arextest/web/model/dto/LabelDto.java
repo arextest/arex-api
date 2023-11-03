@@ -8,7 +8,8 @@ import lombok.Data;
  */
 @Data
 public class LabelDto extends BaseDto {
-    private String labelName;
-    private String color;
-    private String workspaceId;
+
+  private String labelName;
+  private String color;
+  private String workspaceId;
 }

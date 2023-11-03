@@ -7,7 +7,8 @@ import lombok.Data;
  */
 @Data
 public class ValidInvitationResponseType {
-    private boolean success;
-    private String accessToken;
-    private String refreshToken;
+
+  private boolean success;
+  private String accessToken;
+  private String refreshToken;
 }

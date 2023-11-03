@@ -1,7 +1,6 @@
 package com.arextest.web.model.contract.contracts.config.yamlTemplate.entity;
 
 import java.util.Collection;
-
 import lombok.Data;
 
 /**
@@ -9,10 +8,11 @@ import lombok.Data;
  */
 @Data
 public class OperationCompareTemplateConfig {
-    private String operationName;
 
-    private Collection<String> exclusions;
-    private Collection<String> inclusions;
-    private Collection<ListSortTemplateConfig> listSort;
-    private Collection<ReferenceTemplateConfig> references;
+  private String operationName;
+
+  private Collection<String> exclusions;
+  private Collection<String> inclusions;
+  private Collection<ListSortTemplateConfig> listSort;
+  private Collection<ReferenceTemplateConfig> references;
 }

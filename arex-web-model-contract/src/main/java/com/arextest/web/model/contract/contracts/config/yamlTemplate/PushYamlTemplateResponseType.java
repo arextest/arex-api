@@ -4,5 +4,6 @@ import lombok.Data;
 
 @Data
 public class PushYamlTemplateResponseType {
-    private boolean success;
+
+  private boolean success;
 }

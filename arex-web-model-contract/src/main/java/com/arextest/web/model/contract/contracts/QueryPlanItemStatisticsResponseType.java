@@ -1,13 +1,11 @@
 package com.arextest.web.model.contract.contracts;
 
-import java.util.List;
-
 import com.arextest.web.model.contract.contracts.common.PlanItemStatistic;
-
+import java.util.List;
 import lombok.Data;
 
 @Data
 public class QueryPlanItemStatisticsResponseType {
 
-    private List<PlanItemStatistic> planItemStatisticList;
+  private List<PlanItemStatistic> planItemStatisticList;
 }

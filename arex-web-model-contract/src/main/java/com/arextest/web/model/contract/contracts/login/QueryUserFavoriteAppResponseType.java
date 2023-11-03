@@ -1,7 +1,6 @@
 package com.arextest.web.model.contract.contracts.login;
 
 import java.util.List;
-
 import lombok.Data;
 
 /**
@@ -9,6 +8,7 @@ import lombok.Data;
  */
 @Data
 public class QueryUserFavoriteAppResponseType {
-    private String userName;
-    private List<String> favoriteApps;
+
+  private String userName;
+  private List<String> favoriteApps;
 }

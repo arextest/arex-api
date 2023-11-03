@@ -1,10 +1,8 @@
 package com.arextest.web.model.dao.mongodb;
 
 import java.util.Date;
-
-import org.springframework.data.mongodb.core.mapping.Document;
-
 import lombok.Data;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 /**
  * @author qzmo
@@ -13,7 +11,8 @@ import lombok.Data;
 @Data
 @Document(collection = "DesensitizationJar")
 public class DesensitizationJarCollection extends ModelBase {
-    private String jarUrl;
-    private String remark;
-    private Date uploadDate;
+
+  private String jarUrl;
+  private String remark;
+  private Date uploadDate;
 }

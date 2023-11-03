@@ -1,7 +1,6 @@
 package com.arextest.web.model.contract.contracts;
 
 import javax.validation.constraints.NotBlank;
-
 import lombok.Data;
 
 /**
@@ -9,7 +8,8 @@ import lombok.Data;
  */
 @Data
 public class QueryLogEntityRequestTye {
-    @NotBlank(message = "id cannot be empty")
-    private String compareResultId;
-    private int logIndex;
+
+  @NotBlank(message = "id cannot be empty")
+  private String compareResultId;
+  private int logIndex;
 }

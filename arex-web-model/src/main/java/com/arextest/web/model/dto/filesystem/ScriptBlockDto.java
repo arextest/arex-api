@@ -8,9 +8,10 @@ import lombok.Data;
  */
 @Data
 public class ScriptBlockDto {
-    private String type;
-    private String icon;
-    private String label;
-    private String value;
-    private Boolean disabled;
+
+  private String type;
+  private String icon;
+  private String label;
+  private String value;
+  private Boolean disabled;
 }

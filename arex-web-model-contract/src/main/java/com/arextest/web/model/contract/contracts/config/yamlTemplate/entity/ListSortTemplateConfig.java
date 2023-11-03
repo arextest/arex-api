@@ -1,7 +1,6 @@
 package com.arextest.web.model.contract.contracts.config.yamlTemplate.entity;
 
 import java.util.List;
-
 import lombok.Data;
 
 /**
@@ -9,6 +8,7 @@ import lombok.Data;
  */
 @Data
 public class ListSortTemplateConfig {
-    private String listPath;
-    private List<String> keys;
+
+  private String listPath;
+  private List<String> keys;
 }

@@ -1,7 +1,6 @@
 package com.arextest.web.model.contract.contracts;
 
 import java.util.List;
-
 import lombok.Data;
 
 /**
@@ -9,6 +8,7 @@ import lombok.Data;
  */
 @Data
 public class QueryFullLinkInfoResponseType {
-    FullLinkInfoItem entrance;
-    List<FullLinkInfoItem> infoItemList;
+
+  FullLinkInfoItem entrance;
+  List<FullLinkInfoItem> infoItemList;
 }

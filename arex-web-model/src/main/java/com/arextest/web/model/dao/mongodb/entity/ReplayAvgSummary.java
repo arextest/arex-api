@@ -5,13 +5,13 @@ import lombok.Data;
 @Data
 public class ReplayAvgSummary {
 
-    private int replayNum;
+  private int replayNum;
 
-    private int replayCaseNumAvg;
+  private int replayCaseNumAvg;
 
-    private float replayPassRateAvg;
+  private float replayPassRateAvg;
 
-    private long replayElapsedAvg;
+  private long replayElapsedAvg;
 
-    private int recordCaseNum;
+  private int recordCaseNum;
 }

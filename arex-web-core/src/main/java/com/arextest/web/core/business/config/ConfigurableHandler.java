@@ -7,15 +7,16 @@ import java.util.List;
  * @since 2022/1/22
  */
 public interface ConfigurableHandler<T> extends ViewHandler<T> {
-    List<T> editList(String appId);
 
-    boolean insert(T configuration);
+  List<T> editList(String appId);
 
-    boolean remove(T configuration);
+  boolean insert(T configuration);
 
-    boolean insertList(List<T> configurationList);
+  boolean remove(T configuration);
 
-    boolean removeList(List<T> configurationList);
+  boolean insertList(List<T> configurationList);
 
-    boolean update(T configuration);
+  boolean removeList(List<T> configurationList);
+
+  boolean update(T configuration);
 }

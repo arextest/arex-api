@@ -5,9 +5,9 @@ import lombok.Data;
 @Data
 public class Version {
 
-    private String coreVersion;
+  private String coreVersion;
 
-    private String extVersion;
+  private String extVersion;
 
-    private String caseRecordVersion;
+  private String caseRecordVersion;
 }

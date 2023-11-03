@@ -8,7 +8,7 @@ import com.arextest.web.model.contract.contracts.config.SystemConfig;
  */
 public interface SystemConfigRepository extends RepositoryProvider {
 
-    SystemConfig getLatestSystemConfig();
+  SystemConfig getLatestSystemConfig();
 
-    boolean saveConfig(SystemConfig systemConfig);
+  boolean saveConfig(SystemConfig systemConfig);
 }

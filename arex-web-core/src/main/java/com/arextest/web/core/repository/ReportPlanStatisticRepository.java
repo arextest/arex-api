@@ -1,36 +1,40 @@
 package com.arextest.web.core.repository;
 
-import java.util.Date;
-import java.util.List;
-
-import org.apache.commons.lang3.tuple.MutablePair;
-import org.apache.commons.lang3.tuple.Pair;
-
 import com.arextest.web.model.contract.contracts.QueryPlanStatisticsRequestType;
 import com.arextest.web.model.dto.LatestDailySuccessPlanIdDto;
 import com.arextest.web.model.dto.ReportPlanStatisticDto;
+import java.util.Date;
+import java.util.List;
+import org.apache.commons.lang3.tuple.MutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 
 public interface ReportPlanStatisticRepository extends RepositoryProvider {
-    List<ReportPlanStatisticDto> findByDataCreateTimeBetween(Date startTime, Date endTime);
 
-    ReportPlanStatisticDto findByPlanId(String planId);
+  List<ReportPlanStatisticDto> findByDataCreateTimeBetween(Date startTime, Date endTime);
 
-    Pair<List<ReportPlanStatisticDto>, Long> pageQueryPlanStatistic(QueryPlanStatisticsRequestType request);
+  ReportPlanStatisticDto findByPlanId(String planId);
 
-    boolean findAndModifyBaseInfo(ReportPlanStatisticDto result);
+  Pair<List<ReportPlanStatisticDto>, Long> pageQueryPlanStatistic(
+      QueryPlanStatisticsRequestType request);
 
-    Long findReplayCount();
+  boolean findAndModifyBaseInfo(ReportPlanStatisticDto result);
 
-    Long findReplayCountByAppId(String appId);
+  Long findReplayCount();
 
-    List<ReportPlanStatisticDto> findLatestSuccessPlanId(String rangeField, Long startTime, Long endTime,
-        String matchField, Integer matchValue, String groupField, String orderField, boolean desc);
+  Long findReplayCountByAppId(String appId);
 
-    List<LatestDailySuccessPlanIdDto> findLatestDailySuccessPlanId(String rangeField, Long startTime, Long endTime,
-        List<MutablePair<Object, Object>> matches, String groupField, String timeDate, String orderField, boolean desc);
+  List<ReportPlanStatisticDto> findLatestSuccessPlanId(String rangeField, Long startTime,
+      Long endTime,
+      String matchField, Integer matchValue, String groupField, String orderField, boolean desc);
 
-    ReportPlanStatisticDto changePlanStatus(String planId, Integer status, Integer totalCaseCount, String errorMessage,
-        boolean rerun);
+  List<LatestDailySuccessPlanIdDto> findLatestDailySuccessPlanId(String rangeField, Long startTime,
+      Long endTime,
+      List<MutablePair<Object, Object>> matches, String groupField, String timeDate,
+      String orderField, boolean desc);
 
-    boolean deletePlan(String planId);
+  ReportPlanStatisticDto changePlanStatus(String planId, Integer status, Integer totalCaseCount,
+      String errorMessage,
+      boolean rerun);
+
+  boolean deletePlan(String planId);
 }

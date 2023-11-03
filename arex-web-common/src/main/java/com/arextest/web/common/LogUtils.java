@@ -1,16 +1,13 @@
 package com.arextest.web.common;
 
+import com.arextest.common.metrics.CommonMetrics;
+import com.arextest.common.utils.NetworkInterfaceManager;
 import java.util.Map;
-
+import lombok.SneakyThrows;
 import org.apache.commons.collections4.MapUtils;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
 import org.springframework.stereotype.Component;
-
-import com.arextest.common.metrics.CommonMetrics;
-import com.arextest.common.utils.NetworkInterfaceManager;
-
-import lombok.SneakyThrows;
 
 /**
  * @author b_yu
@@ -18,154 +15,155 @@ import lombok.SneakyThrows;
  */
 @Component
 public class LogUtils {
-    private static final String APP_TYPE = "app-type";
-    private static final String AREX_API = "arex-api";
-    private static final String IP = "ip";
 
-    private LogUtils() {
+  private static final String APP_TYPE = "app-type";
+  private static final String AREX_API = "arex-api";
+  private static final String IP = "ip";
 
+  private LogUtils() {
+
+  }
+
+  @SneakyThrows
+  public static void init() {
+    MDC.put(APP_TYPE, AREX_API);
+    MDC.put(IP, NetworkInterfaceManager.INSTANCE.getLocalHostAddress());
+  }
+
+  public static void clear() {
+    MDC.clear();
+  }
+
+  public static void debug(Logger logger, String s) {
+    debug(logger, s, (Map<String, String>) null);
+  }
+
+  public static void debug(Logger logger, Map<String, String> tags, String s) {
+    init();
+    if (MapUtils.isNotEmpty(tags)) {
+      tags.forEach((k, v) -> MDC.put(k, v));
     }
+    logger.debug(s);
+    clear();
+  }
 
-    @SneakyThrows
-    public static void init() {
-        MDC.put(APP_TYPE, AREX_API);
-        MDC.put(IP, NetworkInterfaceManager.INSTANCE.getLocalHostAddress());
-    }
+  public static void debug(Logger logger, String s, Object... objects) {
+    debug(logger, null, s, objects);
+  }
 
-    public static void clear() {
-        MDC.clear();
+  public static void debug(Logger logger, Map<String, String> tags, String s, Object... objects) {
+    init();
+    if (MapUtils.isNotEmpty(tags)) {
+      tags.forEach((k, v) -> MDC.put(k, v));
     }
+    logger.debug(s, objects);
+    clear();
+  }
 
-    public static void debug(Logger logger, String s) {
-        debug(logger, s, (Map<String, String>)null);
-    }
+  public static void info(Logger logger, String s) {
+    info(logger, s, (Map<String, String>) null);
+  }
 
-    public static void debug(Logger logger, Map<String, String> tags, String s) {
-        init();
-        if (MapUtils.isNotEmpty(tags)) {
-            tags.forEach((k, v) -> MDC.put(k, v));
-        }
-        logger.debug(s);
-        clear();
+  public static void info(Logger logger, Map<String, String> tags, String s) {
+    init();
+    if (MapUtils.isNotEmpty(tags)) {
+      tags.forEach((k, v) -> MDC.put(k, v));
     }
+    logger.info(s);
+    clear();
+  }
 
-    public static void debug(Logger logger, String s, Object... objects) {
-        debug(logger, null, s, objects);
-    }
+  public static void info(Logger logger, String s, Object... objects) {
+    info(logger, null, s, objects);
+  }
 
-    public static void debug(Logger logger, Map<String, String> tags, String s, Object... objects) {
-        init();
-        if (MapUtils.isNotEmpty(tags)) {
-            tags.forEach((k, v) -> MDC.put(k, v));
-        }
-        logger.debug(s, objects);
-        clear();
+  public static void info(Logger logger, Map<String, String> tags, String s, Object... objects) {
+    init();
+    if (MapUtils.isNotEmpty(tags)) {
+      tags.forEach((k, v) -> MDC.put(k, v));
     }
+    logger.info(s, objects);
+    clear();
+  }
 
-    public static void info(Logger logger, String s) {
-        info(logger, s, (Map<String, String>)null);
-    }
+  public static void warn(Logger logger, String s) {
+    warn(logger, s, (Map<String, String>) null);
+  }
 
-    public static void info(Logger logger, Map<String, String> tags, String s) {
-        init();
-        if (MapUtils.isNotEmpty(tags)) {
-            tags.forEach((k, v) -> MDC.put(k, v));
-        }
-        logger.info(s);
-        clear();
+  public static void warn(Logger logger, String s, Map<String, String> tags) {
+    init();
+    if (MapUtils.isNotEmpty(tags)) {
+      tags.forEach((k, v) -> MDC.put(k, v));
     }
+    logger.warn(s);
+    clear();
+  }
 
-    public static void info(Logger logger, String s, Object... objects) {
-        info(logger, null, s, objects);
-    }
+  public static void warn(Logger logger, String s, Object... objects) {
+    warn(logger, null, s, objects);
+  }
 
-    public static void info(Logger logger, Map<String, String> tags, String s, Object... objects) {
-        init();
-        if (MapUtils.isNotEmpty(tags)) {
-            tags.forEach((k, v) -> MDC.put(k, v));
-        }
-        logger.info(s, objects);
-        clear();
+  public static void warn(Logger logger, Map<String, String> tags, String s, Object... objects) {
+    init();
+    if (MapUtils.isNotEmpty(tags)) {
+      tags.forEach((k, v) -> MDC.put(k, v));
     }
+    logger.warn(s, objects);
+    clear();
+  }
 
-    public static void warn(Logger logger, String s) {
-        warn(logger, s, (Map<String, String>)null);
-    }
+  public static void warn(Logger logger, String s, Throwable throwable) {
+    warn(logger, null, s, throwable);
+  }
 
-    public static void warn(Logger logger, String s, Map<String, String> tags) {
-        init();
-        if (MapUtils.isNotEmpty(tags)) {
-            tags.forEach((k, v) -> MDC.put(k, v));
-        }
-        logger.warn(s);
-        clear();
+  public static void warn(Logger logger, Map<String, String> tags, String s, Throwable throwable) {
+    init();
+    if (MapUtils.isNotEmpty(tags)) {
+      tags.forEach((k, v) -> MDC.put(k, v));
     }
+    logger.warn(s, throwable);
+    clear();
+  }
 
-    public static void warn(Logger logger, String s, Object... objects) {
-        warn(logger, null, s, objects);
-    }
+  public static void error(Logger logger, String s) {
+    error(logger, s, (Map<String, String>) null);
+  }
 
-    public static void warn(Logger logger, Map<String, String> tags, String s, Object... objects) {
-        init();
-        if (MapUtils.isNotEmpty(tags)) {
-            tags.forEach((k, v) -> MDC.put(k, v));
-        }
-        logger.warn(s, objects);
-        clear();
+  public static void error(Logger logger, String s, Map<String, String> tags) {
+    init();
+    if (MapUtils.isNotEmpty(tags)) {
+      tags.forEach((k, v) -> MDC.put(k, v));
     }
+    logger.error(s);
+    CommonMetrics.incErrorCount(AREX_API, NetworkInterfaceManager.INSTANCE.getLocalHostAddress());
+    clear();
+  }
 
-    public static void warn(Logger logger, String s, Throwable throwable) {
-        warn(logger, null, s, throwable);
-    }
+  public static void error(Logger logger, String s, Object... objects) {
+    error(logger, null, s, objects);
+  }
 
-    public static void warn(Logger logger, Map<String, String> tags, String s, Throwable throwable) {
-        init();
-        if (MapUtils.isNotEmpty(tags)) {
-            tags.forEach((k, v) -> MDC.put(k, v));
-        }
-        logger.warn(s, throwable);
-        clear();
+  public static void error(Logger logger, Map<String, String> tags, String s, Object... objects) {
+    init();
+    if (MapUtils.isNotEmpty(tags)) {
+      tags.forEach((k, v) -> MDC.put(k, v));
     }
+    logger.error(s, objects);
+    CommonMetrics.incErrorCount(AREX_API, NetworkInterfaceManager.INSTANCE.getLocalHostAddress());
+    clear();
+  }
 
-    public static void error(Logger logger, String s) {
-        error(logger, s, (Map<String, String>)null);
-    }
+  public static void error(Logger logger, String s, Throwable throwable) {
+    error(logger, null, s, throwable);
+  }
 
-    public static void error(Logger logger, String s, Map<String, String> tags) {
-        init();
-        if (MapUtils.isNotEmpty(tags)) {
-            tags.forEach((k, v) -> MDC.put(k, v));
-        }
-        logger.error(s);
-        CommonMetrics.incErrorCount(AREX_API, NetworkInterfaceManager.INSTANCE.getLocalHostAddress());
-        clear();
+  public static void error(Logger logger, Map<String, String> tags, String s, Throwable throwable) {
+    init();
+    if (MapUtils.isNotEmpty(tags)) {
+      tags.forEach((k, v) -> MDC.put(k, v));
     }
-
-    public static void error(Logger logger, String s, Object... objects) {
-        error(logger, null, s, objects);
-    }
-
-    public static void error(Logger logger, Map<String, String> tags, String s, Object... objects) {
-        init();
-        if (MapUtils.isNotEmpty(tags)) {
-            tags.forEach((k, v) -> MDC.put(k, v));
-        }
-        logger.error(s, objects);
-        CommonMetrics.incErrorCount(AREX_API, NetworkInterfaceManager.INSTANCE.getLocalHostAddress());
-        clear();
-    }
-
-    public static void error(Logger logger, String s, Throwable throwable) {
-        error(logger, null, s, throwable);
-    }
-
-    public static void error(Logger logger, Map<String, String> tags, String s, Throwable throwable) {
-        init();
-        if (MapUtils.isNotEmpty(tags)) {
-            tags.forEach((k, v) -> MDC.put(k, v));
-        }
-        logger.error(s, throwable);
-        CommonMetrics.incErrorCount(AREX_API, NetworkInterfaceManager.INSTANCE.getLocalHostAddress());
-        clear();
-    }
+    logger.error(s, throwable);
+    CommonMetrics.incErrorCount(AREX_API, NetworkInterfaceManager.INSTANCE.getLocalHostAddress());
+    clear();
+  }
 }

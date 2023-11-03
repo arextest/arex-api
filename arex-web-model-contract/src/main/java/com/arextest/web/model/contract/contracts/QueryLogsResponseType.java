@@ -1,9 +1,7 @@
 package com.arextest.web.model.contract.contracts;
 
-import java.util.List;
-
 import com.arextest.web.model.contract.contracts.common.LogsType;
-
+import java.util.List;
 import lombok.Data;
 
 /**
@@ -12,5 +10,6 @@ import lombok.Data;
  */
 @Data
 public class QueryLogsResponseType {
-    private List<LogsType> logs;
+
+  private List<LogsType> logs;
 }

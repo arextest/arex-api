@@ -1,7 +1,6 @@
 package com.arextest.web.model.contract.contracts.login;
 
 import javax.validation.constraints.NotBlank;
-
 import lombok.Data;
 
 /**
@@ -9,8 +8,9 @@ import lombok.Data;
  */
 @Data
 public class ModifyUserFavoriteAppRequestType {
-    @NotBlank(message = "username cannot be blank")
-    private String userName;
-    @NotBlank(message = "favoriteApp cannot be blank")
-    private String favoriteApp;
+
+  @NotBlank(message = "username cannot be blank")
+  private String userName;
+  @NotBlank(message = "favoriteApp cannot be blank")
+  private String favoriteApp;
 }

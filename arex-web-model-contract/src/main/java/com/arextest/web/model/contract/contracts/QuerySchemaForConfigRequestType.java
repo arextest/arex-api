@@ -5,8 +5,8 @@ import lombok.Data;
 @Data
 public class QuerySchemaForConfigRequestType {
 
-    private String msg;
+  private String msg;
 
-    private boolean onlyArray;
+  private boolean onlyArray;
 
 }

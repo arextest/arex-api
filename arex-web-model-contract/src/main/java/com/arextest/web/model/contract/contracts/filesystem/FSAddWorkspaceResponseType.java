@@ -4,5 +4,6 @@ import lombok.Data;
 
 @Data
 public class FSAddWorkspaceResponseType {
-    private String workspaceId;
+
+  private String workspaceId;
 }

@@ -1,7 +1,6 @@
 package com.arextest.web.model.contract.contracts.login;
 
 import javax.validation.constraints.NotBlank;
-
 import lombok.Data;
 
 /**
@@ -10,8 +9,11 @@ import lombok.Data;
  */
 @Data
 public class OauthLoginRequestType {
-    @NotBlank(message = "oauthType cannot be blank")
-    private String oauthType;
-    @NotBlank(message = "code cannot be blank")
-    private String code;
+
+  @NotBlank(message = "oauthType cannot be blank")
+  private String oauthType;
+  @NotBlank(message = "code cannot be blank")
+  private String code;
+
+  private String redirectUri;
 }

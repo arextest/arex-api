@@ -1,9 +1,7 @@
 package com.arextest.web.model.contract.contracts.replay;
 
 import java.util.List;
-
 import javax.validation.constraints.NotBlank;
-
 import lombok.Data;
 
 /**
@@ -11,15 +9,17 @@ import lombok.Data;
  */
 @Data
 public class UpdateReportInfoRequestType {
-    @NotBlank(message = "planId cannot be empty")
-    private String planId;
+
+  @NotBlank(message = "planId cannot be empty")
+  private String planId;
+  private Integer totalCaseCount;
+
+  private List<UpdateReportItem> updateReportItems;
+
+  @Data
+  public static class UpdateReportItem {
+
+    private String planItemId;
     private Integer totalCaseCount;
-
-    private List<UpdateReportItem> updateReportItems;
-
-    @Data
-    public static class UpdateReportItem {
-        private String planItemId;
-        private Integer totalCaseCount;
-    }
+  }
 }

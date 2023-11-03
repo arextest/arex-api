@@ -1,9 +1,8 @@
 package com.arextest.web.model.dao.mongodb;
 
-import org.springframework.data.mongodb.core.mapping.Document;
-
 import lombok.Data;
 import lombok.experimental.FieldNameConstants;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 /**
  * @author wildeslam.
@@ -14,11 +13,11 @@ import lombok.experimental.FieldNameConstants;
 @Document(collection = "SystemConfig")
 public class SystemConfigCollection extends ModelBase {
 
-    private String operator;
+  private String operator;
 
-    /**
-     * for callBackInform.
-     */
-    private String callbackUrl;
+  /**
+   * for callBackInform.
+   */
+  private String callbackUrl;
 
 }

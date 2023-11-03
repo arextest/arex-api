@@ -1,23 +1,23 @@
 package com.arextest.web.core.repository;
 
+import com.arextest.web.model.dto.UserDto;
 import java.util.List;
 
-import com.arextest.web.model.dto.UserDto;
-
 public interface UserRepository extends RepositoryProvider {
-    Boolean saveUser(UserDto user);
 
-    Boolean verify(String userName, String verificationCode);
+  Boolean saveUser(UserDto user);
 
-    UserDto queryUserProfile(String userName);
+  Boolean verify(String userName, String verificationCode);
 
-    Boolean updateUserProfile(UserDto user);
+  UserDto queryUserProfile(String userName);
 
-    Boolean existUserName(String userName);
+  Boolean updateUserProfile(UserDto user);
 
-    Boolean insertUserFavoriteApp(String userName, String favoriteApp);
+  Boolean existUserName(String userName);
 
-    Boolean removeUserFavoriteApp(String userName, String favoriteApp);
+  Boolean insertUserFavoriteApp(String userName, String favoriteApp);
 
-    List<UserDto> queryVerifiedUseWithKeyword(String keyword);
+  Boolean removeUserFavoriteApp(String userName, String favoriteApp);
+
+  List<UserDto> queryVerifiedUseWithKeyword(String keyword);
 }

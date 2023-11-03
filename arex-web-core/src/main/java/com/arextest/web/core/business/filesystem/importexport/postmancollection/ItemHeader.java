@@ -4,10 +4,11 @@ import lombok.Data;
 
 @Data
 public class ItemHeader {
-    private String key;
-    private String value;
-    private String type;
-    private String name;
-    private String description;
-    private Boolean disabled;
+
+  private String key;
+  private String value;
+  private String type;
+  private String name;
+  private String description;
+  private Boolean disabled;
 }

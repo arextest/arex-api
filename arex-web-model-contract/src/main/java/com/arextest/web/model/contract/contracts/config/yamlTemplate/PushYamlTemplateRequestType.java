@@ -4,6 +4,7 @@ import lombok.Data;
 
 @Data
 public class PushYamlTemplateRequestType {
-    private String appId;
-    private String configTemplate;
+
+  private String appId;
+  private String configTemplate;
 }
