@@ -62,6 +62,7 @@ import com.arextest.web.model.contract.contracts.ReportInitialResponseType;
 import com.arextest.web.model.contract.contracts.SuccessResponse;
 import com.arextest.web.model.contract.contracts.SuccessResponseType;
 import com.arextest.web.model.contract.contracts.SyncResponseContractRequestType;
+import com.arextest.web.model.contract.contracts.common.PlanItemStatistic;
 import com.arextest.web.model.contract.contracts.record.CountRecordRequestType;
 import com.arextest.web.model.contract.contracts.record.ListRecordRequestType;
 import com.arextest.web.model.contract.contracts.replay.AnalyzeCompareResultsRequestType;
@@ -203,6 +204,13 @@ public class ReportQueryController {
     QueryPlanItemStatisticsResponseType response = queryPlanItemStatisticService.planItemStatistic(
         request);
     return ResponseUtils.successResponse(response);
+  }
+
+  @GetMapping("/getPlanItemStatistic/{planItemId}")
+  @ResponseBody
+  public Response queryPlanItemStatistics(@PathVariable String planItemId) {
+    PlanItemStatistic planItemStatistic = queryPlanItemStatisticService.planItemStatistic(planItemId);
+    return ResponseUtils.successResponse(planItemStatistic);
   }
 
   @PostMapping("/queryResponseTypeStatistic")
