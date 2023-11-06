@@ -15,6 +15,7 @@ public class PlanItemStatistic {
 
   private String serviceName;
   private String appId;
+  private String appName;
 
   private Integer status;
   private String errorMessage;
