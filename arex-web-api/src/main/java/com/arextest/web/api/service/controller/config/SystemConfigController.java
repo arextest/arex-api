@@ -41,17 +41,23 @@ public class SystemConfigController {
   @ResponseBody
   public Response listSystemConfig() {
     SystemConfig latestSystemConfig = systemConfigRepository.getLatestSystemConfig();
-    latestSystemConfig.setCompareNameToLower(
-        Boolean.valueOf(configLoadService.getCompareNameToLower("true")));
-    latestSystemConfig.setCompareNullEqualsEmpty(
-        Boolean.valueOf(configLoadService.getCompareNullEqualsEmpty("true")));
+    this.appendGlobalCompareConfig(configLoadService, latestSystemConfig);
+    return ResponseUtils.successResponse(latestSystemConfig);
+  }
+
+  private void appendGlobalCompareConfig(ConfigLoadService configLoadService, SystemConfig latestSystemConfig) {
+
     try {
+      latestSystemConfig.setCompareNameToLower(
+          Boolean.valueOf(configLoadService.getCompareNameToLower("true")));
+      latestSystemConfig.setCompareNullEqualsEmpty(
+          Boolean.valueOf(configLoadService.getCompareNullEqualsEmpty("true")));
       Long ignoredTimePrecisionMillis = Long.valueOf(
           configLoadService.getCompareIgnoredTimePrecisionMillis("2000"));
       latestSystemConfig.setCompareIgnoreTimePrecisionMillis(ignoredTimePrecisionMillis);
+      latestSystemConfig.setIgnoreNodeSet(configLoadService.getIgnoreNodeSet(""));
     } catch (RuntimeException e) {
       LOGGER.error("getCompareIgnoredTimePrecisionMillis error", e);
     }
-    return ResponseUtils.successResponse(latestSystemConfig);
   }
 }

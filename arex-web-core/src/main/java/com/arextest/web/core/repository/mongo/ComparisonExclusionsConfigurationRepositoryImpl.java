@@ -3,13 +3,19 @@ package com.arextest.web.core.repository.mongo;
 import com.arextest.config.repository.ConfigRepositoryProvider;
 import com.arextest.web.common.LogUtils;
 import com.arextest.web.core.repository.mongo.util.MongoHelper;
+import com.arextest.web.model.contract.contracts.common.enums.CompareConfigType;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonExclusionsConfiguration;
 import com.arextest.web.model.dao.mongodb.ConfigComparisonExclusionsCollection;
 import com.arextest.web.model.dao.mongodb.entity.AbstractComparisonDetails;
 import com.arextest.web.model.mapper.ConfigComparisonExclusionsMapper;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
+import com.arextest.web.model.dao.mongodb.entity.AbstractComparisonDetails.Fields;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -180,5 +186,46 @@ public class ComparisonExclusionsConfigurationRepositoryImpl
     ConfigComparisonExclusionsCollection dao =
         mongoTemplate.findOne(query, ConfigComparisonExclusionsCollection.class);
     return ConfigComparisonExclusionsMapper.INSTANCE.dtoFromDao(dao);
+  }
+
+  public List<ComparisonExclusionsConfiguration> queryByMultiConditionsWithGlobal(Map<String, Object> conditions, String appId, boolean orGlobal){
+      Query query = new Query();
+
+      List<Criteria> criteriaList = new ArrayList<>();
+      for (Map.Entry<String, Object> entry : conditions.entrySet()) {
+          if (entry.getValue() == null){
+              continue;
+          }
+          criteriaList.add(Criteria.where(entry.getKey()).is(entry.getValue()));
+      }
+
+      List<Criteria> globalCriteriaList = null;
+      if (orGlobal){
+          globalCriteriaList = Arrays.asList(
+              Criteria.where(Fields.appId).is(appId),
+              Criteria.where(Fields.operationId).is(null),
+              Criteria.where(Fields.compareConfigType).is(CompareConfigType.REPLAY_MAIN.getCodeValue())
+
+          );
+      }
+
+      if (CollectionUtils.isEmpty(criteriaList) && CollectionUtils.isEmpty(globalCriteriaList)){
+          return Collections.emptyList();
+      }else if (CollectionUtils.isNotEmpty(criteriaList) && CollectionUtils.isNotEmpty(globalCriteriaList)) {
+          query.addCriteria(
+              new Criteria().orOperator(
+                  new Criteria().andOperator(criteriaList),
+                  new Criteria().andOperator(globalCriteriaList)
+              )
+          );
+      }else if (CollectionUtils.isNotEmpty(criteriaList)){
+          query.addCriteria(new Criteria().andOperator(criteriaList));
+      }else {
+          query.addCriteria(new Criteria().andOperator(globalCriteriaList));
+      }
+
+      List<ConfigComparisonExclusionsCollection> daos =
+          mongoTemplate.find(query, ConfigComparisonExclusionsCollection.class);
+      return daos.stream().map(ConfigComparisonExclusionsMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
   }
 }
