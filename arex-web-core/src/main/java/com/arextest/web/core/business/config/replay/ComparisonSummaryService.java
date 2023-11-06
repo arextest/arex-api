@@ -1,7 +1,6 @@
 package com.arextest.web.core.business.config.replay;
 
 import com.arextest.config.model.dao.config.ServiceOperationCollection;
-import com.arextest.config.model.dao.config.ServiceOperationCollection.Fields;
 import com.arextest.config.model.dto.application.ApplicationOperationConfiguration;
 import com.arextest.config.model.dto.application.ApplicationServiceConfiguration;
 import com.arextest.config.repository.impl.ApplicationOperationConfigurationRepositoryImpl;
@@ -25,7 +24,6 @@ import com.arextest.web.model.contract.contracts.config.replay.ReplayCompareConf
 import com.arextest.web.model.contract.contracts.config.replay.ReplayCompareConfig.DependencyComparisonItem;
 import com.arextest.web.model.contract.contracts.config.replay.ReplayCompareConfig.ReplayComparisonItem;
 import com.arextest.web.model.dao.mongodb.AppContractCollection;
-import com.arextest.web.model.dao.mongodb.ConfigComparisonExclusionsCollection;
 import com.arextest.web.model.dao.mongodb.entity.AbstractComparisonDetails;
 import com.arextest.web.model.dto.AppContractDto;
 import com.arextest.web.model.enums.ContractTypeEnum;
@@ -146,23 +144,23 @@ public class ComparisonSummaryService {
     String categoryName = requestType.getCategoryName();
     Boolean entryPoint = requestType.getEntryPoint();
 
-    // 查询到operationId
+    // query operationId or dependencyId
     String operationId = null;
     String dependencyId = null;
-    if(Objects.equals(requestType.getEntryPoint(), true)){
+    if (Objects.equals(requestType.getEntryPoint(), true)) {
       Map<String, Object> queryConditions = new HashMap<>();
       queryConditions.put(ServiceOperationCollection.Fields.appId, appId);
       queryConditions.put(ServiceOperationCollection.Fields.operationName, operationName);
       List<ApplicationOperationConfiguration> applicationOperationConfigurations =
           applicationOperationConfigurationRepositoryImpl.queryByMultiCondition(queryConditions);
-      if(CollectionUtils.isNotEmpty(applicationOperationConfigurations)){
+      if (CollectionUtils.isNotEmpty(applicationOperationConfigurations)) {
         operationId = applicationOperationConfigurations.get(0).getId();
       }
     } else {
       AppContractDto appContractDto = appContractRepository.queryDependencyWithAppId(appId,
           operationName, categoryName);
       if (appContractDto != null) {
-         dependencyId = appContractDto.getId();
+        dependencyId = appContractDto.getId();
       }
     }
 
@@ -176,10 +174,11 @@ public class ComparisonSummaryService {
 
     Map<String, Object> conditions = new HashMap<>();
     conditions.put(AbstractComparisonDetails.Fields.appId, appId);
-    conditions.put(AbstractComparisonDetails.Fields.compareConfigType, CompareConfigType.REPLAY_MAIN.getCodeValue());
-    if (operationId != null){
+    conditions.put(AbstractComparisonDetails.Fields.compareConfigType,
+        CompareConfigType.REPLAY_MAIN.getCodeValue());
+    if (operationId != null) {
       conditions.put(AbstractComparisonDetails.Fields.operationId, operationId);
-    }else if (dependencyId != null) {
+    } else if (dependencyId != null) {
       conditions.put(AbstractComparisonDetails.Fields.dependencyId, dependencyId);
     } else {
       conditions.clear();
@@ -187,8 +186,8 @@ public class ComparisonSummaryService {
 
     Set<List<String>> result = new HashSet<>();
     List<ComparisonExclusionsConfiguration> comparisonExclusionsConfigurations =
-        exclusionsConfigurableHandler.queryByMultiConditionsWithGlobal(conditions,appId, true);
-    comparisonExclusionsConfigurations.forEach(item->{
+        exclusionsConfigurableHandler.queryByMultiConditionsWithGlobal(conditions, appId, true);
+    comparisonExclusionsConfigurations.forEach(item -> {
       result.add(item.getExclusions());
     });
     responseType.setExclusionList(result);
