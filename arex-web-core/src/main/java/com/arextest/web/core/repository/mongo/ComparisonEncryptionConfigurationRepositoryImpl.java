@@ -3,6 +3,7 @@ package com.arextest.web.core.repository.mongo;
 import com.arextest.config.repository.ConfigRepositoryProvider;
 import com.arextest.web.common.LogUtils;
 import com.arextest.web.core.repository.mongo.util.MongoHelper;
+import com.arextest.web.model.contract.contracts.common.enums.CompareConfigType;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonEncryptionConfiguration;
 import com.arextest.web.model.dao.mongodb.ConfigComparisonEncryptionCollection;
 import com.arextest.web.model.dao.mongodb.entity.AbstractComparisonDetails;
@@ -95,7 +96,9 @@ public class ComparisonEncryptionConfigurationRepositoryImpl
   @Override
   public List<ComparisonEncryptionConfiguration> listBy(String appId, String operationId) {
     Query query = Query.query(Criteria.where(AbstractComparisonDetails.Fields.appId).is(appId)
-        .and(AbstractComparisonDetails.Fields.operationId).is(operationId));
+        .and(AbstractComparisonDetails.Fields.operationId).is(operationId).and(
+            AbstractComparisonDetails.Fields.compareConfigType)
+        .is(CompareConfigType.REPLAY_MAIN.getCodeValue()));
     List<ConfigComparisonEncryptionCollection> configComparisonEncryptionCollections =
         mongoTemplate.find(query, ConfigComparisonEncryptionCollection.class);
     return configComparisonEncryptionCollections.stream()
