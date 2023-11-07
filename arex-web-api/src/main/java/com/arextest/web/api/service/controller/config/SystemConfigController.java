@@ -41,11 +41,15 @@ public class SystemConfigController {
   @ResponseBody
   public Response listSystemConfig() {
     SystemConfig latestSystemConfig = systemConfigRepository.getLatestSystemConfig();
+    if (latestSystemConfig == null) {
+      latestSystemConfig = new SystemConfig();
+    }
     this.appendGlobalCompareConfig(configLoadService, latestSystemConfig);
     return ResponseUtils.successResponse(latestSystemConfig);
   }
 
-  private void appendGlobalCompareConfig(ConfigLoadService configLoadService, SystemConfig latestSystemConfig) {
+  private void appendGlobalCompareConfig(ConfigLoadService configLoadService,
+      SystemConfig latestSystemConfig) {
 
     try {
       latestSystemConfig.setCompareNameToLower(

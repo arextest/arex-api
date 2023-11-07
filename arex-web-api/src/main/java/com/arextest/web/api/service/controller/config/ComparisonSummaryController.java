@@ -46,13 +46,4 @@ public class ComparisonSummaryController {
         appId);
     return ResponseUtils.successResponse(replayCompareConfig);
   }
-
-  @PostMapping("/queryConfigOfCategory")
-  @ResponseBody
-  public Response queryConfigOfCategory(@RequestBody QueryConfigOfCategoryRequestType request) {
-    return ResponseUtils.successResponse(
-        comparisonSummaryService.queryConfigOfCategory(request)
-    );
-  }
-
 }
