@@ -55,20 +55,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 @Slf4j
 public class ComparisonSummaryService {
 
-  ComparisonExclusionsConfigurableHandler exclusionsConfigurableHandler;
-  ComparisonInclusionsConfigurableHandler inclusionsConfigurableHandler;
-  ComparisonEncryptionConfigurableHandler encryptionConfigurableHandler;
-  ComparisonReferenceConfigurableHandler referenceConfigurableHandler;
-  ComparisonListSortConfigurableHandler listSortConfigurableHandler;
-  ComparisonIgnoreCategoryConfigurableHandler ignoreCategoryConfigurableHandler;
-  ConfigurableHandler<ApplicationServiceConfiguration> applicationServiceConfigurationConfigurableHandler;
-  AppContractRepository appContractRepository;
-
-  @Resource
-  ApplicationOperationConfigurationRepositoryImpl applicationOperationConfigurationRepositoryImpl;
-
-  @Resource
-  ConfigLoadService configLoadService;
+  protected ComparisonExclusionsConfigurableHandler exclusionsConfigurableHandler;
+  protected ComparisonInclusionsConfigurableHandler inclusionsConfigurableHandler;
+  protected ComparisonEncryptionConfigurableHandler encryptionConfigurableHandler;
+  protected ComparisonReferenceConfigurableHandler referenceConfigurableHandler;
+  protected ComparisonListSortConfigurableHandler listSortConfigurableHandler;
+  protected ComparisonIgnoreCategoryConfigurableHandler ignoreCategoryConfigurableHandler;
+  protected ConfigurableHandler<ApplicationServiceConfiguration> applicationServiceConfigurationConfigurableHandler;
+  protected AppContractRepository appContractRepository;
 
   public ComparisonSummaryService(
       @Autowired ComparisonExclusionsConfigurableHandler exclusionsConfigurableHandler,
@@ -133,65 +127,6 @@ public class ComparisonSummaryService {
     result.setReplayComparisonItems(operationReplayComparison);
     this.setDefaultWhenMissingDependency(globalReplayComparison, result);
     return result;
-  }
-
-  public QueryConfigOfCategoryResponseType queryConfigOfCategory(
-      QueryConfigOfCategoryRequestType requestType) {
-    QueryConfigOfCategoryResponseType responseType = new QueryConfigOfCategoryResponseType();
-
-    String appId = requestType.getAppId();
-    String operationName = requestType.getOperationName();
-    String categoryName = requestType.getCategoryName();
-    Boolean entryPoint = requestType.getEntryPoint();
-
-    // query operationId or dependencyId
-    String operationId = null;
-    String dependencyId = null;
-    if (Objects.equals(requestType.getEntryPoint(), true)) {
-      Map<String, Object> queryConditions = new HashMap<>();
-      queryConditions.put(ServiceOperationCollection.Fields.appId, appId);
-      queryConditions.put(ServiceOperationCollection.Fields.operationName, operationName);
-      List<ApplicationOperationConfiguration> applicationOperationConfigurations =
-          applicationOperationConfigurationRepositoryImpl.queryByMultiCondition(queryConditions);
-      if (CollectionUtils.isNotEmpty(applicationOperationConfigurations)) {
-        operationId = applicationOperationConfigurations.get(0).getId();
-      }
-    } else {
-      AppContractDto appContractDto = appContractRepository.queryDependencyWithAppId(appId,
-          operationName, categoryName);
-      if (appContractDto != null) {
-        dependencyId = appContractDto.getId();
-      }
-    }
-
-    // set ignore node set
-    Set<String> ignoreNodeSet = configLoadService.getIgnoreNodeSet(null);
-    responseType.setIgnoreNodeSet(ignoreNodeSet);
-
-    if (operationId == null && entryPoint) {
-      return responseType;
-    }
-
-    Map<String, Object> conditions = new HashMap<>();
-    conditions.put(AbstractComparisonDetails.Fields.appId, appId);
-    conditions.put(AbstractComparisonDetails.Fields.compareConfigType,
-        CompareConfigType.REPLAY_MAIN.getCodeValue());
-    if (operationId != null) {
-      conditions.put(AbstractComparisonDetails.Fields.operationId, operationId);
-    } else if (dependencyId != null) {
-      conditions.put(AbstractComparisonDetails.Fields.dependencyId, dependencyId);
-    } else {
-      conditions.clear();
-    }
-
-    Set<List<String>> result = new HashSet<>();
-    List<ComparisonExclusionsConfiguration> comparisonExclusionsConfigurations =
-        exclusionsConfigurableHandler.queryByMultiConditionsWithGlobal(conditions, appId, true);
-    comparisonExclusionsConfigurations.forEach(item -> {
-      result.add(item.getExclusions());
-    });
-    responseType.setExclusionList(result);
-    return responseType;
   }
 
   protected void getComparisonExclusionsConfiguration(String interfaceId,

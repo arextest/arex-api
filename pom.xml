@@ -345,8 +345,8 @@
     <profile>
       <id>jar-local</id>
       <properties>
-        <releases.repo></releases.repo>
-        <snapshots.repo></snapshots.repo>
+        <releases.repo>http://maven.release.ctripcorp.com/nexus/content/repositories/flightrelease</releases.repo>
+        <snapshots.repo>http://maven.release.ctripcorp.com/nexus/content/repositories/flightsnapshot</snapshots.repo>
       </properties>
     </profile>
   </profiles>
@@ -397,5 +397,5 @@
 
   <url>https://github.com/arextest/arex-report</url>
 
-  <version>0.6.0.6</version>
+  <version>0.6.0.7</version>
 </project>
