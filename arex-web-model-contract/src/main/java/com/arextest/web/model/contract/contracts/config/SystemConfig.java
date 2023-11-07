@@ -29,5 +29,23 @@ public class SystemConfig {
    */
   private Boolean compareNullEqualsEmpty;
 
+  /**
+   * according to the names of node to ignore the node.
+   */
   private Set<String> ignoreNodeSet;
+
+  /**
+   * skip the compare of select, when comparing database.
+   */
+  private Boolean selectIgnoreCompare;
+
+  /**
+   * only compare the coincident columns, when comparing database.
+   */
+  private Boolean onlyCompareCoincidentColumn;
+
+  /**
+   * ignore the compare of uuid
+   */
+  private Boolean uuidIgnore;
 }

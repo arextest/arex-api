@@ -60,6 +60,12 @@ public class SystemConfigController {
           configLoadService.getCompareIgnoredTimePrecisionMillis("2000"));
       latestSystemConfig.setCompareIgnoreTimePrecisionMillis(ignoredTimePrecisionMillis);
       latestSystemConfig.setIgnoreNodeSet(configLoadService.getIgnoreNodeSet(""));
+      latestSystemConfig.setSelectIgnoreCompare(
+          Boolean.valueOf(configLoadService.getCompareSelectIgnoreCompare("true")));
+      latestSystemConfig.setOnlyCompareCoincidentColumn(
+          Boolean.valueOf(configLoadService.getCompareOnlyCompareCoincidentColumn("true")));
+      latestSystemConfig.setUuidIgnore(
+          Boolean.valueOf(configLoadService.getCompareUuidIgnore("true")));
     } catch (RuntimeException e) {
       LOGGER.error("getCompareIgnoredTimePrecisionMillis error", e);
     }
