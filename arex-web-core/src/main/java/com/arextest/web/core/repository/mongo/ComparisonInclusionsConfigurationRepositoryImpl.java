@@ -3,6 +3,7 @@ package com.arextest.web.core.repository.mongo;
 import com.arextest.config.repository.ConfigRepositoryProvider;
 import com.arextest.web.common.LogUtils;
 import com.arextest.web.core.repository.mongo.util.MongoHelper;
+import com.arextest.web.model.contract.contracts.common.enums.CompareConfigType;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonInclusionsConfiguration;
 import com.arextest.web.model.dao.mongodb.ConfigComparisonInclusionsCollection;
 import com.arextest.web.model.dao.mongodb.entity.AbstractComparisonDetails;
@@ -48,7 +49,9 @@ public class ComparisonInclusionsConfigurationRepositoryImpl
 
   public List<ComparisonInclusionsConfiguration> listBy(String appId, String operationId) {
     Query query = Query.query(Criteria.where(AbstractComparisonDetails.Fields.appId).is(appId)
-        .and(AbstractComparisonDetails.Fields.operationId).is(operationId));
+        .and(AbstractComparisonDetails.Fields.operationId).is(operationId).and(
+            AbstractComparisonDetails.Fields.compareConfigType)
+        .is(CompareConfigType.REPLAY_MAIN.getCodeValue()));
     List<ConfigComparisonInclusionsCollection> configComparisonInclusionsCollections =
         mongoTemplate.find(query, ConfigComparisonInclusionsCollection.class);
     return configComparisonInclusionsCollections.stream()

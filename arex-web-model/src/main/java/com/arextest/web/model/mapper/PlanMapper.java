@@ -8,6 +8,7 @@ import com.arextest.web.model.dto.ReportPlanStatisticDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
+import org.mapstruct.Named;
 import org.mapstruct.factory.Mappers;
 
 @Mapper
@@ -31,6 +32,7 @@ public interface PlanMapper {
       @Mapping(target = "caseRecordVersion", source = "version.caseRecordVersion"),})
   ReportPlanStatisticDto dtoFromContract(ReportInitialRequestType contract);
 
+  @Mapping(target = "appName", expression = "java(\"unknown app name\".equals(dao.getAppName()) ? dao.getAppId() : dao.getAppName())")
   ReportPlanStatisticDto dtoFromDao(ReportPlanStatisticCollection dao);
 
   PlanStatistic contractFromDto(ReportPlanStatisticDto dto);

@@ -14,6 +14,12 @@ public interface ConfigLoadService {
 
   String COMPARE_IGNORE_NODE_SET = "arex.compare.ignoreNodeSet";
 
+  String COMPARE_SELECT_IGNORE_COMPARE = "arex.compare.selectIgnoreCompare";
+
+  String COMPARE_ONLY_COMPARE_COINCIDENT_COLUMN = "arex.compare.onlyCompareCoincidentColumn";
+
+  String COMPARE_UUID_IGNORE = "arex.compare.uuidIgnore";
+
   Object getProperty(String key, Object defaultValue);
 
   default String getCompareIgnoredTimePrecisionMillis(String defaultValue) {
@@ -34,6 +40,18 @@ public interface ConfigLoadService {
       return null;
     }
     return new HashSet<>(Arrays.asList(property.split(",")));
+  }
+
+  default String getCompareSelectIgnoreCompare(String defaultValue) {
+    return (String) getProperty(COMPARE_SELECT_IGNORE_COMPARE, defaultValue);
+  }
+
+  default String getCompareOnlyCompareCoincidentColumn(String defaultValue) {
+    return (String) getProperty(COMPARE_ONLY_COMPARE_COINCIDENT_COLUMN, defaultValue);
+  }
+
+  default String getCompareUuidIgnore(String defaultValue) {
+    return (String) getProperty(COMPARE_UUID_IGNORE, defaultValue);
   }
 
 }
