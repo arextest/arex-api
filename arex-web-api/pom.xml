@@ -55,10 +55,6 @@
       <groupId>net.javacrumbs.shedlock</groupId>
     </dependency>
     <dependency>
-      <artifactId>redisson</artifactId>
-      <groupId>org.redisson</groupId>
-    </dependency>
-    <dependency>
       <artifactId>arex-common</artifactId>
       <groupId>com.arextest</groupId>
     </dependency>
