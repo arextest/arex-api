@@ -1,14 +1,17 @@
 package com.arextest.web.core.business.iosummary;
 
+import com.arextest.web.core.business.listener.planfinish.PlanFinishedService;
 import com.arextest.web.core.repository.CaseSummaryRepository;
 import com.arextest.web.core.repository.ReplayCompareResultRepository;
 import com.arextest.web.core.repository.ReportPlanItemStatisticRepository;
+import com.arextest.web.core.repository.ReportPlanStatisticRepository;
 import com.arextest.web.core.repository.SceneInfoRepository;
 import com.arextest.web.model.contract.contracts.FeedbackSceneRequest;
 import com.arextest.web.model.contract.contracts.QuerySceneInfoResponseType;
 import com.arextest.web.model.contract.contracts.RemoveRecordsAndScenesRequest;
 import com.arextest.web.model.dto.CompareResultDto;
 import com.arextest.web.model.dto.PlanItemDto;
+import com.arextest.web.model.dto.ReportPlanStatisticDto;
 import com.arextest.web.model.dto.iosummary.CaseSummary;
 import com.arextest.web.model.dto.iosummary.SceneInfo;
 import com.arextest.web.model.dto.iosummary.SubSceneInfo;
@@ -50,6 +53,12 @@ public class SceneReportService {
 
   @Autowired
   ReportPlanItemStatisticRepository reportPlanItemStatisticRepository;
+
+  @Autowired
+  ReportPlanStatisticRepository reportPlanStatisticRepository;
+
+  @Autowired
+  PlanFinishedService planFinishedService;
 
   /**
    * from CaseSummary to ScnenInfo
@@ -158,6 +167,12 @@ public class SceneReportService {
         });
       }
     });
+
+    ReportPlanStatisticDto reportPlanStatisticDto = reportPlanStatisticRepository.findByPlanId(
+        planId);
+
+    planFinishedService.onPlanReCalculateEvent(reportPlanStatisticDto.getAppId(), planId,
+        reportPlanStatisticDto.getStatus());
     return true;
   }
 

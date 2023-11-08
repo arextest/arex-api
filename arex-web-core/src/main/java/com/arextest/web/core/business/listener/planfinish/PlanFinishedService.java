@@ -31,4 +31,13 @@ public class PlanFinishedService {
       planFinishListener.planFinishedAction(appId, planId, status);
     }
   }
+
+  public void onPlanReCalculateEvent(String appId, String planId, Integer status) {
+    if (CollectionUtils.isEmpty(this.planFinishedLinsteners)) {
+      return;
+    }
+    for (PlanFinishedLinstener planFinishListener : this.planFinishedLinsteners) {
+      planFinishListener.planReCalculateAction(appId, planId, status);
+    }
+  }
 }

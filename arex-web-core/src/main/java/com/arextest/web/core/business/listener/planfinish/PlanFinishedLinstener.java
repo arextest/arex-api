@@ -7,4 +7,6 @@ public interface PlanFinishedLinstener {
 
   String planFinishedAction(String appId, String planId, Integer status);
 
+  String planReCalculateAction(String appId, String planId, Integer status);
+
 }
