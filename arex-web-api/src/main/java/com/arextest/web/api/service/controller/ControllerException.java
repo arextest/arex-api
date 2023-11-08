@@ -1,8 +1,10 @@
 package com.arextest.web.api.service.controller;
 
+import com.arextest.common.exceptions.ArexException;
 import com.arextest.common.model.response.Response;
 import com.arextest.common.model.response.ResponseCode;
 import com.arextest.common.utils.ResponseUtils;
+import com.arextest.common.utils.ResponseUtils_New;
 import com.arextest.web.common.LogUtils;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -32,5 +34,11 @@ public class ControllerException {
   public Response handleDefaultException(Throwable e) {
     LogUtils.error(LOGGER, "Unhandled exception", e);
     return ResponseUtils.errorResponse(e.getMessage(), ResponseCode.REQUESTED_HANDLE_EXCEPTION);
+  }
+
+  @ExceptionHandler(ArexException.class)
+  public Response handleArexException(ArexException e) {
+    LogUtils.error(LOGGER, "Arex internal exception", e);
+    return ResponseUtils_New.errorResponse(e.getMessage(), e.getResponseCode());
   }
 }
