@@ -7,4 +7,9 @@ public interface PlanFinishedLinstener {
 
   String planFinishedAction(String appId, String planId, Integer status);
 
+
+  default boolean supportReCalculate() {
+    return false;
+  }
+
 }
