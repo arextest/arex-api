@@ -37,9 +37,7 @@ public class PlanFinishedService {
       return;
     }
     for (PlanFinishedLinstener planFinishListener : this.planFinishedLinsteners) {
-      if (planFinishListener.supportReCalculate()) {
-        planFinishListener.planFinishedAction(appId, planId, status);
-      }
+      planFinishListener.planReCalculateAction(appId, planId, status);
     }
   }
 }

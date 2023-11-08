@@ -50,6 +50,11 @@ public class InformPlanFinishedListener implements PlanFinishedLinstener, Applic
     return SUCCESS_STR;
   }
 
+  @Override
+  public String planReCalculateAction(String appId, String planId, Integer status) {
+    return this.planFinishedAction(appId, planId, status);
+  }
+
   private CallbackInformRequestType buildRequest(PlanStatistic planStatistic) {
     CallbackInformRequestType requestType = new CallbackInformRequestType();
     requestType.setCreator(planStatistic.getCreator());
