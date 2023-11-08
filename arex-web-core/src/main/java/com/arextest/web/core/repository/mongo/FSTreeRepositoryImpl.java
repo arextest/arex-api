@@ -1,5 +1,7 @@
 package com.arextest.web.core.repository.mongo;
 
+import com.arextest.common.cache.CacheProvider;
+import com.arextest.common.cache.LockWrapper;
 import com.arextest.web.core.repository.FSTreeRepository;
 import com.arextest.web.core.repository.mongo.util.MongoHelper;
 import com.arextest.web.model.dao.mongodb.FSTreeCollection;
@@ -14,8 +16,6 @@ import java.util.stream.Collectors;
 import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
-import org.redisson.api.RLock;
-import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -37,7 +37,7 @@ public class FSTreeRepositoryImpl implements FSTreeRepository {
   @Resource
   private MongoTemplate mongoTemplate;
   @Resource
-  private RedissonClient redissonClient;
+  private CacheProvider cacheProvider;
 
   @Override
   public FSTreeDto initFSTree(FSTreeDto dto) {
@@ -62,7 +62,7 @@ public class FSTreeRepositoryImpl implements FSTreeRepository {
 
   @Override
   public FSTreeDto updateFSTree(String workspaceId, UnaryOperator<FSTreeDto> unaryOperator) {
-    RLock lock = redissonClient.getLock(workspaceId);
+    LockWrapper lock = cacheProvider.getLock(workspaceId);
     try {
       lock.lock(redisLeaseTime, TimeUnit.SECONDS);
       FSTreeDto workspace = queryFSTreeById(workspaceId);
