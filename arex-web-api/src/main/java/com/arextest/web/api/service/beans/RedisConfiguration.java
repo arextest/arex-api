@@ -12,13 +12,13 @@ import org.springframework.context.annotation.Configuration;
  * @since 2023/4/6
  */
 @Configuration
-@ConditionalOnMissingBean(CacheProvider.class)
 public class RedisConfiguration {
 
   @Value("${arex.redis.uri}")
   private String redisUri;
 
   @Bean
+  @ConditionalOnMissingBean(CacheProvider.class)
   public CacheProvider cacheProvider() {
     return new DefaultRedisCacheProvider(redisUri);
   }
