@@ -203,11 +203,6 @@
         <version>2.17.1</version>
       </dependency>
       <dependency>
-        <artifactId>redisson</artifactId>
-        <groupId>org.redisson</groupId>
-        <version>${redisson.version}</version>
-      </dependency>
-      <dependency>
         <artifactId>google-api-client</artifactId>
         <groupId>com.google.api-client</groupId>
         <version>${google-oauth-client.version}</version>
@@ -352,7 +347,7 @@
   </profiles>
 
   <properties>
-    <arex-common.version>0.1.15</arex-common.version>
+    <arex-common.version>0.1.16</arex-common.version>
     <arex-extension-interface.version>0.0.1</arex-extension-interface.version>
     <arex-storage-config.version>1.0.38</arex-storage-config.version>
     <arex-storage.version>1.0.37</arex-storage.version>
@@ -373,7 +368,6 @@
     <lombok.version>1.18.6</lombok.version>
     <mapstruct.version>1.2.0.Final</mapstruct.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <redisson.version>3.15.6</redisson.version>
     <shedlock-spring.version>4.34.0</shedlock-spring.version>
     <shema.inferer.version>0.1.4</shema.inferer.version>
     <snakeyaml.version>1.29</snakeyaml.version>
@@ -397,5 +391,5 @@
 
   <url>https://github.com/arextest/arex-report</url>
 
-  <version>0.6.0.7</version>
+  <version>0.6.0.8</version>
 </project>
