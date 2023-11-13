@@ -355,6 +355,7 @@ public class FileSystemController {
   public Response addItemFromRecordByDefault(
       @Valid @RequestBody FsAddItemFromRecordByDefaultRequestType request) {
     MutablePair<String, String> result = fileSystemService.addItemFromRecordByDefault(request);
+
     if (result == null) {
       return ResponseUtils.errorResponse("Failed to add record case to workspace by default path",
           ResponseCode.REQUESTED_HANDLE_EXCEPTION);

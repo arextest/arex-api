@@ -1,7 +1,8 @@
 package com.arextest.web.core.business.config.replay;
 
+import com.arextest.common.exceptions.ArexException;
 import com.arextest.web.common.LogUtils;
-import com.arextest.web.common.exception.ListKeyCycleException;
+import com.arextest.web.common.exception.ArexApiResponseCode;
 import com.arextest.web.model.contract.contracts.config.replay.AbstractComparisonDetailsConfiguration;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonListSortConfiguration;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonReferenceConfiguration;
@@ -119,7 +120,7 @@ public class ListKeyCycleDetectionHandler {
   }
 
   private void doCycleDetection(List<ComparisonReferenceConfiguration> referenceInDb,
-      List<ComparisonListSortConfiguration> listSortInDb) throws ListKeyCycleException {
+      List<ComparisonListSortConfiguration> listSortInDb) {
 
     Map<String, List<String>> listKeysMap = new HashMap<>();
     for (ComparisonListSortConfiguration listSort : listSortInDb) {
@@ -173,14 +174,14 @@ public class ListKeyCycleDetectionHandler {
   private void doPriorityReferences(LinkedList<String> queue, Set<String> refLinkNodes,
       LinkedList<String> singleLinkAllNodeSet, Set<String> traversedSet,
       Map<String, Set<String>> relations,
-      Set<String> fkPaths, Map<String, List<String>> listKeysMap) throws ListKeyCycleException {
+      Set<String> fkPaths, Map<String, List<String>> listKeysMap) {
     if (refLinkNodes == null || refLinkNodes.isEmpty()) {
       return;
     }
 
     for (String refLinkNode : refLinkNodes) {
       if (singleLinkAllNodeSet.contains(refLinkNode)) {
-        throw new ListKeyCycleException(String.format(
+        throw new ArexException(ArexApiResponseCode.LIST_KEY_CIRCLE_ERROR, String.format(
             "the list and referenceThe added configuration will create a cycle with the existing configuration, the path: %s",
             this.circlePathToShow(singleLinkAllNodeSet)));
       }

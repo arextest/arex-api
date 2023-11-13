@@ -5,6 +5,8 @@ import com.arextest.model.mock.MockCategoryType;
 import com.arextest.model.replay.ViewRecordResponseType;
 import com.arextest.web.common.HttpUtils;
 import com.arextest.web.common.LogUtils;
+import com.arextest.web.common.exception.RecordCaseNotFoundArexException;
+import com.arextest.web.common.exception.UnsupportedCategoryArexException;
 import com.arextest.web.model.dto.filesystem.FSCaseDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -51,7 +53,7 @@ public class StorageCase {
         request.toString(), ViewRecordResponseType.class);
     if (response == null || response.getBody() == null
         || response.getBody().getRecordResult() == null) {
-      return null;
+      throw new RecordCaseNotFoundArexException("Record case not found: " + recordId);
     }
 
     List<AREXMocker> mockers = response.getBody().getRecordResult();
@@ -63,7 +65,7 @@ public class StorageCase {
             .orElse(StringUtils.EMPTY);
 
     if (StringUtils.isBlank(categoryName) || factory.get(categoryName) == null) {
-      return null;
+      throw new UnsupportedCategoryArexException("Unsupported mock category: " + categoryName);
     }
     MockerConversion mockerConversion = factory.get(categoryName);
 
