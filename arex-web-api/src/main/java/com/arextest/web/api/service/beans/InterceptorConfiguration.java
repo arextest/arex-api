@@ -59,8 +59,6 @@ public class InterceptorConfiguration implements WebMvcConfigurer {
     defaultPatterns.add("/api/report/removeRecordsAndScenes");
     defaultPatterns.add("/api/desensitization/listJar");
     defaultPatterns.add("/api/system/config/list");
-    // called by arex-storage
-    defaultPatterns.add("/api/config/comparison/summary/queryConfigOfCategory");
 
     // exclude configuration services
     defaultPatterns.add("/api/config/**");

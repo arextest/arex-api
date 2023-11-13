@@ -168,11 +168,6 @@
         <version>${commons-lang3.version}</version>
       </dependency>
       <dependency>
-        <artifactId>springfox-boot-starter</artifactId>
-        <groupId>io.springfox</groupId>
-        <version>${springfox-boot-starter.version}</version>
-      </dependency>
-      <dependency>
         <artifactId>caffeine</artifactId>
         <groupId>com.github.ben-manes.caffeine</groupId>
         <version>${caffeine.version}</version>

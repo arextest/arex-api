@@ -43,10 +43,6 @@
       <groupId>org.apache.commons</groupId>
     </dependency>
     <dependency>
-      <artifactId>springfox-boot-starter</artifactId>
-      <groupId>io.springfox</groupId>
-    </dependency>
-    <dependency>
       <artifactId>shedlock-spring</artifactId>
       <groupId>net.javacrumbs.shedlock</groupId>
     </dependency>

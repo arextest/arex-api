@@ -17,9 +17,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.MongoDatabaseFactory;
-import org.springframework.data.mongodb.core.CollectionOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.SimpleMongoClientDatabaseFactory;
 import org.springframework.data.mongodb.core.convert.DbRefResolver;
@@ -65,6 +65,7 @@ public class MongodbConfiguration {
     return null;
   }
 
+  @Lazy
   @Bean
   @ConditionalOnMissingBean
   public MongoTemplate mongoTemplate() {
@@ -79,27 +80,6 @@ public class MongodbConfiguration {
 
   public void initIndicesAfterStartup(MongoTemplate mongoTemplate) {
 
-        /*
-        // indexs for AppCollection
-        mongoTemplate.indexOps(AppCollection.class).ensureIndex(new Index().on(APP_ID, Sort.Direction.ASC).unique());
-        
-        // indexs for RecordServiceConfigCollection
-        mongoTemplate.indexOps(RecordServiceConfigCollection.class)
-            .ensureIndex(new Index().on(APP_ID, Sort.Direction.ASC).unique());
-        
-        // indexs for ServiceOperationCollection
-        mongoTemplate.indexOps(ServiceOperationCollection.class).ensureIndex(new Index().on(APP_ID, Sort.Direction.ASC)
-                .on(SERVICE_ID, Sort.Direction.ASC).on(OPERATION_NAME, Sort.Direction.ASC).unique());
-        
-        // indexs for InstancesCollection
-        try {
-            mongoTemplate.indexOps(InstancesCollection.class)
-                    .ensureIndex(new Index(DATE_UPDATE_TIME, Sort.Direction.DESC).expire(65, TimeUnit.SECONDS));
-        } catch (Throwable throwable) {
-            mongoTemplate.indexOps(InstancesCollection.class).dropIndex("dataUpdateTime_-1");
-            mongoTemplate.indexOps(InstancesCollection.class).ensureIndex(new Index(DATE_UPDATE_TIME, Sort.Direction.DESC).expire(65, TimeUnit.SECONDS));
-        }*/
-
     // indexs for ReplayScheduleConfigCollection
     mongoTemplate.indexOps(ReplayScheduleConfigCollection.class)
         .ensureIndex(new Index().on(APP_ID, Sort.Direction.ASC).unique());
@@ -113,11 +93,6 @@ public class MongodbConfiguration {
         .ensureIndex(new Index().on(AppContractCollection.Fields.appId, Sort.Direction.ASC));
     mongoTemplate.indexOps(AppContractCollection.class)
         .ensureIndex(new Index().on(AppContractCollection.Fields.operationId, Sort.Direction.ASC));
-
-    if (!mongoTemplate.collectionExists("SystemConfig")) {
-      mongoTemplate.createCollection("SystemConfig",
-          CollectionOptions.empty().size(10000).maxDocuments(30).capped());
-    }
 
   }
 }

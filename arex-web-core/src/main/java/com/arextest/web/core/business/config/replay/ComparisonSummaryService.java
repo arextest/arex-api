@@ -1,14 +1,10 @@
 package com.arextest.web.core.business.config.replay;
 
-import com.arextest.config.model.dao.config.ServiceOperationCollection;
 import com.arextest.config.model.dto.application.ApplicationOperationConfiguration;
 import com.arextest.config.model.dto.application.ApplicationServiceConfiguration;
-import com.arextest.config.repository.impl.ApplicationOperationConfigurationRepositoryImpl;
 import com.arextest.web.common.LogUtils;
-import com.arextest.web.core.business.ConfigLoadService;
 import com.arextest.web.core.business.config.ConfigurableHandler;
 import com.arextest.web.core.repository.AppContractRepository;
-import com.arextest.web.model.contract.contracts.common.enums.CompareConfigType;
 import com.arextest.web.model.contract.contracts.common.enums.ExpirationType;
 import com.arextest.web.model.contract.contracts.config.replay.AbstractComparisonDetailsConfiguration;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonEncryptionConfiguration;
@@ -18,13 +14,10 @@ import com.arextest.web.model.contract.contracts.config.replay.ComparisonInclusi
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonListSortConfiguration;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonReferenceConfiguration;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonSummaryConfiguration;
-import com.arextest.web.model.contract.contracts.config.replay.QueryConfigOfCategoryRequestType;
-import com.arextest.web.model.contract.contracts.config.replay.QueryConfigOfCategoryResponseType;
 import com.arextest.web.model.contract.contracts.config.replay.ReplayCompareConfig;
 import com.arextest.web.model.contract.contracts.config.replay.ReplayCompareConfig.DependencyComparisonItem;
 import com.arextest.web.model.contract.contracts.config.replay.ReplayCompareConfig.ReplayComparisonItem;
 import com.arextest.web.model.dao.mongodb.AppContractCollection;
-import com.arextest.web.model.dao.mongodb.entity.AbstractComparisonDetails;
 import com.arextest.web.model.dto.AppContractDto;
 import com.arextest.web.model.enums.ContractTypeEnum;
 import com.google.common.collect.ImmutableMap;
@@ -42,7 +35,6 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import javax.annotation.Resource;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
