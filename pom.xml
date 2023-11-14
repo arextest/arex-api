@@ -342,7 +342,7 @@
   </profiles>
 
   <properties>
-    <arex-common.version>0.1.16</arex-common.version>
+    <arex-common.version>0.1.17</arex-common.version>
     <arex-extension-interface.version>0.0.1</arex-extension-interface.version>
     <arex-storage-config.version>1.0.40</arex-storage-config.version>
     <arex-storage.version>1.0.40</arex-storage.version>
