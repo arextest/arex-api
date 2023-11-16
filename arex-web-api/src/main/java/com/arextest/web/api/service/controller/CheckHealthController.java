@@ -19,6 +19,16 @@ import java.io.FileReader;
 @CrossOrigin(origins = "*", maxAge = 3600)
 public class CheckHealthController {
 
+  private static Model POM_MODEL;
+
+  static {
+    try {
+      POM_MODEL = new MavenXpp3Reader().read(new FileReader("pom.xml"));
+    } catch (Exception e) {
+      LOGGER.error("Read pom failed!", e);
+    }
+  }
+
   @GetMapping("/health")
   @ResponseBody
   public Response checkHealth() {
@@ -27,11 +37,9 @@ public class CheckHealthController {
   }
 
   private static String getVersion() {
-    try {
-      MavenXpp3Reader reader = new MavenXpp3Reader();
-      Model model = reader.read(new FileReader("pom.xml"));
-      return model.getVersion();
-    } catch (Exception e) {
+    if (POM_MODEL != null) {
+      return POM_MODEL.getVersion();
+    } else {
       return "error";
     }
   }
