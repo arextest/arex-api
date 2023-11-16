@@ -11,6 +11,7 @@ import com.arextest.web.core.repository.ReportPlanItemStatisticRepository;
 import com.arextest.web.core.repository.ReportPlanStatisticRepository;
 import com.arextest.web.model.contract.contracts.ChangeReplayStatusRequestType;
 import com.arextest.web.model.contract.contracts.PushCompareResultsRequestType;
+import com.arextest.web.model.contract.contracts.RemoveErrorMsgRequest;
 import com.arextest.web.model.contract.contracts.RemoveRecordsAndScenesRequest;
 import com.arextest.web.model.contract.contracts.common.CompareResult;
 import com.arextest.web.model.contract.contracts.replay.AnalyzeCompareResultsRequestType;
@@ -123,6 +124,14 @@ public class ReportService {
     planFinishedService.onPlanFinishEvent(planDto.getAppId(), request.getPlanId(),
         request.getStatus());
     return true;
+  }
+
+  public boolean removeErrorMsg(RemoveErrorMsgRequest request) {
+    boolean flag = planStatisticRepository.removeErrorMsg(request.getPlanId());
+    if (CollectionUtils.isNotEmpty(request.getPlanItemIdList())) {
+      flag = flag && planItemStatisticRepository.removeErrorMsg(request.getPlanItemIdList());
+    }
+    return flag;
   }
 
   public boolean deleteReport(String planId) {

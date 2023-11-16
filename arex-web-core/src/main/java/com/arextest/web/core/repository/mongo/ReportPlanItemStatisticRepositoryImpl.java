@@ -7,12 +7,6 @@ import com.arextest.web.model.dto.PlanItemDto;
 import com.arextest.web.model.enums.ReplayStatusType;
 import com.arextest.web.model.mapper.PlanItemMapper;
 import com.mongodb.client.result.DeleteResult;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Collectors;
-import javax.annotation.Resource;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -21,6 +15,13 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
+
+import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Component
 public class ReportPlanItemStatisticRepositoryImpl implements ReportPlanItemStatisticRepository {
@@ -230,4 +231,11 @@ public class ReportPlanItemStatisticRepositoryImpl implements ReportPlanItemStat
     return deleteResult.getDeletedCount() > 0;
   }
 
+  @Override
+  public boolean removeErrorMsg(List<String> planItemIds) {
+    Update update = MongoHelper.getUpdate();
+    update.set(ERROR_MESSAGE, null);
+    Query query = Query.query(Criteria.where(PLAN_ITEM_ID).in(planItemIds));
+    return mongoTemplate.updateMulti(query, update, ReportPlanItemStatisticCollection.class).getMatchedCount() == planItemIds.size();
+  }
 }

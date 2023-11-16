@@ -36,5 +36,7 @@ public interface ReportPlanStatisticRepository extends RepositoryProvider {
       String errorMessage,
       boolean rerun);
 
+  boolean removeErrorMsg(String planId);
+
   boolean deletePlan(String planId);
 }

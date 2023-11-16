@@ -6,12 +6,14 @@ import com.arextest.web.model.contract.contracts.QueryPlanStatisticsRequestType;
 import com.arextest.web.model.dao.mongodb.ReportPlanStatisticCollection;
 import com.arextest.web.model.dto.LatestDailySuccessPlanIdDto;
 import com.arextest.web.model.dto.ReportPlanStatisticDto;
+import com.arextest.web.model.enums.ReplayStatusType;
 import com.arextest.web.model.mapper.PlanMapper;
 import com.mongodb.BasicDBObject;
 import com.mongodb.client.result.DeleteResult;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -311,8 +313,9 @@ public class ReportPlanStatisticRepositoryImpl implements ReportPlanStatisticRep
     if (totalCaseCount != null) {
       update.set(TOTAL_CASE_COUNT, totalCaseCount);
     }
-    // rerun could remove error msg with null.
-    update.set(ERROR_MESSAGE, errorMessage);
+    if (errorMessage != null) {
+      update.set(ERROR_MESSAGE, errorMessage);
+    }
     if (!rerun) {
       update.set(REPLAY_END_TIME, System.currentTimeMillis());
     }
@@ -331,6 +334,14 @@ public class ReportPlanStatisticRepositoryImpl implements ReportPlanStatisticRep
     Query query = Query.query(Criteria.where(PLAN_ID).is(planId));
     DeleteResult deleteResult = mongoTemplate.remove(query, ReportPlanStatisticCollection.class);
     return deleteResult.getDeletedCount() > 0;
+  }
+
+  @Override
+  public boolean removeErrorMsg(String planId) {
+    Query query = Query.query(Criteria.where(PLAN_ID).is(planId));
+    Update update = MongoHelper.getUpdate();
+    update.set(ERROR_MESSAGE, null);
+    return mongoTemplate.updateMulti(query, update, ReportPlanStatisticCollection.class).getMatchedCount() > 0;
   }
 
   private Query fillFilterConditions(QueryPlanStatisticsRequestType request) {

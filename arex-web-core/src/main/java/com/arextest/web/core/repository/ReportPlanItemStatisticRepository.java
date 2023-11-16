@@ -24,4 +24,6 @@ public interface ReportPlanItemStatisticRepository extends RepositoryProvider {
   boolean deletePlanItemsByPlanId(String planId);
 
   boolean findAndModifyCaseMap(PlanItemDto result);
+
+  boolean removeErrorMsg(List<String> planItemIds);
 }
