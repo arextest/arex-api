@@ -6,12 +6,14 @@ import com.arextest.web.model.contract.contracts.QueryPlanStatisticsRequestType;
 import com.arextest.web.model.dao.mongodb.ReportPlanStatisticCollection;
 import com.arextest.web.model.dto.LatestDailySuccessPlanIdDto;
 import com.arextest.web.model.dto.ReportPlanStatisticDto;
+import com.arextest.web.model.enums.ReplayStatusType;
 import com.arextest.web.model.mapper.PlanMapper;
 import com.mongodb.BasicDBObject;
 import com.mongodb.client.result.DeleteResult;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -312,7 +314,9 @@ public class ReportPlanStatisticRepositoryImpl implements ReportPlanStatisticRep
       update.set(TOTAL_CASE_COUNT, totalCaseCount);
     }
     // rerun could remove error msg with null.
-    update.set(ERROR_MESSAGE, errorMessage);
+    if (errorMessage != null || Objects.equals(status, ReplayStatusType.RERUNNING)) {
+      update.set(ERROR_MESSAGE, errorMessage);
+    }
     if (!rerun) {
       update.set(REPLAY_END_TIME, System.currentTimeMillis());
     }
