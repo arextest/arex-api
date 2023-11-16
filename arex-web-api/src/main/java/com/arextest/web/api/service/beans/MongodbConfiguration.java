@@ -4,6 +4,8 @@ import com.arextest.web.common.LogUtils;
 import com.arextest.web.model.dao.mongodb.AppContractCollection;
 import com.arextest.web.model.dao.mongodb.LogsCollection;
 import com.arextest.web.model.dao.mongodb.ReplayScheduleConfigCollection;
+import com.arextest.web.model.dao.mongodb.ReportPlanItemStatisticCollection;
+import com.arextest.web.model.dao.mongodb.ReportPlanStatisticCollection;
 import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;
 import com.mongodb.client.MongoClient;
@@ -93,6 +95,12 @@ public class MongodbConfiguration {
         .ensureIndex(new Index().on(AppContractCollection.Fields.appId, Sort.Direction.ASC));
     mongoTemplate.indexOps(AppContractCollection.class)
         .ensureIndex(new Index().on(AppContractCollection.Fields.operationId, Sort.Direction.ASC));
+
+    // indexs for ReportPlanStatistic
+    mongoTemplate.indexOps(ReportPlanStatisticCollection.class)
+        .ensureIndex(new Index().on(ReportPlanStatisticCollection.Fields.planId, Sort.Direction.ASC));
+    mongoTemplate.indexOps(ReportPlanItemStatisticCollection.class)
+        .ensureIndex(new Index().on(ReportPlanItemStatisticCollection.Fields.planItemId, Sort.Direction.ASC));
 
   }
 }

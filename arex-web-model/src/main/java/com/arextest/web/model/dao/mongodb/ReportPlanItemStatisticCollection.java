@@ -2,10 +2,12 @@ package com.arextest.web.model.dao.mongodb;
 
 import java.util.Map;
 import lombok.Data;
+import lombok.experimental.FieldNameConstants;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
 @Document(collection = "ReportPlanItemStatistic")
+@FieldNameConstants
 public class ReportPlanItemStatisticCollection {
 
   private String planItemId;
