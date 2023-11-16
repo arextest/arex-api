@@ -56,6 +56,7 @@ import com.arextest.web.model.contract.contracts.QuerySceneInfoResponseType;
 import com.arextest.web.model.contract.contracts.QueryScenesRequestType;
 import com.arextest.web.model.contract.contracts.QueryScenesResponseType;
 import com.arextest.web.model.contract.contracts.QuerySchemaForConfigRequestType;
+import com.arextest.web.model.contract.contracts.RemoveErrorMsgRequest;
 import com.arextest.web.model.contract.contracts.RemoveRecordsAndScenesRequest;
 import com.arextest.web.model.contract.contracts.ReportInitialRequestType;
 import com.arextest.web.model.contract.contracts.ReportInitialResponseType;
@@ -164,6 +165,13 @@ public class ReportQueryController {
     ChangeReplayStatusResponseType response = new ChangeReplayStatusResponseType();
     response.setUpdateSuccess(reportService.changeReportStatus(request));
     return ResponseUtils.successResponse(response);
+  }
+
+  @PostMapping("/removeErrorMsg")
+  @ResponseBody
+  // from schedule
+  public Response removeErrorMsg(@Valid @RequestBody RemoveErrorMsgRequest request) {
+    return ResponseUtils.successResponse(reportService.removeErrorMsg(request));
   }
 
   @PostMapping("/removeRecordsAndScenes")
