@@ -59,11 +59,6 @@
       <groupId>org.springframework.boot</groupId>
       <scope>test</scope>
     </dependency>
-      <dependency>
-          <groupId>org.apache.maven</groupId>
-          <artifactId>maven-model</artifactId>
-          <version>3.6.3</version>
-      </dependency>
   </dependencies>
   <modelVersion>4.0.0</modelVersion>
   <packaging>${packagingType}</packaging>
@@ -80,6 +75,12 @@
       </activation>
       <build>
         <finalName>arex-platform-web-service</finalName>
+        <resources>
+          <resource>
+            <directory>src/main/resources</directory>
+            <filtering>true</filtering>
+          </resource>
+        </resources>
         <plugins>
           <plugin>
             <artifactId>maven-compiler-plugin</artifactId>
@@ -95,6 +96,12 @@
     <profile>
       <build>
         <finalName>arex-platform-web-service</finalName>
+        <resources>
+          <resource>
+            <directory>src/main/resources</directory>
+            <filtering>true</filtering>
+          </resource>
+        </resources>
         <plugins>
           <plugin>
             <artifactId>maven-compiler-plugin</artifactId>
