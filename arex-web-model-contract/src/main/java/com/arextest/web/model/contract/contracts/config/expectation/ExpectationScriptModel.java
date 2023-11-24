@@ -17,8 +17,12 @@ public class ExpectationScriptModel {
     /**
      * Script title, eg: classA.methodB
      */
-    @NotBlank(message = "title can not be blank")
-    private String title;
+    @NotBlank(message = "operationId can not be blank")
+    private String operationId;
+    /**
+     * Script alias
+     */
+    private String alias;
     /**
      * Script content
      */
@@ -33,8 +37,8 @@ public class ExpectationScriptModel {
      */
     public long expirationTime;
     /**
-     * 0 specified: for specified operation
-     * 1 global: for all operation
+     * 0 for specified operation
+     * 1 for all operation
      */
     private byte scope;
     private String dataChangeCreateBy;

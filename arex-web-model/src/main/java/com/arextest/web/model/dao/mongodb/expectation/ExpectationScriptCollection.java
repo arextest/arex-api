@@ -10,15 +10,19 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @FieldNameConstants
 @EqualsAndHashCode(callSuper = true)
 @Document(collection = "ConfigExpectationScript")
-public class ExpectationScriptEntity extends ModelBase {
+public class ExpectationScriptCollection extends ModelBase {
     /**
      * app id
      */
     private String appId;
     /**
-     * Script title, eg: classA.methodB
+     * operation id
      */
-    private String title;
+    private String operationId;
+    /**
+     * Script alias
+     */
+    private String alias;
     /**
      * Script content
      */
