@@ -5,6 +5,10 @@
   <artifactId>arex-web-model</artifactId>
   <dependencies>
     <dependency>
+      <groupId>org.mapstruct</groupId>
+      <artifactId>mapstruct</artifactId>
+    </dependency>
+    <dependency>
       <artifactId>arex-web-common</artifactId>
       <groupId>com.arextest</groupId>
     </dependency>
@@ -21,14 +25,6 @@
         </exclusion>
       </exclusions>
       <groupId>com.arextest</groupId>
-    </dependency>
-    <dependency>
-      <artifactId>mapstruct-jdk8</artifactId>
-      <groupId>org.mapstruct</groupId>
-    </dependency>
-    <dependency>
-      <artifactId>mapstruct-processor</artifactId>
-      <groupId>org.mapstruct</groupId>
     </dependency>
     <dependency>
       <artifactId>spring-boot-starter-data-mongodb</artifactId>
