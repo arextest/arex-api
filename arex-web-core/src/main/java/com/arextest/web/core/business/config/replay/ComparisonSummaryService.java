@@ -82,6 +82,7 @@ public class ComparisonSummaryService {
     getComparisonInclusionsConfiguration(interfaceId, comparisonSummaryConfiguration);
     getComparisonListSortConfiguration(interfaceId, comparisonSummaryConfiguration);
     getComparisonReferenceConfiguration(interfaceId, comparisonSummaryConfiguration);
+    getAdditionalComparisonConfiguration(interfaceId, comparisonSummaryConfiguration);
     return comparisonSummaryConfiguration;
   }
 
@@ -171,6 +172,10 @@ public class ComparisonSummaryService {
           }
         });
     comparisonSummaryConfiguration.setReferenceMap(referenceMap);
+  }
+
+  protected void getAdditionalComparisonConfiguration(String interfaceId,
+      ComparisonSummaryConfiguration comparisonSummaryConfiguration) {
   }
 
   protected Map<String, ReplayCompareConfig.ReplayComparisonItem> buildMultiConfiguration(
