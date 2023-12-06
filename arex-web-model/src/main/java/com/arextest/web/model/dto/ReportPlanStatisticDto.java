@@ -17,7 +17,6 @@ public class ReportPlanStatisticDto {
   private String targetImageId;
   private String targetImageName;
 
-  private Integer caseSourceType;
   private String sourceEnv;
   private String targetEnv;
   private String sourceHost;
@@ -32,6 +31,10 @@ public class ReportPlanStatisticDto {
   private Long replayStartTime;
 
   private Long replayEndTime;
+
+  private Integer caseSourceType;
+
+  private Map<String, Object> caseTags;
 
   private Long caseStartTime;
 

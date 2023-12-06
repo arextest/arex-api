@@ -8,7 +8,6 @@ import com.arextest.web.model.dto.ReportPlanStatisticDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
-import org.mapstruct.Named;
 import org.mapstruct.factory.Mappers;
 
 @Mapper
@@ -23,6 +22,7 @@ public interface PlanMapper {
       @Mapping(target = "sourceHost", source = "hostEnv.sourceHost"),
       @Mapping(target = "targetHost", source = "hostEnv.targetHost"),
       @Mapping(target = "caseSourceType", source = "caseSourceEnv.caseSourceType"),
+      @Mapping(target = "caseTags", source = "caseSourceEnv.caseTags"),
       @Mapping(target = "caseStartTime", source = "caseSourceEnv.caseStartTime"),
       @Mapping(target = "caseEndTime", source = "caseSourceEnv.caseEndTime"),
       @Mapping(target = "targetImageId", source = "targetImage.targetImageId"),

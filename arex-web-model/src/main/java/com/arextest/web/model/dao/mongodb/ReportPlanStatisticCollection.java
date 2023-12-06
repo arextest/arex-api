@@ -25,22 +25,22 @@ public class ReportPlanStatisticCollection extends ModelBase {
   private String targetImageId;
   private String targetImageName;
 
-  private Integer caseSourceType;
   private String sourceEnv;
   private String targetEnv;
   private String sourceHost;
   private String targetHost;
 
   private String coreVersion;
-
   private String extVersion;
 
+  private Integer caseSourceType;
   private String caseRecordVersion;
+  private Map<String, Object> caseTags;
+  private Long caseStartTime;
+  private Long caseEndTime;
 
   private Long replayStartTime;
   private Long replayEndTime;
-  private Long caseStartTime;
-  private Long caseEndTime;
 
   private Integer totalCaseCount;
   private String errorMessage;
