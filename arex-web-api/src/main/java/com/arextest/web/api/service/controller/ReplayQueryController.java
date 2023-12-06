@@ -4,12 +4,17 @@ import com.arextest.common.annotation.AppAuth;
 import com.arextest.common.context.ArexContext;
 import com.arextest.common.enums.AuthRejectStrategy;
 import com.arextest.common.model.response.ResponseCode;
+import com.arextest.model.mock.AREXMocker;
+import com.arextest.model.mock.Mocker;
 import com.arextest.model.replay.ViewRecordRequestType;
 import com.arextest.model.response.Response;
 import com.arextest.model.response.ResponseStatusType;
 import com.arextest.web.common.HttpUtils;
-import com.arextest.web.model.contract.contracts.ViewRecordResponseType;
+import com.arextest.web.core.business.casedetail.CaseDetailMockerProcessor;
+import com.arextest.web.model.contract.contracts.casedetail.CaseDetailResponse;
+import com.arextest.web.model.contract.contracts.casedetail.ViewRecordResponseType;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -51,22 +56,27 @@ public class ReplayQueryController {
     Map<String, String> headers = new HashMap<>();
     boolean downgrade = Boolean.FALSE.equals(arexContext.getPassAuth());
     headers.put("downgrade", Boolean.toString(downgrade));
-    ResponseEntity<ViewRecordResponseType> response =
-        HttpUtils.post(viewRecordUrl, requestType, ViewRecordResponseType.class, headers);
-    ViewRecordResponseType responseType = new ViewRecordResponseType();
-    ResponseStatusType responseStatusType = new ResponseStatusType();
-    responseStatusType.setTimestamp(System.currentTimeMillis());
-    if (response == null || response.getBody() == null) {
-      responseStatusType.setResponseDesc("call storage failed");
-      responseStatusType.setResponseCode(ResponseCode.REQUESTED_RESOURCE_NOT_FOUND.getCodeValue());
-      responseType.setResponseStatusType(responseStatusType);
-      return responseType;
-    }
 
-    responseStatusType.setResponseDesc("success");
-    responseStatusType.setResponseCode(ResponseCode.SUCCESS.getCodeValue());
-    responseType = response.getBody();
-    responseType.setResponseStatusType(responseStatusType);
-    return response.getBody();
+    // original response from arex-storage
+    ResponseEntity<ViewRecordResponseType> storageRes =
+        HttpUtils.post(viewRecordUrl, requestType, ViewRecordResponseType.class, headers);
+
+    CaseDetailResponse res = new CaseDetailResponse();
+    ResponseStatusType status = new ResponseStatusType();
+    status.setTimestamp(System.currentTimeMillis());
+
+    if (storageRes == null || storageRes.getBody() == null) {
+      status.setResponseDesc("call storage failed");
+      status.setResponseCode(ResponseCode.REQUESTED_RESOURCE_NOT_FOUND.getCodeValue());
+      res.setResponseStatusType(status);
+    } else {
+      status.setResponseDesc("success");
+      status.setResponseCode(ResponseCode.SUCCESS.getCodeValue());
+      res.setResponseStatusType(status);
+
+      List<AREXMocker> mockers = storageRes.getBody().getRecordResult();
+      res.setRecordResult(CaseDetailMockerProcessor.convertMocker(mockers));
+    }
+    return res;
   }
 }
