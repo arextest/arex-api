@@ -50,11 +50,16 @@ public class JsonUtils {
       if (StringUtils.isBlank(base64Str)) {
         return base64Str;
       }
+      if (isJsonStr(base64Str)) {
+        return tryParseJson(base64Str);
+      }
+
+      // try decode and parse
       byte[] bytes = Base64.getDecoder().decode(base64Str.replace("\"", ""));
       return COMMON_MAPPER.readTree(bytes);
     } catch (Exception e) {
       // failed quite often, so don't log it
-      return tryParseJson(base64Str);
+      return base64Str;
     }
   }
 
