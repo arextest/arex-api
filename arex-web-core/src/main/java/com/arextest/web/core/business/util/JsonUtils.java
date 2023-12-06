@@ -50,7 +50,7 @@ public class JsonUtils {
       if (StringUtils.isBlank(base64Str)) {
         return base64Str;
       }
-      byte[] bytes = Base64.getDecoder().decode(base64Str);
+      byte[] bytes = Base64.getDecoder().decode(base64Str.replace("\"", ""));
       return COMMON_MAPPER.readTree(bytes);
     } catch (Exception e) {
       // failed quite often, so don't log it
