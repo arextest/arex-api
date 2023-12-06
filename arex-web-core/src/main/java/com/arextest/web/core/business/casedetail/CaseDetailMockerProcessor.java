@@ -24,7 +24,7 @@ public class CaseDetailMockerProcessor {
       if (req != null) {
         CaseDetailMocker.CaseDetailTarget caseDetailReq = new CaseDetailMocker.CaseDetailTarget();
         BeanUtils.copyProperties(req, caseDetailReq);
-        caseDetailReq.setBody(JsonUtils.tryParseJson(req.getBody()));
+        caseDetailReq.setBody(JsonUtils.tryParseBase64Json(req.getBody()));
         caseDetailMocker.setTargetRequest(caseDetailReq);
       }
 
@@ -32,7 +32,7 @@ public class CaseDetailMockerProcessor {
       if (res != null) {
         CaseDetailMocker.CaseDetailTarget caseDetailRes = new CaseDetailMocker.CaseDetailTarget();
         BeanUtils.copyProperties(res, caseDetailRes);
-        caseDetailRes.setBody(JsonUtils.tryParseJson(res.getBody()));
+        caseDetailRes.setBody(JsonUtils.tryParseBase64Json(res.getBody()));
         caseDetailMocker.setTargetResponse(caseDetailRes);
       }
 

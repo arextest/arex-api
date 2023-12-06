@@ -4,6 +4,7 @@ import com.arextest.common.utils.JsonTraverseUtils;
 import com.arextest.web.model.dto.CompareResultDto;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.Base64;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
@@ -41,6 +42,19 @@ public class JsonUtils {
     } catch (Exception e) {
       LOGGER.error("tryParseJson error", e);
       return jsonStr;
+    }
+  }
+
+  public static Object tryParseBase64Json(String base64Str) {
+    try {
+      if (StringUtils.isBlank(base64Str)) {
+        return base64Str;
+      }
+      byte[] bytes = Base64.getDecoder().decode(base64Str);
+      return COMMON_MAPPER.readTree(bytes);
+    } catch (Exception e) {
+      // failed quite often, so don't log it
+      return tryParseJson(base64Str);
     }
   }
 
