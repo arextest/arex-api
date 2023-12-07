@@ -1,1 +1,2 @@
 com.arextest.web.core.business.filesystem.pincase.ServletMockerConversionImpl
+com.arextest.web.core.business.filesystem.pincase.DubboProviderMockerConversionImpl
