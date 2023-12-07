@@ -181,12 +181,12 @@ public class AppContractRepositoryImpl implements AppContractRepository {
   }
 
   @Override
-  public AppContractDto queryDependencyWithAppId(String appId, String operationName,
+  public List<AppContractDto> queryDependencyWithAppId(String appId, String operationName,
       String operationType) {
       Query query = Query.query(Criteria.where(AppContractCollection.Fields.appId).is(appId)
           .and(AppContractCollection.Fields.operationName).is(operationName)
           .and(AppContractCollection.Fields.operationType).is(operationType));
-      AppContractCollection dao = mongoTemplate.findOne(query, AppContractCollection.class);
-      return AppContractMapper.INSTANCE.dtoFromDao(dao);
+      List<AppContractCollection> daos = mongoTemplate.find(query, AppContractCollection.class);
+      return daos.stream().map(AppContractMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
   }
 }
