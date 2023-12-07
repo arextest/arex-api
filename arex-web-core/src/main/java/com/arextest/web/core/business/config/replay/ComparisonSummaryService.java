@@ -1,8 +1,11 @@
 package com.arextest.web.core.business.config.replay;
 
+import com.arextest.config.model.dao.config.ServiceOperationCollection;
 import com.arextest.config.model.dto.application.ApplicationOperationConfiguration;
 import com.arextest.config.model.dto.application.ApplicationServiceConfiguration;
+import com.arextest.config.repository.impl.ApplicationOperationConfigurationRepositoryImpl;
 import com.arextest.web.common.LogUtils;
+import com.arextest.web.core.business.ConfigLoadService;
 import com.arextest.web.core.business.config.ConfigurableHandler;
 import com.arextest.web.core.repository.AppContractRepository;
 import com.arextest.web.model.contract.contracts.common.enums.ExpirationType;
@@ -14,6 +17,8 @@ import com.arextest.web.model.contract.contracts.config.replay.ComparisonInclusi
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonListSortConfiguration;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonReferenceConfiguration;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonSummaryConfiguration;
+import com.arextest.web.model.contract.contracts.config.replay.QueryConfigOfCategoryRequestType;
+import com.arextest.web.model.contract.contracts.config.replay.QueryConfigOfCategoryResponseType;
 import com.arextest.web.model.contract.contracts.config.replay.ReplayCompareConfig;
 import com.arextest.web.model.contract.contracts.config.replay.ReplayCompareConfig.DependencyComparisonItem;
 import com.arextest.web.model.contract.contracts.config.replay.ReplayCompareConfig.ReplayComparisonItem;
@@ -35,6 +40,7 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import javax.annotation.Resource;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -55,6 +61,12 @@ public class ComparisonSummaryService {
   protected ComparisonIgnoreCategoryConfigurableHandler ignoreCategoryConfigurableHandler;
   protected ConfigurableHandler<ApplicationServiceConfiguration> applicationServiceConfigurationConfigurableHandler;
   protected AppContractRepository appContractRepository;
+
+  @Resource
+  ApplicationOperationConfigurationRepositoryImpl applicationOperationConfigurationRepositoryImpl;
+
+  @Resource
+  ConfigLoadService configLoadService;
 
   public ComparisonSummaryService(
       @Autowired ComparisonExclusionsConfigurableHandler exclusionsConfigurableHandler,
@@ -121,6 +133,55 @@ public class ComparisonSummaryService {
     this.setDefaultWhenMissingDependency(globalReplayComparison, result);
     return result;
   }
+
+  public QueryConfigOfCategoryResponseType queryConfigOfCategory(
+      QueryConfigOfCategoryRequestType requestType) {
+    QueryConfigOfCategoryResponseType responseType = new QueryConfigOfCategoryResponseType();
+
+    String appId = requestType.getAppId();
+    String operationName = requestType.getOperationName();
+    String categoryName = requestType.getCategoryName();
+    Boolean entryPoint = requestType.getEntryPoint();
+
+    // query operationId
+    String operationId = null;
+    List<String> dependencyIds = null;
+    if (Objects.equals(requestType.getEntryPoint(), true)) {
+      Map<String, Object> queryConditions = new HashMap<>(2);
+      queryConditions.put(ServiceOperationCollection.Fields.appId, appId);
+      queryConditions.put(ServiceOperationCollection.Fields.operationName, operationName);
+      List<ApplicationOperationConfiguration> applicationOperationConfigurations =
+          applicationOperationConfigurationRepositoryImpl.queryByMultiCondition(queryConditions);
+      if (CollectionUtils.isNotEmpty(applicationOperationConfigurations)) {
+        operationId = applicationOperationConfigurations.get(0).getId();
+      }
+    } else {
+      List<AppContractDto> appContractDtos = appContractRepository.queryDependencyWithAppId(appId,
+          operationName, categoryName);
+      if (CollectionUtils.isNotEmpty(appContractDtos)) {
+        dependencyIds = appContractDtos.stream().map(AppContractDto::getId)
+            .collect(Collectors.toList());
+      }
+    }
+
+    // set ignore node set
+    Set<String> ignoreNodeSet = configLoadService.getIgnoreNodeSet("");
+    responseType.setIgnoreNodeSet(ignoreNodeSet == null ? Collections.emptySet() : ignoreNodeSet);
+
+    if (operationId == null && entryPoint) {
+      return responseType;
+    }
+
+    Set<List<String>> result = new HashSet<>();
+    List<ComparisonExclusionsConfiguration> comparisonExclusionsConfigurations =
+        exclusionsConfigurableHandler.queryConfigOfCategory(appId, operationId, dependencyIds);
+    comparisonExclusionsConfigurations.forEach(item -> {
+      result.add(item.getExclusions());
+    });
+    responseType.setExclusionList(result);
+    return responseType;
+  }
+
 
   protected void getComparisonExclusionsConfiguration(String interfaceId,
       ComparisonSummaryConfiguration comparisonSummaryConfiguration) {

@@ -13,7 +13,6 @@ import javax.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import java.util.Map;
 
 /**
  * Created by rchen9 on 2022/9/16.
@@ -35,9 +34,10 @@ public class ComparisonExclusionsConfigurableHandler
     super(repositoryProvider, appContractRepository);
   }
 
-  public List<ComparisonExclusionsConfiguration> queryByMultiConditionsWithGlobal(Map<String, Object> conditions, String appId, boolean withGLobal) {
-    List<ComparisonExclusionsConfiguration> configs = comparisonExclusionsConfigurationRepository.queryByMultiConditionsWithGlobal(
-        conditions, appId, withGLobal);
+  public List<ComparisonExclusionsConfiguration> queryConfigOfCategory(String appId,
+      String operationId, List<String> dependencyIds) {
+    List<ComparisonExclusionsConfiguration> configs = comparisonExclusionsConfigurationRepository.queryConfigOfCategory(
+        appId, operationId, dependencyIds);
     configs.removeIf(this::removeDetailsExpired);
     return configs;
   }

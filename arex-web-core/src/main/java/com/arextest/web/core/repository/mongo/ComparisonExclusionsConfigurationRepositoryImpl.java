@@ -11,11 +11,8 @@ import com.arextest.web.model.dao.mongodb.entity.AbstractComparisonDetails.Field
 import com.arextest.web.model.mapper.ConfigComparisonExclusionsMapper;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -190,44 +187,43 @@ public class ComparisonExclusionsConfigurationRepositoryImpl
     return ConfigComparisonExclusionsMapper.INSTANCE.dtoFromDao(dao);
   }
 
-  public List<ComparisonExclusionsConfiguration> queryByMultiConditionsWithGlobal(
-      Map<String, Object> conditions, String appId, boolean orGlobal) {
+  public List<ComparisonExclusionsConfiguration> queryConfigOfCategory(
+      String appId, String operationId, List<String> dependencyIds) {
     Query query = new Query();
 
-    List<Criteria> criteriaList = new ArrayList<>();
-    for (Map.Entry<String, Object> entry : conditions.entrySet()) {
-      if (entry.getValue() == null) {
-        continue;
-      }
-      criteriaList.add(Criteria.where(entry.getKey()).is(entry.getValue()));
-    }
+    List<Criteria> globalCriteriaList = Arrays.asList(
+        Criteria.where(Fields.appId).is(appId),
+        Criteria.where(Fields.compareConfigType).is(CompareConfigType.REPLAY_MAIN.getCodeValue()),
+        Criteria.where(Fields.operationId).is(null)
+    );
 
-    List<Criteria> globalCriteriaList = null;
-    if (orGlobal) {
-      globalCriteriaList = Arrays.asList(
+    List<Criteria> criteriaList = null;
+    if (operationId != null) {
+      criteriaList = Arrays.asList(
           Criteria.where(Fields.appId).is(appId),
-          Criteria.where(Fields.operationId).is(null),
-          Criteria.where(Fields.compareConfigType).is(CompareConfigType.REPLAY_MAIN.getCodeValue())
-
+          Criteria.where(Fields.compareConfigType).is(CompareConfigType.REPLAY_MAIN.getCodeValue()),
+          Criteria.where(Fields.operationId).is(operationId),
+          Criteria.where(Fields.dependencyId).is(null)
       );
+    } else {
+      if (CollectionUtils.isNotEmpty(dependencyIds)) {
+        criteriaList = Arrays.asList(
+            Criteria.where(Fields.appId).is(appId),
+            Criteria.where(Fields.compareConfigType)
+                .is(CompareConfigType.REPLAY_MAIN.getCodeValue()),
+            Criteria.where(Fields.dependencyId).in(dependencyIds)
+        );
+      }
     }
 
-    if (CollectionUtils.isEmpty(criteriaList) && CollectionUtils.isEmpty(globalCriteriaList)) {
-      return Collections.emptyList();
-    } else if (CollectionUtils.isNotEmpty(criteriaList) && CollectionUtils.isNotEmpty(
-        globalCriteriaList)) {
-      query.addCriteria(
-          new Criteria().orOperator(
-              new Criteria().andOperator(criteriaList),
-              new Criteria().andOperator(globalCriteriaList)
-          )
-      );
-    } else if (CollectionUtils.isNotEmpty(criteriaList)) {
-      query.addCriteria(new Criteria().andOperator(criteriaList));
+    if (criteriaList != null) {
+      query.addCriteria(new Criteria().orOperator(
+          new Criteria().andOperator(globalCriteriaList),
+          new Criteria().andOperator(criteriaList)
+      ));
     } else {
       query.addCriteria(new Criteria().andOperator(globalCriteriaList));
     }
-
     List<ConfigComparisonExclusionsCollection> daos =
         mongoTemplate.find(query, ConfigComparisonExclusionsCollection.class);
     return daos.stream().map(ConfigComparisonExclusionsMapper.INSTANCE::dtoFromDao)
