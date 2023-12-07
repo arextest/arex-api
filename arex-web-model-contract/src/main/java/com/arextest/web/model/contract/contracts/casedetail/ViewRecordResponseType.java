@@ -1,9 +1,11 @@
-package com.arextest.web.model.contract.contracts;
+package com.arextest.web.model.contract.contracts.casedetail;
+
+import java.util.List;
 
 import com.arextest.model.mock.AREXMocker;
 import com.arextest.model.response.Response;
 import com.arextest.model.response.ResponseStatusType;
-import java.util.List;
+
 import lombok.Data;
 
 /**

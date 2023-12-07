@@ -2,11 +2,11 @@ package com.arextest.web.core.business.filesystem.pincase;
 
 import com.arextest.model.mock.AREXMocker;
 import com.arextest.model.mock.MockCategoryType;
-import com.arextest.model.replay.ViewRecordResponseType;
 import com.arextest.web.common.HttpUtils;
 import com.arextest.web.common.LogUtils;
 import com.arextest.web.common.exception.RecordCaseNotFoundArexException;
 import com.arextest.web.common.exception.UnsupportedCategoryArexException;
+import com.arextest.web.model.contract.contracts.casedetail.ViewRecordResponseType;
 import com.arextest.web.model.dto.filesystem.FSCaseDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;

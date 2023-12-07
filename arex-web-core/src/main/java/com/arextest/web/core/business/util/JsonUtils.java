@@ -2,6 +2,9 @@ package com.arextest.web.core.business.util;
 
 import com.arextest.common.utils.JsonTraverseUtils;
 import com.arextest.web.model.dto.CompareResultDto;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.Base64;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
@@ -11,6 +14,7 @@ import org.apache.commons.lang3.StringUtils;
  */
 @Slf4j
 public class JsonUtils {
+  public static final ObjectMapper COMMON_MAPPER = new ObjectMapper();
 
   public static void downgrade(CompareResultDto compareResult) {
     try {
@@ -27,10 +31,42 @@ public class JsonUtils {
     } catch (Exception e) {
       LOGGER.error("trimAllLeaves error", e);
     }
+  }
 
+  public static Object tryParseJson(String jsonStr) {
+    try {
+      if (!isJsonStr(jsonStr)) {
+        return jsonStr;
+      }
+      return COMMON_MAPPER.readTree(jsonStr);
+    } catch (Exception e) {
+      LOGGER.error("tryParseJson error", e);
+      return jsonStr;
+    }
+  }
+
+  public static Object tryParseBase64Json(String base64Str) {
+    try {
+      if (StringUtils.isBlank(base64Str)) {
+        return base64Str;
+      }
+      if (isJsonStr(base64Str)) {
+        return tryParseJson(base64Str);
+      }
+
+      // try decode and parse
+      byte[] bytes = Base64.getDecoder().decode(base64Str.replace("\"", ""));
+      return COMMON_MAPPER.readTree(bytes);
+    } catch (Exception e) {
+      // failed quite often, so don't log it
+      return base64Str;
+    }
   }
 
   public static boolean isJsonStr(String obj) {
-    return StringUtils.isNotEmpty(obj) && obj.startsWith("{") && obj.endsWith("}");
+    if (StringUtils.isBlank(obj)) {
+      return false;
+    }
+    return (obj.startsWith("{") && obj.endsWith("}")) || (obj.startsWith("[") && obj.endsWith("]"));
   }
 }
