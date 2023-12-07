@@ -165,8 +165,8 @@ public class ComparisonSummaryService {
     }
 
     // set ignore node set
-    Set<String> ignoreNodeSet = configLoadService.getIgnoreNodeSet(null);
-    responseType.setIgnoreNodeSet(ignoreNodeSet);
+    Set<String> ignoreNodeSet = configLoadService.getIgnoreNodeSet("");
+    responseType.setIgnoreNodeSet(ignoreNodeSet == null ? Collections.emptySet() : ignoreNodeSet);
 
     if (operationId == null && entryPoint) {
       return responseType;
