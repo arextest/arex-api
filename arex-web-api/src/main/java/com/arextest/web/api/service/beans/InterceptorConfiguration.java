@@ -61,6 +61,7 @@ public class InterceptorConfiguration implements WebMvcConfigurer {
     defaultPatterns.add("/api/desensitization/listJar");
     defaultPatterns.add("/api/system/config/list");
     defaultPatterns.add("/api/config/comparison/summary/queryConfigOfCategory");
+    defaultPatterns.add("/api/report/queryPlanStatistic");
 
     // exclude configuration services
     defaultPatterns.add("/api/config/**");
