@@ -46,6 +46,8 @@ import com.arextest.web.model.contract.contracts.QueryMsgWithDiffResponseType;
 import com.arextest.web.model.contract.contracts.QueryPlanFailCaseRequestType;
 import com.arextest.web.model.contract.contracts.QueryPlanItemStatisticsRequestType;
 import com.arextest.web.model.contract.contracts.QueryPlanItemStatisticsResponseType;
+import com.arextest.web.model.contract.contracts.QueryPlanStatisticRequestType;
+import com.arextest.web.model.contract.contracts.QueryPlanStatisticResponseType;
 import com.arextest.web.model.contract.contracts.QueryPlanStatisticsRequestType;
 import com.arextest.web.model.contract.contracts.QueryPlanStatisticsResponseType;
 import com.arextest.web.model.contract.contracts.QueryReplayCaseRequestType;
@@ -199,7 +201,18 @@ public class ReportQueryController {
       return ResponseUtils.errorResponse("invalid paging parameter",
           ResponseCode.REQUESTED_PARAMETER_INVALID);
     }
-    QueryPlanStatisticsResponseType response = queryPlanStatisticsService.planStatistic(request);
+    QueryPlanStatisticsResponseType response = queryPlanStatisticsService.planStatistics(request);
+    return ResponseUtils.successResponse(response);
+  }
+
+  @PostMapping("/queryPlanStatistic")
+  @ResponseBody
+  public Response queryPlanStatistic(@RequestBody QueryPlanStatisticRequestType request) {
+    if (request == null) {
+      return ResponseUtils.errorResponse("invalid paging parameter",
+          ResponseCode.REQUESTED_PARAMETER_INVALID);
+    }
+    QueryPlanStatisticResponseType response = queryPlanStatisticsService.planStatistic(request);
     return ResponseUtils.successResponse(response);
   }
 
