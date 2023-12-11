@@ -44,6 +44,8 @@ public class ReportInitialRequestType {
 
     private Integer caseSourceType;
 
+    private Map<String, Object> caseTags;
+
     private Long caseStartTime;
 
     private Long caseEndTime;
