@@ -22,6 +22,8 @@ public interface AppContractRepository extends RepositoryProvider {
 
   AppContractDto queryDependency(String operationId, String operationType, String operationName);
 
+  List<AppContractDto> queryAppContracts(String appId, String operationId);
+
   List<AppContractDto> queryDependencyWithAppId(String appId, String operationName,
       String operationType);
 }

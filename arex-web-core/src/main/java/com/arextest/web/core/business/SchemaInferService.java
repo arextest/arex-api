@@ -128,6 +128,18 @@ public class SchemaInferService {
     return null;
   }
 
+  public List<AppContractDto> queryAllContracts(QueryContractRequestType requestType) {
+    List<AppContractDto> appContractList = new ArrayList<>();
+    if (requestType.getAppId() != null && requestType.getOperationId() != null) {
+      List<AppContractDto> appContractDtos = appContractRepository.queryAppContracts(requestType.getAppId(),
+          requestType.getOperationId());
+      if (CollectionUtils.isNotEmpty(appContractDtos)) {
+        appContractList.addAll(appContractDtos);
+      }
+    }
+    return appContractList;
+  }
+
   public Set<String> queryFlatContract(QueryContractRequestType requestType) {
     AppContractDto appContractDto = queryContract(requestType);
     return SchemaUtils.getFlatContract(appContractDto.getContract());
