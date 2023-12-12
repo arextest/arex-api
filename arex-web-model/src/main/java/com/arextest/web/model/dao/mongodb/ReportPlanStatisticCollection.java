@@ -35,7 +35,7 @@ public class ReportPlanStatisticCollection extends ModelBase {
 
   private Integer caseSourceType;
   private String caseRecordVersion;
-  private Map<String, Object> caseTags;
+  private Map<String, String> caseTags;
   private Long caseStartTime;
   private Long caseEndTime;
 

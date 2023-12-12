@@ -34,7 +34,7 @@ public class ReportPlanStatisticDto {
 
   private Integer caseSourceType;
 
-  private Map<String, Object> caseTags;
+  private Map<String, String> caseTags;
 
   private Long caseStartTime;
 
