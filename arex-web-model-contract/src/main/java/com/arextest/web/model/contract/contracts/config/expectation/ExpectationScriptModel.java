@@ -1,7 +1,6 @@
 package com.arextest.web.model.contract.contracts.config.expectation;
 
-import java.util.Map;
-import java.util.Set;
+import java.util.List;
 import javax.validation.constraints.NotBlank;
 import lombok.Data;
 
@@ -33,15 +32,15 @@ public class ExpectationScriptModel {
     /**
      * Script normalized content
      */
-    public String normalizedContent;
+    private String normalizedContent;
     /**
      * Script is valid, null for all, 0 true/1 false
      */
-    public Boolean valid;
+    private Boolean valid;
     /**
      * Script expiration time
      */
-    public long expirationTime;
+    private Long expirationTime;
     /**
      * 0 for specified operation
      * 1 for all operation
@@ -49,9 +48,11 @@ public class ExpectationScriptModel {
     private byte scope;
     private String dataChangeCreateBy;
     private String dataChangeUpdateBy;
-    private String normalizedScript;
+    private Long dataChangeCreateTime;
+    private Long dataChangeUpdateTime;
     /**
-     * import operation list eg: [{soaConsumer, xxx.service1, xxx.service2}]
+     * extract operation list
      */
-    private Map<String, Set<ScriptImportsOperationModel>> scriptImportOperationMap;
+    private List<ScriptExtractOperationModel> extractOperationList;
+    private transient List<ScriptExtractAssertModel> invalidExtractAssertList;
 }

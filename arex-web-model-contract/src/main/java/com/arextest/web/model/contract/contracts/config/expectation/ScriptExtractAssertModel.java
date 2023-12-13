@@ -7,30 +7,33 @@ import org.apache.commons.lang3.StringUtils;
  * @since 2023/11/29
  */
 @Data
-public class ScriptAssertionModel {
+public class ScriptExtractAssertModel {
 
     public String methodName;
     private String expected;
     private String shortServiceName;
-    private String fullServiceName;
+    private String operationName;
     private String categoryName;
     private String path;
     private String originalText;
 
-    public ScriptAssertionModel(String originalText) {
+    public ScriptExtractAssertModel(String originalText) {
         this.originalText = originalText;
     }
 
     public boolean validate() {
         return methodName != null
             && expected != null
-            && fullServiceName != null
+            && operationName != null
             && path != null;
     }
 
-    public String regenerate() {
+    public String rebuild() {
         String[] arrays = StringUtils.splitPreserveAllTokens(originalText, "(");
-        return String.format("%s(\"%s\", \"%s\", \"%s\", %s",
-            arrays[0], categoryName, fullServiceName, path, arrays[1]);
+        if (arrays == null || arrays.length != 2) {
+            return originalText;
+        }
+        return String.format("%s(\"%s\", \"%s\", \"%s\", '%s', %s",
+            arrays[0], categoryName, operationName, path, originalText, arrays[1]);
     }
 }

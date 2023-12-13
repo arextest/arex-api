@@ -3,46 +3,59 @@ package com.arextest.web.api.service.controller.config.expectation;
 import com.arextest.common.model.response.Response;
 import com.arextest.common.model.response.ResponseCode;
 import com.arextest.common.utils.ResponseUtils;
-import com.arextest.web.core.repository.expectation.ExpectationScriptRepository;
+import com.arextest.web.core.business.config.expectation.ExpectationScriptService;
 import com.arextest.web.model.contract.contracts.config.expectation.ExpectationScriptDeleteRequest;
 import com.arextest.web.model.contract.contracts.config.expectation.ExpectationScriptModel;
 import com.arextest.web.model.contract.contracts.config.expectation.ExpectationScriptQueryRequest;
-import java.util.List;
 import javax.validation.Valid;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/config/expectation")
 public class ExpectationScriptController {
-    private final ExpectationScriptRepository repository;
 
-    public ExpectationScriptController(ExpectationScriptRepository repository) {
-        this.repository = repository;
+    private final ExpectationScriptService service;
+
+    public ExpectationScriptController(ExpectationScriptService service) {
+        this.service = service;
     }
 
-    @RequestMapping("/query")
+    @RequestMapping(path = "/query", method = RequestMethod.POST)
+    @ResponseBody
     public Response query(@Valid @RequestBody ExpectationScriptQueryRequest request) {
-        List<ExpectationScriptModel> list = repository.query(request);
-        return ResponseUtils.successResponse(list);
+        return ResponseUtils.successResponse(service.query(request));
     }
 
-    @RequestMapping("/save")
+    @RequestMapping(path = "/save", method = RequestMethod.POST)
+    @ResponseBody
     public Response save(@Valid @RequestBody ExpectationScriptModel request) {
-        boolean result = repository.save(request);
-        if (!result) {
-            return ResponseUtils.errorResponse("save failed", ResponseCode.REQUESTED_HANDLE_EXCEPTION);
+        boolean result = service.save(request);
+        if (result) {
+            return ResponseUtils.successResponse(true);
         }
-        return ResponseUtils.successResponse(true);
+        if (CollectionUtils.isEmpty(request.getExtractOperationList())) {
+            return ResponseUtils.parameterInvalidResponse(
+                "extract arex category/operation failed from expectation script");
+        }
+        if (CollectionUtils.isNotEmpty(request.getInvalidExtractAssertList())) {
+            String originalText = request.getInvalidExtractAssertList().get(0).getOriginalText();
+            return ResponseUtils.parameterInvalidResponse("invalid assert: " + originalText);
+        }
+        return ResponseUtils.errorResponse("save failed", ResponseCode.REQUESTED_HANDLE_EXCEPTION);
     }
 
-    @RequestMapping("/delete")
+    @RequestMapping(path = "/delete", method = RequestMethod.POST)
+    @ResponseBody
     public Response delete(@Valid @RequestBody ExpectationScriptDeleteRequest request) {
-        boolean result = repository.delete(request);
-        if (!result) {
-            return ResponseUtils.errorResponse("delete failed", ResponseCode.REQUESTED_HANDLE_EXCEPTION);
+        boolean result = service.delete(request);
+        if (result) {
+            return ResponseUtils.successResponse(true);
         }
-        return ResponseUtils.successResponse(true);
+        return ResponseUtils.errorResponse("delete failed", ResponseCode.REQUESTED_HANDLE_EXCEPTION);
     }
 }

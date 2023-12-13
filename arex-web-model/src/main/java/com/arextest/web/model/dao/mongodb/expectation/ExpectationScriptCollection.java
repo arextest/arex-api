@@ -1,6 +1,8 @@
 package com.arextest.web.model.dao.mongodb.expectation;
 
+import com.arextest.web.model.contract.contracts.config.expectation.ScriptExtractOperationModel;
 import com.arextest.web.model.dao.mongodb.ModelBase;
+import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.FieldNameConstants;
@@ -28,13 +30,17 @@ public class ExpectationScriptCollection extends ModelBase {
      */
     public String content;
     /**
+     * Script normalized content
+     */
+    private String normalizedContent;
+    /**
      * Script is valid
      */
     public Boolean valid;
     /**
      * Script expiration time
      */
-    public long expirationTime;
+    public Long expirationTime;
     /**
      /**
      * 0 specified: for specified operation
@@ -43,4 +49,16 @@ public class ExpectationScriptCollection extends ModelBase {
     private byte scope;
     private String dataChangeCreateBy;
     private String dataChangeUpdateBy;
+    /**
+     * extract operation list
+     */
+    private List<ScriptExtractOperationCollection> extractOperationList;
+
+    @Data
+    public static class ScriptExtractOperationCollection {
+        private String categoryName;
+        private String variableName;
+        private String operationName;
+        private String originalText;
+    }
 }
