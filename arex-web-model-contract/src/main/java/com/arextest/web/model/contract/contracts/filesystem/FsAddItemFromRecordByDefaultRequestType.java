@@ -1,5 +1,6 @@
 package com.arextest.web.model.contract.contracts.filesystem;
 
+import java.util.Set;
 import javax.validation.constraints.NotBlank;
 import lombok.Data;
 
@@ -21,4 +22,6 @@ public class FsAddItemFromRecordByDefaultRequestType {
   private String recordId;
   @NotBlank(message = "operationId cannot be empty")
   private String operationId;
+
+  private Set<String> labelIds;
 }
