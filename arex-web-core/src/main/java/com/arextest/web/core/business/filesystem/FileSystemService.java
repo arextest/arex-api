@@ -126,7 +126,7 @@ public class FileSystemService {
   private static final String AREX_RECORD_ID = "arex-record-id";
   private static final String AREX_REPLAY_PREPARE_DEPENDENCY = "arex_replay_prepare_dependency";
   private static final String PINNED_PRE_FIX = "pinned_";
-  private static final String LOCAL_HOST = "http://127.0.0.1:";
+  private static final String LOCAL_HOST = "http://127.0.0.1";
   private static final String DEFAULT_PORT = "8080";
   private static final String HOST_KEY = "host";
     private static final String COLON = ":";
@@ -730,7 +730,7 @@ public class FileSystemService {
           .map(KeyValuePairDto::getValue)
           .orElse(null);
       String port = oldHost == null ? DEFAULT_PORT : oldHost.split(COLON)[1];
-      caseDto.getAddress().setEndpoint(contactUrl(LOCAL_HOST + port, caseDto.getAddress().getEndpoint()));
+      caseDto.getAddress().setEndpoint(contactUrl(LOCAL_HOST + COLON + port, caseDto.getAddress().getEndpoint()));
     }
 
     return FSCaseMapper.INSTANCE.contractFromDto(caseDto);
