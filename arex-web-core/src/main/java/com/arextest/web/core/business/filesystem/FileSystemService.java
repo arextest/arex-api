@@ -83,6 +83,18 @@ import com.arextest.web.model.mapper.UserWorkspaceMapper;
 import com.arextest.web.model.mapper.WorkspaceMapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.SetUtils;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.MutablePair;
+import org.bson.internal.Base64;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+import javax.annotation.Resource;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -98,17 +110,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
-import javax.annotation.Resource;
-import lombok.Data;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.SetUtils;
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.MutablePair;
-import org.bson.internal.Base64;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
@@ -125,6 +126,10 @@ public class FileSystemService {
   private static final String AREX_RECORD_ID = "arex-record-id";
   private static final String AREX_REPLAY_PREPARE_DEPENDENCY = "arex_replay_prepare_dependency";
   private static final String PINNED_PRE_FIX = "pinned_";
+  private static final String LOCAL_HOST = "http://127.0.0.1:";
+  private static final String DEFAULT_PORT = "8080";
+  private static final String HOST_KEY = "host";
+    private static final String COLON = ":";
 
   @Value("${arex.api.case.inherited}")
   private String arexCaseInherited;
@@ -700,9 +705,6 @@ public class FileSystemService {
   }
 
   public FSQueryCaseResponseType queryDebuggingCase(String planId, String recordId) {
-    if (StringUtils.isBlank(planId)) {
-      return new FSQueryCaseResponseType();
-    }
     if (StringUtils.isBlank(recordId)) {
       return new FSQueryCaseResponseType();
     }
@@ -719,7 +721,17 @@ public class FileSystemService {
     header.setActive(true);
     caseDto.getHeaders().add(0, header);
 
-    setAddressEndpoint(planId, caseDto.getAddress());
+    if (StringUtils.isNotEmpty(planId)) {
+      setAddressEndpoint(planId, caseDto.getAddress());
+    } else {
+      String oldHost = caseDto.getHeaders().stream()
+          .filter(h -> h.getKey().equalsIgnoreCase(HOST_KEY))
+          .findFirst()
+          .map(KeyValuePairDto::getValue)
+          .orElse(null);
+      String port = oldHost == null ? DEFAULT_PORT : oldHost.split(COLON)[1];
+      caseDto.getAddress().setEndpoint(contactUrl(LOCAL_HOST + port, caseDto.getAddress().getEndpoint()));
+    }
 
     return FSCaseMapper.INSTANCE.contractFromDto(caseDto);
   }
