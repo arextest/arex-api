@@ -454,6 +454,12 @@ public class ReportQueryController {
     return ResponseUtils.successResponse(schemaInferService.queryContract(requestType));
   }
 
+  @PostMapping("/queryAllContracts")
+  @ResponseBody
+  public Response queryAllContracts(@Valid @RequestBody QueryContractRequestType requestType) {
+    return ResponseUtils.successResponse(schemaInferService.queryAllContracts(requestType));
+  }
+
   @PostMapping("/queryFlatContract")
   @ResponseBody
   public Response queryFlatContract(@Valid @RequestBody QueryContractRequestType requestType) {
