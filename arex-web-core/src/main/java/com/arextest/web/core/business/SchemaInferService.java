@@ -2,6 +2,7 @@ package com.arextest.web.core.business;
 
 import com.arextest.config.model.dto.application.ApplicationOperationConfiguration;
 import com.arextest.config.repository.impl.ApplicationOperationConfigurationRepositoryImpl;
+import com.arextest.model.mock.MockCategoryType;
 import com.arextest.web.common.LogUtils;
 import com.arextest.web.core.business.util.SchemaUtils;
 import com.arextest.web.core.repository.AppContractRepository;
@@ -26,9 +27,19 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.Lists;
 import com.saasquatch.jsonschemainferrer.JsonSchemaInferrer;
 import com.saasquatch.jsonschemainferrer.SpecVersion;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
+import org.springframework.stereotype.Component;
+
+import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -36,13 +47,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import javax.annotation.Resource;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
-import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
@@ -62,6 +66,10 @@ public class SchemaInferService {
   private static final ObjectMapper CONTRACT_OBJ_MAPPER = new ObjectMapper();
   private static final JsonSchemaInferrer INFERRER =
       JsonSchemaInferrer.newBuilder().setSpecVersion(SpecVersion.DRAFT_06).build();
+  private static final Set<String> EXCLUDE_OPERATION_TYPE = new HashSet<>(Arrays.asList(
+      MockCategoryType.REDIS.getName(),
+      MockCategoryType.DATABASE.getName()));
+
   @Resource
   private ReplayCompareResultRepository replayCompareResultRepository;
   @Resource
@@ -126,6 +134,21 @@ public class SchemaInferService {
           ContractTypeEnum.GLOBAL.getCode());
     }
     return null;
+  }
+
+  public List<AppContractDto> queryAllContracts(QueryContractRequestType requestType) {
+    List<AppContractDto> appContractList = new ArrayList<>();
+    if (requestType.getAppId() != null && requestType.getOperationId() != null) {
+      List<AppContractDto> appContractDtos = appContractRepository.queryAppContracts(requestType.getAppId(),
+              requestType.getOperationId())
+          .stream()
+          .filter(appContractDto -> !EXCLUDE_OPERATION_TYPE.contains(appContractDto.getOperationType()))
+          .collect(Collectors.toList());
+      if (CollectionUtils.isNotEmpty(appContractDtos)) {
+        appContractList.addAll(appContractDtos);
+      }
+    }
+    return appContractList;
   }
 
   public Set<String> queryFlatContract(QueryContractRequestType requestType) {
@@ -201,6 +224,8 @@ public class SchemaInferService {
     entryPointApplication.setContract(perceiveContract(latestNEntryCompareResults));
     entryPointApplication.setAppId(applicationOperationConfiguration.getAppId());
     entryPointApplication.setContractType(ContractTypeEnum.ENTRY.getCode());
+    entryPointApplication.setOperationType(applicationOperationConfiguration.getOperationType());
+    entryPointApplication.setOperationName(applicationOperationConfiguration.getOperationName());
     upserts.add(entryPointApplication);
 
     dependencyMap.values().forEach(list -> {
