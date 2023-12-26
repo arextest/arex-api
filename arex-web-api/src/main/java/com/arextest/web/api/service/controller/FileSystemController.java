@@ -335,6 +335,7 @@ public class FileSystemController {
     return ResponseUtils.successResponse(responseType);
   }
 
+  @Deprecated
   @PostMapping("/addItemFromRecord")
   @ResponseBody
   public Response addItemFromRecord(@Valid @RequestBody FSAddItemFromRecordRequestType request) {

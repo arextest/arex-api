@@ -747,6 +747,7 @@ public class FileSystemService {
     fsAddItemFromRecordRequest.setPlanId(request.getPlanId());
     fsAddItemFromRecordRequest.setRecordId(request.getRecordId());
     fsAddItemFromRecordRequest.setOperationId(request.getOperationId());
+    fsAddItemFromRecordRequest.setLabelIds(request.getLabelIds());
 
     FSTreeDto treeDto = fsTreeRepository.queryFSTreeById(request.getWorkspaceId());
     if (treeDto == null) {
@@ -846,6 +847,9 @@ public class FileSystemService {
     caseDto.setId(addCaseResponse.getLeft());
     String newRecordId = storageCase.getNewRecordId(request.getRecordId());
     caseDto.setRecordId(newRecordId);
+
+    // set labels
+    caseDto.setLabelIds(request.getLabelIds());
 
     KeyValuePairDto recordHeader = new KeyValuePairDto();
     recordHeader.setKey(AREX_RECORD_ID);
