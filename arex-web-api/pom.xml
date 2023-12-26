@@ -112,6 +112,7 @@
             <configuration>
               <includeSystemScope>true</includeSystemScope>
               <mainClass>com.arextest.web.api.service.WebSpringBootServletInitializer</mainClass>
+              <outputDirectory>../arex-api-jar</outputDirectory>
             </configuration>
             <executions>
               <execution>
@@ -126,7 +127,7 @@
           </plugin>
         </plugins>
       </build>
-      <id>jar-full</id>
+      <id>jar</id>
       <properties>
         <packagingType>jar</packagingType>
       </properties>
@@ -153,7 +154,7 @@
           </resource>
         </resources>
       </build>
-      <id>jar</id>
+      <id>jar-servlet-initializer-exclusion</id>
       <properties>
         <packagingType>jar</packagingType>
       </properties>
