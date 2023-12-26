@@ -102,5 +102,15 @@ public class MongodbConfiguration {
     mongoTemplate.indexOps(ReportPlanItemStatisticCollection.class)
         .ensureIndex(new Index().on(ReportPlanItemStatisticCollection.Fields.planItemId, Sort.Direction.ASC));
 
+    // unique concatenated index for AppContractCollection
+    mongoTemplate.indexOps(AppContractCollection.class).ensureIndex(
+        new Index()
+            .on(AppContractCollection.Fields.appId, Sort.Direction.ASC)
+            .on(AppContractCollection.Fields.operationId, Sort.Direction.ASC)
+            .on(AppContractCollection.Fields.operationName, Sort.Direction.ASC)
+            .on(AppContractCollection.Fields.contractType, Sort.Direction.ASC)
+            .unique());
+
+
   }
 }
