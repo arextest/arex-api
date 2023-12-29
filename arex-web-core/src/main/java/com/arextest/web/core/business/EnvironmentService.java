@@ -9,6 +9,7 @@ import com.arextest.web.model.contract.contracts.environment.SaveEnvironmentRequ
 import com.arextest.web.model.contract.contracts.environment.SaveEnvironmentResponseType;
 import com.arextest.web.model.dto.EnvironmentDto;
 import com.arextest.web.model.mapper.EnvironmentMapper;
+import java.util.Collections;
 import java.util.List;
 import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -52,14 +53,14 @@ public class EnvironmentService {
     return EnvironmentMapper.INSTANCE.contractFromDtoList(envs);
   }
 
-  public Boolean duplicateEnvironment(DuplicateEnvironmentRequestType request) {
+  public List<EnvironmentType> duplicateEnvironment(DuplicateEnvironmentRequestType request) {
     EnvironmentDto env = environmentRepository.queryById(request.getId());
     if (env == null) {
-      return false;
+      return null;
     }
     env.setId(null);
     env.setEnvName(env.getEnvName() + DUPLICATE_SUFFIX);
     env = environmentRepository.initEnvironment(env);
-    return env.getId() != null;
+    return EnvironmentMapper.INSTANCE.contractFromDtoList(Collections.singletonList(env));
   }
 }

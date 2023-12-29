@@ -73,8 +73,8 @@ public class EnvironmentController {
       return ResponseUtils.errorResponse(Constants.NO_PERMISSION,
           ResponseCode.REQUESTED_HANDLE_EXCEPTION);
     }
-    SuccessResponseType response = new SuccessResponseType();
-    response.setSuccess(environmentService.duplicateEnvironment(request));
+    QueryEnvsByWorkspaceResponseType response = new QueryEnvsByWorkspaceResponseType();
+    response.setEnvironments(environmentService.duplicateEnvironment(request));
     return ResponseUtils.successResponse(response);
   }
 
