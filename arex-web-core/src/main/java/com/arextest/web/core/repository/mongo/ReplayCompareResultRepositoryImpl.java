@@ -271,9 +271,9 @@ public class ReplayCompareResultRepositoryImpl implements ReplayCompareResultRep
   }
 
   @Override
-  public List<CompareResultDto> queryLatestEntryPointCompareResult(String operationId,
-      Set<String> operationTypes,
-      int limit) {
+  public List<CompareResultDto> queryLatestCompareResultByType(String operationId,
+                                                               Set<String> operationTypes,
+                                                               int limit) {
     Sort sort = Sort.by(Sort.Direction.DESC, DATA_CHANGE_UPDATE_TIME);
     Query query = Query.query(Criteria.where(OPERATION_ID).is(operationId))
         .addCriteria(Criteria.where(CATEGORY_NAME).in(operationTypes)).with(sort).limit(limit);
