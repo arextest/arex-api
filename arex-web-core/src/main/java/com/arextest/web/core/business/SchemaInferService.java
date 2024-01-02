@@ -184,17 +184,23 @@ public class SchemaInferService {
     ApplicationOperationConfiguration applicationOperationConfiguration =
         applicationOperationConfigurationRepository.listByOperationId(operationId);
     Set<String> entryPointTypes = applicationOperationConfiguration.getOperationTypes();
-    List<CompareResultDto> latestNEntryCompareResults =
-        replayCompareResultRepository.queryLatestEntryPointCompareResult(operationId,
-            entryPointTypes, LIMIT);
-    if (CollectionUtils.isEmpty(latestNEntryCompareResults)) {
+    Set<String> operationTypes = MockCategoryType.DEFAULTS.stream().map(MockCategoryType::getName)
+        .collect(Collectors.toSet());
+
+    List<CompareResultDto> latestNCompareResults = replayCompareResultRepository
+        .queryLatestCompareResultByType(operationId, operationTypes, LIMIT);
+    List<CompareResultDto> latestNEntryCompareResults = latestNCompareResults.stream()
+        .filter(compareResultDto -> entryPointTypes.contains(compareResultDto.getCategoryName()))
+        .collect(Collectors.toList());
+
+    if (CollectionUtils.isEmpty(latestNCompareResults)) {
       return responseType;
     }
     List<String> planItemIds =
-        latestNEntryCompareResults.stream().map(CompareResultDto::getPlanItemId)
+        latestNCompareResults.stream().map(CompareResultDto::getPlanItemId)
             .collect(Collectors.toList());
     List<String> recordIds =
-        latestNEntryCompareResults.stream().map(CompareResultDto::getRecordId)
+        latestNCompareResults.stream().map(CompareResultDto::getRecordId)
             .collect(Collectors.toList());
     List<CompareResultDto> compareResultDtoList =
         replayCompareResultRepository.queryCompareResults(planItemIds, recordIds);
