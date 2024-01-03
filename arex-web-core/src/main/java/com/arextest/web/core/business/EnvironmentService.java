@@ -56,7 +56,7 @@ public class EnvironmentService {
   public List<EnvironmentType> duplicateEnvironment(DuplicateEnvironmentRequestType request) {
     EnvironmentDto env = environmentRepository.queryById(request.getId());
     if (env == null) {
-      return null;
+      return Collections.emptyList();
     }
     env.setId(null);
     env.setEnvName(env.getEnvName() + DUPLICATE_SUFFIX);
