@@ -728,7 +728,12 @@ public class FileSystemService {
           .findFirst()
           .map(KeyValuePairDto::getValue)
           .orElse(null);
-      String port = oldHost == null ? DEFAULT_PORT : oldHost.split(COLON)[1];
+      String port;
+      if (oldHost == null || !oldHost.contains(COLON)) {
+        port = DEFAULT_PORT;
+      } else {
+        port = oldHost.split(COLON)[1];
+      }
       caseDto.getAddress().setEndpoint(contactUrl(LOCAL_HOST + COLON + port, caseDto.getAddress().getEndpoint()));
     } else {
       setAddressEndpoint(planId, caseDto.getAddress());
