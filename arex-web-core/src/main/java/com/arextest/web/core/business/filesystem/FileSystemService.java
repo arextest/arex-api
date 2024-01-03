@@ -129,7 +129,8 @@ public class FileSystemService {
   private static final String LOCAL_HOST = "http://127.0.0.1";
   private static final String DEFAULT_PORT = "8080";
   private static final String HOST_KEY = "host";
-    private static final String COLON = ":";
+  private static final String COLON = ":";
+  private static final String NULL_PLAN_ID = "undefined";
 
   @Value("${arex.api.case.inherited}")
   private String arexCaseInherited;
@@ -721,9 +722,7 @@ public class FileSystemService {
     header.setActive(true);
     caseDto.getHeaders().add(0, header);
 
-    if (StringUtils.isNotEmpty(planId)) {
-      setAddressEndpoint(planId, caseDto.getAddress());
-    } else {
+    if (StringUtils.equalsIgnoreCase(planId, NULL_PLAN_ID)) {
       String oldHost = caseDto.getHeaders().stream()
           .filter(h -> h.getKey().equalsIgnoreCase(HOST_KEY))
           .findFirst()
@@ -731,6 +730,8 @@ public class FileSystemService {
           .orElse(null);
       String port = oldHost == null ? DEFAULT_PORT : oldHost.split(COLON)[1];
       caseDto.getAddress().setEndpoint(contactUrl(LOCAL_HOST + COLON + port, caseDto.getAddress().getEndpoint()));
+    } else {
+      setAddressEndpoint(planId, caseDto.getAddress());
     }
 
     return FSCaseMapper.INSTANCE.contractFromDto(caseDto);
