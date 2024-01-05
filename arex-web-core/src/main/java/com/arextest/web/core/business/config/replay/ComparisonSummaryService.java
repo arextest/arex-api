@@ -9,6 +9,7 @@ import com.arextest.web.core.business.ConfigLoadService;
 import com.arextest.web.core.business.config.ConfigurableHandler;
 import com.arextest.web.core.repository.AppContractRepository;
 import com.arextest.web.model.contract.contracts.common.enums.ExpirationType;
+import com.arextest.web.model.contract.contracts.compare.CategoryDetail;
 import com.arextest.web.model.contract.contracts.config.replay.AbstractComparisonDetailsConfiguration;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonEncryptionConfiguration;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonExclusionsConfiguration;
@@ -260,8 +261,8 @@ public class ComparisonSummaryService {
     buildComparisonConfig(replayConfigurationMap,
         ignoreCategoryConfigurableHandler.useResultAsList(appId),
         (configurations, summaryConfiguration) -> {
-          List<String> ignoreCategoryTypes = configurations.stream()
-              .map(ComparisonIgnoreCategoryConfiguration::getIgnoreCategory)
+          List<CategoryDetail> ignoreCategoryTypes = configurations.stream()
+              .map(ComparisonIgnoreCategoryConfiguration::getIgnoreCategories)
               .flatMap(Collection::stream)
               .collect(Collectors.toList());
           summaryConfiguration.setIgnoreCategoryTypes(ignoreCategoryTypes);
@@ -458,7 +459,7 @@ public class ComparisonSummaryService {
     ReplayCompareConfig.ReplayComparisonItem globalConfig = replayConfigurationMap.get(null);
     Set<List<String>> globalExclusionList = globalConfig.getExclusionList();
     Set<List<String>> globalInclusionList = globalConfig.getInclusionList();
-    List<String> globalIgnoreCategoryList = globalConfig.getIgnoreCategoryTypes();
+    List<CategoryDetail> globalIgnoreCategoryList = globalConfig.getIgnoreCategoryTypes();
 
     for (String operationId : operationIdList) {
       ReplayCompareConfig.ReplayComparisonItem tempReplayConfig =
@@ -544,7 +545,7 @@ public class ComparisonSummaryService {
       }
 
       if (globalIgnoreCategoryList != null) {
-        List<String> ignoreCategoryList = tempReplayConfig.getIgnoreCategoryTypes() == null
+        List<CategoryDetail> ignoreCategoryList = tempReplayConfig.getIgnoreCategoryTypes() == null
             ? new ArrayList<>() : tempReplayConfig.getIgnoreCategoryTypes();
         ignoreCategoryList.addAll(globalIgnoreCategoryList);
         tempReplayConfig.setIgnoreCategoryTypes(ignoreCategoryList);
@@ -556,8 +557,8 @@ public class ComparisonSummaryService {
           if (dependencyConfigMap.containsKey(dependencyId)) {
             ReplayCompareConfig.DependencyComparisonItem dependencyComparisonItem =
                 dependencyConfigMap.get(dependencyId);
-            List<String> previousDependencyExclusionCategories = dependencyComparisonItem.getIgnoreCategoryTypes();
-            List<String> dependencyExclusionCategories =
+            List<CategoryDetail> previousDependencyExclusionCategories = dependencyComparisonItem.getIgnoreCategoryTypes();
+            List<CategoryDetail> dependencyExclusionCategories =
                 previousDependencyExclusionCategories == null
                     ? new ArrayList<>() : dependencyComparisonItem.getIgnoreCategoryTypes();
             dependencyExclusionCategories.addAll(globalIgnoreCategoryList);

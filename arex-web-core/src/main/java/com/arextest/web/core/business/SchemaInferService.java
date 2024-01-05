@@ -304,6 +304,16 @@ public class SchemaInferService {
     return responseType;
   }
 
+  public List<DependencyWithContract> queryDependencyWithContractList(String operationId) {
+    List<AppContractDto> appContractDtoList =
+        appContractRepository.queryAppContractListByOpIds(Collections.singletonList(operationId),
+            null);
+    return appContractDtoList.stream().filter(
+        appContractDto -> !Objects.equals(appContractDto.getContractType(),
+            ContractTypeEnum.ENTRY.getCode()))
+        .map(this::buildDependency).collect(Collectors.toList());
+  }
+
   private DependencyWithContract buildDependency(AppContractDto appContractDto) {
     DependencyWithContract dependency = new DependencyWithContract();
     dependency.setDependencyId(appContractDto.getId());

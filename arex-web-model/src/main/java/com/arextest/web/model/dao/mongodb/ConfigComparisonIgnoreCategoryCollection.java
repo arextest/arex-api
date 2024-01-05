@@ -2,6 +2,8 @@ package com.arextest.web.model.dao.mongodb;
 
 import com.arextest.web.model.dao.mongodb.entity.AbstractComparisonDetails;
 import java.util.List;
+
+import com.arextest.web.model.dao.mongodb.entity.CategoryDetailDao;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -21,5 +23,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document(collection = "ConfigComparisonIgnoreCategory")
 public class ConfigComparisonIgnoreCategoryCollection extends AbstractComparisonDetails {
 
+  @Deprecated
   private List<String> ignoreCategory;
+
+  private List<CategoryDetailDao> ignoreCategories;
 }

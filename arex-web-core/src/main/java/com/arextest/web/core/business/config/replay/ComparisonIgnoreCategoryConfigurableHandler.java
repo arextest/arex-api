@@ -7,6 +7,7 @@ import com.arextest.model.mock.MockCategoryType;
 import com.arextest.web.core.business.config.application.ApplicationOperationConfigurableHandler;
 import com.arextest.web.core.repository.AppContractRepository;
 import com.arextest.web.core.repository.FSInterfaceRepository;
+import com.arextest.web.model.contract.contracts.compare.CategoryDetail;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonIgnoreCategoryConfiguration;
 import com.arextest.web.model.dto.filesystem.FSInterfaceDto;
 import java.util.List;
@@ -59,14 +60,14 @@ public class ComparisonIgnoreCategoryConfigurableHandler
   }
 
   private void checkBeforeModify(ComparisonIgnoreCategoryConfiguration configuration) {
-    if (configuration.getIgnoreCategory() == null) {
+    if (configuration.getIgnoreCategories() == null) {
       return;
     }
-    for (String category : configuration.getIgnoreCategory()) {
-      if (!CATEGORIES.contains(category)) {
+    for (CategoryDetail category : configuration.getIgnoreCategories()) {
+      if (!CATEGORIES.contains(category.getOperationType())) {
         throw new IllegalArgumentException("Invalid category: " + category);
       }
-      if (MockCategoryType.create(category).isEntryPoint()) {
+      if (MockCategoryType.create(category.getOperationType()).isEntryPoint()) {
         throw new IllegalArgumentException("Cannot ignore entrypoint category: " + category);
       }
     }
