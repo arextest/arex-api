@@ -1,20 +1,17 @@
-<div align="center"><h1>AREX-SERVICE</h1></div>
+<div align="center"><h1>AREX API Service</h1></div>
 
+AREX API Service provides essential API interfaces for the frontend, facilitating effective UI interactions.
 
-This project provides all the interfaces that AREX-UI needs to use.
+[Quick Start](https://doc.arextest.com/)
 
-# QUICK START
-
-[quick start](https://github.com/arextest/dev-ops#arex-install)
-
-# API DOCUMENTS
+## API DOCUMENTS
 
 We use swagger3 to generate interface description documents.
 Launch the project and visit following address.\
 http://(your deployed ip and port)/swagger-ui/index.html\
 ![avatar](documents/screenshots/swagger.png)
 
-# LICENSE
+## LICENSE
 
 ```text
 Copyright (C) 2022 ArexTest
