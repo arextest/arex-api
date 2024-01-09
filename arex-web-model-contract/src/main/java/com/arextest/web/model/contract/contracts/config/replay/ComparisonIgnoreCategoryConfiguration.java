@@ -1,6 +1,8 @@
 package com.arextest.web.model.contract.contracts.config.replay;
 
 import java.util.List;
+
+import com.arextest.web.model.contract.contracts.compare.CategoryDetail;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -17,12 +19,12 @@ import org.springframework.util.CollectionUtils;
 @EqualsAndHashCode(callSuper = true)
 public class ComparisonIgnoreCategoryConfiguration extends AbstractComparisonDetailsConfiguration {
 
-  List<String> ignoreCategory;
+  private List<CategoryDetail> ignoreCategories;
 
   @Override
   public void validParameters() throws Exception {
     super.validParameters();
-    if (CollectionUtils.isEmpty(ignoreCategory)) {
+    if (CollectionUtils.isEmpty(ignoreCategories)) {
       throw new Exception("ignoreCategory cannot be empty");
     }
   }
