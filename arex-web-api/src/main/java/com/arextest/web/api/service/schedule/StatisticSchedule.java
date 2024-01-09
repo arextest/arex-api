@@ -37,7 +37,7 @@ public class StatisticSchedule {
     sceneService.report();
   }
 
-  @Scheduled(initialDelay = 1000 * 7, fixedDelay = 1000 * 60)
+//  @Scheduled(initialDelay = 1000 * 7, fixedDelay = 1000 * 60)
   @SchedulerLock(name = "preprocess", lockAtLeastFor = "PT50S", lockAtMostFor = "PT60S")
   public void preprocess() {
     preprocessService.updateServletSchema();
