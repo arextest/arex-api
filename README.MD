@@ -1,15 +1,14 @@
 <div align="center"><h1>AREX API Service</h1></div>
 
-AREX API Service provides essential API interfaces for the frontend, facilitating effective UI interactions.
+## Introduction
 
-[Quick Start](https://doc.arextest.com/)
+This repository serves as the backbone for AREX's frontend, offering a comprehensive collection of API interfaces necessary for seamless user interface interaction and functionality.
 
-## API DOCUMENTS
+## API Documentation
 
-We use swagger3 to generate interface description documents.
-Launch the project and visit following address.\
-http://(your deployed ip and port)/swagger-ui/index.html\
-![avatar](documents/screenshots/swagger.png)
+To ensure easy accessibility and understanding of our API interfaces, we utilize Swagger 3. This tool helps in generating clear and interactive documentation. You can view the API documentation by deploying the project and visiting: `http://[your-deployed-ip-and-port]/swagger-ui/index.html`. A visual glimpse of our Swagger UI is provided below for reference.
+
+![Swagger UI Screenshot](documents/screenshots/swagger.png)
 
 ## LICENSE
 
