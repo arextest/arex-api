@@ -2,18 +2,24 @@ package com.arextest.web.core.business.config.replay;
 
 import com.arextest.config.model.dto.application.ApplicationOperationConfiguration;
 import com.arextest.config.repository.ConfigRepositoryProvider;
-import com.arextest.config.repository.impl.ApplicationOperationConfigurationRepositoryImpl;
 import com.arextest.model.mock.MockCategoryType;
 import com.arextest.web.core.business.config.application.ApplicationOperationConfigurableHandler;
 import com.arextest.web.core.repository.AppContractRepository;
 import com.arextest.web.core.repository.FSInterfaceRepository;
+import com.arextest.web.model.contract.contracts.common.enums.CompareConfigType;
+import com.arextest.web.model.contract.contracts.common.enums.ExpirationType;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonIgnoreCategoryConfiguration;
 import com.arextest.web.model.dto.filesystem.FSInterfaceDto;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import javax.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 /**
@@ -27,12 +33,16 @@ public class ComparisonIgnoreCategoryConfigurableHandler
   private static final Set<String> CATEGORIES =
       MockCategoryType.DEFAULTS.stream().map(MockCategoryType::getName)
           .collect(java.util.stream.Collectors.toSet());
+
+  @Value("${arex.compare.ignoreCategory:DynamicClass,Redis}")
+  private String defaultIgnoreCategory;
+
   @Resource
   FSInterfaceRepository fsInterfaceRepository;
   @Resource
   ApplicationOperationConfigurableHandler applicationOperationConfigurableHandler;
-  @Resource
-  private ApplicationOperationConfigurationRepositoryImpl applicationOperationConfigurationRepository;
+//  @Resource
+//  private ApplicationOperationConfigurationRepositoryImpl applicationOperationConfigurationRepository;
 
   protected ComparisonIgnoreCategoryConfigurableHandler(
       @Autowired ConfigRepositoryProvider<ComparisonIgnoreCategoryConfiguration> repositoryProvider,
@@ -88,5 +98,22 @@ public class ComparisonIgnoreCategoryConfigurableHandler
   public boolean update(ComparisonIgnoreCategoryConfiguration configuration) {
     checkBeforeModify(configuration);
     return super.update(configuration);
+  }
+
+  @Override
+  protected List<ComparisonIgnoreCategoryConfiguration> createFromGlobalDefault(String appId) {
+    List<ComparisonIgnoreCategoryConfiguration> configurations = new ArrayList<>();
+    List<String> categories = Optional.ofNullable(defaultIgnoreCategory)
+        .map(item -> Arrays.asList(item.split(",")))
+        .orElse(Collections.emptyList());
+    categories.forEach(item -> {
+      ComparisonIgnoreCategoryConfiguration configuration = new ComparisonIgnoreCategoryConfiguration();
+      configuration.setAppId(appId);
+      configuration.setIgnoreCategory(Collections.singletonList(item));
+      configuration.setExpirationType(ExpirationType.PINNED_NEVER_EXPIRED.ordinal());
+      configuration.setCompareConfigType(CompareConfigType.REPLAY_MAIN.getCodeValue());
+      configurations.add(configuration);
+    });
+    return configurations;
   }
 }
