@@ -17,7 +17,6 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.util.List;
-import java.util.Set;
 
 /**
  * @author wildeslam.
@@ -27,10 +26,6 @@ import java.util.Set;
 @Component
 public class ComparisonIgnoreCategoryConfigurableHandler
     extends AbstractComparisonConfigurableHandler<ComparisonIgnoreCategoryConfiguration> {
-
-  private static final Set<String> CATEGORIES =
-      MockCategoryType.DEFAULTS.stream().map(MockCategoryType::getName)
-          .collect(java.util.stream.Collectors.toSet());
   @Resource
   FSInterfaceRepository fsInterfaceRepository;
   @Resource
@@ -66,9 +61,6 @@ public class ComparisonIgnoreCategoryConfigurableHandler
     CategoryDetail category = configuration.getIgnoreCategoryDetail();
     if (category == null) {
       return;
-    }
-    if (!CATEGORIES.contains(category.getOperationType())) {
-      throw new IllegalArgumentException("Invalid category: " + category);
     }
     if (MockCategoryType.create(category.getOperationType()).isEntryPoint()) {
       throw new IllegalArgumentException("Cannot ignore entrypoint category: " + category);
