@@ -10,9 +10,13 @@ import com.arextest.web.core.repository.FSInterfaceRepository;
 import com.arextest.web.model.contract.contracts.compare.CategoryDetail;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonIgnoreCategoryConfiguration;
 import com.arextest.web.model.dto.filesystem.FSInterfaceDto;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import javax.annotation.Resource;
+
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -21,6 +25,7 @@ import org.springframework.stereotype.Component;
  * @author wildeslam.
  * @create 2023/8/18 14:57
  */
+@Slf4j
 @Component
 public class ComparisonIgnoreCategoryConfigurableHandler
     extends AbstractComparisonConfigurableHandler<ComparisonIgnoreCategoryConfiguration> {
@@ -76,13 +81,42 @@ public class ComparisonIgnoreCategoryConfigurableHandler
   @Override
   public boolean insert(ComparisonIgnoreCategoryConfiguration configuration) {
     checkBeforeModify(configuration);
-    return super.insert(configuration);
+
+    ComparisonIgnoreCategoryConfiguration oldConfig = query(configuration.getAppId(), configuration.getOperationId());
+    if (oldConfig == null) {
+      return super.insert(configuration);
+    } else {
+      oldConfig.getIgnoreCategories().addAll(configuration.getIgnoreCategories());
+      return super.update(oldConfig);
+    }
   }
 
   @Override
   public boolean remove(ComparisonIgnoreCategoryConfiguration configuration) {
     checkBeforeModify(configuration);
-    return super.remove(configuration);
+
+    ComparisonIgnoreCategoryConfiguration oldConfig = query(configuration.getAppId(), configuration.getOperationId());
+    if (oldConfig == null) {
+      LOGGER.error("Configuration Not Exist: {}", configuration);
+      return false;
+    } else {
+      oldConfig.getIgnoreCategories().removeAll(configuration.getIgnoreCategories());
+      if (oldConfig.getIgnoreCategories().isEmpty()) {
+        return super.remove(oldConfig);
+      } else {
+        return super.update(oldConfig);
+      }
+    }
+  }
+
+  ComparisonIgnoreCategoryConfiguration query(String appId, String operationId) {
+    List<ComparisonIgnoreCategoryConfiguration> configurations = new ArrayList<>();
+    if (StringUtils.isNotEmpty(operationId)) {
+      configurations.addAll(repositoryProvider.listBy(appId, operationId));
+    } else {
+      configurations.addAll(repositoryProvider.listBy(appId));
+    }
+    return configurations.isEmpty() ? null : configurations.get(0);
   }
 
   @Override

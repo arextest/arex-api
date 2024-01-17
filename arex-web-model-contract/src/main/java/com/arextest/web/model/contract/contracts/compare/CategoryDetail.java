@@ -1,6 +1,7 @@
 package com.arextest.web.model.contract.contracts.compare;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 /**
  * @author wildeslam.
@@ -8,7 +9,9 @@ import lombok.Data;
  */
 @Data
 public class CategoryDetail {
+    @EqualsAndHashCode.Include
     private String operationType;
 
+    @EqualsAndHashCode.Include
     private String operationName;
 }
