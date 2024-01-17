@@ -22,9 +22,5 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @ToString(callSuper = true)
 @Document(collection = "ConfigComparisonIgnoreCategory")
 public class ConfigComparisonIgnoreCategoryCollection extends AbstractComparisonDetails {
-
-  @Deprecated
-  private List<String> ignoreCategory;
-
-  private List<CategoryDetailDao> ignoreCategories;
+  private CategoryDetailDao ignoreCategoryDetail;
 }

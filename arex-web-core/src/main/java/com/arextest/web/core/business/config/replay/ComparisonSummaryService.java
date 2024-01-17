@@ -262,8 +262,7 @@ public class ComparisonSummaryService {
         ignoreCategoryConfigurableHandler.useResultAsList(appId),
         (configurations, summaryConfiguration) -> {
           List<CategoryDetail> ignoreCategoryTypes = configurations.stream()
-              .map(ComparisonIgnoreCategoryConfiguration::getIgnoreCategories)
-              .flatMap(Collection::stream)
+              .map(ComparisonIgnoreCategoryConfiguration::getIgnoreCategoryDetail)
               .collect(Collectors.toList());
           summaryConfiguration.setIgnoreCategoryTypes(ignoreCategoryTypes);
         }, operationInfoMap, appContractDtoMap);

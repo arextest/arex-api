@@ -16,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -64,7 +63,7 @@ public class ComparisonIgnoreCategoryConfigurableHandler
   }
 
   private void checkBeforeModify(ComparisonIgnoreCategoryConfiguration configuration) {
-    CategoryDetail category = configuration.getIgnoreCategory();
+    CategoryDetail category = configuration.getIgnoreCategoryDetail();
     if (category == null) {
       return;
     }
