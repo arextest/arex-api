@@ -4,7 +4,6 @@ import com.arextest.web.model.contract.contracts.config.replay.ComparisonIgnoreC
 import com.arextest.web.model.dao.mongodb.ConfigComparisonIgnoreCategoryCollection;
 import com.arextest.web.model.dao.mongodb.entity.CategoryDetailDao;
 import org.apache.commons.collections4.CollectionUtils;
-import org.mapstruct.AfterMapping;
 import org.mapstruct.BeforeMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
