@@ -10,16 +10,15 @@ import com.arextest.web.core.repository.FSInterfaceRepository;
 import com.arextest.web.model.contract.contracts.compare.CategoryDetail;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonIgnoreCategoryConfiguration;
 import com.arextest.web.model.dto.filesystem.FSInterfaceDto;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import javax.annotation.Resource;
-
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 /**
  * @author wildeslam.
@@ -65,58 +64,29 @@ public class ComparisonIgnoreCategoryConfigurableHandler
   }
 
   private void checkBeforeModify(ComparisonIgnoreCategoryConfiguration configuration) {
-    if (configuration.getIgnoreCategories() == null) {
+    CategoryDetail category = configuration.getIgnoreCategory();
+    if (category == null) {
       return;
     }
-    for (CategoryDetail category : configuration.getIgnoreCategories()) {
-      if (!CATEGORIES.contains(category.getOperationType())) {
-        throw new IllegalArgumentException("Invalid category: " + category);
-      }
-      if (MockCategoryType.create(category.getOperationType()).isEntryPoint()) {
-        throw new IllegalArgumentException("Cannot ignore entrypoint category: " + category);
-      }
+    if (!CATEGORIES.contains(category.getOperationType())) {
+      throw new IllegalArgumentException("Invalid category: " + category);
     }
+    if (MockCategoryType.create(category.getOperationType()).isEntryPoint()) {
+      throw new IllegalArgumentException("Cannot ignore entrypoint category: " + category);
+    }
+
   }
 
   @Override
   public boolean insert(ComparisonIgnoreCategoryConfiguration configuration) {
     checkBeforeModify(configuration);
-
-    ComparisonIgnoreCategoryConfiguration oldConfig = query(configuration.getAppId(), configuration.getOperationId());
-    if (oldConfig == null) {
-      return super.insert(configuration);
-    } else {
-      oldConfig.getIgnoreCategories().addAll(configuration.getIgnoreCategories());
-      return super.update(oldConfig);
-    }
+    return super.insert(configuration);
   }
 
   @Override
   public boolean remove(ComparisonIgnoreCategoryConfiguration configuration) {
     checkBeforeModify(configuration);
-
-    ComparisonIgnoreCategoryConfiguration oldConfig = query(configuration.getAppId(), configuration.getOperationId());
-    if (oldConfig == null) {
-      LOGGER.error("Configuration Not Exist: {}", configuration);
-      return false;
-    } else {
-      oldConfig.getIgnoreCategories().removeAll(configuration.getIgnoreCategories());
-      if (oldConfig.getIgnoreCategories().isEmpty()) {
-        return super.remove(oldConfig);
-      } else {
-        return super.update(oldConfig);
-      }
-    }
-  }
-
-  ComparisonIgnoreCategoryConfiguration query(String appId, String operationId) {
-    List<ComparisonIgnoreCategoryConfiguration> configurations = new ArrayList<>();
-    if (StringUtils.isNotEmpty(operationId)) {
-      configurations.addAll(repositoryProvider.listBy(appId, operationId));
-    } else {
-      configurations.addAll(repositoryProvider.listBy(appId));
-    }
-    return configurations.isEmpty() ? null : configurations.get(0);
+    return super.remove(configuration);
   }
 
   @Override

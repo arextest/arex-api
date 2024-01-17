@@ -18,14 +18,5 @@ import org.springframework.util.CollectionUtils;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 public class ComparisonIgnoreCategoryConfiguration extends AbstractComparisonDetailsConfiguration {
-
-  private List<CategoryDetail> ignoreCategories;
-
-  @Override
-  public void validParameters() throws Exception {
-    super.validParameters();
-    if (CollectionUtils.isEmpty(ignoreCategories)) {
-      throw new Exception("ignoreCategory cannot be empty");
-    }
-  }
+  private CategoryDetail ignoreCategory;
 }
