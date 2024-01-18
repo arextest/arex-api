@@ -1,20 +1,23 @@
 package com.arextest.web.core.business.config.record;
 
-import com.arextest.config.model.dto.record.MultiEnvConfig;
-import com.arextest.config.model.dto.record.ServiceCollectConfiguration;
-import com.arextest.config.repository.ConfigRepositoryProvider;
-import com.arextest.web.core.business.config.AbstractConfigurableHandler;
-import com.arextest.web.core.business.config.MultiEnvConfigurableHandler;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+
 import javax.annotation.Resource;
-import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
+
+import com.arextest.config.model.dto.record.ServiceCollectConfiguration;
+import com.arextest.config.repository.ConfigRepositoryProvider;
+import com.arextest.web.core.business.config.AbstractConfigurableHandler;
+import com.arextest.web.core.business.config.MultiEnvConfigurableHandler;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author jmo
@@ -85,13 +88,11 @@ public final class ServiceCollectConfigurableHandler
   @Override
   public boolean editMultiEnvList(ServiceCollectConfiguration rootConfig) {
     String appId = rootConfig.getAppId();
-    List<MultiEnvConfig<ServiceCollectConfiguration>> multiEnvConfigs = rootConfig.getMultiEnvConfigs();
+    List<ServiceCollectConfiguration> multiEnvConfigs = rootConfig.getMultiEnvConfigs();
 
     List<ServiceCollectConfiguration> configs = this.repositoryProvider.listBy(appId);
     if (CollectionUtils.isEmpty(configs)) {
-      ServiceCollectConfiguration newConfig = new ServiceCollectConfiguration();
-      newConfig.setAppId(appId);
-      configs = Collections.singletonList(newConfig);
+      configs = createFromGlobalDefault(appId);
     }
 
     ServiceCollectConfiguration existed = configs.get(0);
