@@ -73,7 +73,7 @@ public class ReplayQueryController {
       status.setResponseDesc("success");
       status.setResponseCode(ResponseCode.SUCCESS.getCodeValue());
       res.setResponseStatusType(status);
-
+      res.setDesensitized(storageRes.getBody().isDesensitized());
       List<AREXMocker> mockers = storageRes.getBody().getRecordResult();
       res.setRecordResult(CaseDetailMockerProcessor.convertMocker(mockers));
     }

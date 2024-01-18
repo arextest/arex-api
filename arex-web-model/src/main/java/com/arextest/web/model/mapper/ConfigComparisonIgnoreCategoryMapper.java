@@ -32,22 +32,4 @@ public interface ConfigComparisonIgnoreCategoryMapper {
       @Mapping(target = "dataChangeUpdateTime", expression = "java(System.currentTimeMillis())"),
   })
   ConfigComparisonIgnoreCategoryCollection daoFromDto(ComparisonIgnoreCategoryConfiguration dto);
-
-  @BeforeMapping
-  default void compatible(ConfigComparisonIgnoreCategoryCollection dao) {
-    if (CollectionUtils.isNotEmpty(dao.getIgnoreCategory())) {
-      if (dao.getIgnoreCategories() == null) {
-        dao.setIgnoreCategories(new ArrayList<>());
-      }
-      dao.getIgnoreCategories().forEach(categoryDetail -> {
-        if (dao.getIgnoreCategory().contains(categoryDetail.getOperationType())) {
-          categoryDetail.setOperationName(null);
-        } else {
-          CategoryDetailDao categoryDetailDao = new CategoryDetailDao();
-          categoryDetailDao.setOperationType(categoryDetail.getOperationType());
-          dao.getIgnoreCategories().add(categoryDetailDao);
-        }
-      });
-    }
-  }
 }
