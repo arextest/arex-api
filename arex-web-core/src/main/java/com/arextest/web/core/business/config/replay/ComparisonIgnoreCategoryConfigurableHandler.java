@@ -10,24 +10,22 @@ import com.arextest.web.core.repository.FSInterfaceRepository;
 import com.arextest.web.model.contract.contracts.compare.CategoryDetail;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonIgnoreCategoryConfiguration;
 import com.arextest.web.model.dto.filesystem.FSInterfaceDto;
-import java.util.List;
-import java.util.Set;
-import javax.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * @author wildeslam.
  * @create 2023/8/18 14:57
  */
+@Slf4j
 @Component
 public class ComparisonIgnoreCategoryConfigurableHandler
     extends AbstractComparisonConfigurableHandler<ComparisonIgnoreCategoryConfiguration> {
-
-  private static final Set<String> CATEGORIES =
-      MockCategoryType.DEFAULTS.stream().map(MockCategoryType::getName)
-          .collect(java.util.stream.Collectors.toSet());
   @Resource
   FSInterfaceRepository fsInterfaceRepository;
   @Resource
@@ -60,17 +58,14 @@ public class ComparisonIgnoreCategoryConfigurableHandler
   }
 
   private void checkBeforeModify(ComparisonIgnoreCategoryConfiguration configuration) {
-    if (configuration.getIgnoreCategories() == null) {
+    CategoryDetail category = configuration.getIgnoreCategoryDetail();
+    if (category == null) {
       return;
     }
-    for (CategoryDetail category : configuration.getIgnoreCategories()) {
-      if (!CATEGORIES.contains(category.getOperationType())) {
-        throw new IllegalArgumentException("Invalid category: " + category);
-      }
-      if (MockCategoryType.create(category.getOperationType()).isEntryPoint()) {
-        throw new IllegalArgumentException("Cannot ignore entrypoint category: " + category);
-      }
+    if (MockCategoryType.create(category.getOperationType()).isEntryPoint()) {
+      throw new IllegalArgumentException("Cannot ignore entrypoint category: " + category);
     }
+
   }
 
   @Override

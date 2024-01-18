@@ -86,7 +86,7 @@ public class ComparisonIgnoreCategoryConfigurationRepositoryImpl
     Query query = Query.query(Criteria.where(DASH_ID).is(configuration.getId()));
     Update update = MongoHelper.getConfigUpdate();
     MongoHelper.appendSpecifiedProperties(update, configuration,
-        ConfigComparisonIgnoreCategoryCollection.Fields.ignoreCategory,
+        ConfigComparisonIgnoreCategoryCollection.Fields.ignoreCategoryDetail,
         AbstractComparisonDetails.Fields.expirationType,
         AbstractComparisonDetails.Fields.expirationDate);
     UpdateResult updateResult =
