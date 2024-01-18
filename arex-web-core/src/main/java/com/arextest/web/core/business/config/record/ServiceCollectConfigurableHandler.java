@@ -1,8 +1,10 @@
 package com.arextest.web.core.business.config.record;
 
+import com.arextest.config.model.dto.record.MultiEnvConfig;
 import com.arextest.config.model.dto.record.ServiceCollectConfiguration;
 import com.arextest.config.repository.ConfigRepositoryProvider;
 import com.arextest.web.core.business.config.AbstractConfigurableHandler;
+import com.arextest.web.core.business.config.MultiEnvConfigurableHandler;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -20,8 +22,9 @@ import org.springframework.stereotype.Component;
  */
 @Slf4j
 @Component
-public final class ServiceCollectConfigurableHandler extends
-    AbstractConfigurableHandler<ServiceCollectConfiguration> {
+public final class ServiceCollectConfigurableHandler
+    extends AbstractConfigurableHandler<ServiceCollectConfiguration>
+    implements MultiEnvConfigurableHandler<ServiceCollectConfiguration> {
 
   @Resource
   private ServiceCollectConfiguration globalDefaultConfiguration;
@@ -77,6 +80,23 @@ public final class ServiceCollectConfigurableHandler extends
   public void updateServiceCollectTime(String appId) {
     ServiceCollectConfiguration serviceCollectConfiguration = this.useResult(appId);
     this.update(serviceCollectConfiguration);
+  }
+
+  @Override
+  public boolean editMultiEnvList(ServiceCollectConfiguration rootConfig) {
+    String appId = rootConfig.getAppId();
+    List<MultiEnvConfig<ServiceCollectConfiguration>> multiEnvConfigs = rootConfig.getMultiEnvConfigs();
+
+    List<ServiceCollectConfiguration> configs = this.repositoryProvider.listBy(appId);
+    if (CollectionUtils.isEmpty(configs)) {
+      ServiceCollectConfiguration newConfig = new ServiceCollectConfiguration();
+      newConfig.setAppId(appId);
+      configs = Collections.singletonList(newConfig);
+    }
+
+    ServiceCollectConfiguration existed = configs.get(0);
+    existed.setMultiEnvConfigs(multiEnvConfigs);
+    return this.update(existed);
   }
 
   @Configuration
