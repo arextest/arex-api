@@ -87,17 +87,7 @@ public final class ServiceCollectConfigurableHandler
 
   @Override
   public boolean editMultiEnvList(ServiceCollectConfiguration rootConfig) {
-    String appId = rootConfig.getAppId();
-    List<ServiceCollectConfiguration> multiEnvConfigs = rootConfig.getMultiEnvConfigs();
-
-    List<ServiceCollectConfiguration> configs = this.repositoryProvider.listBy(appId);
-    if (CollectionUtils.isEmpty(configs)) {
-      configs = createFromGlobalDefault(appId);
-    }
-
-    ServiceCollectConfiguration existed = configs.get(0);
-    existed.setMultiEnvConfigs(multiEnvConfigs);
-    return this.update(existed);
+    return this.update(rootConfig);
   }
 
   @Configuration
