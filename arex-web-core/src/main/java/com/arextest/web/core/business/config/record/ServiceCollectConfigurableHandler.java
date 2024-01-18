@@ -13,9 +13,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
 
 import com.arextest.config.model.dto.record.ServiceCollectConfiguration;
-import com.arextest.config.repository.ConfigRepositoryProvider;
-import com.arextest.web.core.business.config.AbstractConfigurableHandler;
-import com.arextest.web.core.business.config.MultiEnvConfigurableHandler;
+import com.arextest.config.repository.MultiEnvConfigRepositoryProvider;
+import com.arextest.web.core.business.config.AbstractMultiEnvConfigHandler;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -26,14 +25,13 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Component
 public final class ServiceCollectConfigurableHandler
-    extends AbstractConfigurableHandler<ServiceCollectConfiguration>
-    implements MultiEnvConfigurableHandler<ServiceCollectConfiguration> {
+    extends AbstractMultiEnvConfigHandler<ServiceCollectConfiguration> {
 
   @Resource
   private ServiceCollectConfiguration globalDefaultConfiguration;
 
   protected ServiceCollectConfigurableHandler(
-      @Autowired ConfigRepositoryProvider<ServiceCollectConfiguration> repositoryProvider) {
+      @Autowired MultiEnvConfigRepositoryProvider<ServiceCollectConfiguration> repositoryProvider) {
     super(repositoryProvider);
   }
 
@@ -83,11 +81,6 @@ public final class ServiceCollectConfigurableHandler
   public void updateServiceCollectTime(String appId) {
     ServiceCollectConfiguration serviceCollectConfiguration = this.useResult(appId);
     this.update(serviceCollectConfiguration);
-  }
-
-  @Override
-  public boolean editMultiEnvList(ServiceCollectConfiguration rootConfig) {
-    return this.update(rootConfig);
   }
 
   @Configuration
