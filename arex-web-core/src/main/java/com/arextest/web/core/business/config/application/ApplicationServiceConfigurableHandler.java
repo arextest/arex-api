@@ -56,8 +56,7 @@ public final class ApplicationServiceConfigurableHandler
 
     List<AppContractDto> appContractDtoList = appContractRepository.queryAppContracts(appId);
     Map<String, List<AppContractDto>> appContractMap = appContractDtoList.stream()
-        .filter(appContractDto -> appContractDto.getOperationId() != null)
-        .filter(appContractDto -> appContractDto.getOperationType() != null)
+        .filter(appContractDto -> appContractDto.getOperationId() != null && appContractDto.getOperationType() != null)
         .collect(Collectors.groupingBy(AppContractDto::getOperationId));
 
     applicationServiceConfiguration.getOperationList().forEach(operation -> {
