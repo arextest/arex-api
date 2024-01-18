@@ -95,6 +95,6 @@
   <parent>
     <artifactId>arex-web</artifactId>
     <groupId>com.arextest</groupId>
-    <version>0.6.0.17</version>
+    <version>0.6.0.18</version>
   </parent>
 </project>
