@@ -15,7 +15,7 @@ import com.arextest.web.core.business.config.MultiEnvConfigurableHandler;
 import lombok.Getter;
 
 @Getter
-public abstract class AbstractMultiEnvConfigController<T extends AbstractMultiEnvConfiguration>
+public abstract class AbstractMultiEnvConfigController<T extends AbstractMultiEnvConfiguration<T>>
     extends AbstractConfigurableController<T> {
   protected MultiEnvConfigurableHandler<T> multiEnvConfigurableHandler;
   protected AbstractMultiEnvConfigController(MultiEnvConfigurableHandler<T> configurableHandler) {
@@ -30,7 +30,7 @@ public abstract class AbstractMultiEnvConfigController<T extends AbstractMultiEn
   public Response modify(@PathVariable ModifyType modifyType, @RequestBody T configuration)
       throws Exception {
     if (modifyType == ModifyType.UPDATE_MULTI_ENV) {
-      configuration.validParameters();
+      configuration.validateEnvConfigs();
       return ResponseUtils.successResponse(getMultiEnvConfigurableHandler().editMultiEnvList(configuration));
     }
     return super.modify(modifyType, configuration);
