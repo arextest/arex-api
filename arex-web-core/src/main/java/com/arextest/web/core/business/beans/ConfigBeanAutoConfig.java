@@ -50,5 +50,4 @@ public class ConfigBeanAutoConfig {
   dynamicClassConfigurationRepositoryImpl(MongoTemplate mongoTemplate) {
     return new DynamicClassConfigurationRepositoryImpl(mongoTemplate.getDb());
   }
-
 }

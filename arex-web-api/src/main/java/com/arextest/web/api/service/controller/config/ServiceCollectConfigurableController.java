@@ -1,10 +1,11 @@
 package com.arextest.web.api.service.controller.config;
 
-import com.arextest.config.model.dto.record.ServiceCollectConfiguration;
-import com.arextest.web.core.business.config.ConfigurableHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+
+import com.arextest.config.model.dto.record.ServiceCollectConfiguration;
+import com.arextest.web.core.business.config.MultiEnvConfigurableHandler;
 
 /**
  * @author jmo
@@ -13,10 +14,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 @RequestMapping("/api/config/serviceCollect")
 public class ServiceCollectConfigurableController extends
-    AbstractConfigurableController<ServiceCollectConfiguration> {
+    AbstractMultiEnvConfigController<ServiceCollectConfiguration> {
 
   public ServiceCollectConfigurableController(
-      @Autowired ConfigurableHandler<ServiceCollectConfiguration> configurableHandler) {
+      @Autowired MultiEnvConfigurableHandler<ServiceCollectConfiguration> configurableHandler) {
     super(configurableHandler);
   }
 }

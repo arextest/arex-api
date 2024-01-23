@@ -1,18 +1,22 @@
 package com.arextest.web.core.business.config.record;
 
-import com.arextest.config.model.dto.record.ServiceCollectConfiguration;
-import com.arextest.config.repository.ConfigRepositoryProvider;
-import com.arextest.web.core.business.config.AbstractConfigurableHandler;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+
 import javax.annotation.Resource;
-import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
+
+import com.arextest.config.model.dto.record.ServiceCollectConfiguration;
+import com.arextest.config.repository.MultiEnvConfigRepositoryProvider;
+import com.arextest.web.core.business.config.AbstractMultiEnvConfigHandler;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author jmo
@@ -20,14 +24,14 @@ import org.springframework.stereotype.Component;
  */
 @Slf4j
 @Component
-public final class ServiceCollectConfigurableHandler extends
-    AbstractConfigurableHandler<ServiceCollectConfiguration> {
+public final class ServiceCollectConfigurableHandler
+    extends AbstractMultiEnvConfigHandler<ServiceCollectConfiguration> {
 
   @Resource
   private ServiceCollectConfiguration globalDefaultConfiguration;
 
   protected ServiceCollectConfigurableHandler(
-      @Autowired ConfigRepositoryProvider<ServiceCollectConfiguration> repositoryProvider) {
+      @Autowired MultiEnvConfigRepositoryProvider<ServiceCollectConfiguration> repositoryProvider) {
     super(repositoryProvider);
   }
 
