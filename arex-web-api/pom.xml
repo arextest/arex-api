@@ -176,7 +176,7 @@
           <resource>
             <directory>arex-report</directory>
             <excludes>
-              <exclude>**/application*.properties</exclude>
+              <exclude>**/application*.yaml</exclude>
             </excludes>
           </resource>
         </resources>
