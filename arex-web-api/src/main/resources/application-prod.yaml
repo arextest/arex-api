@@ -1,0 +1,12 @@
+# prod
+arex:
+  mongo:
+    uri: mongodb://arex:password@mongodb:27017/arex_storage_db
+  storage:
+    service:
+      url: http://arex-storage-service:8080
+  schedule:
+    service:
+      url: http://arex-schedule-service:8080
+  redis:
+    uri: redis://redis:6379/

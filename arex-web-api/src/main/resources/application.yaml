@@ -1,0 +1,97 @@
+spring:
+  profiles:
+    active: prod
+  application:
+    name: Arex web service
+  jackson:
+    serialization:
+      FAIL_ON_EMPTY_BEANS: false
+    default-property-inclusion: non_null
+    date-format: yyyy-MM-dd HH:mm:sss
+  mvc:
+    pathmatch:
+      matching-strategy: ANT_PATH_MATCHER
+  main:
+    lazy-initialization: true
+    log-startup-info: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  security:
+    enabled: false
+  info:
+    git:
+      mode: full
+
+info:
+  app:
+    name: arex web service
+
+arex:
+  config:
+    # default for replay schedule settings
+    default:
+      schedule:
+        offsetDays: 1
+        sendMaxQps: 20
+        targetEnv: ""
+  compare:
+    ignoredTimePrecisionMillis: 2000
+    nameToLower: true
+    nullEqualsEmpty: true
+    selectIgnoreCompare: true
+    onlyCompareCoincidentColumn: true
+    uuidIgnore: true
+    ignoreNodeSet: ""
+  # arex sending email domain
+  email:
+    domain: https://mail.arextest.com
+  interceptor:
+      patterns: ""
+  jwt:
+    secret: arex
+  app:
+    auth:
+      switch: false
+  api:
+    case:
+      inherited: true
+    redis:
+      lease-time: 30
+  # call storage
+  storage:
+    countRecord:
+      url: ${arex.storage.service.url}/api/storage/replay/query/countByRange
+    listRecord:
+      url: ${arex.storage.service.url}/api/storage/replay/query/replayCase
+    aggCountRecord:
+      url: ${arex.storage.service.url}/api/storage/replay/query/countByOperationName
+    viewRecord:
+      url: ${arex.storage.service.url}/api/storage/replay/query/viewRecord
+  # call schedule
+  schedule:
+    stop:
+      url: ${arex.schedule.service.url}/api/stopPlan
+  # login
+  oauth:
+    github:
+      clientid: ""
+      secret: ""
+    google:
+      clientid: ""
+      secret: ""
+      redirecturi: ""
+    gitlab:
+      clientid: ""
+      secret: ""
+      redirecturi: ""
+      uri: ""
+  # monitor metrics
+  prometheus:
+    port: 20090
+pom:
+  version: ${project.version}
+
