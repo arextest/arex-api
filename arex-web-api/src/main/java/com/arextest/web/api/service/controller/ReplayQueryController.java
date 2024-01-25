@@ -34,7 +34,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @RequestMapping("/api/replay/query")
 public class ReplayQueryController {
 
-  @Value("${arex.storage.view.record.url}")
+  @Value("${arex.storage.viewRecord.url}")
   private String viewRecordUrl;
 
   @ResponseBody
