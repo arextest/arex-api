@@ -48,4 +48,9 @@ public class SystemConfig {
    * ignore the compare of uuid
    */
   private Boolean uuidIgnore;
+
+  /**
+   * ignore the compare of uuid
+   */
+  private Boolean ipIgnore;
 }

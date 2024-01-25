@@ -20,6 +20,8 @@ public interface ConfigLoadService {
 
   String COMPARE_UUID_IGNORE = "arex.compare.uuidIgnore";
 
+  String COMPARE_IP_IGNORE = "arex.compare.ipIgnore";
+
   Object getProperty(String key, Object defaultValue);
 
   default String getCompareIgnoredTimePrecisionMillis(String defaultValue) {
@@ -52,6 +54,10 @@ public interface ConfigLoadService {
 
   default String getCompareUuidIgnore(String defaultValue) {
     return (String) getProperty(COMPARE_UUID_IGNORE, defaultValue);
+  }
+
+  default String getCompareIpIgnore(String defaultValue) {
+    return (String) getProperty(COMPARE_IP_IGNORE, defaultValue);
   }
 
 }

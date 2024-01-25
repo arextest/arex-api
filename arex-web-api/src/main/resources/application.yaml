@@ -45,6 +45,7 @@ arex:
     selectIgnoreCompare: true
     onlyCompareCoincidentColumn: true
     uuidIgnore: true
+    ipIgnore: true
     ignoreNodeSet: ""
   # arex sending email domain
   email:
