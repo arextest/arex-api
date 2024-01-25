@@ -19,4 +19,6 @@ import org.springframework.util.CollectionUtils;
 @EqualsAndHashCode(callSuper = true)
 public class ComparisonIgnoreCategoryConfiguration extends AbstractComparisonDetailsConfiguration {
   private CategoryDetail ignoreCategoryDetail;
+  @Deprecated
+  private List<String> ignoreCategory;
 }
