@@ -127,6 +127,10 @@ public class MongodbConfiguration {
   }
 
   public void cleanOldData(MongoTemplate mongoTemplate) {
+      cleanConfigComparisonIgnoreCategoryCollection(mongoTemplate);
+  }
+
+  private void cleanConfigComparisonIgnoreCategoryCollection(MongoTemplate mongoTemplate) {
     Query query = Query.query(Criteria.where(ConfigComparisonIgnoreCategoryCollection.Fields.ignoreCategory).ne(null));
     List<ConfigComparisonIgnoreCategoryCollection> oldData =
         mongoTemplate.findAllAndRemove(query, ConfigComparisonIgnoreCategoryCollection.class).stream()
