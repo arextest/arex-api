@@ -69,8 +69,9 @@ arex:
       url: ${arex.storage.service.url}/api/storage/replay/query/replayCase
     aggCountRecord:
       url: ${arex.storage.service.url}/api/storage/replay/query/countByOperationName
-    viewRecord:
-      url: ${arex.storage.service.url}/api/storage/replay/query/viewRecord
+    view:
+      record:
+        url: ${arex.storage.service.url}/api/storage/replay/query/viewRecord
   # call schedule
   schedule:
     stop:
