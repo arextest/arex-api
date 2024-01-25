@@ -6,11 +6,9 @@ import com.arextest.web.model.contract.contracts.common.enums.CompareConfigType;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonIgnoreCategoryConfiguration;
 import com.arextest.web.model.dao.mongodb.ConfigComparisonIgnoreCategoryCollection;
 import com.arextest.web.model.dao.mongodb.entity.AbstractComparisonDetails;
-import com.arextest.web.model.dao.mongodb.entity.CategoryDetailDao;
 import com.arextest.web.model.mapper.ConfigComparisonIgnoreCategoryMapper;
 import com.mongodb.client.result.UpdateResult;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -19,8 +17,6 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Repository;
 
-import javax.annotation.PostConstruct;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,16 +28,6 @@ import java.util.stream.Collectors;
 @Repository
 public class ComparisonIgnoreCategoryConfigurationRepositoryImpl
     implements ConfigRepositoryProvider<ComparisonIgnoreCategoryConfiguration> {
-
-  @PostConstruct
-  public void init() {
-    try {
-      cleanOldData();
-    } catch (Exception e) {
-      LOGGER.error("clean old data failed", e);
-    }
-
-  }
 
   @Autowired
   MongoTemplate mongoTemplate;
@@ -122,37 +108,5 @@ public class ComparisonIgnoreCategoryConfigurationRepositoryImpl
         ConfigComparisonIgnoreCategoryMapper.INSTANCE.daoFromDto(configuration);
     mongoTemplate.save(collection);
     return true;
-  }
-
-  public void cleanOldData() {
-    Query query = Query.query(Criteria.where(ConfigComparisonIgnoreCategoryCollection.Fields.ignoreCategory).ne(null));
-    List<ConfigComparisonIgnoreCategoryCollection> oldData =
-        mongoTemplate.findAllAndRemove(query, ConfigComparisonIgnoreCategoryCollection.class).stream()
-            .filter(config -> CollectionUtils.isNotEmpty(config.getIgnoreCategory()))
-            .collect(Collectors.toList());
-
-    List<ConfigComparisonIgnoreCategoryCollection> newData = new ArrayList<>();
-    oldData.forEach(oldConfig -> {
-      oldConfig.getIgnoreCategory().forEach(ignoreCategory -> {
-        ConfigComparisonIgnoreCategoryCollection newConfigItem = convertToNewConfig(oldConfig);
-        CategoryDetailDao categoryDetailDao = new CategoryDetailDao();
-        categoryDetailDao.setOperationType(ignoreCategory);
-        newConfigItem.setIgnoreCategoryDetail(categoryDetailDao);
-
-        newData.add(newConfigItem);
-      });
-    });
-    mongoTemplate.insertAll(newData);
-  }
-
-  private ConfigComparisonIgnoreCategoryCollection convertToNewConfig(
-      ConfigComparisonIgnoreCategoryCollection oldConfig) {
-    ConfigComparisonIgnoreCategoryCollection newConfig = new ConfigComparisonIgnoreCategoryCollection();
-    MongoHelper.initInsertObject(newConfig);
-    newConfig.setAppId(oldConfig.getAppId());
-    newConfig.setOperationId(oldConfig.getOperationId());
-    newConfig.setExpirationType(oldConfig.getExpirationType());
-    newConfig.setExpirationDate(oldConfig.getExpirationDate());
-    return newConfig;
   }
 }
