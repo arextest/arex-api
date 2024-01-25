@@ -66,6 +66,8 @@ public class SystemConfigController {
           Boolean.valueOf(configLoadService.getCompareOnlyCompareCoincidentColumn("true")));
       latestSystemConfig.setUuidIgnore(
           Boolean.valueOf(configLoadService.getCompareUuidIgnore("true")));
+      latestSystemConfig.setIpIgnore(
+          Boolean.valueOf(configLoadService.getCompareIpIgnore("true")));
     } catch (RuntimeException e) {
       LOGGER.error("getCompareIgnoredTimePrecisionMillis error", e);
     }

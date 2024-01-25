@@ -32,13 +32,16 @@ public class StatisticSchedule {
     statisticService.report();
   }
 
-  @Scheduled(initialDelay = 1000 * 6, fixedDelay = 1000 * 5)
+  /**
+   * Aggregation difference path scenario job
+   */
   public void sceneSchedule() {
     sceneService.report();
   }
 
-  @Scheduled(initialDelay = 1000 * 7, fixedDelay = 1000 * 60)
-  @SchedulerLock(name = "preprocess", lockAtLeastFor = "PT50S", lockAtMostFor = "PT60S")
+  /**
+   * Generate schema job
+   */
   public void preprocess() {
     preprocessService.updateServletSchema();
   }
