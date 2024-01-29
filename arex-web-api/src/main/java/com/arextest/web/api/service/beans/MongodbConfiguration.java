@@ -1,7 +1,6 @@
 package com.arextest.web.api.service.beans;
 
 import com.arextest.web.common.LogUtils;
-import com.arextest.web.core.repository.mongo.util.OldDataCleaner;
 import com.arextest.web.model.dao.mongodb.AppContractCollection;
 import com.arextest.web.model.dao.mongodb.LogsCollection;
 import com.arextest.web.model.dao.mongodb.ReplayScheduleConfigCollection;

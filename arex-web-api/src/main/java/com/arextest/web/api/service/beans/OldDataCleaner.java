@@ -1,5 +1,6 @@
-package com.arextest.web.core.repository.mongo.util;
+package com.arextest.web.api.service.beans;
 
+import com.arextest.web.core.repository.mongo.util.MongoHelper;
 import com.arextest.web.model.dao.mongodb.ConfigComparisonIgnoreCategoryCollection;
 import com.arextest.web.model.dao.mongodb.entity.CategoryDetailDao;
 import org.apache.commons.collections4.CollectionUtils;
@@ -29,7 +30,7 @@ public class OldDataCleaner {
     }
 
     @PostConstruct
-    public void main() {
+    public void init() {
         CompletableFuture.runAsync(this::cleanOldData);
     }
 
@@ -37,6 +38,7 @@ public class OldDataCleaner {
         cleanConfigComparisonIgnoreCategoryCollection(this.mongoTemplate);
     }
 
+    // Collection ConfigComparisonIgnoreCategory's structure has been changed, need to transfer old data to new.
     private void cleanConfigComparisonIgnoreCategoryCollection(MongoTemplate mongoTemplate) {
         Query query = Query.query(Criteria.where(ConfigComparisonIgnoreCategoryCollection.Fields.ignoreCategory).ne(null));
         List<ConfigComparisonIgnoreCategoryCollection> oldData =
