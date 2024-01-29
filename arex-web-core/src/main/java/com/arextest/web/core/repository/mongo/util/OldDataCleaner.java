@@ -30,11 +30,11 @@ public class OldDataCleaner {
 
     @PostConstruct
     public void main() {
-        CompletableFuture.runAsync(() -> cleanOldData(mongoTemplate));
+        CompletableFuture.runAsync(this::cleanOldData);
     }
 
-    public void cleanOldData(MongoTemplate mongoTemplate) {
-        cleanConfigComparisonIgnoreCategoryCollection(mongoTemplate);
+    public void cleanOldData() {
+        cleanConfigComparisonIgnoreCategoryCollection(this.mongoTemplate);
     }
 
     private void cleanConfigComparisonIgnoreCategoryCollection(MongoTemplate mongoTemplate) {
