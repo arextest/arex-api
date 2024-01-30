@@ -13,7 +13,6 @@ import org.springframework.scheduling.annotation.EnableAsync;
 
 @Slf4j
 @EnableAsync
-// @EnableSchedulerLock(defaultLockAtMostFor = "PT30S")
 @SpringBootApplication(scanBasePackages = "com.arextest.web")
 public class WebSpringBootServletInitializer
     extends SpringBootServletInitializer

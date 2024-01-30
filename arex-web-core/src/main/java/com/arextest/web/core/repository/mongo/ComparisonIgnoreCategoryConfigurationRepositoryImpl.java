@@ -8,8 +8,6 @@ import com.arextest.web.model.dao.mongodb.ConfigComparisonIgnoreCategoryCollecti
 import com.arextest.web.model.dao.mongodb.entity.AbstractComparisonDetails;
 import com.arextest.web.model.mapper.ConfigComparisonIgnoreCategoryMapper;
 import com.mongodb.client.result.UpdateResult;
-import java.util.List;
-import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +16,9 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author wildeslam.
