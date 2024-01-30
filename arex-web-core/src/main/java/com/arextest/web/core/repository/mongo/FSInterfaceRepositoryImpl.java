@@ -107,4 +107,27 @@ public class FSInterfaceRepositoryImpl implements FSInterfaceRepository {
     dao = mongoTemplate.insert(dao);
     return dao.getId();
   }
+
+  @Override
+  public List<FSInterfaceDto> queryInterfaces(String workspaceId, String name,
+      List<String> includeLabels, List<String> excludeLabels, Integer pageSize) {
+    Query query = Query.query(
+        Criteria.where(FSInterfaceCollection.Fields.workspaceId).is(workspaceId));
+    if (StringUtils.isNotEmpty(name)) {
+      query.addCriteria(Criteria.where(FSInterfaceCollection.Fields.name).regex(name));
+    }
+    if (pageSize != null) {
+      query.limit(pageSize);
+    }
+
+    List<FSInterfaceCollection> daos = mongoTemplate.find(query, FSInterfaceCollection.class);
+    return daos.stream().map(FSInterfaceMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
+  }
+
+  @Override
+  public List<FSInterfaceDto> queryInterfaceByParentIds(List<String> parentIds) {
+    Query query = Query.query(Criteria.where(FSInterfaceCollection.Fields.parentId).in(parentIds));
+    List<FSInterfaceCollection> daos = mongoTemplate.find(query, FSInterfaceCollection.class);
+    return daos.stream().map(FSInterfaceMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
+  }
 }

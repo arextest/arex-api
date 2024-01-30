@@ -7,6 +7,8 @@ import com.arextest.common.utils.ResponseUtils;
 import com.arextest.web.core.business.filesystem.FileSystemService;
 import com.arextest.web.core.business.filesystem.RolePermission;
 import com.arextest.web.model.contract.contracts.SuccessResponseType;
+import com.arextest.web.model.contract.contracts.filesystem.BatchGetInterfaceCaseRequestType;
+import com.arextest.web.model.contract.contracts.filesystem.BatchGetInterfaceCaseResponseType;
 import com.arextest.web.model.contract.contracts.filesystem.ChangeRoleRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.FSAddItemRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.FSAddItemResponseType;
@@ -19,6 +21,10 @@ import com.arextest.web.model.contract.contracts.filesystem.FSDuplicateRequestTy
 import com.arextest.web.model.contract.contracts.filesystem.FSDuplicateResponseType;
 import com.arextest.web.model.contract.contracts.filesystem.FSExportItemRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.FSExportItemResponseType;
+import com.arextest.web.model.contract.contracts.filesystem.FSGetWorkspaceItemTreeRequestType;
+import com.arextest.web.model.contract.contracts.filesystem.FSGetWorkspaceItemTreeResponseType;
+import com.arextest.web.model.contract.contracts.filesystem.FSGetWorkspaceItemsRequestType;
+import com.arextest.web.model.contract.contracts.filesystem.FSGetWorkspaceItemsResponseType;
 import com.arextest.web.model.contract.contracts.filesystem.FSImportItemRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.FSMoveItemRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.FSPinMockRequestType;
@@ -45,6 +51,8 @@ import com.arextest.web.model.contract.contracts.filesystem.FSSaveFolderRequestT
 import com.arextest.web.model.contract.contracts.filesystem.FSSaveFolderResponseType;
 import com.arextest.web.model.contract.contracts.filesystem.FSSaveInterfaceRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.FSSaveInterfaceResponseType;
+import com.arextest.web.model.contract.contracts.filesystem.FSSearchWorkspaceItemsRequestType;
+import com.arextest.web.model.contract.contracts.filesystem.FSSearchWorkspaceItemsResponseType;
 import com.arextest.web.model.contract.contracts.filesystem.InviteToWorkspaceRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.InviteToWorkspaceResponseType;
 import com.arextest.web.model.contract.contracts.filesystem.LeaveWorkspaceRequestType;
@@ -385,4 +393,57 @@ public class FileSystemController {
     response.setSuccess(fileSystemService.importItem(request));
     return ResponseUtils.successResponse(response);
   }
+
+  @PostMapping("/getWorkspaceItem")
+  @ResponseBody
+  public Response getWorkspaceItem(@RequestHeader(name = Constants.ACCESS_TOKEN) String token,
+      @RequestBody FSGetWorkspaceItemsRequestType request) {
+    if (!rolePermission.checkPermissionByToken(RolePermission.VIEW_WORKSPACE, token,
+        request.getWorkspaceId())) {
+      return ResponseUtils.errorResponse(Constants.NO_PERMISSION,
+          ResponseCode.AUTHENTICATION_FAILED);
+    }
+    FSGetWorkspaceItemsResponseType response = fileSystemService.getWorkspaceItems(request);
+    return ResponseUtils.successResponse(response);
+  }
+
+  @PostMapping("/searchWorkspaceItems")
+  @ResponseBody
+  public Response searchWorkspaceItems(@RequestHeader(name = Constants.ACCESS_TOKEN) String token,
+      @RequestBody FSSearchWorkspaceItemsRequestType request) {
+    if (!rolePermission.checkPermissionByToken(RolePermission.VIEW_WORKSPACE, token,
+        request.getWorkspaceId())) {
+      return ResponseUtils.errorResponse(Constants.NO_PERMISSION,
+          ResponseCode.AUTHENTICATION_FAILED);
+    }
+    FSSearchWorkspaceItemsResponseType response = fileSystemService.searchWorkspaceItems(request);
+    return ResponseUtils.successResponse(response);
+  }
+
+  @PostMapping("/getWorkspaceItemTree")
+  @ResponseBody
+  public Response getWorkspaceItemTree(@RequestHeader(name = Constants.ACCESS_TOKEN) String token,
+      @RequestBody FSGetWorkspaceItemTreeRequestType request) {
+    if (!rolePermission.checkPermissionByToken(RolePermission.VIEW_WORKSPACE, token,
+        request.getWorkspaceId())) {
+      return ResponseUtils.errorResponse(Constants.NO_PERMISSION,
+          ResponseCode.AUTHENTICATION_FAILED);
+    }
+    FSGetWorkspaceItemTreeResponseType response = fileSystemService.getWorkspaceItemTree(request);
+    return ResponseUtils.successResponse(response);
+  }
+
+  @PostMapping("/batchGetInterfaceCase")
+  @ResponseBody
+  public Response batchGetInterfaceCase(@RequestHeader(name = Constants.ACCESS_TOKEN) String token,
+      @RequestBody BatchGetInterfaceCaseRequestType request) {
+    if (!rolePermission.checkPermissionByToken(RolePermission.VIEW_WORKSPACE, token,
+        request.getWorkspaceId())) {
+      return ResponseUtils.errorResponse(Constants.NO_PERMISSION,
+          ResponseCode.AUTHENTICATION_FAILED);
+    }
+    BatchGetInterfaceCaseResponseType response = fileSystemService.batchGetInterfaceCase(request);
+    return ResponseUtils.successResponse(response);
+  }
+
 }

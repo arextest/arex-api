@@ -20,4 +20,9 @@ public interface FSFolderRepository extends RepositoryProvider {
   List<FSItemDto> queryByIds(List<String> ids);
 
   FSFolderDto saveFolder(FSFolderDto dto);
+
+  List<FSFolderDto> queryFolders(String workspaceId, String name, List<String> includeLabels, List<String> excludeLabels, Integer pageSize);
+
+  List<FSItemDto> queryByIdsByParentIds(List<String> parentIds);
+
 }

@@ -8,10 +8,12 @@ import com.arextest.web.model.dao.mongodb.entity.ScriptBlockDao;
 import java.util.List;
 import java.util.Map;
 import lombok.Data;
+import lombok.experimental.FieldNameConstants;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
 @Document(collection = "FSInterface")
+@FieldNameConstants
 public class FSInterfaceCollection extends ModelBase {
 
   private String name;
