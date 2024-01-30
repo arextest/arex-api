@@ -52,6 +52,7 @@ public class OldDataCleaner {
     }
 
     // Collection ConfigComparisonIgnoreCategory's structure has been changed, need to transfer old data to new.
+    // New data was introduced at 0.6.0.17, this method was introduced at 0.6.0.20
     private void cleanConfigComparisonIgnoreCategoryCollection(MongoTemplate mongoTemplate) {
         LockWrapper lock = cacheProvider.getLock("ConfigComparisonIgnoreCategory");
         try {
