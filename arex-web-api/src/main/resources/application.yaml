@@ -51,7 +51,7 @@ arex:
   email:
     domain: https://mail.arextest.com
   interceptor:
-      patterns: ""
+    patterns: ""
   jwt:
     secret: arex
   app:
