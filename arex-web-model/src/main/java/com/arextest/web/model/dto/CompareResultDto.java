@@ -40,5 +40,7 @@ public class CompareResultDto extends BaseDto {
 
   private MsgInfoDto msgInfo;
 
+  private Boolean ignore;
+
   private Date dataCreateTime;
 }
