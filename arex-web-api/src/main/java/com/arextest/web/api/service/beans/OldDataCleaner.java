@@ -1,5 +1,6 @@
 package com.arextest.web.api.service.beans;
 
+import static com.arextest.web.model.dao.mongodb.SystemConfigurationCollection.KeySummary.REFRESH_DATA;
 import com.arextest.common.cache.CacheProvider;
 import com.arextest.common.cache.LockWrapper;
 import com.arextest.config.model.dao.config.AppCollection;
@@ -7,11 +8,11 @@ import com.arextest.config.model.dao.config.RecordServiceConfigCollection;
 import com.arextest.web.core.repository.mongo.util.MongoHelper;
 import com.arextest.web.model.dao.mongodb.ConfigComparisonIgnoreCategoryCollection;
 import com.arextest.web.model.dao.mongodb.ModelBase;
+import com.arextest.web.model.dao.mongodb.SystemConfigurationCollection;
 import com.arextest.web.model.dao.mongodb.entity.CategoryDetailDao;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
@@ -20,7 +21,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
-import lombok.experimental.FieldNameConstants;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.bson.Document;
@@ -30,7 +30,6 @@ import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.LookupOperation;
 import org.springframework.data.mongodb.core.aggregation.MatchOperation;
 import org.springframework.data.mongodb.core.aggregation.ProjectionOperation;
-import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
@@ -43,7 +42,6 @@ public class OldDataCleaner implements InitializingBean {
   private CacheProvider cacheProvider;
   private MongoTemplate mongoTemplate;
   private long redisLeaseTime;
-  private static final String REFRESH_DATA = "refresh_data";
 
   @Override
   public void afterPropertiesSet() {
@@ -54,9 +52,21 @@ public class OldDataCleaner implements InitializingBean {
   // Collection ConfigComparisonIgnoreCategory's structure has been changed, need to transfer old data to new.
   // New data was introduced at 0.6.0.17, this method was introduced at 0.6.0.20
   private Runnable cleanConfigComparisonIgnoreCategoryCollection() {
-    String taskFinishKey = "ConfigComparisonIgnoreCategory";
-
     Consumer<RefreshTaskContext> task = (RefreshTaskContext refreshTaskContext) -> {
+
+      MongoTemplate taskContextMongoTemplate = refreshTaskContext.getMongoTemplate();
+      Query taskQuery = Query.query(
+          Criteria.where(SystemConfigurationCollection.Fields.key).is(REFRESH_DATA));
+      SystemConfigurationCollection systemConfiguration = taskContextMongoTemplate.findOne(
+          taskQuery,
+          SystemConfigurationCollection.class);
+      if (systemConfiguration != null && systemConfiguration.getRefreshTaskMark() != null
+          && systemConfiguration.getRefreshTaskMark()
+          .containsKey(RefreshTaskName.CLEAN_CONFIG_COMPARISON_IGNORE_CATEGORY)) {
+        LOGGER.info("skip cleanConfigComparisonIgnoreCategoryCollection");
+        return;
+      }
+
       LOGGER.info("start clean data for ConfigComparisonIgnoreCategoryCollection");
       Query query = Query.query(
           Criteria.where(ConfigComparisonIgnoreCategoryCollection.Fields.ignoreCategory).ne(null));
@@ -78,13 +88,21 @@ public class OldDataCleaner implements InitializingBean {
         });
       });
       mongoTemplate.insertAll(newData);
+
+      // set completion position flag
+      Update update = MongoHelper.getUpdate();
+      update.inc(SystemConfigurationCollection.Fields.refreshTaskMark + "."
+          + RefreshTaskName.CLEAN_CONFIG_COMPARISON_IGNORE_CATEGORY, 1);
+      taskContextMongoTemplate.upsert(taskQuery, update,
+          SystemConfigurationCollection.class);
+
       LOGGER.info("finish clean data for ConfigComparisonIgnoreCategoryCollection");
     };
 
     RefreshTaskContext refreshTaskContext = new RefreshTaskContext();
     refreshTaskContext.setMongoTemplate(mongoTemplate);
 
-    return new LockRefreshTask<>(taskFinishKey,
+    return new LockRefreshTask<>(RefreshTaskName.CLEAN_CONFIG_COMPARISON_IGNORE_CATEGORY,
         cacheProvider, redisLeaseTime, task,
         refreshTaskContext);
   }
@@ -100,14 +118,16 @@ public class OldDataCleaner implements InitializingBean {
    */
   private Runnable buildAddMissingRecordServiceConfigTask() {
 
-    String taskFinishKey = "missingRecordConfig";
-
     Consumer<RefreshTaskContext> task = (RefreshTaskContext refreshTaskContext) -> {
 
       MongoTemplate taskContextMongoTemplate = refreshTaskContext.getMongoTemplate();
-      Query query = Query.query(Criteria.where(MongoKVCollection.Fields.key).is(REFRESH_DATA));
-      MongoKVCollection one = taskContextMongoTemplate.findOne(query, MongoKVCollection.class);
-      if (one != null && one.mapValue != null && one.mapValue.containsKey(taskFinishKey)) {
+      Query taskQuery = Query.query(
+          Criteria.where(SystemConfigurationCollection.Fields.key).is(REFRESH_DATA));
+      SystemConfigurationCollection systemConfiguration = taskContextMongoTemplate.findOne(taskQuery,
+          SystemConfigurationCollection.class);
+      if (systemConfiguration != null && systemConfiguration.getRefreshTaskMark() != null
+          && systemConfiguration.getRefreshTaskMark()
+          .containsKey(RefreshTaskName.BUILD_ADD_MISSING_RECORD_SERVICE_CONFIG)) {
         LOGGER.info("skip addMissingRecordServiceConfigTask");
         return;
       }
@@ -153,16 +173,17 @@ public class OldDataCleaner implements InitializingBean {
 
       // set completion position flag
       Update update = MongoHelper.getUpdate();
-      update.inc(MongoKVCollection.Fields.mapValue + "." + taskFinishKey, 1);
-      taskContextMongoTemplate.upsert(query, update,
-          MongoKVCollection.class);
+      update.inc(SystemConfigurationCollection.Fields.refreshTaskMark + "."
+          + RefreshTaskName.BUILD_ADD_MISSING_RECORD_SERVICE_CONFIG, 1);
+      taskContextMongoTemplate.upsert(taskQuery, update,
+          SystemConfigurationCollection.class);
       LOGGER.info("finish addMissingRecordServiceConfigTask");
     };
 
     RefreshTaskContext refreshTaskContext = new RefreshTaskContext();
     refreshTaskContext.setMongoTemplate(mongoTemplate);
 
-    return new LockRefreshTask<>(taskFinishKey,
+    return new LockRefreshTask<>(RefreshTaskName.BUILD_ADD_MISSING_RECORD_SERVICE_CONFIG,
         cacheProvider, redisLeaseTime, task,
         refreshTaskContext);
   }
@@ -222,17 +243,14 @@ public class OldDataCleaner implements InitializingBean {
   }
 
 
-  @Data
-  @FieldNameConstants
-  @org.springframework.data.mongodb.core.mapping.Document(collection = "MongoKVCollection")
-  private static class MongoKVCollection extends ModelBase {
+  private interface RefreshTaskName {
 
-    /**
-     * The problem of prohibiting concurrent repeated insertions, the key is unique
-     */
-    @Indexed(unique = true)
-    private String key;
-    private Map<String, Object> mapValue;
+    // to do the method "cleanConfigComparisonIgnoreCategoryCollection"
+    String CLEAN_CONFIG_COMPARISON_IGNORE_CATEGORY = "cleanConfigComparisonIgnoreCategory";
+
+    // to do the method "buildAddMissingRecordServiceConfigTask"
+    String BUILD_ADD_MISSING_RECORD_SERVICE_CONFIG = "missingRecordConfig";
+
   }
 
 
