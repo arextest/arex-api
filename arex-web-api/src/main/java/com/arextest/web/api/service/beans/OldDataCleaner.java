@@ -49,20 +49,15 @@ public class OldDataCleaner implements InitializingBean {
     CompletableFuture.runAsync(buildAddMissingRecordServiceConfigTask());
   }
 
-  // Collection ConfigComparisonIgnoreCategory's structure has been changed, need to transfer old data to new.
-  // New data was introduced at 0.6.0.17, this method was introduced at 0.6.0.20
+  /**
+   * Collection ConfigComparisonIgnoreCategory's structure has been changed, need to transfer old
+   * data to new. New data was introduced at 0.6.0.17, this method was introduced at 0.6.0.20
+   *
+   * @return
+   */
   private Runnable cleanConfigComparisonIgnoreCategoryCollection() {
     Consumer<RefreshTaskContext> task = (RefreshTaskContext refreshTaskContext) -> {
-
-      MongoTemplate taskContextMongoTemplate = refreshTaskContext.getMongoTemplate();
-      Query taskQuery = Query.query(
-          Criteria.where(SystemConfigurationCollection.Fields.key).is(REFRESH_DATA));
-      SystemConfigurationCollection systemConfiguration = taskContextMongoTemplate.findOne(
-          taskQuery,
-          SystemConfigurationCollection.class);
-      if (systemConfiguration != null && systemConfiguration.getRefreshTaskMark() != null
-          && systemConfiguration.getRefreshTaskMark()
-          .containsKey(RefreshTaskName.CLEAN_CONFIG_COMPARISON_IGNORE_CATEGORY)) {
+      if (isTaskFinish(refreshTaskContext)) {
         LOGGER.info("skip cleanConfigComparisonIgnoreCategoryCollection");
         return;
       }
@@ -90,19 +85,14 @@ public class OldDataCleaner implements InitializingBean {
       mongoTemplate.insertAll(newData);
 
       // set completion position flag
-      Update update = MongoHelper.getUpdate();
-      update.inc(SystemConfigurationCollection.Fields.refreshTaskMark + "."
-          + RefreshTaskName.CLEAN_CONFIG_COMPARISON_IGNORE_CATEGORY, 1);
-      taskContextMongoTemplate.upsert(taskQuery, update,
-          SystemConfigurationCollection.class);
-
+      markTaskFinish(refreshTaskContext);
       LOGGER.info("finish clean data for ConfigComparisonIgnoreCategoryCollection");
     };
 
-    RefreshTaskContext refreshTaskContext = new RefreshTaskContext();
-    refreshTaskContext.setMongoTemplate(mongoTemplate);
+    RefreshTaskContext refreshTaskContext = new RefreshTaskContext(mongoTemplate,
+        RefreshTaskName.CLEAN_CONFIG_COMPARISON_IGNORE_CATEGORY);
 
-    return new LockRefreshTask<>(RefreshTaskName.CLEAN_CONFIG_COMPARISON_IGNORE_CATEGORY,
+    return new LockRefreshTask<>(
         cacheProvider, redisLeaseTime, task,
         refreshTaskContext);
   }
@@ -119,15 +109,7 @@ public class OldDataCleaner implements InitializingBean {
   private Runnable buildAddMissingRecordServiceConfigTask() {
 
     Consumer<RefreshTaskContext> task = (RefreshTaskContext refreshTaskContext) -> {
-
-      MongoTemplate taskContextMongoTemplate = refreshTaskContext.getMongoTemplate();
-      Query taskQuery = Query.query(
-          Criteria.where(SystemConfigurationCollection.Fields.key).is(REFRESH_DATA));
-      SystemConfigurationCollection systemConfiguration = taskContextMongoTemplate.findOne(taskQuery,
-          SystemConfigurationCollection.class);
-      if (systemConfiguration != null && systemConfiguration.getRefreshTaskMark() != null
-          && systemConfiguration.getRefreshTaskMark()
-          .containsKey(RefreshTaskName.BUILD_ADD_MISSING_RECORD_SERVICE_CONFIG)) {
+      if (isTaskFinish(refreshTaskContext)) {
         LOGGER.info("skip addMissingRecordServiceConfigTask");
         return;
       }
@@ -172,19 +154,14 @@ public class OldDataCleaner implements InitializingBean {
       }
 
       // set completion position flag
-      Update update = MongoHelper.getUpdate();
-      update.inc(SystemConfigurationCollection.Fields.refreshTaskMark + "."
-          + RefreshTaskName.BUILD_ADD_MISSING_RECORD_SERVICE_CONFIG, 1);
-      taskContextMongoTemplate.upsert(taskQuery, update,
-          SystemConfigurationCollection.class);
+      markTaskFinish(refreshTaskContext);
       LOGGER.info("finish addMissingRecordServiceConfigTask");
     };
 
-    RefreshTaskContext refreshTaskContext = new RefreshTaskContext();
-    refreshTaskContext.setMongoTemplate(mongoTemplate);
+    RefreshTaskContext refreshTaskContext = new RefreshTaskContext(mongoTemplate,
+        RefreshTaskName.BUILD_ADD_MISSING_RECORD_SERVICE_CONFIG);
 
-    return new LockRefreshTask<>(RefreshTaskName.BUILD_ADD_MISSING_RECORD_SERVICE_CONFIG,
-        cacheProvider, redisLeaseTime, task,
+    return new LockRefreshTask<>(cacheProvider, redisLeaseTime, task,
         refreshTaskContext);
   }
 
@@ -201,13 +178,30 @@ public class OldDataCleaner implements InitializingBean {
     return newConfig;
   }
 
+  private boolean isTaskFinish(RefreshTaskContext refreshTaskContext) {
+    Query query = Query.query(
+        Criteria.where(SystemConfigurationCollection.Fields.key).is(REFRESH_DATA));
+    SystemConfigurationCollection systemConfiguration = refreshTaskContext.getMongoTemplate()
+        .findOne(query,
+            SystemConfigurationCollection.class);
+    return systemConfiguration != null && systemConfiguration.getRefreshTaskMark() != null
+        && systemConfiguration.getRefreshTaskMark().containsKey(refreshTaskContext.getTaskName());
+  }
+
+  private void markTaskFinish(RefreshTaskContext refreshTaskContext) {
+    Query query = Query.query(
+        Criteria.where(SystemConfigurationCollection.Fields.key).is(REFRESH_DATA));
+    Update update = MongoHelper.getUpdate();
+    update.inc(SystemConfigurationCollection.Fields.refreshTaskMark + "."
+        + refreshTaskContext.getTaskName(), 1);
+    refreshTaskContext.getMongoTemplate()
+        .upsert(query, update, SystemConfigurationCollection.class);
+  }
+
 
   @Data
   @AllArgsConstructor
-  private static class LockRefreshTask<T> implements Runnable {
-
-    @NonNull
-    private String taskName;
+  private static class LockRefreshTask<T extends RefreshTaskContext> implements Runnable {
 
     private CacheProvider cacheProvider;
 
@@ -219,7 +213,7 @@ public class OldDataCleaner implements InitializingBean {
 
     @Override
     public void run() {
-
+      String taskName = refreshTaskContext.getTaskName();
       LockWrapper lock = cacheProvider.getLock(taskName);
       try {
         lock.lock(redisLeaseTime, TimeUnit.SECONDS);
@@ -236,10 +230,13 @@ public class OldDataCleaner implements InitializingBean {
 
   @Data
   @NoArgsConstructor
+  @AllArgsConstructor
   private static class RefreshTaskContext {
 
     @NonNull
     private MongoTemplate mongoTemplate;
+    @NonNull
+    private String taskName;
   }
 
 
