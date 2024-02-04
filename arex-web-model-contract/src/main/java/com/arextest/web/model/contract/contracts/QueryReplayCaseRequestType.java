@@ -17,4 +17,6 @@ public class QueryReplayCaseRequestType implements PagingRequest {
   private Integer diffResultCode;
 
   private String keyWord;
+
+  private String lastId;
 }
