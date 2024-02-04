@@ -44,4 +44,6 @@ public class ReplayCompareResultCollection extends ModelBase {
   private MsgInfoDao msgInfo;
 
   private Date dataCreateTime;
+
+  private Boolean ignore;
 }
