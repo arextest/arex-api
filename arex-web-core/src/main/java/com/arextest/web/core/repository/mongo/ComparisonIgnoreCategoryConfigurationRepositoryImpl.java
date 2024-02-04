@@ -11,6 +11,7 @@ import com.mongodb.client.result.UpdateResult;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -106,7 +107,27 @@ public class ComparisonIgnoreCategoryConfigurationRepositoryImpl
   public boolean insert(ComparisonIgnoreCategoryConfiguration configuration) {
     ConfigComparisonIgnoreCategoryCollection collection =
         ConfigComparisonIgnoreCategoryMapper.INSTANCE.daoFromDto(configuration);
-    mongoTemplate.save(collection);
-    return true;
+
+
+    Update update = MongoHelper.getUpdate();
+    MongoHelper.appendFullProperties(update, configuration);
+
+    Query query = Query.query(Criteria.where(AbstractComparisonDetails.Fields.appId)
+        .is(collection.getAppId())
+        .and(AbstractComparisonDetails.Fields.operationId)
+        .is(collection.getOperationId())
+        .and(AbstractComparisonDetails.Fields.compareConfigType)
+        .is(collection.getCompareConfigType())
+        .and(AbstractComparisonDetails.Fields.fsInterfaceId)
+        .is(collection.getFsInterfaceId())
+        .and(AbstractComparisonDetails.Fields.dependencyId)
+        .is(collection.getDependencyId())
+        .and(ConfigComparisonIgnoreCategoryCollection.Fields.ignoreCategoryDetail)
+        .is(collection.getIgnoreCategoryDetail()));
+
+    ConfigComparisonIgnoreCategoryCollection dao = mongoTemplate.findAndModify(query, update,
+        FindAndModifyOptions.options().returnNew(true).upsert(true),
+        ConfigComparisonIgnoreCategoryCollection.class);
+    return dao != null;
   }
 }

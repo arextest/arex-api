@@ -13,4 +13,5 @@ public class FullLinkInfoItem {
   private String categoryName;
   private String operationName;
   private String instanceId;
+  private Boolean ignore;
 }
