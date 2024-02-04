@@ -39,7 +39,7 @@ arex:
         sendMaxQps: 20
         targetEnv: ""
   compare:
-    ignoredTimePrecisionMillis: 2000
+    ignoredTimePrecisionMillis: 60000
     nameToLower: true
     nullEqualsEmpty: true
     selectIgnoreCompare: true
