@@ -42,6 +42,6 @@
   <parent>
     <artifactId>arex-web</artifactId>
     <groupId>com.arextest</groupId>
-    <version>0.6.0.22</version>
+    <version>${revision}</version>
   </parent>
 </project>
