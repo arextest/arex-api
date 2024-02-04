@@ -38,7 +38,7 @@ public class ControllerException {
 
   @ExceptionHandler(ArexException.class)
   public Response handleArexException(ArexException e) {
-    LogUtils.error(LOGGER, "Arex internal exception", e);
+    LogUtils.warn(LOGGER, "Arex internal exception", e);
     return ResponseUtils_New.errorResponse(e.getMessage(), e.getResponseCode());
   }
 }

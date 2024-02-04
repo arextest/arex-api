@@ -51,10 +51,12 @@ public class StorageCase {
     ResponseEntity<ViewRecordResponseType> response = HttpUtils.post(
         storageServiceUrl + STORAGE_VIEW_RECORD_URL,
         request.toString(), ViewRecordResponseType.class);
-    if (response == null || response.getBody() == null
-        || response.getBody().getRecordResult() == null) {
-      throw new RecordCaseNotFoundArexException("Record case not found: " + recordId);
-    }
+
+    Optional.ofNullable(response)
+        .map(ResponseEntity::getBody)
+        .map(ViewRecordResponseType::getRecordResult)
+        .filter(result -> !result.isEmpty())
+        .orElseThrow(() -> new RecordCaseNotFoundArexException("Record case not found: " + recordId));
 
     List<AREXMocker> mockers = response.getBody().getRecordResult();
     Optional<AREXMocker> entryPoint = mockers.stream()
