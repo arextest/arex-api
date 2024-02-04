@@ -109,8 +109,8 @@ public class ComparisonIgnoreCategoryConfigurationRepositoryImpl
         ConfigComparisonIgnoreCategoryMapper.INSTANCE.daoFromDto(configuration);
 
 
-    Update update = new Update();
-    MongoHelper.appendFullProperties(update, ConfigComparisonIgnoreCategoryCollection.class);
+    Update update = MongoHelper.getUpdate();
+    MongoHelper.appendFullProperties(update, configuration);
 
     Query query = Query.query(Criteria.where(AbstractComparisonDetails.Fields.appId)
         .is(collection.getAppId())
