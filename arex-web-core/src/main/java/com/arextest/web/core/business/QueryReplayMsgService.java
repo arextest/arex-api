@@ -190,6 +190,7 @@ public class QueryReplayMsgService {
           dependencyItem.setOperationName(dto.getOperationName());
           dependencyItem.setInstanceId(dto.getInstanceId());
           dependencyItem.setCode(computeItemStatus(dto));
+          dependencyItem.setIgnore(dto.getIgnore());
           itemList.add(dependencyItem);
         }
       }
