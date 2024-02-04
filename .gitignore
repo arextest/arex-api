@@ -35,5 +35,7 @@ build/
 .vscode/
 
 *.log
+.DS_Store
+.flattened-pom.xml
 
 arex-api-jar/
