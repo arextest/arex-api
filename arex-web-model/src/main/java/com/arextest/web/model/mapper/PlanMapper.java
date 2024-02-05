@@ -5,9 +5,12 @@ import com.arextest.web.model.contract.contracts.common.PlanStatistic;
 import com.arextest.web.model.contract.contracts.replay.UpdateReportInfoRequestType;
 import com.arextest.web.model.dao.mongodb.ReportPlanStatisticCollection;
 import com.arextest.web.model.dto.ReportPlanStatisticDto;
+import com.arextest.web.model.enums.ReplayStatusType;
+import java.util.Objects;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
+import org.mapstruct.Named;
 import org.mapstruct.factory.Mappers;
 
 @Mapper
@@ -35,7 +38,17 @@ public interface PlanMapper {
   @Mapping(target = "appName", expression = "java(\"unknown app name\".equals(dao.getAppName()) ? dao.getAppId() : dao.getAppName())")
   ReportPlanStatisticDto dtoFromDao(ReportPlanStatisticCollection dao);
 
+  @Mapping(target = "errorMessage", source = ".", qualifiedByName = "convertErrorMessage")
   PlanStatistic contractFromDto(ReportPlanStatisticDto dto);
 
   ReportPlanStatisticDto dtoFromContract(UpdateReportInfoRequestType contract);
+
+
+  @Named("convertErrorMessage")
+  default String convertErrorMessage(ReportPlanStatisticDto dto) {
+    if (dto != null && Objects.equals(dto.getStatus(), ReplayStatusType.FAIL_INTERRUPTED)) {
+      return dto.getErrorMessage();
+    }
+    return null;
+  }
 }
