@@ -21,6 +21,7 @@ import com.arextest.web.model.contract.contracts.filesystem.ChangeRoleRequestTyp
 import com.arextest.web.model.contract.contracts.filesystem.FSAddItemFromRecordRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.FSAddItemRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.FSAddItemResponseType;
+import com.arextest.web.model.contract.contracts.filesystem.FSAddItemsByAppAndInterfaceRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.FSAddWorkspaceRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.FSAddWorkspaceResponseType;
 import com.arextest.web.model.contract.contracts.filesystem.FSDuplicateRequestType;
@@ -83,18 +84,6 @@ import com.arextest.web.model.mapper.UserWorkspaceMapper;
 import com.arextest.web.model.mapper.WorkspaceMapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.Data;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.SetUtils;
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.MutablePair;
-import org.bson.internal.Base64;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-
-import javax.annotation.Resource;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -110,6 +99,17 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
+import javax.annotation.Resource;
+import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.SetUtils;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.MutablePair;
+import org.bson.internal.Base64;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
@@ -734,7 +734,8 @@ public class FileSystemService {
       } else {
         port = oldHost.split(COLON)[1];
       }
-      caseDto.getAddress().setEndpoint(contactUrl(LOCAL_HOST + COLON + port, caseDto.getAddress().getEndpoint()));
+      caseDto.getAddress()
+          .setEndpoint(contactUrl(LOCAL_HOST + COLON + port, caseDto.getAddress().getEndpoint()));
     } else {
       setAddressEndpoint(planId, caseDto.getAddress());
     }
@@ -742,9 +743,68 @@ public class FileSystemService {
     return FSCaseMapper.INSTANCE.contractFromDto(caseDto);
   }
 
+  public List<String> addItemsByAppAndInterface(FSAddItemsByAppAndInterfaceRequestType request) {
+    List<String> path = new ArrayList<>();
+    if (CollectionUtils.isNotEmpty(request.getPath())) {
+      path.addAll(request.getPath());
+    } else {
+      FSTreeDto treeDto = fsTreeRepository.queryFSTreeById(request.getWorkspaceId());
+      if (treeDto == null) {
+        LogUtils.error(LOGGER, "Workspace not found, workspaceId: {}", request.getWorkspaceId());
+        return null;
+      }
+      String[] defaultPath = new String[2];
+      FSNodeDto appIdNode = fileSystemUtils.findByNodeName(treeDto.getRoots(),
+          request.getAppName());
+      if (appIdNode == null) {
+        FSAddItemRequestType addFolderRequest = new FSAddItemRequestType();
+        addFolderRequest.setId(treeDto.getId());
+        addFolderRequest.setNodeName(request.getAppName());
+        addFolderRequest.setNodeType(FSInfoItem.FOLDER);
+        MutablePair<String, FSTreeDto> addFolder = addItem(addFolderRequest);
+        if (addFolder == null) {
+          LogUtils.error(LOGGER, "Add folder failed, workspaceId: {}, nodeName: {}",
+              request.getWorkspaceId(),
+              request.getAppName());
+          return null;
+        }
+        appIdNode = fileSystemUtils.findByNodeName(addFolder.getRight().getRoots(),
+            request.getAppName());
+        defaultPath[0] = addFolder.getLeft();
+      } else {
+        defaultPath[0] = appIdNode.getInfoId();
+      }
+      FSNodeDto interfaceNode = fileSystemUtils.findByNodeName(appIdNode.getChildren(),
+          request.getInterfaceName());
+      if (interfaceNode == null) {
+        FSAddItemRequestType addInterfaceRequest = new FSAddItemRequestType();
+        addInterfaceRequest.setId(treeDto.getId());
+        addInterfaceRequest.setNodeName(request.getInterfaceName());
+        addInterfaceRequest.setNodeType(FSInfoItem.INTERFACE);
+        addInterfaceRequest.setParentPath(new String[]{defaultPath[0]});
+        MutablePair<String, FSTreeDto> addInterface = addItem(addInterfaceRequest);
+        if (addInterface == null) {
+          LogUtils.error(LOGGER, "Add interface failed, workspaceId: {}, nodeName: {}",
+              request.getWorkspaceId(),
+              request.getInterfaceName());
+          return null;
+        }
+        defaultPath[1] = addInterface.getLeft();
+      } else {
+        defaultPath[1] = interfaceNode.getInfoId();
+      }
+      path.addAll(Arrays.asList(defaultPath));
+    }
+
+    // add the related information about the replay interface to the manual interface
+    this.addReplayInfoToManual(request.getOperationId(), path);
+    return path;
+  }
+
   /**
    * Add item from record by default path. default path rule: AppName/InterfaceName/NodeName
    */
+  @Deprecated
   public MutablePair<String, String> addItemFromRecordByDefault(
       FsAddItemFromRecordByDefaultRequestType request) {
     FSAddItemFromRecordRequestType fsAddItemFromRecordRequest = new FSAddItemFromRecordRequestType();

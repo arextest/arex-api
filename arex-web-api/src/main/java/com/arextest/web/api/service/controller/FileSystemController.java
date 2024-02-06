@@ -12,6 +12,8 @@ import com.arextest.web.model.contract.contracts.filesystem.FSAddItemFromRecordR
 import com.arextest.web.model.contract.contracts.filesystem.FSAddItemFromRecordResponseType;
 import com.arextest.web.model.contract.contracts.filesystem.FSAddItemRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.FSAddItemResponseType;
+import com.arextest.web.model.contract.contracts.filesystem.FSAddItemsByAppAndInterfaceRequestType;
+import com.arextest.web.model.contract.contracts.filesystem.FSAddItemsByAppAndInterfaceResponseType;
 import com.arextest.web.model.contract.contracts.filesystem.FSAddWorkspaceRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.FSAddWorkspaceResponseType;
 import com.arextest.web.model.contract.contracts.filesystem.FSDeleteWorkspaceRequestType;
@@ -52,9 +54,12 @@ import com.arextest.web.model.contract.contracts.filesystem.RecoverItemInfoReque
 import com.arextest.web.model.contract.contracts.filesystem.RemoveUserFromWorkspaceType;
 import com.arextest.web.model.contract.contracts.filesystem.ValidInvitationRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.ValidInvitationResponseType;
+import java.util.List;
 import javax.annotation.Resource;
 import javax.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.springframework.stereotype.Controller;
@@ -351,6 +356,7 @@ public class FileSystemController {
     return ResponseUtils.successResponse(response);
   }
 
+  @Deprecated
   @PostMapping("/addItemFromRecordByDefault")
   @ResponseBody
   public Response addItemFromRecordByDefault(
@@ -365,6 +371,22 @@ public class FileSystemController {
     response.setSuccess(true);
     response.setWorkspaceId(result.getLeft());
     response.setInfoId(result.getRight());
+    return ResponseUtils.successResponse(response);
+  }
+
+  @PostMapping("/addItemsByAppNameAndInterfaceName")
+  @ResponseBody
+  public Response addItemsByAppAndInterface(
+      @Valid @RequestBody FSAddItemsByAppAndInterfaceRequestType request) {
+    List<String> path = fileSystemService.addItemsByAppAndInterface(request);
+    FSAddItemsByAppAndInterfaceResponseType response = new FSAddItemsByAppAndInterfaceResponseType();
+    if (CollectionUtils.isEmpty(path)) {
+      response.setSuccess(false);
+    } else {
+      response.setSuccess(true);
+      response.setPath(path);
+      response.setWorkspaceId(request.getWorkspaceId());
+    }
     return ResponseUtils.successResponse(response);
   }
 
