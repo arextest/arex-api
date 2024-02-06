@@ -801,143 +801,6 @@ public class FileSystemService {
     return path;
   }
 
-  /**
-   * Add item from record by default path. default path rule: AppName/InterfaceName/NodeName
-   */
-  @Deprecated
-  public MutablePair<String, String> addItemFromRecordByDefault(
-      FsAddItemFromRecordByDefaultRequestType request) {
-    FSAddItemFromRecordRequestType fsAddItemFromRecordRequest = new FSAddItemFromRecordRequestType();
-    fsAddItemFromRecordRequest.setWorkspaceId(request.getWorkspaceId());
-    fsAddItemFromRecordRequest.setNodeName(request.getNodeName());
-    fsAddItemFromRecordRequest.setPlanId(request.getPlanId());
-    fsAddItemFromRecordRequest.setRecordId(request.getRecordId());
-    fsAddItemFromRecordRequest.setOperationId(request.getOperationId());
-    fsAddItemFromRecordRequest.setLabelIds(request.getLabelIds());
-
-    FSTreeDto treeDto = fsTreeRepository.queryFSTreeById(request.getWorkspaceId());
-    if (treeDto == null) {
-      LogUtils.error(LOGGER, "Workspace not found, workspaceId: {}", request.getWorkspaceId());
-      return null;
-    }
-    String[] parentPath = new String[2];
-    FSNodeDto appIdNode = fileSystemUtils.findByNodeName(treeDto.getRoots(), request.getAppName());
-    if (appIdNode == null) {
-      FSAddItemRequestType addFolderRequest = new FSAddItemRequestType();
-      addFolderRequest.setId(treeDto.getId());
-      addFolderRequest.setNodeName(request.getAppName());
-      addFolderRequest.setNodeType(FSInfoItem.FOLDER);
-      MutablePair<String, FSTreeDto> addFolder = addItem(addFolderRequest);
-      if (addFolder == null) {
-        LogUtils.error(LOGGER, "Add folder failed, workspaceId: {}, nodeName: {}",
-            request.getWorkspaceId(),
-            request.getAppName());
-        return null;
-      }
-      appIdNode = fileSystemUtils.findByNodeName(addFolder.getRight().getRoots(),
-          request.getAppName());
-      parentPath[0] = addFolder.getLeft();
-    } else {
-      parentPath[0] = appIdNode.getInfoId();
-    }
-    FSNodeDto interfaceNode = fileSystemUtils.findByNodeName(appIdNode.getChildren(),
-        request.getInterfaceName());
-    if (interfaceNode == null) {
-      FSAddItemRequestType addInterfaceRequest = new FSAddItemRequestType();
-      addInterfaceRequest.setId(treeDto.getId());
-      addInterfaceRequest.setNodeName(request.getInterfaceName());
-      addInterfaceRequest.setNodeType(FSInfoItem.INTERFACE);
-      addInterfaceRequest.setParentPath(new String[]{parentPath[0]});
-      MutablePair<String, FSTreeDto> addInterface = addItem(addInterfaceRequest);
-      if (addInterface == null) {
-        LogUtils.error(LOGGER, "Add interface failed, workspaceId: {}, nodeName: {}",
-            request.getWorkspaceId(),
-            request.getInterfaceName());
-        return null;
-      }
-      parentPath[1] = addInterface.getLeft();
-    } else {
-      parentPath[1] = interfaceNode.getInfoId();
-    }
-
-    fsAddItemFromRecordRequest.setParentPath(parentPath);
-    return addItemFromRecord(fsAddItemFromRecordRequest);
-  }
-
-  /**
-   * @return : Tuple<workspaceId,InfoId>
-   */
-  public MutablePair<String, String> addItemFromRecord(FSAddItemFromRecordRequestType request) {
-
-    FSTreeDto treeDto = fsTreeRepository.queryFSTreeById(request.getWorkspaceId());
-    if (treeDto == null) {
-      return null;
-    }
-
-    FSCaseDto caseDto = storageCase.getViewRecord(request.getRecordId());
-    if (caseDto == null) {
-      return null;
-    }
-
-    FSNodeDto parentNode = fileSystemUtils.findByPath(treeDto.getRoots(), request.getParentPath());
-    if (parentNode == null) {
-      return null;
-    }
-    if (parentNode.getNodeType() == FSInfoItem.CASE) {
-      return null;
-    }
-    List<String> path = new ArrayList<>(Arrays.asList(request.getParentPath()));
-    // add default interface if the parent path is Folder
-    if (parentNode.getNodeType() == FSInfoItem.FOLDER) {
-      FSAddItemRequestType addInterface = new FSAddItemRequestType();
-      addInterface.setId(treeDto.getId());
-      addInterface.setNodeName(DEFAULT_INTERFACE_NAME);
-      addInterface.setNodeType(FSInfoItem.INTERFACE);
-      addInterface.setParentPath(request.getParentPath());
-      MutablePair<String, FSTreeDto> addInterfaceResponse = addItem(addInterface);
-      path.add(addInterfaceResponse.getLeft());
-    }
-
-    // add the related information about the replay interface to the manual interface
-    this.addReplayInfoToManual(request.getOperationId(), path);
-
-    FSAddItemRequestType addCase = new FSAddItemRequestType();
-    addCase.setId(treeDto.getId());
-    addCase.setNodeName(request.getNodeName());
-    addCase.setNodeType(FSInfoItem.CASE);
-    addCase.setParentPath(path.toArray(new String[path.size()]));
-    addCase.setCaseSourceType(CaseSourceType.REPLAY_CASE);
-    MutablePair<String, FSTreeDto> addCaseResponse = addItem(addCase);
-
-    caseDto.setParentId(path.get(path.size() - 1));
-    caseDto.setId(addCaseResponse.getLeft());
-    String newRecordId = storageCase.getNewRecordId(request.getRecordId());
-    caseDto.setRecordId(newRecordId);
-
-    // set labels
-    caseDto.setLabelIds(request.getLabelIds());
-
-    KeyValuePairDto recordHeader = new KeyValuePairDto();
-    recordHeader.setKey(AREX_RECORD_ID);
-    recordHeader.setValue(newRecordId);
-    recordHeader.setActive(true);
-    caseDto.getHeaders().removeIf(item -> Objects.equals(item.getKey(), AREX_RECORD_ID));
-    caseDto.getHeaders().add(0, recordHeader);
-
-    // modify the address of fsCase(domain + request path)
-    setAddressEndpoint(request.getPlanId(), caseDto.getAddress());
-
-    // when fix the case form replay, don't inherit the address of the parent interface
-    caseDto.setInherited(false);
-
-    if (!storageCase.pinnedCase(request.getRecordId(), newRecordId)) {
-      return null;
-    }
-
-    fsCaseRepository.saveCase(caseDto);
-    return new MutablePair<>(treeDto.getId(), addCaseResponse.getLeft());
-  }
-
   public boolean pinMock(FSPinMockRequestType request) {
     if (request.getNodeType() == FSInfoItem.FOLDER) {
       LogUtils.error(LOGGER, "Not support NodeType:{} in pinMock operation", request.getNodeType());
@@ -959,6 +822,9 @@ public class FileSystemService {
     if (interfaceDto.getHeaders() == null) {
       interfaceDto.setHeaders(new ArrayList<>());
     }
+    interfaceDto.setHeaders(interfaceDto.getHeaders().stream()
+        .filter(header -> !header.getKey().equalsIgnoreCase(AREX_RECORD_ID))
+        .collect(Collectors.toList()));
     KeyValuePairDto kvDto = new KeyValuePairDto();
     kvDto.setKey(AREX_RECORD_ID);
     kvDto.setValue(newRecordId);

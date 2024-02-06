@@ -340,40 +340,6 @@ public class FileSystemController {
     return ResponseUtils.successResponse(responseType);
   }
 
-  @Deprecated
-  @PostMapping("/addItemFromRecord")
-  @ResponseBody
-  public Response addItemFromRecord(@Valid @RequestBody FSAddItemFromRecordRequestType request) {
-    MutablePair<String, String> result = fileSystemService.addItemFromRecord(request);
-    if (result == null) {
-      return ResponseUtils.errorResponse("Failed to add record case to workspace",
-          ResponseCode.REQUESTED_HANDLE_EXCEPTION);
-    }
-    FSAddItemFromRecordResponseType response = new FSAddItemFromRecordResponseType();
-    response.setSuccess(true);
-    response.setWorkspaceId(result.getLeft());
-    response.setInfoId(result.getRight());
-    return ResponseUtils.successResponse(response);
-  }
-
-  @Deprecated
-  @PostMapping("/addItemFromRecordByDefault")
-  @ResponseBody
-  public Response addItemFromRecordByDefault(
-      @Valid @RequestBody FsAddItemFromRecordByDefaultRequestType request) {
-    MutablePair<String, String> result = fileSystemService.addItemFromRecordByDefault(request);
-
-    if (result == null) {
-      return ResponseUtils.errorResponse("Failed to add record case to workspace by default path",
-          ResponseCode.REQUESTED_HANDLE_EXCEPTION);
-    }
-    FSAddItemFromRecordResponseType response = new FSAddItemFromRecordResponseType();
-    response.setSuccess(true);
-    response.setWorkspaceId(result.getLeft());
-    response.setInfoId(result.getRight());
-    return ResponseUtils.successResponse(response);
-  }
-
   @PostMapping("/addItemsByAppNameAndInterfaceName")
   @ResponseBody
   public Response addItemsByAppAndInterface(
