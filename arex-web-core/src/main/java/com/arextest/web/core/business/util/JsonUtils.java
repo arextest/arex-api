@@ -5,6 +5,8 @@ import com.arextest.web.model.dto.CompareResultDto;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Base64;
+import java.util.regex.Pattern;
+
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
@@ -15,6 +17,8 @@ import org.apache.commons.lang3.StringUtils;
 @Slf4j
 public class JsonUtils {
   public static final ObjectMapper COMMON_MAPPER = new ObjectMapper();
+  private static final String PATTERN_STRING = "^([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)?$";
+  private static final Pattern BASE_64_PATTERN = Pattern.compile(PATTERN_STRING);
 
   public static void downgrade(CompareResultDto compareResult) {
     try {
@@ -68,5 +72,12 @@ public class JsonUtils {
       return false;
     }
     return (obj.startsWith("{") && obj.endsWith("}")) || (obj.startsWith("[") && obj.endsWith("]"));
+  }
+
+  public static Object decode(String requestMessage) {
+    if (BASE_64_PATTERN.matcher(requestMessage).matches()) {
+      return Base64.getDecoder().decode(requestMessage);
+    }
+    return requestMessage;
   }
 }

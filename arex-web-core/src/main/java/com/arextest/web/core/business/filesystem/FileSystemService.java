@@ -8,6 +8,7 @@ import com.arextest.web.core.business.filesystem.importexport.impl.ImportExportF
 import com.arextest.web.core.business.filesystem.pincase.StorageCase;
 import com.arextest.web.core.business.filesystem.recovery.RecoveryFactory;
 import com.arextest.web.core.business.filesystem.recovery.RecoveryService;
+import com.arextest.web.core.business.util.JsonUtils;
 import com.arextest.web.core.business.util.MailUtils;
 import com.arextest.web.core.repository.FSCaseRepository;
 import com.arextest.web.core.repository.FSFolderRepository;
@@ -713,6 +714,15 @@ public class FileSystemService {
     if (caseDto == null) {
       return new FSQueryCaseResponseType();
     }
+
+    // decode base64 encoded request body
+    if (caseDto.getBody() != null && caseDto.getBody().getBody() != null) {
+      Object decodeMessage = JsonUtils.decode(caseDto.getBody().getBody());
+      if (decodeMessage.getClass() == byte[].class) {
+        caseDto.getBody().setBody(new String((byte[]) decodeMessage));
+      }
+    }
+
     if (caseDto.getHeaders() == null) {
       caseDto.setHeaders(new ArrayList<>());
     }

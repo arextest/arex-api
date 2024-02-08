@@ -46,6 +46,13 @@ public class PreprocessService {
   @Resource
   private ObjectMapper objectMapper;
 
+  public static void main(String[] args) {
+    String base64 = "dXNlcm5hbWU9bWVtYmVyJnBhc3N3b3JkPW1lbWJlcjEyMw==";
+    String request = ZstdUtils.uncompressString(base64);
+    String requestJson = new String(Base64.getDecoder().decode(request));
+    int i = 1;
+  }
+
   public void updateServletSchema() {
     LogUtils.info(LOGGER, "starting update servlet schema");
     PreprocessConfigDto preprocessConfigDto = preprocessConfigRepository.queryConfig(
