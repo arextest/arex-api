@@ -1,6 +1,8 @@
 package com.arextest.web.core.business.config;
 
 import com.arextest.config.repository.ConfigRepositoryProvider;
+
+import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.collections4.CollectionUtils;
 
@@ -70,7 +72,7 @@ public abstract class AbstractConfigurableHandler<T> implements ConfigurableHand
   }
 
   protected List<T> createFromGlobalDefault(String appId) {
-    return null;
+    return new ArrayList<>();
   }
 
   protected boolean shouldMergeGlobalDefault() {
