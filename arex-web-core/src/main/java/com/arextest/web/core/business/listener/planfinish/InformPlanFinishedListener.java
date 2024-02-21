@@ -7,7 +7,8 @@ import com.arextest.web.model.contract.contracts.CallbackInformRequestType;
 import com.arextest.web.model.contract.contracts.QueryPlanStatisticsRequestType;
 import com.arextest.web.model.contract.contracts.QueryPlanStatisticsResponseType;
 import com.arextest.web.model.contract.contracts.common.PlanStatistic;
-import com.arextest.web.model.contract.contracts.config.SystemConfig;
+import com.arextest.web.model.contract.contracts.config.SystemConfiguration;
+import com.arextest.web.model.dao.mongodb.SystemConfigurationCollection;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
@@ -30,7 +31,7 @@ public class InformPlanFinishedListener implements PlanFinishedLinstener, Applic
 
   @Override
   public String planFinishedAction(String appId, String planId, Integer status) {
-    SystemConfig systemConfig = systemConfigRepository.getLatestSystemConfig();
+    SystemConfiguration systemConfig = systemConfigRepository.getSystemConfigByKey(SystemConfigurationCollection.KeySummary.CALLBACK_URL);
     if (systemConfig == null || systemConfig.getCallbackUrl() == null) {
       return FAIL_STR;
     }

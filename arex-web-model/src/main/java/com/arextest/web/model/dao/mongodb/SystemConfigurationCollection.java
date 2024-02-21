@@ -1,9 +1,11 @@
 package com.arextest.web.model.dao.mongodb;
 
-import java.util.Map;
+import com.arextest.web.model.contract.contracts.common.DesensitizationJar;
 import lombok.Data;
 import lombok.experimental.FieldNameConstants;
 import org.springframework.data.mongodb.core.mapping.Document;
+
+import java.util.Map;
 
 @Data
 @FieldNameConstants
@@ -16,12 +18,16 @@ public class SystemConfigurationCollection extends ModelBase {
    */
   private String key;
   private Map<String, Integer> refreshTaskMark;
+  private DesensitizationJar desensitizationJar;
+  private String callbackUrl;
 
 
   public interface KeySummary {
 
     // to identify the refresh task
     String REFRESH_DATA = "refresh_data";
+    String DESERIALIZATION_JAR = "deserialization_jar";
+    String CALLBACK_URL = "callback_url";
 
   }
 }

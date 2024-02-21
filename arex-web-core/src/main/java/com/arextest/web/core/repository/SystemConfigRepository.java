@@ -1,6 +1,8 @@
 package com.arextest.web.core.repository;
 
-import com.arextest.web.model.contract.contracts.config.SystemConfig;
+import com.arextest.web.model.contract.contracts.config.SystemConfiguration;
+
+import java.util.List;
 
 /**
  * @author wildeslam.
@@ -8,7 +10,9 @@ import com.arextest.web.model.contract.contracts.config.SystemConfig;
  */
 public interface SystemConfigRepository extends RepositoryProvider {
 
-  SystemConfig getLatestSystemConfig();
+  boolean saveConfig(SystemConfiguration systemConfig);
 
-  boolean saveConfig(SystemConfig systemConfig);
+  List<SystemConfiguration> getAllSystemConfigList();
+
+  SystemConfiguration getSystemConfigByKey(String key);
 }

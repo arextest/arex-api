@@ -1,16 +1,21 @@
 package com.arextest.web.core.repository.mongo;
 
 import com.arextest.web.core.repository.SystemConfigRepository;
-import com.arextest.web.model.contract.contracts.config.SystemConfig;
-import com.arextest.web.model.dao.mongodb.ModelBase;
+import com.arextest.web.core.repository.mongo.util.MongoHelper;
+import com.arextest.web.model.contract.contracts.config.SystemConfiguration;
 import com.arextest.web.model.dao.mongodb.SystemConfigCollection;
-import com.arextest.web.model.mapper.SystemConfigMapper;
-import javax.annotation.Resource;
+import com.arextest.web.model.dao.mongodb.SystemConfigurationCollection;
+import com.arextest.web.model.mapper.SystemConfigurationMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Repository;
+
+import javax.annotation.Resource;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author wildeslam.
@@ -24,18 +29,27 @@ public class SystemConfigRepositoryImpl implements SystemConfigRepository {
   private MongoTemplate mongoTemplate;
 
   @Override
-  public SystemConfig getLatestSystemConfig() {
-    Query query = new Query();
-    query.with(Sort.by(Sort.Direction.DESC, ModelBase.Fields.dataChangeCreateTime));
-    query.limit(1);
-    SystemConfigCollection systemConfigCollection = mongoTemplate.findOne(query,
-        SystemConfigCollection.class);
-    return SystemConfigMapper.INSTANCE.dtoFromDao(systemConfigCollection);
+  public boolean saveConfig(SystemConfiguration systemConfig) {
+    Query query = Query.query(Criteria.where(SystemConfigurationCollection.Fields.key).is(systemConfig.getKey()));
+    Update update = MongoHelper.getUpdate();
+    MongoHelper.appendFullProperties(update, systemConfig);
+    mongoTemplate.findAndModify(query, update, SystemConfigCollection.class);
+    return true;
   }
 
   @Override
-  public boolean saveConfig(SystemConfig systemConfig) {
-    mongoTemplate.save(SystemConfigMapper.INSTANCE.daoFromDto(systemConfig));
-    return true;
+  public List<SystemConfiguration> getAllSystemConfigList() {
+    return mongoTemplate.findAll(SystemConfigurationCollection.class)
+        .stream()
+        .map(SystemConfigurationMapper.INSTANCE::dtoFromDao)
+        .collect(Collectors.toList());
+  }
+
+  @Override
+  public SystemConfiguration getSystemConfigByKey(String key) {
+    Query query = Query.query(Criteria.where(SystemConfigurationCollection.Fields.key).is(key));
+    SystemConfigurationCollection systemConfigurationCollection = mongoTemplate.findOne(query,
+        SystemConfigurationCollection.class);
+    return SystemConfigurationMapper.INSTANCE.dtoFromDao(systemConfigurationCollection);
   }
 }
