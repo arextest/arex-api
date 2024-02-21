@@ -14,75 +14,73 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import javax.annotation.Resource;
+import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.tuple.Pair;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
+@AllArgsConstructor
 public class QueryPlanStatisticsService {
-
-  @Resource
   private ReportPlanStatisticRepositoryImpl planStatisticRepository;
-
-  @Autowired
   private CaseCountService caseCountService;
 
-  public QueryPlanStatisticsResponseType planStatistics(QueryPlanStatisticsRequestType request) {
+  public QueryPlanStatisticsResponseType queryByApp(QueryPlanStatisticsRequestType request) {
     QueryPlanStatisticsResponseType response = new QueryPlanStatisticsResponseType();
 
     Pair<List<ReportPlanStatisticDto>, Long> result = planStatisticRepository.pageQueryPlanStatistic(
         request);
-    List<ReportPlanStatisticDto> reportPlanStatisticDtoList = result.getLeft();
+    List<ReportPlanStatisticDto> plans = result.getLeft();
     Long totalCount = result.getRight();
     response.setTotalCount(totalCount);
 
-    List<String> planIds =
-        reportPlanStatisticDtoList.stream().map(ReportPlanStatisticDto::getPlanId)
-            .collect(Collectors.toList());
+    List<String> planIds = plans.stream()
+        .map(ReportPlanStatisticDto::getPlanId)
+        .collect(Collectors.toList());
 
     Map<String, CaseCount> caseCountMap = caseCountService.calculateCaseCountsByPlanIds(planIds);
-    for (ReportPlanStatisticDto plan : reportPlanStatisticDtoList) {
+    for (ReportPlanStatisticDto plan : plans) {
       CaseCount caseCount = caseCountMap.get(plan.getPlanId());
       if (caseCount == null) {
         continue;
       }
-      plan.setTotalCaseCount(caseCount.getTotalCaseCount());
-      plan.setErrorCaseCount(caseCount.getErrorCaseCount());
-      plan.setSuccessCaseCount(caseCount.getSuccessCaseCount());
-      plan.setFailCaseCount(caseCount.getFailCaseCount());
-      plan.setWaitCaseCount(caseCount.getTotalCaseCount() - caseCount.getReceivedCaseCount());
-      plan.setTotalOperationCount(caseCount.getTotalOperationCount());
-      plan.setSuccessOperationCount(caseCount.getSuccessOperationCount());
+      mergeCaseCount(plan, caseCount);
     }
 
-    List<PlanStatistic> planStatistics =
-        reportPlanStatisticDtoList.stream().map(PlanMapper.INSTANCE::contractFromDto)
-            .collect(Collectors.toList());
-    response.setPlanStatisticList(planStatistics);
+    response.setPlanStatisticList(plans.stream().map(PlanMapper.INSTANCE::contractFromDto)
+        .collect(Collectors.toList()));
     return response;
   }
 
-  public QueryPlanStatisticResponseType planStatistic(QueryPlanStatisticRequestType request) {
+  public QueryPlanStatisticResponseType queryOne(QueryPlanStatisticRequestType request) {
     QueryPlanStatisticResponseType response = new QueryPlanStatisticResponseType();
-    ReportPlanStatisticDto reportPlanStatisticDto = planStatisticRepository.findByPlanId(request.getPlanId());
-    if (reportPlanStatisticDto == null) {
+    ReportPlanStatisticDto plan = planStatisticRepository.findByPlanId(request.getPlanId());
+    if (plan == null) {
       return response;
     }
-    Map<String, CaseCount> caseCountMap = caseCountService.calculateCaseCountsByPlanIds(Collections.singletonList(request.getPlanId()));
+    Map<String, CaseCount> caseCountMap = caseCountService
+        .calculateCaseCountsByPlanIds(Collections.singletonList(request.getPlanId()));
     if (caseCountMap.isEmpty() || !caseCountMap.containsKey(request.getPlanId())) {
       return response;
     }
     CaseCount caseCount = caseCountMap.get(request.getPlanId());
-    reportPlanStatisticDto.setTotalCaseCount(caseCount.getTotalCaseCount());
-    reportPlanStatisticDto.setErrorCaseCount(caseCount.getErrorCaseCount());
-    reportPlanStatisticDto.setSuccessCaseCount(caseCount.getSuccessCaseCount());
-    reportPlanStatisticDto.setFailCaseCount(caseCount.getFailCaseCount());
-    reportPlanStatisticDto.setWaitCaseCount(caseCount.getTotalCaseCount() - caseCount.getReceivedCaseCount());
-    reportPlanStatisticDto.setTotalOperationCount(caseCount.getTotalOperationCount());
-    reportPlanStatisticDto.setSuccessOperationCount(caseCount.getSuccessOperationCount());
-    PlanStatistic planStatistic = PlanMapper.INSTANCE.contractFromDto(reportPlanStatisticDto);
+    mergeCaseCount(plan, caseCount);
+    PlanStatistic planStatistic = PlanMapper.INSTANCE.contractFromDto(plan);
     response.setPlanStatistic(planStatistic);
     return response;
+  }
+
+  /**
+   * Merge case count info into plan
+   * @param plan target replay plan
+   * @param caseCount case count info
+   */
+  private void mergeCaseCount(ReportPlanStatisticDto plan, CaseCount caseCount) {
+    plan.setTotalCaseCount(caseCount.getTotalCaseCount());
+    plan.setErrorCaseCount(caseCount.getErrorCaseCount());
+    plan.setSuccessCaseCount(caseCount.getSuccessCaseCount());
+    plan.setFailCaseCount(caseCount.getFailCaseCount());
+    plan.setWaitCaseCount(caseCount.getTotalCaseCount() - caseCount.getReceivedCaseCount());
+    plan.setTotalOperationCount(caseCount.getTotalOperationCount());
+    plan.setSuccessOperationCount(caseCount.getSuccessOperationCount());
   }
 }
