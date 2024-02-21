@@ -201,7 +201,7 @@ public class ReportQueryController {
       return ResponseUtils.errorResponse("invalid paging parameter",
           ResponseCode.REQUESTED_PARAMETER_INVALID);
     }
-    QueryPlanStatisticsResponseType response = queryPlanStatisticsService.planStatistics(request);
+    QueryPlanStatisticsResponseType response = queryPlanStatisticsService.queryByApp(request);
     return ResponseUtils.successResponse(response);
   }
 
@@ -212,7 +212,7 @@ public class ReportQueryController {
       return ResponseUtils.errorResponse("invalid paging parameter",
           ResponseCode.REQUESTED_PARAMETER_INVALID);
     }
-    QueryPlanStatisticResponseType response = queryPlanStatisticsService.planStatistic(request);
+    QueryPlanStatisticResponseType response = queryPlanStatisticsService.queryOne(request);
     return ResponseUtils.successResponse(response);
   }
 

@@ -85,7 +85,7 @@ public class InformPlanFinishedListener implements PlanFinishedLinstener, Applic
     request.setPageSize(1);
     request.setPageIndex(1);
     request.setPlanId(planId);
-    return queryPlanStatisticsService.planStatistics(request);
+    return queryPlanStatisticsService.queryByApp(request);
   }
 
   @Override

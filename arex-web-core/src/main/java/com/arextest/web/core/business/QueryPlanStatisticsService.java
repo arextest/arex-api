@@ -8,81 +8,117 @@ import com.arextest.web.model.contract.contracts.QueryPlanStatisticsResponseType
 import com.arextest.web.model.contract.contracts.common.CaseCount;
 import com.arextest.web.model.contract.contracts.common.PlanStatistic;
 import com.arextest.web.model.dto.ReportPlanStatisticDto;
+import com.arextest.web.model.enums.ReplayStatusType;
 import com.arextest.web.model.mapper.PlanMapper;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
-import javax.annotation.Resource;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.stereotype.Component;
 
 @Component
+@AllArgsConstructor
+@Slf4j
 public class QueryPlanStatisticsService {
-
-  @Resource
   private ReportPlanStatisticRepositoryImpl planStatisticRepository;
-
-  @Autowired
   private CaseCountService caseCountService;
+  private static final String DEFAULT_TIMEOUT_ERR_MSG = "Replay interrupted due to timeout";
 
-  public QueryPlanStatisticsResponseType planStatistics(QueryPlanStatisticsRequestType request) {
+  public QueryPlanStatisticsResponseType queryByApp(QueryPlanStatisticsRequestType request) {
     QueryPlanStatisticsResponseType response = new QueryPlanStatisticsResponseType();
 
     Pair<List<ReportPlanStatisticDto>, Long> result = planStatisticRepository.pageQueryPlanStatistic(
         request);
-    List<ReportPlanStatisticDto> reportPlanStatisticDtoList = result.getLeft();
+    List<ReportPlanStatisticDto> plans = result.getLeft();
     Long totalCount = result.getRight();
     response.setTotalCount(totalCount);
 
-    List<String> planIds =
-        reportPlanStatisticDtoList.stream().map(ReportPlanStatisticDto::getPlanId)
-            .collect(Collectors.toList());
+    List<String> planIds = plans.stream()
+        .map(ReportPlanStatisticDto::getPlanId)
+        .collect(Collectors.toList());
 
     Map<String, CaseCount> caseCountMap = caseCountService.calculateCaseCountsByPlanIds(planIds);
-    for (ReportPlanStatisticDto plan : reportPlanStatisticDtoList) {
+    for (ReportPlanStatisticDto plan : plans) {
+      checkNeedInterrupt(plan);
       CaseCount caseCount = caseCountMap.get(plan.getPlanId());
       if (caseCount == null) {
         continue;
       }
-      plan.setTotalCaseCount(caseCount.getTotalCaseCount());
-      plan.setErrorCaseCount(caseCount.getErrorCaseCount());
-      plan.setSuccessCaseCount(caseCount.getSuccessCaseCount());
-      plan.setFailCaseCount(caseCount.getFailCaseCount());
-      plan.setWaitCaseCount(caseCount.getTotalCaseCount() - caseCount.getReceivedCaseCount());
-      plan.setTotalOperationCount(caseCount.getTotalOperationCount());
-      plan.setSuccessOperationCount(caseCount.getSuccessOperationCount());
+      mergeCaseCount(plan, caseCount);
     }
 
-    List<PlanStatistic> planStatistics =
-        reportPlanStatisticDtoList.stream().map(PlanMapper.INSTANCE::contractFromDto)
-            .collect(Collectors.toList());
-    response.setPlanStatisticList(planStatistics);
+    response.setPlanStatisticList(plans.stream().map(PlanMapper.INSTANCE::contractFromDto)
+        .collect(Collectors.toList()));
     return response;
   }
 
-  public QueryPlanStatisticResponseType planStatistic(QueryPlanStatisticRequestType request) {
+  public QueryPlanStatisticResponseType queryOne(QueryPlanStatisticRequestType request) {
     QueryPlanStatisticResponseType response = new QueryPlanStatisticResponseType();
-    ReportPlanStatisticDto reportPlanStatisticDto = planStatisticRepository.findByPlanId(request.getPlanId());
-    if (reportPlanStatisticDto == null) {
+    ReportPlanStatisticDto plan = planStatisticRepository.findByPlanId(request.getPlanId());
+    if (plan == null) {
       return response;
     }
-    Map<String, CaseCount> caseCountMap = caseCountService.calculateCaseCountsByPlanIds(Collections.singletonList(request.getPlanId()));
+    checkNeedInterrupt(plan);
+    Map<String, CaseCount> caseCountMap = caseCountService
+        .calculateCaseCountsByPlanIds(Collections.singletonList(request.getPlanId()));
     if (caseCountMap.isEmpty() || !caseCountMap.containsKey(request.getPlanId())) {
       return response;
     }
     CaseCount caseCount = caseCountMap.get(request.getPlanId());
-    reportPlanStatisticDto.setTotalCaseCount(caseCount.getTotalCaseCount());
-    reportPlanStatisticDto.setErrorCaseCount(caseCount.getErrorCaseCount());
-    reportPlanStatisticDto.setSuccessCaseCount(caseCount.getSuccessCaseCount());
-    reportPlanStatisticDto.setFailCaseCount(caseCount.getFailCaseCount());
-    reportPlanStatisticDto.setWaitCaseCount(caseCount.getTotalCaseCount() - caseCount.getReceivedCaseCount());
-    reportPlanStatisticDto.setTotalOperationCount(caseCount.getTotalOperationCount());
-    reportPlanStatisticDto.setSuccessOperationCount(caseCount.getSuccessOperationCount());
-    PlanStatistic planStatistic = PlanMapper.INSTANCE.contractFromDto(reportPlanStatisticDto);
+    mergeCaseCount(plan, caseCount);
+    PlanStatistic planStatistic = PlanMapper.INSTANCE.contractFromDto(plan);
     response.setPlanStatistic(planStatistic);
     return response;
+  }
+
+  /**
+   * Merge case count info into plan
+   * @param plan target replay plan
+   * @param caseCount case count info
+   */
+  private void mergeCaseCount(ReportPlanStatisticDto plan, CaseCount caseCount) {
+    plan.setTotalCaseCount(caseCount.getTotalCaseCount());
+    plan.setErrorCaseCount(caseCount.getErrorCaseCount());
+    plan.setSuccessCaseCount(caseCount.getSuccessCaseCount());
+    plan.setFailCaseCount(caseCount.getFailCaseCount());
+    plan.setWaitCaseCount(caseCount.getTotalCaseCount() - caseCount.getReceivedCaseCount());
+    plan.setTotalOperationCount(caseCount.getTotalOperationCount());
+    plan.setSuccessOperationCount(caseCount.getSuccessOperationCount());
+  }
+
+  /**
+   * Interrupt abnormal plan
+   * Abnormal criteria: replay status is not finished and replay start time is more than 3 hours
+   */
+  private void checkNeedInterrupt(ReportPlanStatisticDto plan) {
+    Long startTime = Optional.ofNullable(Objects.equals(plan.getStatus(), ReplayStatusType.RERUNNING)
+            ? plan.getLastRerunStartTime() : plan.getReplayStartTime())
+        .orElse(System.currentTimeMillis());
+
+    if (ReplayStatusType.NOT_FINISHED_STATUS.contains(plan.getStatus())
+        && (System.currentTimeMillis() - startTime) > 3 * 60 * 60 * 1000) {
+      plan.setStatus(ReplayStatusType.FAIL_INTERRUPTED);
+      plan.setErrorMessage(DEFAULT_TIMEOUT_ERR_MSG +
+          System.lineSeparator() +
+          Optional.ofNullable(plan.getErrorMessage()).orElse(Strings.EMPTY));
+
+      CompletableFuture.runAsync(() -> {
+        planStatisticRepository.changePlanStatus(plan.getPlanId(),
+            plan.getStatus(),
+            null,
+            plan.getErrorMessage(),
+            null);
+      });
+
+      LOGGER.info("Plan {} is interrupted due to timeout", plan.getPlanId());
+    }
   }
 }

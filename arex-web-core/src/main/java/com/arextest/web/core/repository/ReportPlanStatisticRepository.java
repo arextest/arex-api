@@ -34,7 +34,7 @@ public interface ReportPlanStatisticRepository extends RepositoryProvider {
 
   ReportPlanStatisticDto changePlanStatus(String planId, Integer status, Integer totalCaseCount,
       String errorMessage,
-      boolean rerun);
+      Boolean rerun);
 
   boolean removeErrorMsg(String planId);
 

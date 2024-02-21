@@ -8,6 +8,7 @@ import com.arextest.web.model.dao.mongodb.ReportPlanStatisticCollection;
 import com.arextest.web.model.dao.mongodb.ReportPlanStatisticCollection.Fields;
 import com.arextest.web.model.dto.LatestDailySuccessPlanIdDto;
 import com.arextest.web.model.dto.ReportPlanStatisticDto;
+import com.arextest.web.model.enums.ReplayStatusType;
 import com.arextest.web.model.mapper.PlanMapper;
 import com.mongodb.BasicDBObject;
 import com.mongodb.client.result.DeleteResult;
@@ -286,14 +287,16 @@ public class ReportPlanStatisticRepositoryImpl implements ReportPlanStatisticRep
 
   @Override
   public ReportPlanStatisticDto changePlanStatus(String planId, Integer status,
-      Integer totalCaseCount,
-      String errorMessage, boolean rerun) {
+      Integer totalCaseCount, String errorMessage, Boolean rerun) {
     if (planId == null || planId == "") {
       return null;
     }
     Update update = MongoHelper.getUpdate();
     if (status != null) {
       update.set(Fields.status, status);
+      if (status == ReplayStatusType.RERUNNING) {
+        update.set(Fields.lastRerunStartTime, System.currentTimeMillis());
+      }
     }
     if (totalCaseCount != null) {
       update.set(Fields.totalCaseCount, totalCaseCount);
@@ -301,7 +304,7 @@ public class ReportPlanStatisticRepositoryImpl implements ReportPlanStatisticRep
     if (errorMessage != null) {
       update.set(Fields.errorMessage, errorMessage);
     }
-    if (!rerun) {
+    if (rerun != null && !rerun) {
       update.set(Fields.replayEndTime, System.currentTimeMillis());
     }
     if (update.getUpdateObject().keySet().isEmpty()) {
