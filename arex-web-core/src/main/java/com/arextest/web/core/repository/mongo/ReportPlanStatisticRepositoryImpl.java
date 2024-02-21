@@ -286,8 +286,7 @@ public class ReportPlanStatisticRepositoryImpl implements ReportPlanStatisticRep
 
   @Override
   public ReportPlanStatisticDto changePlanStatus(String planId, Integer status,
-      Integer totalCaseCount,
-      String errorMessage, boolean rerun) {
+      Integer totalCaseCount, String errorMessage, Boolean rerun) {
     if (planId == null || planId == "") {
       return null;
     }
@@ -301,7 +300,7 @@ public class ReportPlanStatisticRepositoryImpl implements ReportPlanStatisticRep
     if (errorMessage != null) {
       update.set(Fields.errorMessage, errorMessage);
     }
-    if (!rerun) {
+    if (rerun != null && !rerun) {
       update.set(Fields.replayEndTime, System.currentTimeMillis());
     }
     if (update.getUpdateObject().keySet().isEmpty()) {

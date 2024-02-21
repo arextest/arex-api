@@ -8,6 +8,9 @@ public class ReportPlanStatisticDto {
 
   private String planId;
 
+  /**
+   * @see com.arextest.web.model.enums.ReplayStatusType
+   */
   private Integer status;
   private String appId;
   private String appName;
