@@ -14,6 +14,7 @@ import com.arextest.web.model.mapper.PlanMapper;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
@@ -98,8 +99,12 @@ public class QueryPlanStatisticsService {
    * Abnormal criteria: replay status is not finished and replay start time is more than 3 hours
    */
   private void checkNeedInterrupt(ReportPlanStatisticDto plan) {
+    Long startTime = Optional.ofNullable(Objects.equals(plan.getStatus(), ReplayStatusType.RERUNNING)
+            ? plan.getLastRerunStartTime() : plan.getReplayStartTime())
+        .orElse(System.currentTimeMillis());
+
     if (ReplayStatusType.NOT_FINISHED_STATUS.contains(plan.getStatus())
-        && (System.currentTimeMillis() - plan.getReplayStartTime()) > 3 * 60 * 60 * 1000) {
+        && (System.currentTimeMillis() - startTime) > 3 * 60 * 60 * 1000) {
       plan.setStatus(ReplayStatusType.FAIL_INTERRUPTED);
       plan.setErrorMessage(DEFAULT_TIMEOUT_ERR_MSG +
           System.lineSeparator() +

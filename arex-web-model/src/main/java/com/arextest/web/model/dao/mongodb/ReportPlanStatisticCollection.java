@@ -41,6 +41,7 @@ public class ReportPlanStatisticCollection extends ModelBase {
 
   private Long replayStartTime;
   private Long replayEndTime;
+  private Long lastRerunStartTime;
 
   private Integer totalCaseCount;
   private String errorMessage;

@@ -32,15 +32,14 @@ public class ReportPlanStatisticDto {
   private String caseRecordVersion;
 
   private Long replayStartTime;
-
   private Long replayEndTime;
+  private Long lastRerunStartTime;
 
   private Integer caseSourceType;
 
   private Map<String, String> caseTags;
 
   private Long caseStartTime;
-
   private Long caseEndTime;
 
   private Integer totalCaseCount;

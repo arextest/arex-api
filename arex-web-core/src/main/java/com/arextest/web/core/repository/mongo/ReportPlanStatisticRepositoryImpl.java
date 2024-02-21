@@ -8,6 +8,7 @@ import com.arextest.web.model.dao.mongodb.ReportPlanStatisticCollection;
 import com.arextest.web.model.dao.mongodb.ReportPlanStatisticCollection.Fields;
 import com.arextest.web.model.dto.LatestDailySuccessPlanIdDto;
 import com.arextest.web.model.dto.ReportPlanStatisticDto;
+import com.arextest.web.model.enums.ReplayStatusType;
 import com.arextest.web.model.mapper.PlanMapper;
 import com.mongodb.BasicDBObject;
 import com.mongodb.client.result.DeleteResult;
@@ -293,6 +294,9 @@ public class ReportPlanStatisticRepositoryImpl implements ReportPlanStatisticRep
     Update update = MongoHelper.getUpdate();
     if (status != null) {
       update.set(Fields.status, status);
+      if (status == ReplayStatusType.RERUNNING) {
+        update.set(Fields.lastRerunStartTime, System.currentTimeMillis());
+      }
     }
     if (totalCaseCount != null) {
       update.set(Fields.totalCaseCount, totalCaseCount);
