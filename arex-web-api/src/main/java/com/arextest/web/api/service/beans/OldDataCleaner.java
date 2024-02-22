@@ -1,5 +1,8 @@
 package com.arextest.web.api.service.beans;
 
+import static com.arextest.config.model.dao.config.SystemConfigurationCollection.KeySummary.CALLBACK_URL;
+import static com.arextest.config.model.dao.config.SystemConfigurationCollection.KeySummary.DESERIALIZATION_JAR;
+import static com.arextest.config.model.dao.config.SystemConfigurationCollection.KeySummary.REFRESH_DATA;
 import com.arextest.common.cache.CacheProvider;
 import com.arextest.common.cache.LockWrapper;
 import com.arextest.config.model.dao.config.AppCollection;
@@ -15,7 +18,17 @@ import com.arextest.web.model.dao.mongodb.ConfigComparisonIgnoreCategoryCollecti
 import com.arextest.web.model.dao.mongodb.DesensitizationJarCollection;
 import com.arextest.web.model.dao.mongodb.ModelBase;
 import com.arextest.web.model.dao.mongodb.SystemConfigCollection;
+import com.arextest.web.model.dao.mongodb.entity.AbstractComparisonDetails;
 import com.arextest.web.model.dao.mongodb.entity.CategoryDetailDao;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -35,18 +48,6 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.data.util.Pair;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
-
-import static com.arextest.config.model.dao.config.SystemConfigurationCollection.KeySummary.CALLBACK_URL;
-import static com.arextest.config.model.dao.config.SystemConfigurationCollection.KeySummary.DESERIALIZATION_JAR;
-import static com.arextest.config.model.dao.config.SystemConfigurationCollection.KeySummary.REFRESH_DATA;
 
 @Data
 @Slf4j
@@ -186,7 +187,7 @@ public class OldDataCleaner implements InitializingBean {
    * Remove the hard-coded comparison type ignore in the schedule service and use
    * ConfigComparisonIgnoreCategory configuration uniformly
    * <p>
-   * this method was introduced at 0.6.3.1
+   * this method was introduced at 0.6.2.3
    */
   private Runnable buildAddComparisonIgnoreCategoryTask() {
     Consumer<RefreshTaskContext> task = (RefreshTaskContext refreshTaskContext) -> {
@@ -198,7 +199,7 @@ public class OldDataCleaner implements InitializingBean {
       LOGGER.info("start addComparisonIgnoreCategoryTask");
 
       List<String> MISSING_COMPARISON_IGNORE_CATEGORIES = Arrays.asList("DynamicClass", "Redis",
-          "QMessageProducer");
+          "QMessageConsumer");
 
       // query all appIds int current system
       Query projectCondition = new Query();
@@ -266,8 +267,8 @@ public class OldDataCleaner implements InitializingBean {
   }
 
   /**
-   * Transfer DesensitizationJarCollection and SystemConfigCollection to SystemConfigurationCollection
-   * Introduced at 0.6.2.2
+   * Transfer DesensitizationJarCollection and SystemConfigCollection to
+   * SystemConfigurationCollection Introduced at 0.6.2.2
    */
   private Runnable transferSystemConfigTask() {
     Consumer<RefreshTaskContext> task = (RefreshTaskContext refreshTaskContext) -> {
@@ -311,7 +312,8 @@ public class OldDataCleaner implements InitializingBean {
       LOGGER.info("finish transferSystemConfigTask");
     };
 
-    RefreshTaskContext refreshTaskContext = new RefreshTaskContext(mongoTemplate, RefreshTaskName.TRANSFER_SYSTEM_CONFIG);
+    RefreshTaskContext refreshTaskContext = new RefreshTaskContext(mongoTemplate,
+        RefreshTaskName.TRANSFER_SYSTEM_CONFIG);
     return new LockRefreshTask<>(cacheProvider, redisLeaseTime, task, refreshTaskContext);
   }
 
@@ -341,7 +343,8 @@ public class OldDataCleaner implements InitializingBean {
     Query query = Query.query(
         Criteria.where(SystemConfigurationCollection.Fields.key).is(REFRESH_DATA));
     SystemConfigurationCollection systemConfiguration = refreshTaskContext.getMongoTemplate()
-        .findOne(query, SystemConfigurationCollection.class, SystemConfigurationCollection.DOCUMENT_NAME);
+        .findOne(query, SystemConfigurationCollection.class,
+            SystemConfigurationCollection.DOCUMENT_NAME);
     return systemConfiguration != null && systemConfiguration.getRefreshTaskMark() != null
         && systemConfiguration.getRefreshTaskMark().containsKey(refreshTaskContext.getTaskName());
   }
@@ -352,7 +355,8 @@ public class OldDataCleaner implements InitializingBean {
     Update update = MongoHelper.getUpdate();
     update.inc(SystemConfigurationCollection.Fields.refreshTaskMark + "."
         + refreshTaskContext.getTaskName(), 1);
-    refreshTaskContext.getMongoTemplate().upsert(query, update, SystemConfigurationCollection.DOCUMENT_NAME);
+    refreshTaskContext.getMongoTemplate()
+        .upsert(query, update, SystemConfigurationCollection.DOCUMENT_NAME);
   }
 
 
