@@ -24,6 +24,7 @@ import java.util.List;
 @Controller
 @Slf4j
 @CrossOrigin(origins = "*", maxAge = 3600)
+@Deprecated
 @RequestMapping(value = "/api/desensitization/", produces = "application/json;charset=UTF-8")
 public class DataDesensitizationController {
 

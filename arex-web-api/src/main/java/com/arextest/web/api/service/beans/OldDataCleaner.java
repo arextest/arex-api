@@ -207,8 +207,6 @@ public class OldDataCleaner implements InitializingBean {
         callbackConfig.setCallbackUrl(latestSystemConfig.getCallbackUrl());
         callbackConfig.setKey(CALLBACK_URL);
 
-        Update update = MongoHelper.getUpdate();
-        MongoHelper.appendFullProperties(update, callbackConfig);
         systemConfigurationRepository.saveConfig(callbackConfig);
       }
 
@@ -217,8 +215,6 @@ public class OldDataCleaner implements InitializingBean {
         desensitizationJarConfig.setKey(DESERIALIZATION_JAR);
         desensitizationJarConfig.setDesensitizationJar(dtoFromDao(desensitizationJarCollection));
 
-        Update update = MongoHelper.getUpdate();
-        MongoHelper.appendFullProperties(update, desensitizationJarConfig);
         systemConfigurationRepository.saveConfig(desensitizationJarConfig);
       }
 
