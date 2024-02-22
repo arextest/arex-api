@@ -4,13 +4,13 @@ import com.arextest.common.cache.CacheProvider;
 import com.arextest.common.cache.LockWrapper;
 import com.arextest.config.model.dao.config.AppCollection;
 import com.arextest.config.model.dao.config.RecordServiceConfigCollection;
+import com.arextest.config.model.dao.config.SystemConfigurationCollection;
+import com.arextest.config.model.dto.DesensitizationJar;
 import com.arextest.web.core.repository.mongo.util.MongoHelper;
-import com.arextest.web.model.contract.contracts.common.DesensitizationJar;
 import com.arextest.web.model.dao.mongodb.ConfigComparisonIgnoreCategoryCollection;
 import com.arextest.web.model.dao.mongodb.DesensitizationJarCollection;
 import com.arextest.web.model.dao.mongodb.ModelBase;
 import com.arextest.web.model.dao.mongodb.SystemConfigCollection;
-import com.arextest.web.model.dao.mongodb.SystemConfigurationCollection;
 import com.arextest.web.model.dao.mongodb.entity.CategoryDetailDao;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -38,9 +38,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import static com.arextest.web.model.dao.mongodb.SystemConfigurationCollection.KeySummary.CALLBACK_URL;
-import static com.arextest.web.model.dao.mongodb.SystemConfigurationCollection.KeySummary.DESERIALIZATION_JAR;
-import static com.arextest.web.model.dao.mongodb.SystemConfigurationCollection.KeySummary.REFRESH_DATA;
+import static com.arextest.config.model.dao.config.SystemConfigurationCollection.KeySummary.CALLBACK_URL;
+import static com.arextest.config.model.dao.config.SystemConfigurationCollection.KeySummary.DESERIALIZATION_JAR;
+import static com.arextest.config.model.dao.config.SystemConfigurationCollection.KeySummary.REFRESH_DATA;
 
 @Data
 @Slf4j
@@ -207,7 +207,7 @@ public class OldDataCleaner implements InitializingBean {
         Update update = MongoHelper.getUpdate();
         MongoHelper.appendFullProperties(update, callbackConfig);
         mongoTemplate.upsert(Query.query(Criteria.where(SystemConfigurationCollection.Fields.key).is(CALLBACK_URL)),
-            update, SystemConfigurationCollection.class);
+            update, SystemConfigurationCollection.DOCUMENT_NAME);
       }
 
       if (desensitizationJarCollection != null) {
@@ -218,7 +218,7 @@ public class OldDataCleaner implements InitializingBean {
         Update update = MongoHelper.getUpdate();
         MongoHelper.appendFullProperties(update, desensitizationJarConfig);
         mongoTemplate.upsert(Query.query(Criteria.where(SystemConfigurationCollection.Fields.key).is(DESERIALIZATION_JAR)),
-            update, SystemConfigurationCollection.class);
+            update, SystemConfigurationCollection.DOCUMENT_NAME);
       }
 
       // set completion position flag
@@ -237,7 +237,6 @@ public class OldDataCleaner implements InitializingBean {
     }
     desensitizationJar.setJarUrl(dao.getJarUrl());
     desensitizationJar.setRemark(dao.getRemark());
-    desensitizationJar.setUploadDate(dao.getUploadDate());
     return desensitizationJar;
   }
 
@@ -257,8 +256,7 @@ public class OldDataCleaner implements InitializingBean {
     Query query = Query.query(
         Criteria.where(SystemConfigurationCollection.Fields.key).is(REFRESH_DATA));
     SystemConfigurationCollection systemConfiguration = refreshTaskContext.getMongoTemplate()
-        .findOne(query,
-            SystemConfigurationCollection.class);
+        .findOne(query, SystemConfigurationCollection.class, SystemConfigurationCollection.DOCUMENT_NAME);
     return systemConfiguration != null && systemConfiguration.getRefreshTaskMark() != null
         && systemConfiguration.getRefreshTaskMark().containsKey(refreshTaskContext.getTaskName());
   }
@@ -269,8 +267,7 @@ public class OldDataCleaner implements InitializingBean {
     Update update = MongoHelper.getUpdate();
     update.inc(SystemConfigurationCollection.Fields.refreshTaskMark + "."
         + refreshTaskContext.getTaskName(), 1);
-    refreshTaskContext.getMongoTemplate()
-        .upsert(query, update, SystemConfigurationCollection.class);
+    refreshTaskContext.getMongoTemplate().upsert(query, update, SystemConfigurationCollection.DOCUMENT_NAME);
   }
 
 

@@ -2,11 +2,12 @@ package com.arextest.web.api.service.controller.config;
 
 import com.arextest.common.model.response.Response;
 import com.arextest.common.utils.ResponseUtils;
+import com.arextest.config.model.dto.SystemConfiguration;
+import com.arextest.config.repository.SystemConfigurationRepository;
+import com.arextest.config.repository.impl.SystemConfigurationRepositoryImpl;
 import com.arextest.web.core.business.ConfigLoadService;
-import com.arextest.web.core.repository.SystemConfigRepository;
 import com.arextest.web.model.contract.contracts.config.SaveSystemConfigRequestType;
 import com.arextest.web.model.contract.contracts.config.SystemConfigWithProperties;
-import com.arextest.web.model.contract.contracts.config.SystemConfiguration;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,7 +30,7 @@ import java.util.List;
 public class SystemConfigController {
 
   @Resource
-  private SystemConfigRepository systemConfigRepository;
+  private SystemConfigurationRepository systemConfigurationRepository;
 
   @Resource
   private ConfigLoadService configLoadService;
@@ -37,13 +38,13 @@ public class SystemConfigController {
   @PostMapping("/save")
   @ResponseBody
   public Response saveSystemConfig(@RequestBody SaveSystemConfigRequestType request) {
-    return ResponseUtils.successResponse(systemConfigRepository.saveConfig(request.getSystemConfig()));
+    return ResponseUtils.successResponse(systemConfigurationRepository.saveConfig(request.getSystemConfig()));
   }
 
   @GetMapping("/list")
   @ResponseBody
   public Response listSystemConfig() {
-    List<SystemConfiguration> systemConfigurations = systemConfigRepository.getAllSystemConfigList();
+    List<com.arextest.config.model.dto.SystemConfiguration> systemConfigurations = systemConfigurationRepository.getAllSystemConfigList();
 
     SystemConfiguration systemConfiguration = SystemConfiguration.mergeConfigs(systemConfigurations);
     SystemConfigWithProperties systemConfigWithProperties = this.appendGlobalCompareConfig(configLoadService,
@@ -54,7 +55,7 @@ public class SystemConfigController {
   @GetMapping("/query/{key}")
   @ResponseBody
   public Response querySystemConfigByKey(@PathVariable String key) {
-    SystemConfiguration systemConfiguration = systemConfigRepository.getSystemConfigByKey(key);
+    SystemConfiguration systemConfiguration = systemConfigurationRepository.getSystemConfigByKey(key);
     return ResponseUtils.successResponse(systemConfiguration);
   }
 
