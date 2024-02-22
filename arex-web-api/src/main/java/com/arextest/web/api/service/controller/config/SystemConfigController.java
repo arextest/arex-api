@@ -4,7 +4,6 @@ import com.arextest.common.model.response.Response;
 import com.arextest.common.utils.ResponseUtils;
 import com.arextest.config.model.dto.SystemConfiguration;
 import com.arextest.config.repository.SystemConfigurationRepository;
-import com.arextest.config.repository.impl.SystemConfigurationRepositoryImpl;
 import com.arextest.web.core.business.ConfigLoadService;
 import com.arextest.web.model.contract.contracts.config.SaveSystemConfigRequestType;
 import com.arextest.web.model.contract.contracts.config.SystemConfigWithProperties;
@@ -57,6 +56,12 @@ public class SystemConfigController {
   public Response querySystemConfigByKey(@PathVariable String key) {
     SystemConfiguration systemConfiguration = systemConfigurationRepository.getSystemConfigByKey(key);
     return ResponseUtils.successResponse(systemConfiguration);
+  }
+
+  @GetMapping("/delete/{key}")
+  @ResponseBody
+  public Response deleteSystemConfigByKey(@PathVariable String key) {
+    return ResponseUtils.successResponse(systemConfigurationRepository.deleteConfig(key));
   }
 
 
