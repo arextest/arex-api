@@ -14,4 +14,6 @@ public class DesensitizationJarCollection extends ModelBase {
 
   private String jarUrl;
   private String remark;
+  @Deprecated
+  private Date uploadDate;
 }

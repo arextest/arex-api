@@ -1,6 +1,7 @@
 package com.arextest.web.api.service.beans;
 
 import com.arextest.common.cache.CacheProvider;
+import com.arextest.config.repository.impl.SystemConfigurationRepositoryImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -22,10 +23,9 @@ public class ExpandableBeanConfiguration {
   @Bean
   @ConditionalOnMissingBean(name = "oldDataCleaner")
   public OldDataCleaner oldDataCleaner(CacheProvider cacheProvider,
-      MongoTemplate mongoTemplate,
+      MongoTemplate mongoTemplate, SystemConfigurationRepositoryImpl systemConfigurationRepository,
       @Value("${arex.api.redis.lease-time}") long redisLeaseTime) {
-    return new OldDataCleaner(cacheProvider, mongoTemplate, redisLeaseTime);
+    return new OldDataCleaner(cacheProvider, mongoTemplate, redisLeaseTime, systemConfigurationRepository);
   }
-
 
 }

@@ -44,7 +44,7 @@ public class SystemConfigController {
   @GetMapping("/list")
   @ResponseBody
   public Response listSystemConfig() {
-    List<com.arextest.config.model.dto.SystemConfiguration> systemConfigurations = systemConfigurationRepository.getAllSystemConfigList();
+    List<SystemConfiguration> systemConfigurations = systemConfigurationRepository.getAllSystemConfigList();
 
     SystemConfiguration systemConfiguration = SystemConfiguration.mergeConfigs(systemConfigurations);
     SystemConfigWithProperties systemConfigWithProperties = this.appendGlobalCompareConfig(configLoadService,

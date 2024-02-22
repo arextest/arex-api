@@ -6,6 +6,8 @@ import com.arextest.config.model.dao.config.AppCollection;
 import com.arextest.config.model.dao.config.RecordServiceConfigCollection;
 import com.arextest.config.model.dao.config.SystemConfigurationCollection;
 import com.arextest.config.model.dto.DesensitizationJar;
+import com.arextest.config.model.dto.SystemConfiguration;
+import com.arextest.config.repository.impl.SystemConfigurationRepositoryImpl;
 import com.arextest.web.core.repository.mongo.util.MongoHelper;
 import com.arextest.web.model.dao.mongodb.ConfigComparisonIgnoreCategoryCollection;
 import com.arextest.web.model.dao.mongodb.DesensitizationJarCollection;
@@ -50,6 +52,7 @@ public class OldDataCleaner implements InitializingBean {
   private CacheProvider cacheProvider;
   private MongoTemplate mongoTemplate;
   private long redisLeaseTime;
+  private SystemConfigurationRepositoryImpl systemConfigurationRepository;
 
   @Override
   public void afterPropertiesSet() {
@@ -200,25 +203,23 @@ public class OldDataCleaner implements InitializingBean {
       mongoTemplate.dropCollection(DesensitizationJarCollection.class);
 
       if (latestSystemConfig != null) {
-        SystemConfigurationCollection callbackConfig = new SystemConfigurationCollection();
+        SystemConfiguration callbackConfig = new SystemConfiguration();
         callbackConfig.setCallbackUrl(latestSystemConfig.getCallbackUrl());
         callbackConfig.setKey(CALLBACK_URL);
 
         Update update = MongoHelper.getUpdate();
         MongoHelper.appendFullProperties(update, callbackConfig);
-        mongoTemplate.upsert(Query.query(Criteria.where(SystemConfigurationCollection.Fields.key).is(CALLBACK_URL)),
-            update, SystemConfigurationCollection.DOCUMENT_NAME);
+        systemConfigurationRepository.saveConfig(callbackConfig);
       }
 
       if (desensitizationJarCollection != null) {
-        SystemConfigurationCollection desensitizationJarConfig = new SystemConfigurationCollection();
+        SystemConfiguration desensitizationJarConfig = new SystemConfiguration();
         desensitizationJarConfig.setKey(DESERIALIZATION_JAR);
         desensitizationJarConfig.setDesensitizationJar(dtoFromDao(desensitizationJarCollection));
 
         Update update = MongoHelper.getUpdate();
         MongoHelper.appendFullProperties(update, desensitizationJarConfig);
-        mongoTemplate.upsert(Query.query(Criteria.where(SystemConfigurationCollection.Fields.key).is(DESERIALIZATION_JAR)),
-            update, SystemConfigurationCollection.DOCUMENT_NAME);
+        systemConfigurationRepository.saveConfig(desensitizationJarConfig);
       }
 
       // set completion position flag
