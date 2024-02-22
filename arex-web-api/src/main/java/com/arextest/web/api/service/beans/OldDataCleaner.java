@@ -9,6 +9,8 @@ import com.arextest.config.model.dto.DesensitizationJar;
 import com.arextest.config.model.dto.SystemConfiguration;
 import com.arextest.config.repository.impl.SystemConfigurationRepositoryImpl;
 import com.arextest.web.core.repository.mongo.util.MongoHelper;
+import com.arextest.web.model.contract.contracts.common.enums.CompareConfigType;
+import com.arextest.web.model.contract.contracts.common.enums.ExpirationType;
 import com.arextest.web.model.dao.mongodb.ConfigComparisonIgnoreCategoryCollection;
 import com.arextest.web.model.dao.mongodb.DesensitizationJarCollection;
 import com.arextest.web.model.dao.mongodb.ModelBase;
@@ -23,6 +25,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.bson.Document;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.BulkOperations;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.LookupOperation;
@@ -31,6 +34,7 @@ import org.springframework.data.mongodb.core.aggregation.ProjectionOperation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.data.util.Pair;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -59,6 +63,7 @@ public class OldDataCleaner implements InitializingBean {
     CompletableFuture.runAsync(transferSystemConfigTask());
     CompletableFuture.runAsync(cleanConfigComparisonIgnoreCategoryCollection());
     CompletableFuture.runAsync(buildAddMissingRecordServiceConfigTask());
+    CompletableFuture.runAsync(buildAddComparisonIgnoreCategoryTask());
   }
 
   /**
@@ -175,6 +180,89 @@ public class OldDataCleaner implements InitializingBean {
 
     return new LockRefreshTask<>(cacheProvider, redisLeaseTime, task,
         refreshTaskContext);
+  }
+
+  /**
+   * Remove the hard-coded comparison type ignore in the schedule service and use
+   * ConfigComparisonIgnoreCategory configuration uniformly
+   * <p>
+   * this method was introduced at 0.6.3.1
+   */
+  private Runnable buildAddComparisonIgnoreCategoryTask() {
+    Consumer<RefreshTaskContext> task = (RefreshTaskContext refreshTaskContext) -> {
+      if (isTaskFinish(refreshTaskContext)) {
+        LOGGER.info("skip addComparisonIgnoreCategoryTask");
+        return;
+      }
+
+      LOGGER.info("start addComparisonIgnoreCategoryTask");
+
+      List<String> MISSING_COMPARISON_IGNORE_CATEGORIES = Arrays.asList("DynamicClass", "Redis",
+          "QMessageProducer");
+
+      // query all appIds int current system
+      Query projectCondition = new Query();
+      projectCondition.fields().include(AppCollection.Fields.appId);
+      List<AppCollection> appCollections = mongoTemplate.find(projectCondition, AppCollection.class,
+          AppCollection.DOCUMENT_NAME);
+
+      if (CollectionUtils.isNotEmpty(appCollections)) {
+        // construct the data need to update
+        List<ConfigComparisonIgnoreCategoryCollection> needRefreshData = new ArrayList<>();
+        for (AppCollection appCollection : appCollections) {
+          String appId = appCollection.getAppId();
+          for (String category : MISSING_COMPARISON_IGNORE_CATEGORIES) {
+            ConfigComparisonIgnoreCategoryCollection collection = new ConfigComparisonIgnoreCategoryCollection();
+            collection.setAppId(appId);
+            collection.setOperationId(null);
+            collection.setDependencyId(null);
+            collection.setFsInterfaceId(null);
+            collection.setCompareConfigType(CompareConfigType.REPLAY_MAIN.getCodeValue());
+            collection.setExpirationType(ExpirationType.PINNED_NEVER_EXPIRED.getCodeValue());
+            collection.setExpirationDate(new Date());
+            collection.setIgnoreCategoryDetail(new CategoryDetailDao(category, null));
+            needRefreshData.add(collection);
+          }
+        }
+
+        // do database update
+        BulkOperations bulkOperations =
+            mongoTemplate.bulkOps(BulkOperations.BulkMode.UNORDERED,
+                ConfigComparisonIgnoreCategoryCollection.class);
+        List<Pair<Query, Update>> updates = new ArrayList<>();
+        for (ConfigComparisonIgnoreCategoryCollection needRefreshDataItem : needRefreshData) {
+          Update update = MongoHelper.getUpdate();
+          MongoHelper.appendFullProperties(update, needRefreshDataItem);
+
+          Query query = Query.query(Criteria.where(AbstractComparisonDetails.Fields.appId)
+              .is(needRefreshDataItem.getAppId())
+              .and(AbstractComparisonDetails.Fields.operationId)
+              .is(needRefreshDataItem.getOperationId())
+              .and(AbstractComparisonDetails.Fields.compareConfigType)
+              .is(needRefreshDataItem.getCompareConfigType())
+              .and(AbstractComparisonDetails.Fields.fsInterfaceId)
+              .is(needRefreshDataItem.getFsInterfaceId())
+              .and(AbstractComparisonDetails.Fields.dependencyId)
+              .is(needRefreshDataItem.getDependencyId())
+              .and(ConfigComparisonIgnoreCategoryCollection.Fields.ignoreCategoryDetail)
+              .is(needRefreshDataItem.getIgnoreCategoryDetail()));
+          updates.add(Pair.of(query, update));
+        }
+        bulkOperations.upsert(updates);
+        bulkOperations.execute();
+      }
+
+      // set completion position flag
+      markTaskFinish(refreshTaskContext);
+      LOGGER.info("finish addComparisonIgnoreCategoryTask");
+    };
+
+    RefreshTaskContext refreshTaskContext = new RefreshTaskContext(mongoTemplate,
+        RefreshTaskName.BUILD_ADD_COMPARISON_IGNORE_CATEGORY);
+
+    return new LockRefreshTask<>(cacheProvider, redisLeaseTime, task,
+        refreshTaskContext);
+
   }
 
   /**
@@ -319,6 +407,9 @@ public class OldDataCleaner implements InitializingBean {
 
     // transfer SystemConfig & DesensitizationJar to SystemConfiguration
     String TRANSFER_SYSTEM_CONFIG = "transferSystemConfig";
+
+    // to do the method "buildAddComparisonIgnoreCategoryTask"
+    String BUILD_ADD_COMPARISON_IGNORE_CATEGORY = "missingComparisonIgnoreCategory";
 
   }
 
