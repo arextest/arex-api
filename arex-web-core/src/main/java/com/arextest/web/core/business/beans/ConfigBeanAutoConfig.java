@@ -6,6 +6,7 @@ import com.arextest.config.repository.impl.ApplicationServiceConfigurationReposi
 import com.arextest.config.repository.impl.DynamicClassConfigurationRepositoryImpl;
 import com.arextest.config.repository.impl.InstancesConfigurationRepositoryImpl;
 import com.arextest.config.repository.impl.ServiceCollectConfigurationRepositoryImpl;
+import com.arextest.config.repository.impl.SystemConfigurationRepositoryImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -49,5 +50,11 @@ public class ConfigBeanAutoConfig {
   public DynamicClassConfigurationRepositoryImpl
   dynamicClassConfigurationRepositoryImpl(MongoTemplate mongoTemplate) {
     return new DynamicClassConfigurationRepositoryImpl(mongoTemplate.getDb());
+  }
+
+  @Bean
+  public SystemConfigurationRepositoryImpl systemConfigurationRepository (
+      MongoTemplate mongoTemplate) {
+    return new SystemConfigurationRepositoryImpl(mongoTemplate.getDb());
   }
 }

@@ -1,5 +1,6 @@
 package com.arextest.web.model.contract.contracts.config;
 
+import com.arextest.config.model.dto.SystemConfiguration;
 import lombok.Data;
 
 /**
@@ -9,5 +10,5 @@ import lombok.Data;
 @Data
 public class SaveSystemConfigRequestType {
 
-  private SystemConfig systemConfig;
+  private SystemConfiguration systemConfig;
 }

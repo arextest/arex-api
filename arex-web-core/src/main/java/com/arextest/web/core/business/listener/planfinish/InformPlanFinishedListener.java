@@ -1,13 +1,14 @@
 package com.arextest.web.core.business.listener.planfinish;
 
+import com.arextest.config.model.dao.config.SystemConfigurationCollection;
+import com.arextest.config.model.dto.SystemConfiguration;
+import com.arextest.config.repository.SystemConfigurationRepository;
 import com.arextest.web.common.HttpUtils;
 import com.arextest.web.core.business.QueryPlanStatisticsService;
-import com.arextest.web.core.repository.SystemConfigRepository;
 import com.arextest.web.model.contract.contracts.CallbackInformRequestType;
 import com.arextest.web.model.contract.contracts.QueryPlanStatisticsRequestType;
 import com.arextest.web.model.contract.contracts.QueryPlanStatisticsResponseType;
 import com.arextest.web.model.contract.contracts.common.PlanStatistic;
-import com.arextest.web.model.contract.contracts.config.SystemConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
@@ -26,11 +27,11 @@ public class InformPlanFinishedListener implements PlanFinishedLinstener, Applic
   private static final String FAIL_STR = "fail";
 
   private static QueryPlanStatisticsService queryPlanStatisticsService;
-  private static SystemConfigRepository systemConfigRepository;
+  private static SystemConfigurationRepository systemConfigRepository;
 
   @Override
   public String planFinishedAction(String appId, String planId, Integer status) {
-    SystemConfig systemConfig = systemConfigRepository.getLatestSystemConfig();
+    SystemConfiguration systemConfig = systemConfigRepository.getSystemConfigByKey(SystemConfigurationCollection.KeySummary.CALLBACK_URL);
     if (systemConfig == null || systemConfig.getCallbackUrl() == null) {
       return FAIL_STR;
     }
@@ -92,7 +93,7 @@ public class InformPlanFinishedListener implements PlanFinishedLinstener, Applic
   public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
     queryPlanStatisticsService =
         (QueryPlanStatisticsService) applicationContext.getBean("queryPlanStatisticsService");
-    systemConfigRepository = (SystemConfigRepository) applicationContext.getBean(
-        "systemConfigRepositoryImpl");
+    systemConfigRepository = (SystemConfigurationRepository) applicationContext.getBean(
+        "systemConfigurationRepositoryImpl");
   }
 }

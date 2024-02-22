@@ -1,22 +1,19 @@
 package com.arextest.web.api.service.beans;
 
-import static com.arextest.web.model.dao.mongodb.SystemConfigurationCollection.KeySummary.REFRESH_DATA;
 import com.arextest.common.cache.CacheProvider;
 import com.arextest.common.cache.LockWrapper;
 import com.arextest.config.model.dao.config.AppCollection;
 import com.arextest.config.model.dao.config.RecordServiceConfigCollection;
+import com.arextest.config.model.dao.config.SystemConfigurationCollection;
+import com.arextest.config.model.dto.DesensitizationJar;
+import com.arextest.config.model.dto.SystemConfiguration;
+import com.arextest.config.repository.impl.SystemConfigurationRepositoryImpl;
 import com.arextest.web.core.repository.mongo.util.MongoHelper;
 import com.arextest.web.model.dao.mongodb.ConfigComparisonIgnoreCategoryCollection;
+import com.arextest.web.model.dao.mongodb.DesensitizationJarCollection;
 import com.arextest.web.model.dao.mongodb.ModelBase;
-import com.arextest.web.model.dao.mongodb.SystemConfigurationCollection;
+import com.arextest.web.model.dao.mongodb.SystemConfigCollection;
 import com.arextest.web.model.dao.mongodb.entity.CategoryDetailDao;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -25,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.bson.Document;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.LookupOperation;
@@ -34,6 +32,18 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
+
+import static com.arextest.config.model.dao.config.SystemConfigurationCollection.KeySummary.CALLBACK_URL;
+import static com.arextest.config.model.dao.config.SystemConfigurationCollection.KeySummary.DESERIALIZATION_JAR;
+import static com.arextest.config.model.dao.config.SystemConfigurationCollection.KeySummary.REFRESH_DATA;
+
 @Data
 @Slf4j
 @AllArgsConstructor
@@ -42,9 +52,11 @@ public class OldDataCleaner implements InitializingBean {
   private CacheProvider cacheProvider;
   private MongoTemplate mongoTemplate;
   private long redisLeaseTime;
+  private SystemConfigurationRepositoryImpl systemConfigurationRepository;
 
   @Override
   public void afterPropertiesSet() {
+    CompletableFuture.runAsync(transferSystemConfigTask());
     CompletableFuture.runAsync(cleanConfigComparisonIgnoreCategoryCollection());
     CompletableFuture.runAsync(buildAddMissingRecordServiceConfigTask());
   }
@@ -165,6 +177,65 @@ public class OldDataCleaner implements InitializingBean {
         refreshTaskContext);
   }
 
+  /**
+   * Transfer DesensitizationJarCollection and SystemConfigCollection to SystemConfigurationCollection
+   * Introduced at 0.6.2.2
+   */
+  private Runnable transferSystemConfigTask() {
+    Consumer<RefreshTaskContext> task = (RefreshTaskContext refreshTaskContext) -> {
+      if (isTaskFinish(refreshTaskContext)) {
+        LOGGER.info("skip transferSystemConfigTask");
+        return;
+      }
+
+      LOGGER.info("start transferSystemConfigTask");
+      Query systemConfigQuery = new Query();
+      systemConfigQuery.with(Sort.by(Sort.Direction.DESC, ModelBase.Fields.dataChangeCreateTime));
+      systemConfigQuery.limit(1);
+      SystemConfigCollection latestSystemConfig = mongoTemplate.findOne(systemConfigQuery,
+          SystemConfigCollection.class);
+
+      DesensitizationJarCollection desensitizationJarCollection = mongoTemplate.findOne(
+          new Query(), DesensitizationJarCollection.class);
+
+      //drop old collection
+      mongoTemplate.dropCollection(SystemConfigCollection.class);
+      mongoTemplate.dropCollection(DesensitizationJarCollection.class);
+
+      if (latestSystemConfig != null) {
+        SystemConfiguration callbackConfig = new SystemConfiguration();
+        callbackConfig.setCallbackUrl(latestSystemConfig.getCallbackUrl());
+        callbackConfig.setKey(CALLBACK_URL);
+
+        systemConfigurationRepository.saveConfig(callbackConfig);
+      }
+
+      if (desensitizationJarCollection != null) {
+        SystemConfiguration desensitizationJarConfig = new SystemConfiguration();
+        desensitizationJarConfig.setKey(DESERIALIZATION_JAR);
+        desensitizationJarConfig.setDesensitizationJar(dtoFromDao(desensitizationJarCollection));
+
+        systemConfigurationRepository.saveConfig(desensitizationJarConfig);
+      }
+
+      // set completion position flag
+      markTaskFinish(refreshTaskContext);
+      LOGGER.info("finish transferSystemConfigTask");
+    };
+
+    RefreshTaskContext refreshTaskContext = new RefreshTaskContext(mongoTemplate, RefreshTaskName.TRANSFER_SYSTEM_CONFIG);
+    return new LockRefreshTask<>(cacheProvider, redisLeaseTime, task, refreshTaskContext);
+  }
+
+  private DesensitizationJar dtoFromDao(DesensitizationJarCollection dao) {
+    DesensitizationJar desensitizationJar = new DesensitizationJar();
+    if (dao == null) {
+      return desensitizationJar;
+    }
+    desensitizationJar.setJarUrl(dao.getJarUrl());
+    desensitizationJar.setRemark(dao.getRemark());
+    return desensitizationJar;
+  }
 
   private ConfigComparisonIgnoreCategoryCollection convertToNewConfig(
       ConfigComparisonIgnoreCategoryCollection oldConfig) {
@@ -182,8 +253,7 @@ public class OldDataCleaner implements InitializingBean {
     Query query = Query.query(
         Criteria.where(SystemConfigurationCollection.Fields.key).is(REFRESH_DATA));
     SystemConfigurationCollection systemConfiguration = refreshTaskContext.getMongoTemplate()
-        .findOne(query,
-            SystemConfigurationCollection.class);
+        .findOne(query, SystemConfigurationCollection.class, SystemConfigurationCollection.DOCUMENT_NAME);
     return systemConfiguration != null && systemConfiguration.getRefreshTaskMark() != null
         && systemConfiguration.getRefreshTaskMark().containsKey(refreshTaskContext.getTaskName());
   }
@@ -194,8 +264,7 @@ public class OldDataCleaner implements InitializingBean {
     Update update = MongoHelper.getUpdate();
     update.inc(SystemConfigurationCollection.Fields.refreshTaskMark + "."
         + refreshTaskContext.getTaskName(), 1);
-    refreshTaskContext.getMongoTemplate()
-        .upsert(query, update, SystemConfigurationCollection.class);
+    refreshTaskContext.getMongoTemplate().upsert(query, update, SystemConfigurationCollection.DOCUMENT_NAME);
   }
 
 
@@ -247,6 +316,9 @@ public class OldDataCleaner implements InitializingBean {
 
     // to do the method "buildAddMissingRecordServiceConfigTask"
     String BUILD_ADD_MISSING_RECORD_SERVICE_CONFIG = "missingRecordConfig";
+
+    // transfer SystemConfig & DesensitizationJar to SystemConfiguration
+    String TRANSFER_SYSTEM_CONFIG = "transferSystemConfig";
 
   }
 
