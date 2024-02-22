@@ -62,9 +62,9 @@ public class OldDataCleaner implements InitializingBean {
   @Override
   public void afterPropertiesSet() {
     CompletableFuture.runAsync(transferSystemConfigTask());
-    CompletableFuture.runAsync(cleanConfigComparisonIgnoreCategoryCollection());
+    CompletableFuture.runAsync(cleanConfigComparisonIgnoreCategoryCollection())
+        .thenRunAsync(buildAddComparisonIgnoreCategoryTask());
     CompletableFuture.runAsync(buildAddMissingRecordServiceConfigTask());
-    CompletableFuture.runAsync(buildAddComparisonIgnoreCategoryTask());
   }
 
   /**
