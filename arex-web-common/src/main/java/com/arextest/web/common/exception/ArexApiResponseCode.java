@@ -12,10 +12,11 @@ public class ArexApiResponseCode extends ResponseCode_New {
   public static final int UNSUPPORTED_CATEGORY = 101001;
   public static final int RECORD_CASE_NOT_FOUND = 101002;
 
-  // configuration error codes start with 12xxx
+  // configuration error codes start with 102xxx
   public static final int LIST_KEY_CIRCLE_ERROR = 102001;
 
   // collections error codes start with 103xxx
+  public static final int FS_DUPLICATE_ITEM_ERROR = 103001;
 
   // record & replay error codes start with 104xxx
 }

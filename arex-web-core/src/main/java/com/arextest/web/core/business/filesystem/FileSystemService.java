@@ -1,8 +1,10 @@
 package com.arextest.web.core.business.filesystem;
 
+import com.arextest.common.exceptions.ArexException;
 import com.arextest.common.utils.JwtUtil;
 import com.arextest.web.common.LoadResource;
 import com.arextest.web.common.LogUtils;
+import com.arextest.web.common.exception.ArexApiResponseCode;
 import com.arextest.web.core.business.filesystem.importexport.ImportExport;
 import com.arextest.web.core.business.filesystem.importexport.impl.ImportExportFactory;
 import com.arextest.web.core.business.filesystem.pincase.StorageCase;
@@ -18,7 +20,6 @@ import com.arextest.web.core.repository.ReportPlanStatisticRepository;
 import com.arextest.web.core.repository.UserRepository;
 import com.arextest.web.core.repository.UserWorkspaceRepository;
 import com.arextest.web.model.contract.contracts.filesystem.ChangeRoleRequestType;
-import com.arextest.web.model.contract.contracts.filesystem.FSAddItemFromRecordRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.FSAddItemRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.FSAddItemResponseType;
 import com.arextest.web.model.contract.contracts.filesystem.FSAddItemsByAppAndInterfaceRequestType;
@@ -50,7 +51,6 @@ import com.arextest.web.model.contract.contracts.filesystem.FSSaveFolderRequestT
 import com.arextest.web.model.contract.contracts.filesystem.FSSaveFolderResponseType;
 import com.arextest.web.model.contract.contracts.filesystem.FSSaveInterfaceRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.FSTreeType;
-import com.arextest.web.model.contract.contracts.filesystem.FsAddItemFromRecordByDefaultRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.InviteToWorkspaceRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.InviteToWorkspaceResponseType;
 import com.arextest.web.model.contract.contracts.filesystem.RecoverItemInfoRequestType;
@@ -348,8 +348,9 @@ public class FileSystemService {
     return fsTreeDto != null ? true : false;
   }
 
-  public Boolean duplicate(FSDuplicateRequestType request) {
+  public MutablePair<String, FSTreeDto> duplicate(FSDuplicateRequestType request) {
     try {
+      AtomicReference<String> infoId = new AtomicReference<>();
       FSTreeDto treeDto = fsTreeRepository.updateFSTree(request.getId(), dto -> {
         FSNodeDto parent = null;
         FSNodeDto current;
@@ -363,6 +364,7 @@ public class FileSystemService {
         }
         FSNodeDto dupNodeDto = duplicateInfo(parent == null ? null : parent.getInfoId(),
             current.getNodeName() + DUPLICATE_SUFFIX, current);
+        infoId.set(dupNodeDto.getInfoId());
         if (parent == null) {
           this.addDuplicateItemFollowCurrent(dto.getRoots(), dupNodeDto, current);
         } else {
@@ -371,10 +373,10 @@ public class FileSystemService {
         return dto;
       });
 
-      return treeDto != null ? true : false;
+      return new MutablePair<>(infoId.get(), treeDto);
     } catch (Exception e) {
-      LogUtils.error(LOGGER, "failed to duplicate item", e);
-      return false;
+      throw new ArexException(ArexApiResponseCode.FS_DUPLICATE_ITEM_ERROR,
+          "failed to duplicate item", e);
     }
   }
 
