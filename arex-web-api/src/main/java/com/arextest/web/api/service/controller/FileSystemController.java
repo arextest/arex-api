@@ -136,13 +136,9 @@ public class FileSystemController {
     }
     FSDuplicateResponseType response = new FSDuplicateResponseType();
     MutablePair<String, FSTreeDto> result = fileSystemService.duplicate(request);
-    if (result == null) {
-      response.setSuccess(false);
-    } else {
-      response.setSuccess(true);
-      response.setInfoId(result.getLeft());
-      response.setWorkspaceId(result.getRight().getId());
-    }
+    response.setSuccess(true);
+    response.setInfoId(result.getLeft());
+    response.setWorkspaceId(result.getRight().getId());
     return ResponseUtils.successResponse(response);
   }
 
