@@ -8,8 +8,6 @@ import com.arextest.web.core.business.filesystem.FileSystemService;
 import com.arextest.web.core.business.filesystem.RolePermission;
 import com.arextest.web.model.contract.contracts.SuccessResponseType;
 import com.arextest.web.model.contract.contracts.filesystem.ChangeRoleRequestType;
-import com.arextest.web.model.contract.contracts.filesystem.FSAddItemFromRecordRequestType;
-import com.arextest.web.model.contract.contracts.filesystem.FSAddItemFromRecordResponseType;
 import com.arextest.web.model.contract.contracts.filesystem.FSAddItemRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.FSAddItemResponseType;
 import com.arextest.web.model.contract.contracts.filesystem.FSAddItemsByAppAndInterfaceRequestType;
@@ -18,6 +16,7 @@ import com.arextest.web.model.contract.contracts.filesystem.FSAddWorkspaceReques
 import com.arextest.web.model.contract.contracts.filesystem.FSAddWorkspaceResponseType;
 import com.arextest.web.model.contract.contracts.filesystem.FSDeleteWorkspaceRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.FSDuplicateRequestType;
+import com.arextest.web.model.contract.contracts.filesystem.FSDuplicateResponseType;
 import com.arextest.web.model.contract.contracts.filesystem.FSExportItemRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.FSExportItemResponseType;
 import com.arextest.web.model.contract.contracts.filesystem.FSImportItemRequestType;
@@ -46,7 +45,6 @@ import com.arextest.web.model.contract.contracts.filesystem.FSSaveFolderRequestT
 import com.arextest.web.model.contract.contracts.filesystem.FSSaveFolderResponseType;
 import com.arextest.web.model.contract.contracts.filesystem.FSSaveInterfaceRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.FSSaveInterfaceResponseType;
-import com.arextest.web.model.contract.contracts.filesystem.FsAddItemFromRecordByDefaultRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.InviteToWorkspaceRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.InviteToWorkspaceResponseType;
 import com.arextest.web.model.contract.contracts.filesystem.LeaveWorkspaceRequestType;
@@ -54,12 +52,12 @@ import com.arextest.web.model.contract.contracts.filesystem.RecoverItemInfoReque
 import com.arextest.web.model.contract.contracts.filesystem.RemoveUserFromWorkspaceType;
 import com.arextest.web.model.contract.contracts.filesystem.ValidInvitationRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.ValidInvitationResponseType;
+import com.arextest.web.model.dto.filesystem.FSTreeDto;
 import java.util.List;
 import javax.annotation.Resource;
 import javax.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.springframework.stereotype.Controller;
@@ -136,8 +134,15 @@ public class FileSystemController {
       return ResponseUtils.errorResponse(Constants.NO_PERMISSION,
           ResponseCode.AUTHENTICATION_FAILED);
     }
-    SuccessResponseType response = new SuccessResponseType();
-    response.setSuccess(fileSystemService.duplicate(request));
+    FSDuplicateResponseType response = new FSDuplicateResponseType();
+    MutablePair<String, FSTreeDto> result = fileSystemService.duplicate(request);
+    if (result == null) {
+      response.setSuccess(false);
+    } else {
+      response.setSuccess(true);
+      response.setInfoId(result.getLeft());
+      response.setWorkspaceId(result.getRight().getId());
+    }
     return ResponseUtils.successResponse(response);
   }
 

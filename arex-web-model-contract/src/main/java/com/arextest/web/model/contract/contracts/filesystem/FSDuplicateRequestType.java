@@ -13,5 +13,4 @@ public class FSDuplicateRequestType {
   @NotNull(message = "Item path cannot be empty")
   @Size(min = 1, message = "Item path size must be greater than 0")
   private String[] path;
-  private String userName;
 }
