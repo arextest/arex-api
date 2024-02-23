@@ -1,10 +1,12 @@
 package com.arextest.web.api.service.controller.config;
 
 import com.arextest.common.model.response.Response;
+import com.arextest.common.model.response.ResponseCode;
 import com.arextest.common.utils.ResponseUtils;
 import com.arextest.config.model.dto.SystemConfiguration;
 import com.arextest.config.repository.SystemConfigurationRepository;
 import com.arextest.web.core.business.ConfigLoadService;
+import com.arextest.web.core.business.SystemConfigurationService;
 import com.arextest.web.model.contract.contracts.config.SaveSystemConfigRequestType;
 import com.arextest.web.model.contract.contracts.config.SystemConfigWithProperties;
 import lombok.extern.slf4j.Slf4j;
@@ -32,12 +34,18 @@ public class SystemConfigController {
   private SystemConfigurationRepository systemConfigurationRepository;
 
   @Resource
+  private SystemConfigurationService systemConfigurationService;
+
+  @Resource
   private ConfigLoadService configLoadService;
 
   @PostMapping("/save")
   @ResponseBody
   public Response saveSystemConfig(@RequestBody SaveSystemConfigRequestType request) {
-    return ResponseUtils.successResponse(systemConfigurationRepository.saveConfig(request.getSystemConfig()));
+    if (request.getSystemConfig() == null) {
+      return ResponseUtils.errorResponse("System config is null", ResponseCode.REQUESTED_PARAMETER_INVALID);
+    }
+    return ResponseUtils.successResponse(systemConfigurationService.saveConfig(request.getSystemConfig()));
   }
 
   @GetMapping("/list")
