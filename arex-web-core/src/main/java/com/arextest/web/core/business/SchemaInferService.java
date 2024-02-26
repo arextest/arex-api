@@ -187,6 +187,7 @@ public class SchemaInferService {
 
     List<CompareResultDto> latestNCompareResults = replayCompareResultRepository
         .queryLatestCompareResultForEachType(operationId, LIMIT);
+
     List<CompareResultDto> latestNEntryCompareResults = latestNCompareResults.stream()
         .filter(compareResultDto -> entryPointTypes.contains(compareResultDto.getCategoryName()))
         .collect(Collectors.toList());

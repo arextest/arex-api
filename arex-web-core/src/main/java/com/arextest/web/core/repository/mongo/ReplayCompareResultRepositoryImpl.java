@@ -16,8 +16,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.BulkOperations;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.aggregation.Aggregation;
-import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
@@ -25,6 +23,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -282,32 +281,22 @@ public class ReplayCompareResultRepositoryImpl implements ReplayCompareResultRep
                                                                Set<String> operationTypes,
                                                                int limit) {
     Sort sort = Sort.by(Sort.Direction.DESC, DATA_CHANGE_UPDATE_TIME);
-    Query query = Query.query(Criteria.where(OPERATION_ID).is(operationId))
-        .addCriteria(Criteria.where(CATEGORY_NAME).in(operationTypes)).with(sort).limit(limit);
-    return mongoTemplate.find(query, ReplayCompareResultCollection.class).stream()
-        .map(CompareResultMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
+    List<ReplayCompareResultCollection> collections = new ArrayList<>();
+
+    for (String operationType : operationTypes) {
+      Query query = Query.query(Criteria.where(OPERATION_ID).is(operationId)
+          .and(CATEGORY_NAME).is(operationType)).with(sort).limit(limit);
+      collections.addAll(mongoTemplate.find(query, ReplayCompareResultCollection.class));
+    }
+    return collections.stream().map(CompareResultMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
   }
 
   @Override
   public List<CompareResultDto> queryLatestCompareResultForEachType(String operationId, int limit) {
 
-    List<ReplayCompareResultCollection> latestNList = new ArrayList<>();
-    Aggregation agg = Aggregation.newAggregation(
-        Aggregation.match(Criteria.where(OPERATION_ID).is(operationId)),
-        Aggregation.sort(Sort.Direction.DESC, DATA_CHANGE_UPDATE_TIME),
-        // limit * LIMIT_MULTIPLE is to avoid the case that push all records into the array, but it may cause data loss
-        Aggregation.limit(limit * LIMIT_MULTIPLE),
-        Aggregation.group(CATEGORY_NAME).push("$$ROOT").as(TEMP_RECORDS),
-        Aggregation.project().andExclude(DASH_ID).and(TEMP_RECORDS).slice(limit).as(TEMP_RECORDS),
-        Aggregation.unwind(TEMP_RECORDS),
-        Aggregation.replaceRoot(TEMP_RECORDS)
-    );
-    AggregationResults<ReplayCompareResultCollection> groupResults = mongoTemplate.aggregate(agg,
-        "ReplayCompareResult", ReplayCompareResultCollection.class);
-    for (ReplayCompareResultCollection doc : groupResults) {
-      latestNList.add(doc);
-    }
-    return latestNList.stream().map(CompareResultMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
+    List<String> categoryNames = mongoTemplate.findDistinct(Query.query(Criteria.where(OPERATION_ID).is(operationId)),
+        CATEGORY_NAME, ReplayCompareResultCollection.class, String.class);
+    return queryLatestCompareResultByType(operationId, new HashSet<>(categoryNames), limit);
   }
 
   @Override
