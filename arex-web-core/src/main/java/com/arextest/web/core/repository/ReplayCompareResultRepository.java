@@ -44,6 +44,8 @@ public interface ReplayCompareResultRepository extends RepositoryProvider {
 
   List<CompareResultDto> queryLatestCompareResultByType(String operationId, Set<String> operationTypes, int limit);
 
+  List<CompareResultDto> queryLatestCompareResultForEachType(String operationId, int limit);
+
   Map<String, List<CompareResultDto>> queryLatestCompareResultMap(String operationId,
       List<String> operationNames,
       List<String> operationTypes);

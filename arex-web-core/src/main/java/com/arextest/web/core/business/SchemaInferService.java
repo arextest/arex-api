@@ -184,11 +184,10 @@ public class SchemaInferService {
     ApplicationOperationConfiguration applicationOperationConfiguration =
         applicationOperationConfigurationRepository.listByOperationId(operationId);
     Set<String> entryPointTypes = applicationOperationConfiguration.getOperationTypes();
-    Set<String> operationTypes = MockCategoryType.DEFAULTS.stream().map(MockCategoryType::getName)
-        .collect(Collectors.toSet());
 
     List<CompareResultDto> latestNCompareResults = replayCompareResultRepository
-        .queryLatestCompareResultByType(operationId, operationTypes, LIMIT);
+        .queryLatestCompareResultForEachType(operationId, LIMIT);
+
     List<CompareResultDto> latestNEntryCompareResults = latestNCompareResults.stream()
         .filter(compareResultDto -> entryPointTypes.contains(compareResultDto.getCategoryName()))
         .collect(Collectors.toList());

@@ -6,12 +6,6 @@ import com.arextest.web.model.dao.mongodb.ReplayCompareResultCollection;
 import com.arextest.web.model.dto.CompareResultDto;
 import com.arextest.web.model.mapper.CompareResultMapper;
 import com.mongodb.client.result.DeleteResult;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.tuple.MutablePair;
@@ -26,6 +20,14 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
+
+import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -45,6 +47,8 @@ public class ReplayCompareResultRepositoryImpl implements ReplayCompareResultRep
   private static final String COUNT = "count";
   private static final String RECORD_TIME = "recordTime";
   private static final String REPLAY_TIME = "replayTime";
+
+  private static final String DASH_ID = "_id";
 
   @Resource
   private MongoTemplate mongoTemplate;
@@ -275,15 +279,27 @@ public class ReplayCompareResultRepositoryImpl implements ReplayCompareResultRep
                                                                Set<String> operationTypes,
                                                                int limit) {
     Sort sort = Sort.by(Sort.Direction.DESC, DATA_CHANGE_UPDATE_TIME);
-    Query query = Query.query(Criteria.where(OPERATION_ID).is(operationId))
-        .addCriteria(Criteria.where(CATEGORY_NAME).in(operationTypes)).with(sort).limit(limit);
-    return mongoTemplate.find(query, ReplayCompareResultCollection.class).stream()
-        .map(CompareResultMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
+    List<ReplayCompareResultCollection> collections = new ArrayList<>();
+
+    for (String operationType : operationTypes) {
+      Query query = Query.query(Criteria.where(OPERATION_ID).is(operationId)
+          .and(CATEGORY_NAME).is(operationType)).with(sort).limit(limit);
+      collections.addAll(mongoTemplate.find(query, ReplayCompareResultCollection.class));
+    }
+    return collections.stream().map(CompareResultMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
+  }
+
+  @Override
+  public List<CompareResultDto> queryLatestCompareResultForEachType(String operationId, int limit) {
+
+    List<String> categoryNames = mongoTemplate.findDistinct(Query.query(Criteria.where(OPERATION_ID).is(operationId)),
+        CATEGORY_NAME, ReplayCompareResultCollection.class, String.class);
+    return queryLatestCompareResultByType(operationId, new HashSet<>(categoryNames), limit);
   }
 
   @Override
   public Map<String, List<CompareResultDto>> queryLatestCompareResultMap(String operationId,
-      List<String> operationNames, List<String> operationTypes) {
+                                                                         List<String> operationNames, List<String> operationTypes) {
     Criteria criteria = new Criteria();
     List<Criteria> orCriteriaList = new ArrayList<>();
     for (int i = 0; i < operationNames.size(); i++) {
