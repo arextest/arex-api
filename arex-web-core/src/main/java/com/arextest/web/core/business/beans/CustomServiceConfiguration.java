@@ -10,6 +10,7 @@ import com.arextest.web.core.business.config.replay.ComparisonInclusionsConfigur
 import com.arextest.web.core.business.config.replay.ComparisonListSortConfigurableHandler;
 import com.arextest.web.core.business.config.replay.ComparisonReferenceConfigurableHandler;
 import com.arextest.web.core.business.config.replay.ComparisonSummaryService;
+import com.arextest.web.core.business.config.replay.ComparisonTransformConfigurableHandler;
 import com.arextest.web.core.repository.AppContractRepository;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
@@ -29,12 +30,13 @@ public class CustomServiceConfiguration {
       ComparisonListSortConfigurableHandler listSortConfigurableHandler,
       ConfigurableHandler<ApplicationServiceConfiguration> applicationServiceConfigurationConfigurableHandler,
       AppContractRepository appContractRepository,
-      ComparisonIgnoreCategoryConfigurableHandler ignoreCategoryConfigurableHandler) {
+      ComparisonIgnoreCategoryConfigurableHandler ignoreCategoryConfigurableHandler,
+      ComparisonTransformConfigurableHandler transformConfigurableHandler) {
     return new ComparisonSummaryService(exclusionsConfigurableHandler,
         inclusionsConfigurableHandler,
         encryptionConfigurableHandler, referenceConfigurableHandler, listSortConfigurableHandler,
         applicationServiceConfigurationConfigurableHandler, appContractRepository,
-        ignoreCategoryConfigurableHandler);
+        ignoreCategoryConfigurableHandler, transformConfigurableHandler);
   }
 
   @Bean
