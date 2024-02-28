@@ -3,6 +3,7 @@ package com.arextest.web.core.repository.mongo;
 import com.arextest.web.core.repository.FSCaseRepository;
 import com.arextest.web.core.repository.mongo.util.MongoHelper;
 import com.arextest.web.model.dao.mongodb.FSCaseCollection;
+import com.arextest.web.model.dao.mongodb.FSInterfaceCollection;
 import com.arextest.web.model.dao.mongodb.entity.KeyValuePairDao;
 import com.arextest.web.model.dto.filesystem.FSCaseDto;
 import com.arextest.web.model.dto.filesystem.FSItemDto;
@@ -129,5 +130,36 @@ public class FSCaseRepositoryImpl implements FSCaseRepository {
     MongoHelper.initInsertObject(dao);
     dao = mongoTemplate.insert(dao);
     return dao.getId();
+  }
+
+  @Override
+  public List<FSItemDto> queryCases(String workspaceId, String name, List<String> includeLabels,
+      List<String> excludeLabels, Integer pageSize) {
+    Query query = Query.query(
+        Criteria.where(FSInterfaceCollection.Fields.workspaceId).is(workspaceId));
+    if (StringUtils.isNotEmpty(name)) {
+      query.addCriteria(Criteria.where(FSInterfaceCollection.Fields.name).regex(name));
+    }
+    if (includeLabels != null && !includeLabels.isEmpty()) {
+      query.addCriteria(new Criteria().orOperator(
+          Criteria.where(FSCaseCollection.Fields.labelIds).in(includeLabels)));
+    }
+    if (excludeLabels != null && !excludeLabels.isEmpty()) {
+      query.addCriteria(new Criteria().orOperator(
+          Criteria.where(FSCaseCollection.Fields.labelIds).nin(excludeLabels)));
+    }
+    if (pageSize != null) {
+      query.limit(pageSize);
+    }
+
+    List<FSCaseCollection> daos = mongoTemplate.find(query, FSCaseCollection.class);
+    return daos.stream().map(FSCaseMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
+  }
+
+  @Override
+  public List<FSItemDto> queryCasesByParentIds(List<String> parentIds) {
+    Query query = Query.query(Criteria.where(FSInterfaceCollection.Fields.parentId).in(parentIds));
+    List<FSCaseCollection> daos = mongoTemplate.find(query, FSCaseCollection.class);
+    return daos.stream().map(FSCaseMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
   }
 }

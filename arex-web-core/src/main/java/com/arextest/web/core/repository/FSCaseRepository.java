@@ -22,4 +22,9 @@ public interface FSCaseRepository extends RepositoryProvider {
   List<FSItemDto> queryCases(List<String> ids, boolean getCompareMsg);
 
   String duplicate(FSCaseDto dto);
+
+  List<FSItemDto> queryCases(String workspaceId, String name, List<String> includeLabels, List<String> excludeLabels, Integer pageSize);
+
+  List<FSItemDto> queryCasesByParentIds(List<String> parentIds);
+
 }
