@@ -54,9 +54,6 @@ arex:
     patterns: ""
   jwt:
     secret: arex
-  app:
-    auth:
-      switch: false
   api:
     case:
       inherited: true
