@@ -20,4 +20,10 @@ public interface FSInterfaceRepository extends RepositoryProvider {
   List<FSItemDto> queryInterfaces(Set<String> ids);
 
   String duplicate(FSInterfaceDto dto);
+
+  List<FSInterfaceDto> queryInterfaces(String workspaceId, String name, List<String> includeLabels,
+      List<String> excludeLabels, Integer pageSize);
+
+  List<FSInterfaceDto> queryInterfaceByParentIds(List<String> parentIds);
+
 }

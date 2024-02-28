@@ -19,6 +19,8 @@ import com.arextest.web.core.repository.FSTreeRepository;
 import com.arextest.web.core.repository.ReportPlanStatisticRepository;
 import com.arextest.web.core.repository.UserRepository;
 import com.arextest.web.core.repository.UserWorkspaceRepository;
+import com.arextest.web.model.contract.contracts.filesystem.BatchGetInterfaceCaseRequestType;
+import com.arextest.web.model.contract.contracts.filesystem.BatchGetInterfaceCaseResponseType;
 import com.arextest.web.model.contract.contracts.filesystem.ChangeRoleRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.FSAddItemRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.FSAddItemResponseType;
@@ -27,8 +29,13 @@ import com.arextest.web.model.contract.contracts.filesystem.FSAddWorkspaceReques
 import com.arextest.web.model.contract.contracts.filesystem.FSAddWorkspaceResponseType;
 import com.arextest.web.model.contract.contracts.filesystem.FSDuplicateRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.FSExportItemRequestType;
+import com.arextest.web.model.contract.contracts.filesystem.FSGetWorkspaceItemTreeRequestType;
+import com.arextest.web.model.contract.contracts.filesystem.FSGetWorkspaceItemTreeResponseType;
+import com.arextest.web.model.contract.contracts.filesystem.FSGetWorkspaceItemsRequestType;
+import com.arextest.web.model.contract.contracts.filesystem.FSGetWorkspaceItemsResponseType;
 import com.arextest.web.model.contract.contracts.filesystem.FSImportItemRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.FSMoveItemRequestType;
+import com.arextest.web.model.contract.contracts.filesystem.FSNodeType;
 import com.arextest.web.model.contract.contracts.filesystem.FSPinMockRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.FSQueryCaseRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.FSQueryCaseResponseType;
@@ -50,9 +57,12 @@ import com.arextest.web.model.contract.contracts.filesystem.FSSaveCaseRequestTyp
 import com.arextest.web.model.contract.contracts.filesystem.FSSaveFolderRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.FSSaveFolderResponseType;
 import com.arextest.web.model.contract.contracts.filesystem.FSSaveInterfaceRequestType;
+import com.arextest.web.model.contract.contracts.filesystem.FSSearchWorkspaceItemsRequestType;
+import com.arextest.web.model.contract.contracts.filesystem.FSSearchWorkspaceItemsResponseType;
 import com.arextest.web.model.contract.contracts.filesystem.FSTreeType;
 import com.arextest.web.model.contract.contracts.filesystem.InviteToWorkspaceRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.InviteToWorkspaceResponseType;
+import com.arextest.web.model.contract.contracts.filesystem.LabelType;
 import com.arextest.web.model.contract.contracts.filesystem.RecoverItemInfoRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.UserType;
 import com.arextest.web.model.contract.contracts.filesystem.ValidInvitationRequestType;
@@ -79,11 +89,13 @@ import com.arextest.web.model.enums.SendEmailType;
 import com.arextest.web.model.mapper.FSCaseMapper;
 import com.arextest.web.model.mapper.FSFolderMapper;
 import com.arextest.web.model.mapper.FSInterfaceMapper;
+import com.arextest.web.model.mapper.FSNodeMapper;
 import com.arextest.web.model.mapper.FSTreeMapper;
 import com.arextest.web.model.mapper.UserWorkspaceMapper;
 import com.arextest.web.model.mapper.WorkspaceMapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.api.client.util.Lists;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -97,6 +109,7 @@ import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import javax.annotation.Resource;
@@ -131,6 +144,8 @@ public class FileSystemService {
   private static final String HOST_KEY = "host";
   private static final String COLON = ":";
   private static final String NULL_PLAN_ID = "undefined";
+  private static final String EQUALS = "=";
+  private static final String NOT_EQUALS = "!=";
 
   @Value("${arex.api.case.inherited}")
   private String arexCaseInherited;
@@ -1129,5 +1144,287 @@ public class FileSystemService {
       this.workSpaceId = workSpaceId;
       this.token = token;
     }
+  }
+
+  public FSGetWorkspaceItemsResponseType getWorkspaceItems(FSGetWorkspaceItemsRequestType request) {
+    FSGetWorkspaceItemsResponseType response = new FSGetWorkspaceItemsResponseType();
+
+    FSTreeDto treeDto = fsTreeRepository.queryFSTreeById(request.getWorkspaceId());
+    if (treeDto == null) {
+      return response;
+    }
+    FSNodeDto fsNodeDto = new FSNodeDto();
+    fsNodeDto.setChildren(treeDto.getRoots());
+    List<String> parentIds = request.getParentIds();
+    if (CollectionUtils.isNotEmpty(parentIds)) {
+      String[] parentIdsArray = parentIds.toArray(new String[0]);
+      fsNodeDto = fileSystemUtils.findByPath(fsNodeDto.getChildren(), parentIdsArray);
+    }
+
+    if (CollectionUtils.isNotEmpty(fsNodeDto.getChildren())) {
+      fsNodeDto.getChildren().forEach(child -> {
+        child.setExistChildren(CollectionUtils.isNotEmpty(child.getChildren()));
+        child.setChildren(null);
+      });
+      fsNodeDto.setExistChildren(true);
+    }
+    FSNodeType fsNodeType = FSNodeMapper.INSTANCE.contractFromDto(fsNodeDto);
+    response.setNode(fsNodeType);
+
+    return response;
+  }
+
+  public FSSearchWorkspaceItemsResponseType searchWorkspaceItems(
+      FSSearchWorkspaceItemsRequestType request) {
+    FSSearchWorkspaceItemsResponseType response = new FSSearchWorkspaceItemsResponseType();
+
+    String keywords = request.getKeywords();
+    String workspaceId = request.getWorkspaceId();
+    int pageSize = request.getPageSize();
+    List<LabelType> labelTypes = request.getLabels();
+
+    List<String> includeLabelTypes = null;
+    List<String> excludeLabelTypes = null;
+
+    if (CollectionUtils.isNotEmpty(labelTypes)) {
+      Map<String, List<LabelType>> groupLabelTypes = labelTypes.stream()
+          .collect(Collectors.groupingBy(LabelType::getOperator));
+
+      List<LabelType> eqLabelTypes = groupLabelTypes.get(EQUALS);
+      if (CollectionUtils.isNotEmpty(eqLabelTypes)) {
+        includeLabelTypes = eqLabelTypes.stream().map(LabelType::getValue)
+            .collect(Collectors.toList());
+      }
+      List<LabelType> neLabelTypes = groupLabelTypes.get(NOT_EQUALS);
+      if (CollectionUtils.isNotEmpty(neLabelTypes)) {
+        excludeLabelTypes = neLabelTypes.stream().map(LabelType::getValue)
+            .collect(Collectors.toList());
+      }
+    }
+
+    queryAndBuildResponse(response, workspaceId, keywords, pageSize, includeLabelTypes,
+        excludeLabelTypes);
+
+    return response;
+  }
+
+  private void queryAndBuildResponse(FSSearchWorkspaceItemsResponseType response,
+      String workspaceId, String keywords,
+      int pageSize, List<String> includeLabelTypes, List<String> excludeLabelTypes) {
+
+    CompletableFuture<Void> caseCompletableFuture = CompletableFuture.runAsync(() -> {
+      List<FSItemDto> fsItemDtos = fsCaseRepository.queryCases(workspaceId, keywords,
+          includeLabelTypes, excludeLabelTypes, pageSize);
+      List<FSNodeType> fsNodeTypes = fsItemDtos.stream().map(
+              fsItemDto -> {
+                FSNodeType fsNodeType = FSNodeMapper.INSTANCE.contractFromFSItemDto(fsItemDto);
+                fsNodeType.setNodeType(FSInfoItem.CASE);
+                return fsNodeType;
+              })
+          .collect(Collectors.toList());
+      response.setCaseNodes(fsNodeTypes);
+    });
+    CompletableFuture<Void> folderCompletableFuture = CompletableFuture.runAsync(() -> {
+      List<FSInterfaceDto> fsInterfaceDtos = fsInterfaceRepository.queryInterfaces(workspaceId,
+          keywords, includeLabelTypes, excludeLabelTypes, pageSize);
+      List<FSNodeType> fsNodeTypes = fsInterfaceDtos.stream().map(
+              fsInterfaceDto -> {
+                FSNodeType fsNodeType = FSNodeMapper.INSTANCE.contractFromFSInterfaceDto(
+                    fsInterfaceDto);
+                fsNodeType.setNodeType(FSInfoItem.INTERFACE);
+                return fsNodeType;
+              })
+          .collect(Collectors.toList());
+      response.setInterfaceNodes(fsNodeTypes);
+    });
+    CompletableFuture<Void> interfaceCompletableFuture = CompletableFuture.runAsync(() -> {
+      List<FSFolderDto> fsFolderDtos = fsFolderRepository.queryFolders(workspaceId, keywords,
+          includeLabelTypes, excludeLabelTypes, pageSize);
+      List<FSNodeType> fsNodeTypes = fsFolderDtos.stream().map(fsFolderDto -> {
+            FSNodeType fsNodeType = FSNodeMapper.INSTANCE.contractFromFSItemDto(fsFolderDto);
+            fsNodeType.setNodeType(FSInfoItem.FOLDER);
+            return fsNodeType;
+          })
+          .collect(Collectors.toList());
+      response.setFolderNodes(fsNodeTypes);
+    });
+
+    CompletableFuture.allOf(caseCompletableFuture, folderCompletableFuture,
+        interfaceCompletableFuture).join();
+
+  }
+
+
+  public FSGetWorkspaceItemTreeResponseType getWorkspaceItemTree(
+      FSGetWorkspaceItemTreeRequestType request) {
+
+    FSGetWorkspaceItemTreeResponseType response = new FSGetWorkspaceItemTreeResponseType();
+
+    FSTreeDto treeDto = fsTreeRepository.queryFSTreeById(request.getWorkspaceId());
+    if (treeDto == null) {
+      return response;
+    }
+    List<String> parentIds = this.getParentIds(request.getInfoId(), request.getNodeType());
+
+    if (parentIds.isEmpty()) {
+      return response;
+    }
+
+    FSNodeDto fsNodeDto;
+    List<FSNodeDto> childrenFsNodeDtos = treeDto.getRoots();
+    for (int i = parentIds.size() - 1; i >= 0; i--) {
+
+      fsNodeDto = fileSystemUtils.findByInfoId(childrenFsNodeDtos, parentIds.get(i));
+      if (fsNodeDto == null) {
+        return response;
+      }
+
+      for (FSNodeDto fsNode : childrenFsNodeDtos) {
+        fsNode.setExistChildren(CollectionUtils.isNotEmpty(fsNode.getChildren()));
+        if (fsNode != fsNodeDto) {
+          fsNode.setChildren(null);
+        }
+      }
+
+      if (i == 0) {
+        fsNodeDto.setChildren(null);
+      }
+
+      childrenFsNodeDtos = fsNodeDto.getChildren();
+    }
+
+    FSTreeType treeType = FSTreeMapper.INSTANCE.contractFromDto(treeDto);
+    response.setFsTree(treeType);
+
+    return response;
+  }
+
+  private List<String> getParentIds(String infoId, int nodeType) {
+    List<String> parentIds = new ArrayList<>();
+    parentIds.add(infoId);
+
+    switch (nodeType) {
+      case FSInfoItem.CASE:
+        FSItemDto fsItemDto = fsCaseRepository.queryCase(infoId, false);
+        if (null == fsItemDto || StringUtils.isBlank(fsItemDto.getParentId())) {
+          return parentIds;
+        }
+        infoId = fsItemDto.getParentId();
+        parentIds.add(infoId);
+
+        FSInterfaceDto fsInterfaceDto = fsInterfaceRepository.queryInterface(infoId);
+        if (null == fsInterfaceDto || StringUtils.isBlank(fsInterfaceDto.getParentId())) {
+          return parentIds;
+        }
+        infoId = fsInterfaceDto.getParentId();
+        parentIds.add(infoId);
+        break;
+      case FSInfoItem.INTERFACE:
+        fsInterfaceDto = fsInterfaceRepository.queryInterface(infoId);
+        if (null == fsInterfaceDto || StringUtils.isBlank(fsInterfaceDto.getParentId())) {
+          return parentIds;
+        }
+        infoId = fsInterfaceDto.getParentId();
+        parentIds.add(infoId);
+        break;
+      case FSInfoItem.FOLDER:
+        break;
+      default:
+        parentIds.clear();
+        return parentIds;
+    }
+    // max parent level,avoid dead loops
+    int level = 20;
+
+    do {
+      FSFolderDto fsFolderDto = fsFolderRepository.queryById(infoId);
+      if (fsFolderDto == null || StringUtils.isBlank(fsFolderDto.getParentId())) {
+        return parentIds;
+      }
+      infoId = fsFolderDto.getParentId();
+      parentIds.add(infoId);
+    } while (level-- > 0);
+
+    return parentIds;
+  }
+
+
+  public BatchGetInterfaceCaseResponseType batchGetInterfaceCase(
+      BatchGetInterfaceCaseRequestType request) {
+
+    BatchGetInterfaceCaseResponseType response = new BatchGetInterfaceCaseResponseType();
+    List<FSNodeType> fsNodeTypes = request.getNodes();
+    if (CollectionUtils.isEmpty(fsNodeTypes)) {
+      return response;
+    }
+
+    List<Object> nodes = Collections.synchronizedList(new ArrayList<>());
+    List<CompletableFuture<Void>> completableFutures = Lists.newArrayList();
+    fsNodeTypes.forEach(
+        fsNodeType -> {
+          if (FSInfoItem.CASE == fsNodeType.getNodeType()) {
+            completableFutures
+                .add(CompletableFuture.runAsync(
+                    () -> this.getCaseNodes(nodes, fsNodeType.getInfoId())));
+          } else if (FSInfoItem.INTERFACE == fsNodeType.getNodeType()) {
+            completableFutures
+                .add(CompletableFuture.runAsync(
+                    () -> this.getInterfaceNodes(nodes, fsNodeType.getInfoId())));
+          } else if (FSInfoItem.FOLDER == fsNodeType.getNodeType()) {
+            completableFutures
+                .add(CompletableFuture.runAsync(() -> {
+                  List<String> ids = Lists.newArrayList();
+                  this.queryLastChildFolder(
+                      Collections.singletonList(fsNodeType.getInfoId()), ids);
+                  List<FSInterfaceDto> fsInterfaceDtos = fsInterfaceRepository.queryInterfaceByParentIds(
+                      ids);
+                  if (CollectionUtils.isNotEmpty(fsInterfaceDtos)) {
+                    fsInterfaceDtos.forEach(
+                        fsInterfaceDto -> this.getInterfaceNodes(nodes,
+                            fsInterfaceDto.getId()));
+                  }
+                }));
+          }
+        });
+
+    CompletableFuture.allOf(completableFutures.toArray(new CompletableFuture[0])).join();
+    response.setNodes(nodes);
+    return response;
+  }
+
+  private void getCaseNodes(List<Object> nodes, String infoId) {
+    FSQueryCaseRequestType fsQueryCaseRequestType = new FSQueryCaseRequestType();
+    fsQueryCaseRequestType.setId(infoId);
+    fsQueryCaseRequestType.setGetCompareMsg(false);
+    FSQueryCaseResponseType fsQueryCaseResponseType = this.queryCase(fsQueryCaseRequestType);
+    nodes.add(fsQueryCaseResponseType);
+  }
+
+  private void getInterfaceNodes(List<Object> nodes, String infoId) {
+    FSQueryInterfaceRequestType fsQueryInterfaceRequestType = new FSQueryInterfaceRequestType();
+    fsQueryInterfaceRequestType.setId(infoId);
+    FSQueryInterfaceResponseType fsQueryInterfaceResponseType = this.queryInterface(
+        fsQueryInterfaceRequestType);
+    nodes.add(fsQueryInterfaceResponseType);
+
+    List<FSItemDto> fsItemDtos = fsCaseRepository.queryCasesByParentIds(
+        Collections.singletonList(infoId));
+
+    if (CollectionUtils.isNotEmpty(fsItemDtos)) {
+      fsItemDtos.forEach(fsItemDto -> this.getCaseNodes(nodes, fsItemDto.getId()));
+    }
+  }
+
+  private void queryLastChildFolder(List<String> ids, List<String> result) {
+    List<FSItemDto> children = fsFolderRepository.queryByIdsByParentIds(ids);
+    if (CollectionUtils.isNotEmpty(children)) {
+      Set<String> pids = children.stream().map(FSItemDto::getParentId).collect(Collectors.toSet());
+      ids.stream().filter(id -> !pids.contains(id)).forEach(result::add);
+    } else {
+      result.addAll(ids);
+      return;
+    }
+    ids = children.stream().map(FSItemDto::getId).collect(Collectors.toList());
+    queryLastChildFolder(ids, result);
   }
 }

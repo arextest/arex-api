@@ -19,4 +19,6 @@ public class FSNodeDto {
   private int caseSourceType;
   private Set<String> labelIds;
   private List<FSNodeDto> children;
+  private Boolean existChildren;
+
 }

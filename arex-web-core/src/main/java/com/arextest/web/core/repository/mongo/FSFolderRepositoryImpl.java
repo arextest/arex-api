@@ -106,4 +106,26 @@ public class FSFolderRepositoryImpl implements FSFolderRepository {
     }
 
   }
+
+  @Override
+  public List<FSFolderDto> queryFolders(String workspaceId, String name, List<String> includeLabels,
+      List<String> excludeLabels, Integer pageSize) {
+    Query query = Query.query(
+        Criteria.where(FSFolderCollection.Fields.workspaceId).is(workspaceId));
+    if (StringUtils.isNotEmpty(name)) {
+      query.addCriteria(Criteria.where(FSFolderCollection.Fields.name).regex(name));
+    }
+    if (pageSize != null) {
+      query.limit(pageSize);
+    }
+    List<FSFolderCollection> results = mongoTemplate.find(query, FSFolderCollection.class);
+    return results.stream().map(FSFolderMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
+  }
+
+  @Override
+  public List<FSItemDto> queryByIdsByParentIds(List<String> parentIds) {
+    Query query = Query.query(Criteria.where(FSFolderCollection.Fields.parentId).in(parentIds));
+    List<FSFolderCollection> results = mongoTemplate.find(query, FSFolderCollection.class);
+    return results.stream().map(FSFolderMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
+  }
 }
