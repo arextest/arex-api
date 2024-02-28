@@ -106,7 +106,8 @@ public class AppAuthAspect {
         .map(SystemConfiguration::getAuthSwitch)
         .orElse(null);
     if (authSwitch == null) {
-      throw new ArexException(ArexApiResponseCode.AUTHENTICATION_FAILED, "get authSwitch failed");
+      throw new ArexException(ArexApiResponseCode.AUTHENTICATION_FAILED, "get authSwitch failed, please update "
+          + "storage version");
     }
   }
 
