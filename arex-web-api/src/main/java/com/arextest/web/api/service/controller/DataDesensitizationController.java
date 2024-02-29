@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -37,7 +36,7 @@ public class DataDesensitizationController {
     public Response listJar() {
         SystemConfiguration systemConfiguration = systemConfigurationRepository.getSystemConfigByKey(
             SystemConfigurationCollection.KeySummary.DESERIALIZATION_JAR);
-        List<DesensitizationJar> desensitizationJarList = systemConfiguration == null ? new ArrayList<>()
+        List<DesensitizationJar> desensitizationJarList = systemConfiguration == null ? Collections.emptyList()
             : Collections.singletonList(systemConfiguration.getDesensitizationJar());
         return ResponseUtils.successResponse(desensitizationJarList);
     }
