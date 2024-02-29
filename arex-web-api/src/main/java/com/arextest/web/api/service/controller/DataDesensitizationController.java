@@ -36,8 +36,8 @@ public class DataDesensitizationController {
     public Response listJar() {
         SystemConfiguration systemConfiguration = systemConfigurationRepository.getSystemConfigByKey(
             SystemConfigurationCollection.KeySummary.DESERIALIZATION_JAR);
-        List<DesensitizationJar> desensitizationJarList =
-            Collections.singletonList(systemConfiguration.getDesensitizationJar());
+        List<DesensitizationJar> desensitizationJarList = systemConfiguration == null ? Collections.emptyList()
+            : Collections.singletonList(systemConfiguration.getDesensitizationJar());
         return ResponseUtils.successResponse(desensitizationJarList);
     }
 }
