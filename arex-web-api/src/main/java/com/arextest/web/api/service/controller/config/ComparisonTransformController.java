@@ -13,6 +13,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,7 +35,7 @@ public class ComparisonTransformController extends
   }
 
   @Deprecated
-  @RequestMapping("/useResultAsList")
+  @GetMapping("/useResultAsList")
   @ResponseBody
   public final Response useResultList(@RequestParam String appId,
       @RequestParam(required = false) String operationId,
@@ -57,7 +58,7 @@ public class ComparisonTransformController extends
    * @param interfaceId
    * @return
    */
-  @RequestMapping("/queryByInterfaceId")
+  @GetMapping("/queryByInterfaceId")
   @ResponseBody
   public final Response queryByInterfaceId(@RequestParam String interfaceId,
       @RequestParam(defaultValue = "false") Boolean filterExpired) {
