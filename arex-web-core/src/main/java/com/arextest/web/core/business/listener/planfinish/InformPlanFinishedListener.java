@@ -10,9 +10,7 @@ import com.arextest.web.model.contract.contracts.QueryPlanStatisticsRequestType;
 import com.arextest.web.model.contract.contracts.QueryPlanStatisticsResponseType;
 import com.arextest.web.model.contract.contracts.common.PlanStatistic;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeansException;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -21,13 +19,15 @@ import org.springframework.stereotype.Component;
  */
 @Slf4j
 @Component
-public class InformPlanFinishedListener implements PlanFinishedLinstener, ApplicationContextAware {
+public class InformPlanFinishedListener implements PlanFinishedLinstener {
 
   private static final String SUCCESS_STR = "success";
   private static final String FAIL_STR = "fail";
 
-  private static QueryPlanStatisticsService queryPlanStatisticsService;
-  private static SystemConfigurationRepository systemConfigRepository;
+  @Autowired
+  private QueryPlanStatisticsService queryPlanStatisticsService;
+  @Autowired
+  private SystemConfigurationRepository systemConfigRepository;
 
   @Override
   public String planFinishedAction(String appId, String planId, Integer status) {
@@ -87,13 +87,5 @@ public class InformPlanFinishedListener implements PlanFinishedLinstener, Applic
     request.setPageIndex(1);
     request.setPlanId(planId);
     return queryPlanStatisticsService.queryByApp(request);
-  }
-
-  @Override
-  public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-    queryPlanStatisticsService =
-        (QueryPlanStatisticsService) applicationContext.getBean("queryPlanStatisticsService");
-    systemConfigRepository = (SystemConfigurationRepository) applicationContext.getBean(
-        "systemConfigurationRepositoryImpl");
   }
 }
