@@ -90,8 +90,6 @@ public class ComparisonTransformConfigurationRepositoryImpl
     Query query = Query.query(Criteria.where(DASH_ID).is(configuration.getId()));
     Update update = MongoHelper.getConfigUpdate();
     MongoHelper.appendSpecifiedProperties(update, configuration,
-//        ConfigComparisonTransformCollection.Fields.nodePath,
-//        ConfigComparisonTransformCollection.Fields.transformMethods,
         ConfigComparisonTransformCollection.Fields.transformDetail,
         Fields.expirationType,
         Fields.expirationDate);
