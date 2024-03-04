@@ -28,6 +28,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -212,6 +213,7 @@ public class InternalImportExportImpl implements ImportExport {
     if (collection == null || CollectionUtils.isEmpty(collection.getItems())) {
       return false;
     }
+    collection.getItems().removeIf(Objects::isNull);
     for (Item item : collection.getItems()) {
       if (item == null) {
         continue;
