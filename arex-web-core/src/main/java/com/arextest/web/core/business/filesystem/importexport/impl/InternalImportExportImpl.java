@@ -1,6 +1,8 @@
 package com.arextest.web.core.business.filesystem.importexport.impl;
 
+import com.arextest.common.exceptions.ArexException;
 import com.arextest.web.common.LogUtils;
+import com.arextest.web.common.exception.ArexApiResponseCode;
 import com.arextest.web.core.business.filesystem.FileSystemUtils;
 import com.arextest.web.core.business.filesystem.ItemInfo;
 import com.arextest.web.core.business.filesystem.ItemInfoFactory;
@@ -62,10 +64,15 @@ public class InternalImportExportImpl implements ImportExport {
     try {
       collection = objectMapper.readValue(importString, ItemCollectionDto.class);
     } catch (JsonProcessingException e) {
-      LogUtils.error(LOGGER, "Failed to import items", e);
+      throw new ArexException(ArexApiResponseCode.FS_FORMAT_ERROR, "Failed to import items", e);
     }
 
     if (collection == null) {
+      return false;
+    }
+
+    if (checkCollection(collection)) {
+      LOGGER.error("Failed to import items, collection's format is not correct");
       return false;
     }
 
@@ -198,5 +205,20 @@ public class InternalImportExportImpl implements ImportExport {
       }
     }
     return item;
+  }
+
+  private boolean checkCollection(ItemCollectionDto collection) {
+    if (collection == null || CollectionUtils.isEmpty(collection.getItems())) {
+      return false;
+    }
+    for (Item item : collection.getItems()) {
+      if (item == null) {
+        continue;
+      }
+      if (!FSInfoItem.ALL_TYPES.contains(item.getNodeType())) {
+        return false;
+      }
+    }
+    return true;
   }
 }
