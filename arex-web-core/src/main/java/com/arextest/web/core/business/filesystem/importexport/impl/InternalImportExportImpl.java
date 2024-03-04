@@ -71,7 +71,7 @@ public class InternalImportExportImpl implements ImportExport {
       return false;
     }
 
-    if (checkCollection(collection)) {
+    if (!checkCollection(collection)) {
       LOGGER.error("Failed to import items, collection's format is not correct");
       return false;
     }
@@ -207,6 +207,7 @@ public class InternalImportExportImpl implements ImportExport {
     return item;
   }
 
+  // true: collection is correct, false: collection is not correct
   private boolean checkCollection(ItemCollectionDto collection) {
     if (collection == null || CollectionUtils.isEmpty(collection.getItems())) {
       return false;
