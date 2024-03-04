@@ -215,9 +215,6 @@ public class InternalImportExportImpl implements ImportExport {
     }
     collection.getItems().removeIf(Objects::isNull);
     for (Item item : collection.getItems()) {
-      if (item == null) {
-        continue;
-      }
       if (!FSInfoItem.ALL_TYPES.contains(item.getNodeType())) {
         return false;
       }
