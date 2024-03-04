@@ -210,10 +210,13 @@ public class InternalImportExportImpl implements ImportExport {
 
   // true: collection is correct, false: collection is not correct
   private boolean checkCollection(ItemCollectionDto collection) {
-    if (collection == null || CollectionUtils.isEmpty(collection.getItems())) {
+    if (collection == null || collection.getItems() == null) {
       return false;
     }
     collection.getItems().removeIf(Objects::isNull);
+    if (CollectionUtils.isEmpty(collection.getItems())) {
+      return false;
+    }
     for (Item item : collection.getItems()) {
       if (!FSInfoItem.ALL_TYPES.contains(item.getNodeType())) {
         return false;
