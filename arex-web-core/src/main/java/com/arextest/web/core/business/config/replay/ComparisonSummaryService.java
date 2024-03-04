@@ -10,6 +10,7 @@ import com.arextest.web.core.business.config.ConfigurableHandler;
 import com.arextest.web.core.repository.AppContractRepository;
 import com.arextest.web.model.contract.contracts.common.enums.ExpirationType;
 import com.arextest.web.model.contract.contracts.compare.CategoryDetail;
+import com.arextest.web.model.contract.contracts.compare.TransformDetail;
 import com.arextest.web.model.contract.contracts.config.replay.AbstractComparisonDetailsConfiguration;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonEncryptionConfiguration;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonExclusionsConfiguration;
@@ -18,6 +19,7 @@ import com.arextest.web.model.contract.contracts.config.replay.ComparisonInclusi
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonListSortConfiguration;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonReferenceConfiguration;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonSummaryConfiguration;
+import com.arextest.web.model.contract.contracts.config.replay.ComparisonTransformConfiguration;
 import com.arextest.web.model.contract.contracts.config.replay.QueryConfigOfCategoryRequestType;
 import com.arextest.web.model.contract.contracts.config.replay.QueryConfigOfCategoryResponseType;
 import com.arextest.web.model.contract.contracts.config.replay.ReplayCompareConfig;
@@ -60,6 +62,7 @@ public class ComparisonSummaryService {
   protected ComparisonReferenceConfigurableHandler referenceConfigurableHandler;
   protected ComparisonListSortConfigurableHandler listSortConfigurableHandler;
   protected ComparisonIgnoreCategoryConfigurableHandler ignoreCategoryConfigurableHandler;
+  protected ComparisonTransformConfigurableHandler transformConfigurableHandler;
   protected ConfigurableHandler<ApplicationServiceConfiguration> applicationServiceConfigurationConfigurableHandler;
   protected AppContractRepository appContractRepository;
 
@@ -78,7 +81,9 @@ public class ComparisonSummaryService {
       @Autowired ConfigurableHandler<
           ApplicationServiceConfiguration> applicationServiceConfigurationConfigurableHandler,
       @Autowired AppContractRepository appContractRepository,
-      @Autowired ComparisonIgnoreCategoryConfigurableHandler ignoreCategoryConfigurableHandler) {
+      @Autowired ComparisonIgnoreCategoryConfigurableHandler ignoreCategoryConfigurableHandler,
+      @Autowired ComparisonTransformConfigurableHandler transformConfigurableHandler
+  ) {
     this.exclusionsConfigurableHandler = exclusionsConfigurableHandler;
     this.inclusionsConfigurableHandler = inclusionsConfigurableHandler;
     this.encryptionConfigurableHandler = encryptionConfigurableHandler;
@@ -87,6 +92,7 @@ public class ComparisonSummaryService {
     this.applicationServiceConfigurationConfigurableHandler = applicationServiceConfigurationConfigurableHandler;
     this.appContractRepository = appContractRepository;
     this.ignoreCategoryConfigurableHandler = ignoreCategoryConfigurableHandler;
+    this.transformConfigurableHandler = transformConfigurableHandler;
   }
 
   public ComparisonSummaryConfiguration getComparisonDetailsSummary(String interfaceId) {
@@ -315,6 +321,15 @@ public class ComparisonSummaryService {
                   }));
           summaryConfiguration.setReferenceMap(operationReferenceMap);
         }, operationInfoMap, appContractDtoMap);
+    buildComparisonConfig(replayConfigurationMap,
+        transformConfigurableHandler.useResultAsList(appId),
+        (configurations, summaryConfiguration) -> {
+          List<TransformDetail> transformDetails = configurations.stream()
+              .map(ComparisonTransformConfiguration::getTransformDetail)
+              .collect(Collectors.toList());
+          summaryConfiguration.setTransformDetails(transformDetails);
+        }, operationInfoMap, appContractDtoMap);
+
     return replayConfigurationMap;
   }
 
