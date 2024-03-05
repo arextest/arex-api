@@ -414,6 +414,13 @@ public class FileSystemService {
           toParent = fileSystemUtils.findByPath(dto.getRoots(), request.getToParentPath());
         }
         Integer toIndex = request.getToIndex() == null ? 0 : request.getToIndex();
+
+        if (fromParent == null) {
+          dto.getRoots().remove(current.getLeft().intValue());
+        } else {
+          fromParent.getChildren().remove(current.getLeft().intValue());
+        }
+
         if (toParent == null) {
           dto.getRoots().add(toIndex, current.getRight());
           updateParentId(current.getRight(), "", 0);
@@ -423,26 +430,6 @@ public class FileSystemService {
           }
           toParent.getChildren().add(toIndex, current.getRight());
           updateParentId(current.getRight(), toParent.getInfoId(), toParent.getNodeType());
-        }
-        if (fromParent == null && toParent == null) {
-          if (request.getToIndex() < current.getLeft()) {
-            dto.getRoots().remove(current.getLeft() + 1);
-          } else {
-            dto.getRoots().remove(current.getLeft().intValue());
-          }
-        } else if (fromParent != null && toParent != null
-            && Objects.equals(fromParent.getInfoId(), toParent.getInfoId())) {
-          if (request.getToIndex() < current.getLeft()) {
-            fromParent.getChildren().remove(current.getLeft() + 1);
-          } else {
-            fromParent.getChildren().remove(current.getLeft().intValue());
-          }
-        } else {
-          if (fromParent == null) {
-            dto.getRoots().remove(current.getLeft().intValue());
-          } else {
-            fromParent.getChildren().remove(current.getLeft().intValue());
-          }
         }
         return dto;
       });
