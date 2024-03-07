@@ -9,9 +9,6 @@ import com.arextest.web.core.repository.AppContractRepository;
 import com.arextest.web.core.repository.ReplayCompareResultRepository;
 import com.arextest.web.model.contract.contracts.OverwriteContractRequestType;
 import com.arextest.web.model.contract.contracts.QueryContractRequestType;
-import com.arextest.web.model.contract.contracts.QueryMsgSchemaRequestType;
-import com.arextest.web.model.contract.contracts.QueryMsgSchemaResponseType;
-import com.arextest.web.model.contract.contracts.QuerySchemaForConfigRequestType;
 import com.arextest.web.model.contract.contracts.SyncResponseContractRequestType;
 import com.arextest.web.model.contract.contracts.SyncResponseContractResponseType;
 import com.arextest.web.model.contract.contracts.common.DependencyWithContract;
@@ -19,14 +16,19 @@ import com.arextest.web.model.dto.AppContractDto;
 import com.arextest.web.model.dto.CompareResultDto;
 import com.arextest.web.model.enums.ContractTypeEnum;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.common.collect.Lists;
-import com.saasquatch.jsonschemainferrer.JsonSchemaInferrer;
-import com.saasquatch.jsonschemainferrer.SpecVersion;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -34,38 +36,15 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
 @Slf4j
 @Component
 public class SchemaInferService {
 
-  private static final String TYPE = "type";
-  private static final String PROPERTIES = "properties";
-  private static final String ITEMS = "items";
-  private static final String OBJECT = "object";
-  private static final String ARRAY = "array";
   private static final String NULL_STR = "null";
-  private static final String ANY_OF = "anyOf";
-  private static final String VALUE_WITH_SYMBOL = "%value%";
   private static final String EMPTY_CONTRACT = "{}";
   private static final int LIMIT = 5;
   private static final int FIRST_INDEX = 0;
   private static final ObjectMapper CONTRACT_OBJ_MAPPER = new ObjectMapper();
-  private static final JsonSchemaInferrer INFERRER =
-      JsonSchemaInferrer.newBuilder().setSpecVersion(SpecVersion.DRAFT_06).build();
   private static final Set<String> EXCLUDE_OPERATION_TYPE = new HashSet<>(Arrays.asList(
       MockCategoryType.REDIS.getName(),
       MockCategoryType.DATABASE.getName()));
@@ -76,50 +55,6 @@ public class SchemaInferService {
   private AppContractRepository appContractRepository;
   @Resource
   private ApplicationOperationConfigurationRepositoryImpl applicationOperationConfigurationRepository;
-
-  public QueryMsgSchemaResponseType schemaInfer(QueryMsgSchemaRequestType request) {
-    QueryMsgSchemaResponseType response = new QueryMsgSchemaResponseType();
-    String msg;
-    if (request.getId() != null) {
-      CompareResultDto dto = replayCompareResultRepository.queryCompareResultsById(request.getId());
-      msg = request.isUseTestMsg() ? dto.getTestMsg() : dto.getBaseMsg();
-    } else {
-      msg = request.getMsg();
-    }
-    if (StringUtils.isEmpty(msg)) {
-      return response;
-    }
-    try {
-      ObjectMapper mapper = new ObjectMapper();
-      JsonNode jsonNode = mapper.readTree(msg);
-      JsonNode jsonSchema = INFERRER.inferForSample(jsonNode);
-      adjustJsonNode(jsonSchema, false);
-      JsonNode schemaByPath = getSchemaByPath(jsonSchema, request.getListPath());
-      if (schemaByPath != null) {
-        response.setSchema(mapper.writeValueAsString(schemaByPath));
-      }
-    } catch (Exception e) {
-      LogUtils.warn(LOGGER, "schemaInfer", e);
-    }
-    return response;
-  }
-
-  public QueryMsgSchemaResponseType schemaInferForConfig(QuerySchemaForConfigRequestType request) {
-    QueryMsgSchemaResponseType response = new QueryMsgSchemaResponseType();
-    try {
-      ObjectMapper mapper = new ObjectMapper();
-      JsonNode jsonNode = mapper.readTree(request.getMsg());
-      JsonNode jsonSchema = INFERRER.inferForSample(jsonNode);
-      adjustJsonNode(jsonSchema, false);
-      if (request.isOnlyArray()) {
-        getArray(jsonSchema);
-      }
-      response.setSchema(mapper.writeValueAsString(jsonSchema));
-    } catch (Exception e) {
-      LogUtils.warn(LOGGER, "schemaInferForConfig", e);
-    }
-    return response;
-  }
 
   public AppContractDto queryContract(QueryContractRequestType requestType) {
     if (requestType.getOperationType() != null || requestType.getOperationName() != null) {
@@ -139,10 +74,12 @@ public class SchemaInferService {
   public List<AppContractDto> queryAllContracts(QueryContractRequestType requestType) {
     List<AppContractDto> appContractList = new ArrayList<>();
     if (requestType.getAppId() != null && requestType.getOperationId() != null) {
-      List<AppContractDto> appContractDtos = appContractRepository.queryAppContracts(requestType.getAppId(),
+      List<AppContractDto> appContractDtos = appContractRepository.queryAppContracts(
+              requestType.getAppId(),
               requestType.getOperationId())
           .stream()
-          .filter(appContractDto -> !EXCLUDE_OPERATION_TYPE.contains(appContractDto.getOperationType()))
+          .filter(
+              appContractDto -> !EXCLUDE_OPERATION_TYPE.contains(appContractDto.getOperationType()))
           .collect(Collectors.toList());
       if (CollectionUtils.isNotEmpty(appContractDtos)) {
         appContractList.addAll(appContractDtos);
@@ -342,143 +279,5 @@ public class SchemaInferService {
           contract);
       return null;
     }
-  }
-
-  private void adjustJsonNode(JsonNode node, boolean isArray) {
-    JsonNode typeNode = node.get(TYPE);
-    if (typeNode == null) {
-      return;
-    }
-    if (typeNode.isValueNode()) {
-      String type = typeNode.asText();
-      ObjectNode subNode;
-      if (Objects.equals(type, OBJECT)) {
-        subNode = (ObjectNode) node.get(PROPERTIES);
-        if (subNode != null) {
-          Iterator<Map.Entry<String, JsonNode>> it = subNode.fields();
-          while (it.hasNext()) {
-            Map.Entry<String, JsonNode> entry = it.next();
-            adjustJsonNode(entry.getValue(), false);
-          }
-        }
-      } else if (Objects.equals(type, ARRAY)) {
-        subNode = (ObjectNode) node.get(ITEMS);
-        if (subNode != null) {
-          JsonNode anyOf = subNode.get(ANY_OF);
-          if (anyOf != null) {
-            subNode.remove(ANY_OF);
-            ((ObjectNode) node).set(ITEMS, removeNullNode(anyOf));
-          }
-          adjustJsonNode(node.get(ITEMS), true);
-        }
-      } else {
-        if (isArray && !Objects.equals(type, NULL_STR)) {
-          JsonNode oldTypeNode = node.get(TYPE);
-          ObjectNode newNode = JsonNodeFactory.instance.objectNode();
-          ObjectNode newTypeNode = JsonNodeFactory.instance.objectNode();
-          newTypeNode.set(TYPE, JsonNodeFactory.instance.textNode(oldTypeNode.asText()));
-          newNode.set(VALUE_WITH_SYMBOL, newTypeNode);
-          ((ObjectNode) node).set(TYPE, JsonNodeFactory.instance.textNode(OBJECT));
-          ((ObjectNode) node).set(PROPERTIES, newNode);
-        }
-      }
-    } else {
-      ((ObjectNode) node).set(TYPE, removeNullType(typeNode));
-      if (isArray) {
-        JsonNode oldTypeNode = node.get(TYPE);
-        ObjectNode newNode = JsonNodeFactory.instance.objectNode();
-        ObjectNode newTypeNode = JsonNodeFactory.instance.objectNode();
-        newTypeNode.set(TYPE, JsonNodeFactory.instance.textNode(oldTypeNode.asText()));
-        newNode.set(VALUE_WITH_SYMBOL, newTypeNode);
-        ((ObjectNode) node).set(TYPE, JsonNodeFactory.instance.textNode(OBJECT));
-        ((ObjectNode) node).set(PROPERTIES, newNode);
-      }
-    }
-
-  }
-
-  private JsonNode removeNullNode(JsonNode node) {
-    ArrayNode arrayNode = (ArrayNode) node;
-    int size = arrayNode.size();
-    for (int i = 0; i < size; i++) {
-      if (!Objects.equals(arrayNode.get(i).get(TYPE).asText(), NULL_STR)) {
-        return arrayNode.get(i);
-      }
-    }
-    return null;
-  }
-
-  private JsonNode removeNullType(JsonNode node) {
-    ArrayNode arrayNode = (ArrayNode) node;
-    int size = arrayNode.size();
-    for (int i = 0; i < size; i++) {
-      if (!Objects.equals(arrayNode.get(i).asText(), NULL_STR)) {
-        return arrayNode.get(i);
-      }
-    }
-    return null;
-  }
-
-  private JsonNode getSchemaByPath(JsonNode jsonNode, String listPath) {
-    if (jsonNode == null) {
-      return null;
-    }
-    String[] split = listPath.split("\\\\");
-    if (split.length == 1 && StringUtils.isEmpty(split[0]) && jsonNode.get(ITEMS) != null) {
-      return eliminateNestedList(jsonNode);
-    } else {
-      for (String path : split) {
-        if (jsonNode == null) {
-          return null;
-        }
-        JsonNode jsonSchema = eliminateNestedList(jsonNode);
-        jsonNode = jsonSchema.get(PROPERTIES) != null ? jsonSchema.get(PROPERTIES).get(path) : null;
-      }
-    }
-    return jsonNode == null ? null : jsonNode.get(ITEMS);
-  }
-
-  private JsonNode eliminateNestedList(JsonNode jsonNode) {
-    if (jsonNode == null) {
-      return null;
-    }
-    String type = jsonNode.get(TYPE).asText();
-    if (Objects.equals(type, ARRAY)) {
-      return eliminateNestedList(jsonNode.get(ITEMS));
-    } else {
-      return jsonNode;
-    }
-  }
-
-  private boolean getArray(JsonNode node) {
-    JsonNode typeNode = node.get(TYPE);
-    if (typeNode == null) {
-      return false;
-    }
-    String type = typeNode.asText();
-    ObjectNode subNode;
-    if (Objects.equals(type, OBJECT)) {
-      subNode = (ObjectNode) node.get(PROPERTIES);
-      if (subNode != null) {
-        List<String> names = Lists.newArrayList(subNode.fieldNames());
-        for (String name : names) {
-          boolean isArray = getArray(subNode.get(name));
-          if (!isArray) {
-            subNode.remove(name);
-          }
-        }
-      } else {
-        return false;
-      }
-    } else if (Objects.equals(type, ARRAY)) {
-      subNode = (ObjectNode) node.get(ITEMS);
-      if (subNode != null) {
-        getArray(subNode);
-      }
-      return true;
-    } else {
-      return false;
-    }
-    return false;
   }
 }

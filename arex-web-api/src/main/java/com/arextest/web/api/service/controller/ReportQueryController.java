@@ -37,8 +37,6 @@ import com.arextest.web.model.contract.contracts.QueryFullLinkInfoResponseType;
 import com.arextest.web.model.contract.contracts.QueryFullLinkMsgRequestType;
 import com.arextest.web.model.contract.contracts.QueryFullLinkMsgResponseType;
 import com.arextest.web.model.contract.contracts.QueryLogEntityRequestTye;
-import com.arextest.web.model.contract.contracts.QueryMsgSchemaRequestType;
-import com.arextest.web.model.contract.contracts.QueryMsgSchemaResponseType;
 import com.arextest.web.model.contract.contracts.QueryMsgShowByCaseRequestType;
 import com.arextest.web.model.contract.contracts.QueryMsgShowByCaseResponseType;
 import com.arextest.web.model.contract.contracts.QueryMsgWithDiffRequestType;
@@ -57,7 +55,6 @@ import com.arextest.web.model.contract.contracts.QueryReplayMsgResponseType;
 import com.arextest.web.model.contract.contracts.QuerySceneInfoResponseType;
 import com.arextest.web.model.contract.contracts.QueryScenesRequestType;
 import com.arextest.web.model.contract.contracts.QueryScenesResponseType;
-import com.arextest.web.model.contract.contracts.QuerySchemaForConfigRequestType;
 import com.arextest.web.model.contract.contracts.RemoveErrorMsgRequest;
 import com.arextest.web.model.contract.contracts.RemoveRecordsAndScenesRequest;
 import com.arextest.web.model.contract.contracts.ReportInitialRequestType;
@@ -230,7 +227,8 @@ public class ReportQueryController {
   @GetMapping("/getPlanItemStatistic/{planItemId}")
   @ResponseBody
   public Response queryPlanItemStatistics(@PathVariable String planItemId) {
-    PlanItemStatistic planItemStatistic = queryPlanItemStatisticService.planItemStatistic(planItemId);
+    PlanItemStatistic planItemStatistic = queryPlanItemStatisticService.planItemStatistic(
+        planItemId);
     return ResponseUtils.successResponse(planItemStatistic);
   }
 
@@ -312,27 +310,6 @@ public class ReportQueryController {
   public void downloadReplayMsg(@Valid @RequestBody DownloadReplayMsgRequestType request,
       HttpServletResponse response) {
     queryReplayMsgService.downloadReplayMsg(request, response);
-  }
-
-  @PostMapping("/queryMsgSchema")
-  @ResponseBody
-  public Response queryMsgSchema(@RequestBody QueryMsgSchemaRequestType request) {
-    if (StringUtils.isEmpty(request.getId()) && StringUtils.isEmpty(request.getMsg())) {
-      return ResponseUtils.errorResponse("queryMsgSchema id is empty",
-          ResponseCode.REQUESTED_PARAMETER_INVALID);
-    }
-    QueryMsgSchemaResponseType response = schemaInferService.schemaInfer(request);
-    return ResponseUtils.successResponse(response);
-  }
-
-  @PostMapping("/querySchemaForConfig")
-  @ResponseBody
-  public Response querySchemaForConfig(@RequestBody QuerySchemaForConfigRequestType request) {
-    QueryMsgSchemaResponseType response = new QueryMsgSchemaResponseType();
-    if (StringUtils.isNotEmpty(request.getMsg())) {
-      response = schemaInferService.schemaInferForConfig(request);
-    }
-    return ResponseUtils.successResponse(response);
   }
 
   @GetMapping("/delete/{planId}")
