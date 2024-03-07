@@ -1,13 +1,8 @@
 FROM maven:3-openjdk-8-slim as builder
 COPY . /usr/src/app/
 WORKDIR /usr/src/app
-RUN mvn clean package -DskipTests
+RUN mvn clean package -DskipTests -Pjar
 
-FROM tomcat:9.0-jdk8-openjdk
-COPY --from=builder /usr/src/app/arex-web-api/target/arex-platform-web-service.war /usr/local/tomcat/webapps/arex-platform-web-service.war
-WORKDIR /usr/local/tomcat/conf
-RUN sed -i 'N;152a\\t<Context path="" docBase="arex-platform-web-service.war" />' server.xml
-
-WORKDIR /usr/local/tomcat
-EXPOSE 8080
-CMD ["catalina.sh","run"]
+FROM eclipse-temurin:8-jre
+COPY --from=builder /usr/src/app/arex-api-jar/api.jar app.jar
+ENTRYPOINT ["sh", "-c", "java ${JAVA_OPTS} -jar /app.jar"]

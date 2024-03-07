@@ -63,6 +63,42 @@
   <modelVersion>4.0.0</modelVersion>
   <packaging>${packagingType}</packaging>
 
+  <profiles>
+    <profile>
+      <id>jar</id>
+      <properties>
+        <packagingType>jar</packagingType>
+      </properties>
+      <build>
+        <finalName>api</finalName>
+        <resources>
+          <resource>
+            <directory>src/main/resources</directory>
+            <filtering>true</filtering>
+          </resource>
+        </resources>
+        <plugins>
+          <plugin>
+            <artifactId>spring-boot-maven-plugin</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <configuration>
+              <includeSystemScope>true</includeSystemScope>
+              <mainClass>com.arextest.web.api.service.WebSpringBootServletInitializer</mainClass>
+              <outputDirectory>../arex-api-jar</outputDirectory>
+            </configuration>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>repackage</goal>
+                </goals>
+                <phase>package</phase>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
   <parent>
     <artifactId>arex-web</artifactId>
     <groupId>com.arextest</groupId>
