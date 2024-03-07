@@ -2,32 +2,41 @@ package com.arextest.web.core.repository.mongo;
 
 import com.arextest.web.common.LogUtils;
 import com.arextest.web.core.repository.ReplayCompareResultRepository;
+import com.arextest.web.model.contract.contracts.QueryReplayCaseRequestType;
 import com.arextest.web.model.dao.mongodb.ReplayCompareResultCollection;
+import com.arextest.web.model.dao.mongodb.ReplayCompareResultCollection.Fields;
 import com.arextest.web.model.dto.CompareResultDto;
 import com.arextest.web.model.mapper.CompareResultMapper;
 import com.mongodb.client.result.DeleteResult;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.util.Strings;
+import org.bson.Document;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.mongodb.core.BulkOperations;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.AggregationResults;
+import org.springframework.data.mongodb.core.aggregation.TypedAggregation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -49,6 +58,8 @@ public class ReplayCompareResultRepositoryImpl implements ReplayCompareResultRep
   private static final String REPLAY_TIME = "replayTime";
 
   private static final String DASH_ID = "_id";
+  private static final String MAX_CREATE_DATE = "maxCreateDate";
+  private static final String MAX_DIFF_CODE = "maxDiffCode";
 
   @Resource
   private MongoTemplate mongoTemplate;
@@ -96,9 +107,26 @@ public class ReplayCompareResultRepositoryImpl implements ReplayCompareResultRep
   }
 
   @Override
+  public Long countWithDistinct(String planItemId, Integer diffResultCode, String keyword) {
+    Criteria criteria = Criteria.where(Fields.planItemId).is(planItemId);
+    if (diffResultCode != null) {
+      criteria.and(Fields.diffResultCode).is(diffResultCode);
+    }
+    if (Strings.isNotBlank(keyword)) {
+      criteria.andOperator(Criteria.where(Fields.recordId).is(keyword).
+          orOperator(Criteria.where(Fields.replayId).is(keyword)));
+    }
+    Query query = Query.query(criteria);
+
+    List<String> result = mongoTemplate.findDistinct(query, Fields.caseId, ReplayCompareResultCollection.class, String.class);
+
+    return (long) result.size();
+  }
+
+  @Override
   public List<CompareResultDto> findResultWithoutMsg(String planItemId) {
-    if (planItemId == null) {
-      return new ArrayList<>();
+    if (StringUtils.isEmpty(planItemId)) {
+      return Collections.emptyList();
     }
     Query query = fillFilterConditions(null, planItemId, null, null, null);
     query.fields().exclude(BASE_MSG).exclude(TEST_MSG).exclude(LOGS);
@@ -110,50 +138,56 @@ public class ReplayCompareResultRepositoryImpl implements ReplayCompareResultRep
   }
 
   @Override
-  public List<CompareResultDto> findResultWithoutMsg(String planItemId, String keyWord) {
-    Query query = fillFilterConditions(null, planItemId, null, null, keyWord);
+  public List<CompareResultDto> findResultWithoutMsg(QueryReplayCaseRequestType request) {
+    Criteria criteria = Criteria.where(Fields.planItemId).is(request.getPlanItemId());
+    if (request.getDiffResultCode() != null) {
+      criteria.and(Fields.diffResultCode).is(request.getDiffResultCode());
+    }
+    if (Strings.isNotBlank(request.getKeyWord())) {
+      criteria.andOperator(Criteria.where(Fields.recordId).is(request.getKeyWord()).
+          orOperator(Criteria.where(Fields.replayId).is(request.getKeyWord())));
+    }
+    int limit = 5;
+    if (request.getPageSize() != null) {
+      limit = Integer.min(request.getPageSize(), limit);
+    }
+    int skip = 0;
+    if (request.getPageIndex() != null && request.getPageIndex() > 0) {
+      skip = (request.getPageIndex() - 1) * limit;
+    }
 
-    query.fields().include(PLAN_ITEM_ID);
-    query.fields().include(PLAN_ID);
-    query.fields().include(OPERATION_ID);
-    query.fields().include(CATEGORY_NAME);
-    query.fields().include(OPERATION_NAME);
-    query.fields().include(REPLAY_ID);
-    query.fields().include(RECORD_ID);
-    query.fields().include(DIFF_RESULT_CODE);
-    List<ReplayCompareResultCollection> result = mongoTemplate.find(query,
-        ReplayCompareResultCollection.class);
-    return result.stream().map(CompareResultMapper.INSTANCE::dtoFromDao)
-        .collect(Collectors.toList());
+    Aggregation aggregation = Aggregation.newAggregation(
+        TypedAggregation.match(criteria),
+        Aggregation.project(DASH_ID, Fields.caseId, Fields.planItemId, Fields.diffResultCode, Fields.recordId,
+            Fields.replayId, Fields.dataChangeCreateDate),
+        Aggregation.group(Fields.caseId, Fields.recordId, Fields.replayId)
+            .max(Fields.dataChangeCreateDate).as(MAX_CREATE_DATE)
+            .max(Fields.diffResultCode).as(MAX_DIFF_CODE),
+        Aggregation.sort(Direction.DESC, MAX_DIFF_CODE, MAX_CREATE_DATE),
+        Aggregation.skip(skip),
+        Aggregation.limit(limit)
+    );
+
+    AggregationResults<Document> aggregationResults = mongoTemplate.aggregate(aggregation, ReplayCompareResultCollection.class, Document.class);
+    List<Document> aggregationDocumentList = aggregationResults.getMappedResults();
+    if (CollectionUtils.isEmpty(aggregationDocumentList)) {
+      return Collections.emptyList();
+    }
+
+    List<CompareResultDto> compareResultList = new ArrayList<>(aggregationDocumentList.size());
+    for (Document document : aggregationDocumentList) {
+        CompareResultDto compareResultDto = new CompareResultDto();
+        Document idDoc = (Document) document.get(DASH_ID);
+        compareResultDto.setCaseId(idDoc.getString(Fields.caseId));
+        compareResultDto.setRecordId(idDoc.getString(Fields.recordId));
+        compareResultDto.setReplayId(idDoc.getString(Fields.replayId));
+        compareResultDto.setDiffResultCode(document.getInteger(MAX_DIFF_CODE));
+
+        compareResultList.add(compareResultDto);
+    }
+
+    return compareResultList;
   }
-
-  // @Override
-  // public Pair<List<CompareResultDto>, Long> pageQueryWithoutMsg(Long planId, Long planItemId, String categoryName,
-  // Integer resultType, String keyWord,
-  // Integer pageIndex, Integer pageSize, Boolean
-  // needTotal) {
-  // Query query = fillFilterConditions(planId, planItemId, categoryName, resultType, keyWord);
-  //
-  // query.fields().include(PLAN_ITEM_ID);
-  // query.fields().include(PLAN_ID);
-  // query.fields().include(OPERATION_ID);
-  // query.fields().include(CATEGORY_NAME);
-  // query.fields().include(OPERATION_NAME);
-  // query.fields().include(REPLAY_ID);
-  // query.fields().include(RECORD_ID);
-  // query.fields().include(DIFF_RESULT_CODE);
-  // Long totalCount = -1L;
-  // if (needTotal) {
-  // totalCount = mongoTemplate.count(query, ReplayCompareResultCollection.class);
-  // }
-  // Pageable pageable = new PageRequest(pageIndex, pageSize, Sort.by(direct));
-  // query.with(pageable);
-  // List<ReplayCompareResultCollection> result = mongoTemplate.find(query, ReplayCompareResultCollection.class);
-  // List<CompareResultDto> dtos =
-  // result.stream().map(CompareResultMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
-  //
-  // return new MutablePair<>(dtos, totalCount);
-  // }
 
   @Override
   public Pair<List<CompareResultDto>, Long> queryCompareResultByPage(String planId,

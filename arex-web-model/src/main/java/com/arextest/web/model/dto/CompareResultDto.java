@@ -8,6 +8,8 @@ import lombok.Data;
 @Data
 public class CompareResultDto extends BaseDto {
 
+  private String caseId;
+
   private String planId;
 
   private String operationId;

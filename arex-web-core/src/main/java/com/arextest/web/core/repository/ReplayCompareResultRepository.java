@@ -1,5 +1,6 @@
 package com.arextest.web.core.repository;
 
+import com.arextest.web.model.contract.contracts.QueryReplayCaseRequestType;
 import com.arextest.web.model.dto.CompareResultDto;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -13,9 +14,11 @@ public interface ReplayCompareResultRepository extends RepositoryProvider {
 
   boolean updateResults(List<CompareResultDto> results);
 
+  Long countWithDistinct(String planItemId, Integer diffResultCode, String keyword);
+
   List<CompareResultDto> findResultWithoutMsg(String planItemId);
 
-  List<CompareResultDto> findResultWithoutMsg(String planItemId, String keyWord);
+  List<CompareResultDto> findResultWithoutMsg(QueryReplayCaseRequestType request);
 
   // Pair<List<CompareResultDto>, Long> pageQueryWithoutMsg(Long planId, Long planItemId, String categoryName,
   // Integer resultType, String keyWord,
