@@ -47,10 +47,6 @@
       <groupId>org.apache.commons</groupId>
     </dependency>
     <dependency>
-      <artifactId>json-schema-inferrer</artifactId>
-      <groupId>com.github.saasquatch</groupId>
-    </dependency>
-    <dependency>
       <artifactId>snakeyaml</artifactId>
       <groupId>org.yaml</groupId>
     </dependency>

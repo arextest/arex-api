@@ -188,11 +188,6 @@
         <version>${guava.version}</version>
       </dependency>
       <dependency>
-        <artifactId>json-schema-inferrer</artifactId>
-        <groupId>com.github.saasquatch</groupId>
-        <version>${shema.inferer.version}</version>
-      </dependency>
-      <dependency>
         <artifactId>snakeyaml</artifactId>
         <groupId>org.yaml</groupId>
         <version>${snakeyaml.version}</version>
@@ -513,20 +508,11 @@
     <org.mapstruct.version>1.5.5.Final</org.mapstruct.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <shedlock-spring.version>4.34.0</shedlock-spring.version>
-    <shema.inferer.version>0.1.4</shema.inferer.version>
     <snakeyaml.version>1.29</snakeyaml.version>
     <spring.boot.version>2.6.3</spring.boot.version>
     <springfox-boot-starter.version>3.0.0</springfox-boot-starter.version>
     <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
   </properties>
-
-  <repositories>
-    <repository>
-      <id>jitpack.io</id>
-      <name>jitpack-name</name>
-      <url>https://jitpack.io</url>
-    </repository>
-  </repositories>
 
   <scm>
     <connection>scm:git:git://github.com/arextest/arex-report.git</connection>
