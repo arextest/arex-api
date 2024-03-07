@@ -85,6 +85,10 @@
       <artifactId>google-oauth-client</artifactId>
       <groupId>com.google.oauth-client</groupId>
     </dependency>
+    <dependency>
+      <artifactId>arex-compare-extension</artifactId>
+      <groupId>com.arextest</groupId>
+    </dependency>
   </dependencies>
   <modelVersion>4.0.0</modelVersion>
 

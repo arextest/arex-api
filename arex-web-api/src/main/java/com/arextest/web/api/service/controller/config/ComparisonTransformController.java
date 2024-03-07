@@ -87,4 +87,14 @@ public class ComparisonTransformController extends
     return ResponseUtils.successResponse(configs);
   }
 
+  @GetMapping("/getTransformMethod")
+  @ResponseBody
+  public final Response getTransformMethod(@RequestParam String appId) {
+    if (StringUtils.isEmpty(appId)) {
+      return InvalidResponse.REQUESTED_APP_ID_IS_EMPTY;
+    }
+    return ResponseUtils.successResponse(
+        getComparisonTransformConfigurableHandler().getTransformMethodList());
+  }
+
 }

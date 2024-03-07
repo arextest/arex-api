@@ -1,14 +1,24 @@
 package com.arextest.web.core.business;
 
+import com.arextest.common.model.classloader.RemoteJarClassLoader;
+import com.arextest.common.utils.RemoteJarLoaderUtils;
 import com.arextest.config.model.dao.config.SystemConfigurationCollection;
-import com.arextest.config.model.dto.SystemConfiguration;
+import com.arextest.config.model.dto.system.ComparePluginInfo;
+import com.arextest.config.model.dto.system.SystemConfiguration;
 import com.arextest.config.repository.SystemConfigurationRepository;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-
-import javax.annotation.Resource;
+import com.arextest.diff.service.DecompressService;
+import com.arextest.web.model.contract.contracts.config.SystemConfigWithProperties;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import javax.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
+import org.springframework.stereotype.Service;
 
 /**
  * @author wildeslam.
@@ -18,32 +28,113 @@ import java.util.List;
 @Service
 public class SystemConfigurationService {
 
-    @Resource
-    private SystemConfigurationRepository systemConfigurationRepository;
+  @Resource
+  private SystemConfigurationRepository systemConfigurationRepository;
 
-    public boolean saveConfig(SystemConfiguration systemConfiguration) {
-        List<SystemConfiguration> systemConfigurations = new ArrayList<>();
-        if (systemConfiguration.getCallbackUrl() != null) {
-            SystemConfiguration callbackUrl = new SystemConfiguration();
-            callbackUrl.setCallbackUrl(systemConfiguration.getCallbackUrl());
-            callbackUrl.setKey(SystemConfigurationCollection.KeySummary.CALLBACK_URL);
-            systemConfigurations.add(callbackUrl);
-        }
-        if (systemConfiguration.getDesensitizationJar() != null) {
-            SystemConfiguration desensitizationJar = new SystemConfiguration();
-            desensitizationJar.setDesensitizationJar(systemConfiguration.getDesensitizationJar());
-            desensitizationJar.setKey(SystemConfigurationCollection.KeySummary.DESERIALIZATION_JAR);
-            systemConfigurations.add(desensitizationJar);
-        }
-        boolean flag = true;
-        for (SystemConfiguration config : systemConfigurations) {
-            try {
-                flag &= systemConfigurationRepository.saveConfig(config);
-            } catch (Exception e) {
-                LOGGER.error("Failed to save system configuration: {}", config, e);
-                flag = false;
-            }
-        }
-        return flag;
+  @Resource
+  private ConfigLoadService configLoadService;
+
+  public boolean saveConfig(SystemConfiguration systemConfiguration) {
+    List<SystemConfiguration> systemConfigurations = new ArrayList<>();
+    if (systemConfiguration.getCallbackUrl() != null) {
+      SystemConfiguration callbackUrl = new SystemConfiguration();
+      callbackUrl.setCallbackUrl(systemConfiguration.getCallbackUrl());
+      callbackUrl.setKey(SystemConfigurationCollection.KeySummary.CALLBACK_URL);
+      systemConfigurations.add(callbackUrl);
     }
+    if (systemConfiguration.getDesensitizationJar() != null) {
+      SystemConfiguration desensitizationJar = new SystemConfiguration();
+      desensitizationJar.setDesensitizationJar(systemConfiguration.getDesensitizationJar());
+      desensitizationJar.setKey(SystemConfigurationCollection.KeySummary.DESERIALIZATION_JAR);
+      systemConfigurations.add(desensitizationJar);
+    }
+    if (systemConfiguration.getComparePluginInfo() != null) {
+      SystemConfiguration comparePluginInfoConfig = new SystemConfiguration();
+      ComparePluginInfo comparePluginInfo = systemConfiguration.getComparePluginInfo();
+      comparePluginInfo.setTransMethodList(identifyTransformMethod(comparePluginInfo));
+      comparePluginInfoConfig.setComparePluginInfo(comparePluginInfo);
+      comparePluginInfoConfig.setKey(SystemConfigurationCollection.KeySummary.COMPARE_PLUGIN_INFO);
+      systemConfigurations.add(comparePluginInfoConfig);
+    }
+    boolean flag = true;
+    for (SystemConfiguration config : systemConfigurations) {
+      try {
+        flag &= systemConfigurationRepository.saveConfig(config);
+      } catch (Exception e) {
+        LOGGER.error("Failed to save system configuration: {}", config, e);
+        flag = false;
+      }
+    }
+    return flag;
+  }
+
+
+  public SystemConfiguration getSystemConfigByKey(String key) {
+    return systemConfigurationRepository.getSystemConfigByKey(key);
+  }
+
+  public SystemConfigWithProperties listSystemConfig() {
+    List<SystemConfiguration> systemConfigurations = systemConfigurationRepository.getAllSystemConfigList();
+    SystemConfiguration systemConfiguration = SystemConfiguration.mergeConfigs(
+        systemConfigurations);
+    return this.appendGlobalCompareConfig(
+        configLoadService,
+        systemConfiguration);
+  }
+
+  public boolean deleteSystemConfigByKey(String key) {
+    return systemConfigurationRepository.deleteConfig(key);
+  }
+
+  private List<String> identifyTransformMethod(ComparePluginInfo comparePluginInfo) {
+    String comparePluginUrl = comparePluginInfo.getComparePluginUrl();
+    if (StringUtils.isEmpty(comparePluginUrl)) {
+      return Collections.emptyList();
+    }
+
+    Set<String> result = new HashSet<>();
+    try {
+      RemoteJarClassLoader remoteJarClassLoader = RemoteJarLoaderUtils.loadJar(comparePluginUrl);
+      List<DecompressService> decompressServices = RemoteJarLoaderUtils.loadService(
+          DecompressService.class, remoteJarClassLoader);
+      decompressServices.forEach(
+          decompressService -> {
+            if (decompressService.getAliasName() != null) {
+              result.add(decompressService.getAliasName());
+            }
+          });
+      remoteJarClassLoader.close();
+    } catch (RuntimeException | IOException e) {
+      LOGGER.error("identifyTransformMethod failed, url:{}, exception:{}", comparePluginUrl, e);
+    }
+    return new ArrayList<>(result);
+  }
+
+  private SystemConfigWithProperties appendGlobalCompareConfig(ConfigLoadService configLoadService,
+      SystemConfiguration latestSystemConfig) {
+
+    SystemConfigWithProperties systemConfigWithProperties = new SystemConfigWithProperties();
+    BeanUtils.copyProperties(latestSystemConfig, systemConfigWithProperties);
+    try {
+      systemConfigWithProperties.setCompareNameToLower(
+          Boolean.valueOf(configLoadService.getCompareNameToLower("true")));
+      systemConfigWithProperties.setCompareNullEqualsEmpty(
+          Boolean.valueOf(configLoadService.getCompareNullEqualsEmpty("true")));
+      Long ignoredTimePrecisionMillis = Long.valueOf(
+          configLoadService.getCompareIgnoredTimePrecisionMillis("2000"));
+      systemConfigWithProperties.setCompareIgnoreTimePrecisionMillis(ignoredTimePrecisionMillis);
+      systemConfigWithProperties.setIgnoreNodeSet(configLoadService.getIgnoreNodeSet(""));
+      systemConfigWithProperties.setSelectIgnoreCompare(
+          Boolean.valueOf(configLoadService.getCompareSelectIgnoreCompare("true")));
+      systemConfigWithProperties.setOnlyCompareCoincidentColumn(
+          Boolean.valueOf(configLoadService.getCompareOnlyCompareCoincidentColumn("true")));
+      systemConfigWithProperties.setUuidIgnore(
+          Boolean.valueOf(configLoadService.getCompareUuidIgnore("true")));
+      systemConfigWithProperties.setIpIgnore(
+          Boolean.valueOf(configLoadService.getCompareIpIgnore("true")));
+    } catch (RuntimeException e) {
+      LOGGER.error("getCompareIgnoredTimePrecisionMillis error", e);
+    }
+    return systemConfigWithProperties;
+  }
 }

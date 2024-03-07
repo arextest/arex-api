@@ -1,6 +1,6 @@
 package com.arextest.web.model.contract.contracts.config;
 
-import com.arextest.config.model.dto.SystemConfiguration;
+import com.arextest.config.model.dto.system.SystemConfiguration;
 import lombok.Data;
 
 /**

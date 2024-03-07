@@ -1,13 +1,17 @@
 package com.arextest.web.core.business.config.replay;
 
+import com.arextest.config.model.dao.config.SystemConfigurationCollection.KeySummary;
 import com.arextest.config.model.dto.application.ApplicationOperationConfiguration;
+import com.arextest.config.model.dto.system.SystemConfiguration;
 import com.arextest.config.repository.ConfigRepositoryProvider;
+import com.arextest.web.core.business.SystemConfigurationService;
 import com.arextest.web.core.business.config.application.ApplicationOperationConfigurableHandler;
 import com.arextest.web.core.repository.AppContractRepository;
 import com.arextest.web.core.repository.FSInterfaceRepository;
 import com.arextest.web.core.repository.mongo.ComparisonTransformConfigurationRepositoryImpl;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonTransformConfiguration;
 import com.arextest.web.model.dto.filesystem.FSInterfaceDto;
+import java.util.Collections;
 import java.util.List;
 import javax.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
@@ -27,6 +31,9 @@ public class ComparisonTransformConfigurableHandler
   ApplicationOperationConfigurableHandler applicationOperationConfigurableHandler;
   @Resource
   ComparisonTransformConfigurationRepositoryImpl comparisonTransformConfigurationRepository;
+
+  @Resource
+  SystemConfigurationService systemConfigurationService;
 
   protected ComparisonTransformConfigurableHandler(
       @Autowired ConfigRepositoryProvider<ComparisonTransformConfiguration> repositoryProvider,
@@ -61,5 +68,14 @@ public class ComparisonTransformConfigurableHandler
       }
     }
     return result;
+  }
+
+  public List<String> getTransformMethodList() {
+    SystemConfiguration comparePluginInfoConfig = systemConfigurationService.getSystemConfigByKey(
+        KeySummary.COMPARE_PLUGIN_INFO);
+
+    return comparePluginInfoConfig ==null || comparePluginInfoConfig.getComparePluginInfo() == null
+        ? Collections.emptyList()
+        : comparePluginInfoConfig.getComparePluginInfo().getTransMethodList();
   }
 }

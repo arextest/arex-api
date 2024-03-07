@@ -1,7 +1,7 @@
 package com.arextest.web.core.business.listener.planfinish;
 
 import com.arextest.config.model.dao.config.SystemConfigurationCollection;
-import com.arextest.config.model.dto.SystemConfiguration;
+import com.arextest.config.model.dto.system.SystemConfiguration;
 import com.arextest.config.repository.SystemConfigurationRepository;
 import com.arextest.web.common.HttpUtils;
 import com.arextest.web.core.business.QueryPlanStatisticsService;
