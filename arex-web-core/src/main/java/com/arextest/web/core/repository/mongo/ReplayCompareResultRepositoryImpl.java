@@ -113,8 +113,8 @@ public class ReplayCompareResultRepositoryImpl implements ReplayCompareResultRep
       criteria.and(Fields.diffResultCode).is(diffResultCode);
     }
     if (Strings.isNotBlank(keyword)) {
-      criteria.andOperator(Criteria.where(Fields.recordId).is(keyword).
-          orOperator(Criteria.where(Fields.replayId).is(keyword)));
+      criteria.andOperator(new Criteria().orOperator(Criteria.where(Fields.recordId).is(keyword),
+          Criteria.where(Fields.replayId).is(keyword)));
     }
     Query query = Query.query(criteria);
 
@@ -144,8 +144,8 @@ public class ReplayCompareResultRepositoryImpl implements ReplayCompareResultRep
       criteria.and(Fields.diffResultCode).is(request.getDiffResultCode());
     }
     if (Strings.isNotBlank(request.getKeyWord())) {
-      criteria.andOperator(Criteria.where(Fields.recordId).is(request.getKeyWord()).
-          orOperator(Criteria.where(Fields.replayId).is(request.getKeyWord())));
+      criteria.andOperator(new Criteria().orOperator(Criteria.where(Fields.recordId).is(request.getKeyWord()),
+          Criteria.where(Fields.replayId).is(request.getKeyWord())));
     }
     int limit = 5;
     if (request.getPageSize() != null) {
