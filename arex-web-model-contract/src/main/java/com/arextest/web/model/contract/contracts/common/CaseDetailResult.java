@@ -4,6 +4,7 @@ import lombok.Data;
 
 @Data
 public class CaseDetailResult {
+  private String caseId;
 
   private String replayId;
 

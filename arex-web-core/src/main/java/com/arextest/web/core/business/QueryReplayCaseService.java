@@ -1,6 +1,5 @@
 package com.arextest.web.core.business;
 
-import cn.hutool.core.collection.CollUtil;
 import com.arextest.web.core.repository.ReplayCompareResultRepository;
 import com.arextest.web.model.contract.contracts.QueryPlanFailCaseRequestType;
 import com.arextest.web.model.contract.contracts.QueryPlanFailCaseResponseType;
@@ -10,16 +9,13 @@ import com.arextest.web.model.contract.contracts.common.CaseDetailResult;
 import com.arextest.web.model.dto.CompareResultDto;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.tuple.MutablePair;
-import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -33,43 +29,22 @@ public class QueryReplayCaseService {
 
   public QueryReplayCaseResponseType replayCaseStatistic(QueryReplayCaseRequestType request) {
     QueryReplayCaseResponseType response = new QueryReplayCaseResponseType();
-
-    List<CompareResultDto> resultWithoutMsg =
-        replayCompareResultRepository.findResultWithoutMsg(request.getPlanItemId(),
-            request.getKeyWord());
-
-    Map<Pair<String, String>, List<CompareResultDto>> resultCaseMap = resultWithoutMsg.stream()
-        .collect(Collectors.groupingBy(e -> new MutablePair<>(e.getRecordId(), e.getReplayId())));
-    List<CaseDetailResult> results = new ArrayList<>();
-    resultCaseMap.forEach((key, resultCaseList) -> {
-      CaseDetailResult caseDetail = new CaseDetailResult();
-      caseDetail.setRecordId(key.getLeft());
-      caseDetail.setReplayId(key.getRight());
-      caseDetail.setDiffResultCode(Collections
-          .max(resultCaseList, Comparator.comparing(CompareResultDto::getDiffResultCode))
-          .getDiffResultCode());
-      results.add(caseDetail);
-    });
-
-    if (request.getDiffResultCode() != null) {
-      List<CaseDetailResult> finalResults = new ArrayList<>();
-      for (CaseDetailResult caseDetail : results) {
-        if (caseDetail.getDiffResultCode().equals(request.getDiffResultCode())) {
-          finalResults.add(caseDetail);
-        }
+      if (BooleanUtils.isTrue(request.getNeedTotal())) {
+          response.setTotalCount(
+              replayCompareResultRepository.countWithDistinct(request.getPlanItemId(), request.getDiffResultCode(),
+                  request.getKeyWord()));
       }
-      results.clear();
-      results.addAll(finalResults);
-      finalResults.clear();
-    }
 
-    results.sort((m1, m2) -> m2.getDiffResultCode().compareTo(m1.getDiffResultCode()));
-    List<CaseDetailResult> caseDetailResults =
-        CollUtil.sortPageAll(request.getPageIndex() - 1, request.getPageSize(), null, results);
-    if (Boolean.TRUE.equals(request.getNeedTotal())) {
-      response.setTotalCount((long) results.size());
-    }
-    response.setResult(caseDetailResults);
+    List<CompareResultDto> resultList = replayCompareResultRepository.findResultWithoutMsg(request);
+    List<CaseDetailResult> results = resultList.stream().map(item-> {
+      CaseDetailResult caseDetail = new CaseDetailResult();
+      caseDetail.setCaseId(item.getCaseId());
+      caseDetail.setRecordId(item.getRecordId());
+      caseDetail.setReplayId(item.getReplayId());
+      caseDetail.setDiffResultCode(item.getDiffResultCode());
+      return caseDetail;
+    }).collect(Collectors.toList());
+    response.setResult(results);
     return response;
   }
 

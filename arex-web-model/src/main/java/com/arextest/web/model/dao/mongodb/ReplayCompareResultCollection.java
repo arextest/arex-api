@@ -3,13 +3,16 @@ package com.arextest.web.model.dao.mongodb;
 import com.arextest.web.model.dao.mongodb.entity.MsgInfoDao;
 import java.util.Date;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.experimental.FieldNameConstants;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 @FieldNameConstants
 @Document(collection = "ReplayCompareResult")
 public class ReplayCompareResultCollection extends ModelBase {
+  private String caseId;
 
   private String planId;
 
@@ -39,6 +42,9 @@ public class ReplayCompareResultCollection extends ModelBase {
   // planItemId
   private String planItemId;
 
+  /**
+   * @see com.arextest.web.model.enums.DiffResultCode
+   */
   private int diffResultCode;
 
   private MsgInfoDao msgInfo;
@@ -46,4 +52,5 @@ public class ReplayCompareResultCollection extends ModelBase {
   private Date dataCreateTime;
 
   private Boolean ignore;
+  private Date dataChangeCreateDate;
 }
