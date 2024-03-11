@@ -194,11 +194,6 @@
         <version>${guava.version}</version>
       </dependency>
       <dependency>
-        <artifactId>json-schema-inferrer</artifactId>
-        <groupId>com.github.saasquatch</groupId>
-        <version>${shema.inferer.version}</version>
-      </dependency>
-      <dependency>
         <artifactId>snakeyaml</artifactId>
         <groupId>org.yaml</groupId>
         <version>${snakeyaml.version}</version>
