@@ -1,9 +1,7 @@
 package com.arextest.web.model.contract.contracts.config;
-
-import com.arextest.config.model.dto.SystemConfiguration;
-import lombok.Data;
-
+import com.arextest.config.model.dto.system.SystemConfiguration;
 import java.util.Set;
+import lombok.Data;
 
 /**
  * @author wildeslam.
@@ -11,41 +9,42 @@ import java.util.Set;
  */
 @Data
 public class SystemConfigWithProperties extends SystemConfiguration {
-    /**
-     * control the compare precision of the time field.
-     */
-    private Long compareIgnoreTimePrecisionMillis;
-    /**
-     * ignore the case, when comparing
-     */
-    private Boolean compareNameToLower;
-    /**
-     * the null and '' think unanimously, when comparing
-     */
-    private Boolean compareNullEqualsEmpty;
 
-    /**
-     * according to the names of node to ignore the node.
-     */
-    private Set<String> ignoreNodeSet;
+  /**
+   * control the compare precision of the time field.
+   */
+  private Long compareIgnoreTimePrecisionMillis;
+  /**
+   * ignore the case, when comparing
+   */
+  private Boolean compareNameToLower;
+  /**
+   * the null and '' think unanimously, when comparing
+   */
+  private Boolean compareNullEqualsEmpty;
 
-    /**
-     * skip the compare of select, when comparing database.
-     */
-    private Boolean selectIgnoreCompare;
+  /**
+   * according to the names of node to ignore the node.
+   */
+  private Set<String> ignoreNodeSet;
 
-    /**
-     * only compare the coincident columns, when comparing database.
-     */
-    private Boolean onlyCompareCoincidentColumn;
+  /**
+   * skip the compare of select, when comparing database.
+   */
+  private Boolean selectIgnoreCompare;
 
-    /**
-     * ignore the compare of uuid
-     */
-    private Boolean uuidIgnore;
+  /**
+   * only compare the coincident columns, when comparing database.
+   */
+  private Boolean onlyCompareCoincidentColumn;
 
-    /**
-     * ignore the compare of uuid
-     */
-    private Boolean ipIgnore;
+  /**
+   * ignore the compare of uuid
+   */
+  private Boolean uuidIgnore;
+
+  /**
+   * ignore the compare of uuid
+   */
+  private Boolean ipIgnore;
 }

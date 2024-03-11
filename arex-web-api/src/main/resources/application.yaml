@@ -12,7 +12,6 @@ spring:
     pathmatch:
       matching-strategy: ANT_PATH_MATCHER
   main:
-    lazy-initialization: true
     log-startup-info: false
 
 management:
