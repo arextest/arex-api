@@ -109,18 +109,33 @@ public class ReplayCompareResultRepositoryImpl implements ReplayCompareResultRep
   @Override
   public Long countWithDistinct(String planItemId, Integer diffResultCode, String keyword) {
     Criteria criteria = Criteria.where(Fields.planItemId).is(planItemId);
-    if (diffResultCode != null) {
-      criteria.and(Fields.diffResultCode).is(diffResultCode);
-    }
     if (Strings.isNotBlank(keyword)) {
       criteria.andOperator(new Criteria().orOperator(Criteria.where(Fields.recordId).is(keyword),
           Criteria.where(Fields.replayId).is(keyword)));
     }
-    Query query = Query.query(criteria);
 
-    List<String> result = mongoTemplate.findDistinct(query, Fields.caseId, ReplayCompareResultCollection.class, String.class);
+    if (diffResultCode == null) {
+      Query query = Query.query(criteria);
 
-    return (long) result.size();
+      List<String> result = mongoTemplate.findDistinct(query, Fields.caseId, ReplayCompareResultCollection.class, String.class);
+
+      return (long) result.size();
+    }
+
+    Aggregation aggregation = Aggregation.newAggregation(
+        TypedAggregation.match(criteria),
+        Aggregation.project(Fields.caseId, Fields.diffResultCode),
+        Aggregation.group(Fields.caseId).max(Fields.diffResultCode).as(MAX_DIFF_CODE),
+        Aggregation.match(Criteria.where(MAX_DIFF_CODE).is(diffResultCode)),
+        Aggregation.count().as(COUNT)
+    );
+
+    AggregationResults<Document> aggregationResults = mongoTemplate.aggregate(aggregation, ReplayCompareResultCollection.class, Document.class);
+
+    if (CollectionUtils.isEmpty(aggregationResults.getMappedResults())) {
+        return 0L;
+    }
+    return (long) aggregationResults.getMappedResults().get(0).getInteger(COUNT, 0);
   }
 
   @Override
@@ -140,9 +155,6 @@ public class ReplayCompareResultRepositoryImpl implements ReplayCompareResultRep
   @Override
   public List<CompareResultDto> findResultWithoutMsg(QueryReplayCaseRequestType request) {
     Criteria criteria = Criteria.where(Fields.planItemId).is(request.getPlanItemId());
-    if (request.getDiffResultCode() != null) {
-      criteria.and(Fields.diffResultCode).is(request.getDiffResultCode());
-    }
     if (Strings.isNotBlank(request.getKeyWord())) {
       criteria.andOperator(new Criteria().orOperator(Criteria.where(Fields.recordId).is(request.getKeyWord()),
           Criteria.where(Fields.replayId).is(request.getKeyWord())));
@@ -156,6 +168,11 @@ public class ReplayCompareResultRepositoryImpl implements ReplayCompareResultRep
       skip = (request.getPageIndex() - 1) * limit;
     }
 
+    Criteria diffCodeCriteria = new Criteria();
+    if (request.getDiffResultCode() != null) {
+      diffCodeCriteria.and(MAX_DIFF_CODE).is(request.getDiffResultCode());
+    }
+
     Aggregation aggregation = Aggregation.newAggregation(
         TypedAggregation.match(criteria),
         Aggregation.project(DASH_ID, Fields.caseId, Fields.planItemId, Fields.diffResultCode, Fields.recordId,
@@ -163,6 +180,7 @@ public class ReplayCompareResultRepositoryImpl implements ReplayCompareResultRep
         Aggregation.group(Fields.caseId, Fields.recordId, Fields.replayId)
             .max(Fields.dataChangeCreateDate).as(MAX_CREATE_DATE)
             .max(Fields.diffResultCode).as(MAX_DIFF_CODE),
+        Aggregation.match(diffCodeCriteria),
         Aggregation.sort(Direction.DESC, MAX_DIFF_CODE, MAX_CREATE_DATE),
         Aggregation.skip(skip),
         Aggregation.limit(limit)
