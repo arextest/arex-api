@@ -32,7 +32,8 @@ public class AuthorizationInterceptor extends HandlerInterceptorAdapter {
               ResponseCode.AUTHENTICATION_FAILED);
       httpServletResponse.getWriter().write(mapper.writeValueAsString(no_permission));
       LogUtils.info(LOGGER,
-          String.format("access-token invalid; path: %s", httpServletRequest.getServletPath()));
+          String.format("access-token invalid; path: %s, host: %s, url: %s",
+              httpServletRequest.getServletPath(), httpServletRequest.getServerName(), httpServletRequest.getRequestURL()));
       return false;
     }
     return true;
