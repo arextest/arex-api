@@ -1,7 +1,7 @@
 package com.arextest.web.core.business.filesystem;
 
 import com.arextest.common.exceptions.ArexException;
-import com.arextest.common.utils.DefaultJWTService;
+import com.arextest.common.jwt.JWTServiceImpl;
 import com.arextest.web.common.LoadResource;
 import com.arextest.web.common.LogUtils;
 import com.arextest.web.common.exception.ArexApiResponseCode;
@@ -202,7 +202,7 @@ public class FileSystemService {
   private ObjectMapper objectMapper;
   
   @Resource
-  private DefaultJWTService defaultJWTService;
+  private JWTServiceImpl jwtServiceImpl;
 
   public FSAddItemResponseType addItemForController(FSAddItemRequestType request) {
     FSAddItemResponseType response = new FSAddItemResponseType();
@@ -705,8 +705,8 @@ public class FileSystemService {
     if (Boolean.TRUE.equals(result)) {
       userWorkspaceDto.setStatus(InvitationType.INVITED);
       userWorkspaceRepository.update(userWorkspaceDto);
-      response.setAccessToken(defaultJWTService.makeAccessToken(request.getUserName()));
-      response.setRefreshToken(defaultJWTService.makeRefreshToken(request.getUserName()));
+      response.setAccessToken(jwtServiceImpl.makeAccessToken(request.getUserName()));
+      response.setRefreshToken(jwtServiceImpl.makeRefreshToken(request.getUserName()));
     }
     response.setSuccess(result);
     return response;

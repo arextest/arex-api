@@ -42,6 +42,10 @@
       <artifactId>arex-common</artifactId>
       <groupId>com.arextest</groupId>
     </dependency>
+    <dependency>
+      <groupId>com.github.luben</groupId>
+      <artifactId>zstd-jni</artifactId>
+    </dependency>
   </dependencies>
 
   <modelVersion>4.0.0</modelVersion>

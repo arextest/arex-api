@@ -2,7 +2,7 @@ package com.arextest.web.api.service.controller;
 
 import com.arextest.common.model.response.Response;
 import com.arextest.common.model.response.ResponseCode;
-import com.arextest.common.utils.DefaultJWTService;
+import com.arextest.common.jwt.JWTServiceImpl;
 import com.arextest.common.utils.ResponseUtils;
 import com.arextest.web.core.business.filesystem.FileSystemService;
 import com.arextest.web.core.business.filesystem.RolePermission;
@@ -92,7 +92,7 @@ public class FileSystemController {
 
 
   @Resource
-  private DefaultJWTService defaultJWTService;
+  private JWTServiceImpl jwtServiceImpl;
 
   @PostMapping("/addItem")
   @ResponseBody
@@ -104,7 +104,7 @@ public class FileSystemController {
       return ResponseUtils.errorResponse(Constants.NO_PERMISSION,
           ResponseCode.AUTHENTICATION_FAILED);
     }
-    String userName = defaultJWTService.getUserName(token);
+    String userName = jwtServiceImpl.getUserName(token);
     request.setUserName(userName);
     FSAddItemResponseType response = fileSystemService.addItemForController(request);
     return ResponseUtils.successResponse(response);
@@ -118,7 +118,7 @@ public class FileSystemController {
       return ResponseUtils.errorResponse(Constants.NO_PERMISSION,
           ResponseCode.AUTHENTICATION_FAILED);
     }
-    String userName = defaultJWTService.getUserName(token);
+    String userName = jwtServiceImpl.getUserName(token);
     FSRemoveItemResponseType response = new FSRemoveItemResponseType();
     response.setSuccess(fileSystemService.removeItem(request, userName));
     return ResponseUtils.successResponse(response);
@@ -228,7 +228,7 @@ public class FileSystemController {
   @ResponseBody
   public Response saveFolder(@RequestHeader(name = Constants.ACCESS_TOKEN) String token,
       @RequestBody FSSaveFolderRequestType request) {
-    String userName = defaultJWTService.getUserName(token);
+    String userName = jwtServiceImpl.getUserName(token);
     FSSaveFolderResponseType response = fileSystemService.saveFolder(request, userName);
     return ResponseUtils.successResponse(response);
   }
@@ -244,7 +244,7 @@ public class FileSystemController {
   @ResponseBody
   public Response saveInterface(@RequestHeader(name = Constants.ACCESS_TOKEN) String token,
       @RequestBody FSSaveInterfaceRequestType request) {
-    String userName = defaultJWTService.getUserName(token);
+    String userName = jwtServiceImpl.getUserName(token);
     FSSaveInterfaceResponseType response = new FSSaveInterfaceResponseType();
     response.setSuccess(fileSystemService.saveInterface(request, userName));
     return ResponseUtils.successResponse(response);
@@ -261,7 +261,7 @@ public class FileSystemController {
   @ResponseBody
   public Response saveCase(@RequestHeader(name = Constants.ACCESS_TOKEN) String token,
       @RequestBody FSSaveCaseRequestType request) {
-    String userName = defaultJWTService.getUserName(token);
+    String userName = jwtServiceImpl.getUserName(token);
     FSSaveCaseResponseType response = new FSSaveCaseResponseType();
     response.setSuccess(fileSystemService.saveCase(request, userName));
     return ResponseUtils.successResponse(response);
@@ -336,7 +336,7 @@ public class FileSystemController {
   @ResponseBody
   public Response leaveWorkspace(@RequestHeader(name = Constants.ACCESS_TOKEN) String token,
       @Valid @RequestBody LeaveWorkspaceRequestType request) {
-    String userName = defaultJWTService.getUserName(token);
+    String userName = jwtServiceImpl.getUserName(token);
     if (StringUtils.isEmpty(userName)) {
       return ResponseUtils.errorResponse("Incorrect token. Please login again.",
           ResponseCode.REQUESTED_PARAMETER_INVALID);

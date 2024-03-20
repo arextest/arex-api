@@ -1,6 +1,6 @@
 package com.arextest.web.core.business;
 
-import com.arextest.common.utils.DefaultJWTService;
+import com.arextest.common.jwt.JWTServiceImpl;
 import com.arextest.web.common.LoadResource;
 import com.arextest.web.core.business.util.MailUtils;
 import com.arextest.web.core.repository.UserRepository;
@@ -42,7 +42,7 @@ public class LoginService {
   private MailUtils mailUtils;
 
   @Resource
-  private DefaultJWTService defaultJWTService;
+  private JWTServiceImpl jwtServiceImpl;
 
   public Boolean sendVerifyCodeByEmail(String emailTo) {
     String template = loadResource.getResource(VERIFICATION_CODE_EMAIL_TEMPLATE);
@@ -74,8 +74,8 @@ public class LoginService {
     if (exist) {
       responseType.setSuccess(true);
       responseType.setUserName(request.getUserName());
-      responseType.setAccessToken(defaultJWTService.makeAccessToken(request.getUserName()));
-      responseType.setRefreshToken(defaultJWTService.makeRefreshToken(request.getUserName()));
+      responseType.setAccessToken(jwtServiceImpl.makeAccessToken(request.getUserName()));
+      responseType.setRefreshToken(jwtServiceImpl.makeRefreshToken(request.getUserName()));
     } else {
       responseType.setSuccess(false);
     }
@@ -95,8 +95,8 @@ public class LoginService {
     VerifyResponseType responseType = new VerifyResponseType();
     responseType.setSuccess(true);
     responseType.setUserName(userName);
-    responseType.setAccessToken(defaultJWTService.makeAccessToken(userName));
-    responseType.setRefreshToken(defaultJWTService.makeRefreshToken(userName));
+    responseType.setAccessToken(jwtServiceImpl.makeAccessToken(userName));
+    responseType.setRefreshToken(jwtServiceImpl.makeRefreshToken(userName));
     return responseType;
   }
 
@@ -123,8 +123,8 @@ public class LoginService {
     if (Boolean.TRUE.equals(result)) {
       response.setUserName(userName);
       response.setSuccess(true);
-      response.setAccessToken(defaultJWTService.makeAccessToken(userName));
-      response.setRefreshToken(defaultJWTService.makeRefreshToken(userName));
+      response.setAccessToken(jwtServiceImpl.makeAccessToken(userName));
+      response.setRefreshToken(jwtServiceImpl.makeRefreshToken(userName));
     } else {
       response.setSuccess(false);
     }

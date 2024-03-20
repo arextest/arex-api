@@ -4,7 +4,7 @@ import com.arextest.common.annotation.AppAuth;
 import com.arextest.common.context.ArexContext;
 import com.arextest.common.exceptions.ArexException;
 import com.arextest.common.model.response.ResponseCode;
-import com.arextest.common.utils.DefaultJWTService;
+import com.arextest.common.jwt.JWTServiceImpl;
 import com.arextest.common.utils.ResponseUtils;
 import com.arextest.config.model.dao.config.SystemConfigurationCollection;
 import com.arextest.config.model.dto.application.ApplicationConfiguration;
@@ -45,7 +45,7 @@ public class AppAuthAspect {
   private SystemConfigurationRepositoryImpl systemConfigurationRepository;
 
   @Resource
-  private DefaultJWTService defaultJWTService;
+  private JWTServiceImpl jwtServiceImpl;
 
   @Pointcut("@annotation(com.arextest.common.annotation.AppAuth)")
   public void appAuth() {
@@ -65,7 +65,7 @@ public class AppAuthAspect {
     HttpServletRequest request = requestAttributes.getRequest();
     String appId = request.getHeader("appId");
     String accessToken = request.getHeader("access-token");
-    String userName = defaultJWTService.getUserName(accessToken);
+    String userName = jwtServiceImpl.getUserName(accessToken);
     context.setAppId(appId);
     context.setOperator(userName);
     if (appId == null) {
