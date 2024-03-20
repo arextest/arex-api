@@ -1,6 +1,6 @@
 package com.arextest.web.core.business.filesystem;
 
-import com.arextest.common.utils.JwtUtil;
+import com.arextest.common.utils.DefaultJWTService;
 import com.arextest.web.core.repository.UserWorkspaceRepository;
 import com.arextest.web.model.dto.filesystem.UserWorkspaceDto;
 import com.arextest.web.model.enums.RoleType;
@@ -21,6 +21,9 @@ public class RolePermission {
   @Resource
   private UserWorkspaceRepository userWorkspaceRepository;
 
+  @Resource
+  private DefaultJWTService defaultJWTService;
+
   private boolean checkPermission(Integer action, String userName, String workspaceId) {
     UserWorkspaceDto userWorkspaceDto = userWorkspaceRepository.queryUserWorkspace(userName,
         workspaceId);
@@ -34,7 +37,7 @@ public class RolePermission {
   }
 
   public boolean checkPermissionByToken(Integer action, String token, String workspaceId) {
-    String userName = JwtUtil.getUserName(token);
+    String userName = defaultJWTService.getUserName(token);
     if (StringUtils.isEmpty(userName)) {
       return false;
     }

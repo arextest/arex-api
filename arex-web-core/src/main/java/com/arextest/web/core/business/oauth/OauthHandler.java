@@ -1,6 +1,6 @@
 package com.arextest.web.core.business.oauth;
 
-import com.arextest.common.utils.JwtUtil;
+import com.arextest.common.utils.DefaultJWTService;
 import com.arextest.web.core.repository.UserRepository;
 import com.arextest.web.model.contract.contracts.login.GetOauthInfoResponseType;
 import com.arextest.web.model.contract.contracts.login.VerifyResponseType;
@@ -20,6 +20,8 @@ public class OauthHandler {
   private OauthServiceFactory oauthServiceFactory;
   @Resource
   private UserRepository userRepository;
+  @Resource
+  private DefaultJWTService defaultJWTService;
 
   public VerifyResponseType oauthLogin(String code, String oauthType, String redirectUri) {
     OauthService oauthService = oauthServiceFactory.getOauthService(oauthType);
@@ -38,8 +40,8 @@ public class OauthHandler {
 
     response.setSuccess(true);
     response.setUserName(userName);
-    response.setAccessToken(JwtUtil.makeAccessToken(userName));
-    response.setRefreshToken(JwtUtil.makeRefreshToken(userName));
+    response.setAccessToken(defaultJWTService.makeAccessToken(userName));
+    response.setRefreshToken(defaultJWTService.makeRefreshToken(userName));
 
     return response;
   }

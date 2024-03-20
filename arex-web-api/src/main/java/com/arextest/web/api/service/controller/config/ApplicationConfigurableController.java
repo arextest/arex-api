@@ -1,7 +1,7 @@
 package com.arextest.web.api.service.controller.config;
 
 import com.arextest.common.model.response.Response;
-import com.arextest.common.utils.JwtUtil;
+import com.arextest.common.utils.DefaultJWTService;
 import com.arextest.common.utils.ResponseUtils;
 import com.arextest.config.model.dto.application.ApplicationConfiguration;
 import com.arextest.model.replay.AppVisibilityLevelEnum;
@@ -35,6 +35,8 @@ public class ApplicationConfigurableController extends
 
   @Resource
   private ScheduleConfigurableHandler scheduleHandler;
+  @Resource
+  private DefaultJWTService defaultJWTService;
 
   public ApplicationConfigurableController(
       @Autowired ConfigurableHandler<ApplicationConfiguration> configurableHandler) {
@@ -44,7 +46,7 @@ public class ApplicationConfigurableController extends
   @GetMapping("/regressionList")
   @ResponseBody
   public Response regressionList(@RequestHeader(name = Constants.ACCESS_TOKEN) String token) {
-    String userName = JwtUtil.getUserName(token);
+    String userName = defaultJWTService.getUserName(token);
     List<ApplicationConfiguration> sourceList = this.configurableHandler.useResultAsList()
         .stream()
         .filter(applicationConfiguration -> visibilityCheck(applicationConfiguration, userName))

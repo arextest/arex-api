@@ -38,6 +38,12 @@ public class LoginController {
   @Resource
   private OauthHandler oauthHandler;
 
+  /**
+   * Send verification code according to email
+   *
+   * @param userName
+   * @return
+   */
   @GetMapping("/getVerificationCode/{userName}")
   @ResponseBody
   public Response sendVerifyCodeByEmail(@PathVariable String userName) {
@@ -46,6 +52,12 @@ public class LoginController {
     return ResponseUtils.successResponse(response);
   }
 
+  /**
+   * Verify based on email + verification code
+   *
+   * @param request
+   * @return
+   */
   @PostMapping("/verify")
   @ResponseBody
   public Response verify(@Valid @RequestBody VerifyRequestType request) {
@@ -53,21 +65,12 @@ public class LoginController {
     return ResponseUtils.successResponse(response);
   }
 
-  @GetMapping("/userProfile/{userName}")
-  @ResponseBody
-  public Response userProfile(@PathVariable String userName) {
-    UserProfileResponseType response = loginService.queryUserProfile(userName);
-    return ResponseUtils.successResponse(response);
-  }
-
-  @PostMapping("/updateUserProfile")
-  @ResponseBody
-  public Response updateUserProfile(@Valid @RequestBody UpdateUserProfileRequestType request) {
-    SuccessResponseType response = new SuccessResponseType();
-    response.setSuccess(loginService.updateUserProfile(request));
-    return ResponseUtils.successResponse(response);
-  }
-
+  /**
+   * Refresh token
+   *
+   * @param userName
+   * @return
+   */
   @GetMapping("/refresh/{userName}")
   @ResponseBody
   public Response refresh(@PathVariable String userName) {
@@ -75,31 +78,17 @@ public class LoginController {
     return ResponseUtils.successResponse(response);
   }
 
+  /**
+   * Guest login
+   *
+   * @param request
+   * @return
+   */
   @PostMapping("/loginAsGuest")
   @ResponseBody
   public Response loginAsGuest(@RequestBody LoginAsGuestRequestType request) {
     LoginAsGuestResponseType response = loginService.loginAsGuest(request.getUserName());
     return ResponseUtils.successResponse(response);
-  }
-
-  @GetMapping("/userFavoriteApp/{userName}")
-  @ResponseBody
-  public Response queryUserFavoriteApp(@PathVariable String userName) {
-    QueryUserFavoriteAppResponseType response = loginService.queryUserFavoriteApp(userName);
-    return ResponseUtils.successResponse(response);
-  }
-
-  @PostMapping("/userFavoriteApp/modify/{modifyType}")
-  @ResponseBody
-  public Response modifyUserFavoriteApp(@PathVariable ModifyType modifyType,
-      @Valid @RequestBody ModifyUserFavoriteAppRequestType request) {
-    if (modifyType == ModifyType.INSERT) {
-      return ResponseUtils.successResponse(loginService.insertUserFavoriteApp(request));
-    }
-    if (modifyType == ModifyType.REMOVE) {
-      return ResponseUtils.successResponse(loginService.removeUserFavoriteApp(request));
-    }
-    return ResponseUtils.resourceNotFoundResponse();
   }
 
   @PostMapping("/oauthLogin")
@@ -117,6 +106,73 @@ public class LoginController {
     return ResponseUtils.successResponse(response);
   }
 
+  /**
+   * Query user information based on email
+   *
+   * @param userName
+   * @return
+   */
+  @GetMapping("/userProfile/{userName}")
+  @ResponseBody
+  public Response userProfile(@PathVariable String userName) {
+    UserProfileResponseType response = loginService.queryUserProfile(userName);
+    return ResponseUtils.successResponse(response);
+  }
+
+  /**
+   * Update user information
+   *
+   * @param request
+   * @return
+   */
+  @PostMapping("/updateUserProfile")
+  @ResponseBody
+  public Response updateUserProfile(@Valid @RequestBody UpdateUserProfileRequestType request) {
+    SuccessResponseType response = new SuccessResponseType();
+    response.setSuccess(loginService.updateUserProfile(request));
+    return ResponseUtils.successResponse(response);
+  }
+
+
+  /**
+   * Query the user’s favorite apps
+   *
+   * @param userName
+   * @return
+   */
+  @GetMapping("/userFavoriteApp/{userName}")
+  @ResponseBody
+  public Response queryUserFavoriteApp(@PathVariable String userName) {
+    QueryUserFavoriteAppResponseType response = loginService.queryUserFavoriteApp(userName);
+    return ResponseUtils.successResponse(response);
+  }
+
+  /**
+   * Modify user’s favorite apps
+   *
+   * @param modifyType
+   * @param request
+   * @return
+   */
+  @PostMapping("/userFavoriteApp/modify/{modifyType}")
+  @ResponseBody
+  public Response modifyUserFavoriteApp(@PathVariable ModifyType modifyType,
+      @Valid @RequestBody ModifyUserFavoriteAppRequestType request) {
+    if (modifyType == ModifyType.INSERT) {
+      return ResponseUtils.successResponse(loginService.insertUserFavoriteApp(request));
+    }
+    if (modifyType == ModifyType.REMOVE) {
+      return ResponseUtils.successResponse(loginService.removeUserFavoriteApp(request));
+    }
+    return ResponseUtils.resourceNotFoundResponse();
+  }
+
+  /**
+   * Query users based on keywords
+   *
+   * @param keyword
+   * @return
+   */
   @GetMapping("/listUsers/{keyword}")
   @ResponseBody
   public Response listUsers(@PathVariable String keyword) {

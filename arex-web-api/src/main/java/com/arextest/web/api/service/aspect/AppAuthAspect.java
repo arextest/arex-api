@@ -4,7 +4,7 @@ import com.arextest.common.annotation.AppAuth;
 import com.arextest.common.context.ArexContext;
 import com.arextest.common.exceptions.ArexException;
 import com.arextest.common.model.response.ResponseCode;
-import com.arextest.common.utils.JwtUtil;
+import com.arextest.common.utils.DefaultJWTService;
 import com.arextest.common.utils.ResponseUtils;
 import com.arextest.config.model.dao.config.SystemConfigurationCollection;
 import com.arextest.config.model.dto.application.ApplicationConfiguration;
@@ -12,12 +12,11 @@ import com.arextest.config.model.dto.system.SystemConfiguration;
 import com.arextest.config.repository.impl.ApplicationConfigurationRepositoryImpl;
 import com.arextest.config.repository.impl.SystemConfigurationRepositoryImpl;
 import com.arextest.web.api.service.controller.Constants;
+import com.arextest.web.common.exception.ArexApiResponseCode;
 import java.util.List;
 import java.util.Optional;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-
-import com.arextest.web.common.exception.ArexApiResponseCode;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -36,6 +35,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 @Aspect
 @Component
 public class AppAuthAspect {
+
   private static Boolean authSwitch = null;
 
   @Resource
@@ -43,6 +43,9 @@ public class AppAuthAspect {
 
   @Resource
   private SystemConfigurationRepositoryImpl systemConfigurationRepository;
+
+  @Resource
+  private DefaultJWTService defaultJWTService;
 
   @Pointcut("@annotation(com.arextest.common.annotation.AppAuth)")
   public void appAuth() {
@@ -62,7 +65,7 @@ public class AppAuthAspect {
     HttpServletRequest request = requestAttributes.getRequest();
     String appId = request.getHeader("appId");
     String accessToken = request.getHeader("access-token");
-    String userName = JwtUtil.getUserName(accessToken);
+    String userName = defaultJWTService.getUserName(accessToken);
     context.setAppId(appId);
     context.setOperator(userName);
     if (appId == null) {
@@ -102,12 +105,14 @@ public class AppAuthAspect {
 
   private void init() {
     authSwitch = Optional.ofNullable(
-            systemConfigurationRepository.getSystemConfigByKey(SystemConfigurationCollection.KeySummary.AUTH_SWITCH))
+            systemConfigurationRepository.getSystemConfigByKey(
+                SystemConfigurationCollection.KeySummary.AUTH_SWITCH))
         .map(SystemConfiguration::getAuthSwitch)
         .orElse(null);
     if (authSwitch == null) {
-      throw new ArexException(ArexApiResponseCode.AUTHENTICATION_FAILED, "get authSwitch failed, please update "
-          + "storage version");
+      throw new ArexException(ArexApiResponseCode.AUTHENTICATION_FAILED,
+          "get authSwitch failed, please update "
+              + "storage version");
     }
   }
 
