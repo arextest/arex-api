@@ -9,6 +9,7 @@ import com.arextest.web.common.LogUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -57,11 +58,7 @@ public class AuthorizationInterceptor extends AbstractInterceptorHandler {
 
   @Override
   public List<String> getPathPatterns() {
-    return new ArrayList<String>() {
-      {
-        add("/**");
-      }
-    };
+    return Collections.singletonList("/**");
   }
 
   @Override

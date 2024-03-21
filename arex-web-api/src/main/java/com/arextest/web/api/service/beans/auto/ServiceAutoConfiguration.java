@@ -10,8 +10,8 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class ServiceAutoConfiguration {
 
-  private final static long ACCESS_EXPIRE_TIME = 7 * 24 * 60 * 60 * 1000L;
-  private final static long REFRESH_EXPIRE_TIME = 30 * 24 * 60 * 60 * 1000L;
+  private static final long ACCESS_EXPIRE_TIME = 7 * 24 * 60 * 60 * 1000L;
+  private static final long REFRESH_EXPIRE_TIME = 30 * 24 * 60 * 60 * 1000L;
 
   @Value("${arex.jwt.secret}")
   private String tokenSecret;
@@ -19,7 +19,7 @@ public class ServiceAutoConfiguration {
 
   @Bean
   @ConditionalOnMissingBean(JWTService.class)
-  public JWTService JWTService() {
+  public JWTService jwtService() {
     return new JWTServiceImpl(ACCESS_EXPIRE_TIME, REFRESH_EXPIRE_TIME, tokenSecret);
   }
 

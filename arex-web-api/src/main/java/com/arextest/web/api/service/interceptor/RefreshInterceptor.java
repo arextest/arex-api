@@ -55,11 +55,7 @@ public class RefreshInterceptor extends AbstractInterceptorHandler {
 
   @Override
   public List<String> getPathPatterns() {
-    return new ArrayList<String>() {
-      {
-        add("/api/login/refreshToken");
-      }
-    };
+    return Collections.singletonList("/api/login/refreshToken");
   }
 
   @Override
