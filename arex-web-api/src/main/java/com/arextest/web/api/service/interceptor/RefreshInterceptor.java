@@ -3,7 +3,7 @@ package com.arextest.web.api.service.interceptor;
 import com.arextest.common.interceptor.AbstractInterceptorHandler;
 import com.arextest.common.model.response.Response;
 import com.arextest.common.model.response.ResponseCode;
-import com.arextest.common.jwt.JWTServiceImpl;
+import com.arextest.common.jwt.JWTService;
 import com.arextest.common.utils.ResponseUtils;
 import com.arextest.web.common.LogUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -26,14 +26,14 @@ public class RefreshInterceptor extends AbstractInterceptorHandler {
   ObjectMapper mapper = new ObjectMapper();
 
   @Resource
-  private JWTServiceImpl jwtServiceImpl;
+  private JWTService jwtService;
 
   @Override
   public boolean preHandle(HttpServletRequest httpServletRequest,
       HttpServletResponse httpServletResponse, Object o)
       throws Exception {
     String authorization = httpServletRequest.getHeader("refresh-token");
-    if (!jwtServiceImpl.verifyToken(authorization)) {
+    if (!jwtService.verifyToken(authorization)) {
       httpServletResponse.setStatus(200);
       httpServletResponse.setContentType("application/json");
       httpServletResponse.setCharacterEncoding("UTF-8");

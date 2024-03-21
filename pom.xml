@@ -256,9 +256,9 @@
         <version>${google-oauth-client.version}</version>
       </dependency>
       <dependency>
-        <groupId>com.github.luben</groupId>
-        <artifactId>zstd-jni</artifactId>
-        <version>${zstd.version}</version>
+        <groupId>com.google.http-client</groupId>
+        <artifactId>google-http-client</artifactId>
+        <version>${google-http-client.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
@@ -462,7 +462,7 @@
   <properties>
     <!-- Maven CI Friendly Versions https://maven.apache.org/maven-ci-friendly.html -->
     <revision>0.6.2.10</revision>
-    <arex-common.version>0.1.21</arex-common.version>
+    <arex-common.version>0.1.22</arex-common.version>
     <arex-extension-interface.version>0.0.1</arex-extension-interface.version>
     <arex-storage-config.version>1.1.19</arex-storage-config.version>
     <arex-storage.version>1.1.17</arex-storage.version>
@@ -487,7 +487,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <shedlock-spring.version>4.34.0</shedlock-spring.version>
     <snakeyaml.version>1.29</snakeyaml.version>
-    <zstd.version>1.5.5-5</zstd.version>
+    <google-http-client.version>1.35.0</google-http-client.version>
     <spring.boot.version>2.7.18</spring.boot.version>
     <springfox-boot-starter.version>3.0.0</springfox-boot-starter.version>
     <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
