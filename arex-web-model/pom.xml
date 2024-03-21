@@ -17,16 +17,6 @@
       <groupId>com.arextest</groupId>
     </dependency>
     <dependency>
-      <artifactId>arex-common</artifactId>
-      <exclusions>
-        <exclusion>
-          <artifactId>log4j-slf4j-impl</artifactId>
-          <groupId>org.apache.logging.log4j</groupId>
-        </exclusion>
-      </exclusions>
-      <groupId>com.arextest</groupId>
-    </dependency>
-    <dependency>
       <artifactId>spring-boot-starter-data-mongodb</artifactId>
       <groupId>org.springframework.boot</groupId>
     </dependency>

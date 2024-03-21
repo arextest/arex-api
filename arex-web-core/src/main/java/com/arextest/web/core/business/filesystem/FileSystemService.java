@@ -1,7 +1,7 @@
 package com.arextest.web.core.business.filesystem;
 
 import com.arextest.common.exceptions.ArexException;
-import com.arextest.common.utils.JwtUtil;
+import com.arextest.common.jwt.JWTService;
 import com.arextest.web.common.LoadResource;
 import com.arextest.web.common.LogUtils;
 import com.arextest.web.common.exception.ArexApiResponseCode;
@@ -99,6 +99,7 @@ import com.google.api.client.util.Lists;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -120,7 +121,6 @@ import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.MutablePair;
-import org.bson.internal.Base64;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -200,6 +200,9 @@ public class FileSystemService {
 
   @Resource
   private ObjectMapper objectMapper;
+  
+  @Resource
+  private JWTService jwtService;
 
   public FSAddItemResponseType addItemForController(FSAddItemRequestType request) {
     FSAddItemResponseType response = new FSAddItemResponseType();
@@ -702,8 +705,8 @@ public class FileSystemService {
     if (Boolean.TRUE.equals(result)) {
       userWorkspaceDto.setStatus(InvitationType.INVITED);
       userWorkspaceRepository.update(userWorkspaceDto);
-      response.setAccessToken(JwtUtil.makeAccessToken(request.getUserName()));
-      response.setRefreshToken(JwtUtil.makeRefreshToken(request.getUserName()));
+      response.setAccessToken(jwtService.makeAccessToken(request.getUserName()));
+      response.setRefreshToken(jwtService.makeRefreshToken(request.getUserName()));
     }
     response.setSuccess(result);
     return response;
@@ -1029,7 +1032,7 @@ public class FileSystemService {
       return false;
     }
 
-    String address = arexUiUrl + "/click/?upn=" + Base64.encode(message.getBytes());
+    String address = arexUiUrl + "/click/?upn=" + Base64.getEncoder().encodeToString(message.getBytes());
 
     String context = loadResource.getResource(INVITATION_EMAIL_TEMPLATE);
     context = context.replace(SOMEBODY_PLACEHOLDER, invitor)

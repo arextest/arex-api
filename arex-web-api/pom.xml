@@ -51,10 +51,6 @@
       <groupId>net.javacrumbs.shedlock</groupId>
     </dependency>
     <dependency>
-      <artifactId>arex-common</artifactId>
-      <groupId>com.arextest</groupId>
-    </dependency>
-    <dependency>
       <artifactId>spring-boot-starter-test</artifactId>
       <groupId>org.springframework.boot</groupId>
       <scope>test</scope>
