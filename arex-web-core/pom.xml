@@ -5,6 +5,11 @@
   <artifactId>arex-web-core</artifactId>
   <dependencies>
     <dependency>
+      <groupId>com.google.cloud</groupId>
+      <artifactId>google-cloud-aiplatform</artifactId>
+      <version>3.38.0</version>
+    </dependency>
+    <dependency>
       <artifactId>arex-web-model</artifactId>
       <groupId>com.arextest</groupId>
     </dependency>
