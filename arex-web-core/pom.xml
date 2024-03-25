@@ -5,6 +5,10 @@
   <artifactId>arex-web-core</artifactId>
   <dependencies>
     <dependency>
+      <artifactId>lombok</artifactId>
+      <groupId>org.projectlombok</groupId>
+    </dependency>
+    <dependency>
       <groupId>com.google.cloud</groupId>
       <artifactId>google-cloud-aiplatform</artifactId>
       <version>3.38.0</version>
