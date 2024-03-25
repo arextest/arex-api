@@ -17,6 +17,7 @@ public class ArexApiResponseCode extends ResponseCode_New {
 
   // collections error codes start with 103xxx
   public static final int FS_DUPLICATE_ITEM_ERROR = 103001;
+  public static final int FS_FORMAT_ERROR = 103002;
 
   // record & replay error codes start with 104xxx
 }
