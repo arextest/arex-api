@@ -8,8 +8,8 @@ import lombok.Data;
  */
 @Data
 public class GenReq {
-  private String apiRes;
   private String currentScript;
-
   private String requirement;
+
+  private String apiRes;
 }
