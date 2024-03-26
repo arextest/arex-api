@@ -45,7 +45,7 @@ public class AI {
 
             + "Try to understand the meaning of the response and generate a postman test script. "
             + "If the currentScript is given, generate a small test snippet that can be added to the current script, generate full test script otherwise. "
-            + "The library postman is imported in the scope as an variable named arex, you do not need to import it again. "
+            + "The library postman is imported in the scope, you do not need to import it again. "
 
             + "Your response should contain a JSON string only, the returned JSON should have the fields code and explanation."
             + "The code field should be a string that represents the test script in markdown format. "
