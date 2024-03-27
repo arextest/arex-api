@@ -5,6 +5,7 @@ import static com.arextest.config.model.dao.config.SystemConfigurationCollection
 import static com.arextest.config.model.dao.config.SystemConfigurationCollection.KeySummary.REFRESH_DATA;
 import com.arextest.common.cache.CacheProvider;
 import com.arextest.common.cache.LockWrapper;
+import com.arextest.common.runnable.AbstractContextWithTraceRunnable;
 import com.arextest.config.model.dao.config.AppCollection;
 import com.arextest.config.model.dao.config.RecordServiceConfigCollection;
 import com.arextest.config.model.dao.config.SystemConfigurationCollection;
@@ -362,7 +363,8 @@ public class OldDataCleaner implements InitializingBean {
 
   @Data
   @AllArgsConstructor
-  private static class LockRefreshTask<T extends RefreshTaskContext> implements Runnable {
+  private static class LockRefreshTask<T extends RefreshTaskContext> extends
+      AbstractContextWithTraceRunnable {
 
     private CacheProvider cacheProvider;
 
@@ -373,7 +375,7 @@ public class OldDataCleaner implements InitializingBean {
     private T refreshTaskContext;
 
     @Override
-    public void run() {
+    public void doWithContextRunning() {
       String taskName = refreshTaskContext.getTaskName();
       LockWrapper lock = cacheProvider.getLock(taskName);
       try {
