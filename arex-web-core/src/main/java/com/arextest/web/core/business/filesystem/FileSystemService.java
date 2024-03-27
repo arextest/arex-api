@@ -122,6 +122,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 
 @Slf4j
@@ -200,9 +201,12 @@ public class FileSystemService {
 
   @Resource
   private ObjectMapper objectMapper;
-  
+
   @Resource
   private JWTService jwtService;
+
+  @Resource(name = "custom-fork-join-executor")
+  private ThreadPoolTaskExecutor customForkJoinExecutor;
 
   public FSAddItemResponseType addItemForController(FSAddItemRequestType request) {
     FSAddItemResponseType response = new FSAddItemResponseType();
@@ -1032,7 +1036,8 @@ public class FileSystemService {
       return false;
     }
 
-    String address = arexUiUrl + "/click/?upn=" + Base64.getEncoder().encodeToString(message.getBytes());
+    String address =
+        arexUiUrl + "/click/?upn=" + Base64.getEncoder().encodeToString(message.getBytes());
 
     String context = loadResource.getResource(INVITATION_EMAIL_TEMPLATE);
     context = context.replace(SOMEBODY_PLACEHOLDER, invitor)
@@ -1213,7 +1218,7 @@ public class FileSystemService {
               })
           .collect(Collectors.toList());
       response.setCaseNodes(fsNodeTypes);
-    });
+    }, customForkJoinExecutor);
     CompletableFuture<Void> folderCompletableFuture = CompletableFuture.runAsync(() -> {
       List<FSInterfaceDto> fsInterfaceDtos = fsInterfaceRepository.queryInterfaces(workspaceId,
           keywords, includeLabelTypes, excludeLabelTypes, pageSize);
@@ -1226,7 +1231,7 @@ public class FileSystemService {
               })
           .collect(Collectors.toList());
       response.setInterfaceNodes(fsNodeTypes);
-    });
+    }, customForkJoinExecutor);
     CompletableFuture<Void> interfaceCompletableFuture = CompletableFuture.runAsync(() -> {
       List<FSFolderDto> fsFolderDtos = fsFolderRepository.queryFolders(workspaceId, keywords,
           includeLabelTypes, excludeLabelTypes, pageSize);
@@ -1237,7 +1242,7 @@ public class FileSystemService {
           })
           .collect(Collectors.toList());
       response.setFolderNodes(fsNodeTypes);
-    });
+    }, customForkJoinExecutor);
 
     CompletableFuture.allOf(caseCompletableFuture, folderCompletableFuture,
         interfaceCompletableFuture).join();
@@ -1355,11 +1360,13 @@ public class FileSystemService {
           if (FSInfoItem.CASE == fsNodeType.getNodeType()) {
             completableFutures
                 .add(CompletableFuture.runAsync(
-                    () -> this.getCaseNodes(nodes, fsNodeType.getInfoId())));
+                    () -> this.getCaseNodes(nodes, fsNodeType.getInfoId()),
+                    customForkJoinExecutor));
           } else if (FSInfoItem.INTERFACE == fsNodeType.getNodeType()) {
             completableFutures
                 .add(CompletableFuture.runAsync(
-                    () -> this.getInterfaceNodes(nodes, fsNodeType.getInfoId())));
+                    () -> this.getInterfaceNodes(nodes, fsNodeType.getInfoId()),
+                    customForkJoinExecutor));
           } else if (FSInfoItem.FOLDER == fsNodeType.getNodeType()) {
             completableFutures
                 .add(CompletableFuture.runAsync(() -> {
@@ -1373,7 +1380,7 @@ public class FileSystemService {
                         fsInterfaceDto -> this.getInterfaceNodes(nodes,
                             fsInterfaceDto.getId()));
                   }
-                }));
+                }, customForkJoinExecutor));
           }
         });
 

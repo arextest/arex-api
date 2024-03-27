@@ -10,7 +10,6 @@ import com.arextest.web.model.contract.contracts.common.PlanStatistic;
 import com.arextest.web.model.dto.ReportPlanStatisticDto;
 import com.arextest.web.model.enums.ReplayStatusType;
 import com.arextest.web.model.mapper.PlanMapper;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -18,18 +17,25 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
-import lombok.AllArgsConstructor;
+import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.util.Strings;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 
 @Component
-@AllArgsConstructor
 @Slf4j
 public class QueryPlanStatisticsService {
+
+  @Resource
   private ReportPlanStatisticRepositoryImpl planStatisticRepository;
+
+  @Resource
   private CaseCountService caseCountService;
+
+  @Resource(name = "custom-fork-join-executor")
+  private ThreadPoolTaskExecutor customForkJoinExecutor;
   private static final String DEFAULT_TIMEOUT_ERR_MSG = "Replay interrupted due to timeout";
 
   public QueryPlanStatisticsResponseType queryByApp(QueryPlanStatisticsRequestType request) {
@@ -81,7 +87,8 @@ public class QueryPlanStatisticsService {
 
   /**
    * Merge case count info into plan
-   * @param plan target replay plan
+   *
+   * @param plan      target replay plan
    * @param caseCount case count info
    */
   private void mergeCaseCount(ReportPlanStatisticDto plan, CaseCount caseCount) {
@@ -95,12 +102,13 @@ public class QueryPlanStatisticsService {
   }
 
   /**
-   * Interrupt abnormal plan
-   * Abnormal criteria: replay status is not finished and replay start time is more than 3 hours
+   * Interrupt abnormal plan Abnormal criteria: replay status is not finished and replay start time
+   * is more than 3 hours
    */
   private void checkNeedInterrupt(ReportPlanStatisticDto plan) {
-    Long startTime = Optional.ofNullable(Objects.equals(plan.getStatus(), ReplayStatusType.RERUNNING)
-            ? plan.getLastRerunStartTime() : plan.getReplayStartTime())
+    Long startTime = Optional.ofNullable(
+            Objects.equals(plan.getStatus(), ReplayStatusType.RERUNNING)
+                ? plan.getLastRerunStartTime() : plan.getReplayStartTime())
         .orElse(System.currentTimeMillis());
 
     if (ReplayStatusType.NOT_FINISHED_STATUS.contains(plan.getStatus())
@@ -116,7 +124,7 @@ public class QueryPlanStatisticsService {
             null,
             plan.getErrorMessage(),
             null);
-      });
+      }, customForkJoinExecutor);
 
       LOGGER.info("Plan {} is interrupted due to timeout", plan.getPlanId());
     }
