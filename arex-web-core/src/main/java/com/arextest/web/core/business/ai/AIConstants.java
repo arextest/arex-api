@@ -12,6 +12,9 @@ public class AIConstants {
   static {
     AIConstants.MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
   }
+
+  public static final String GOOGLE_PROJECT_ID = "trip-flt-bi-dbprj";
+
   public static final String CONTEXT_PROMPT =
       "Your are an domain expert in API testing, and you are asked to generate a postman test script, your don't need to response to this message.\n"
           + "\n"
@@ -38,4 +41,14 @@ public class AIConstants {
           + "2. The returned JSON should have the fields code and explanation.\n"
           + "3. The code field should be a string that represents the test script in markdown format. \n"
           + "4. The explanation field should be a string that briefly explains the test script. Detail explanation should be in the code comment.";
+
+  public static final String USER_Q_1 = "{\n"
+      + "    \"apiRes\": \"{\\\"code\\\": 200}\",\n"
+      + "    \"currentScript\": null,\n"
+      + "    \"requirement\": \"Test if the response is valid\"\n"
+      + "}";
+
+  public static final String AI_A_1 = "{\"code\": \"pm.test(\"Status code is 200\", function () {\n"
+      + "    pm.response.to.have.status(200);\n"
+      + "});\", \"explanation\": \"To verify the status code is 200\"}";
 }

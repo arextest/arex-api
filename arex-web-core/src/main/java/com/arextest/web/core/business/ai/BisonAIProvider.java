@@ -1,10 +1,5 @@
 package com.arextest.web.core.business.ai;
 
-/**
- * @author: QizhengMo
- * @date: 2024/3/22 16:04
- */
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,11 +26,14 @@ import com.google.protobuf.util.JsonFormat;
 
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * @author: QizhengMo
+ * @date: 2024/3/22 16:04
+ */
 @Slf4j
-@Service
+//@Service
 public class BisonAIProvider implements AIProvider {
     private static final PredictionServiceClient client = getClient();
-    private static final String project = "trip-flt-bi-dbprj";
     private static final String location = "asia-northeast1";
     private static final String publisher = "google";
     private static final String model = "codechat-bison-32k@002";
@@ -69,16 +67,8 @@ public class BisonAIProvider implements AIProvider {
 
     private static List<Message> generateBasePrompt() {
         List<Message> messages = new ArrayList<>();
-        Message exampleQ = Message.builder().content("{\n"
-            + "    \"apiRes\": \"{\\\"code\\\": 200}\",\n"
-            + "    \"currentScript\": null,\n"
-            + "    \"requirement\": \"Test if the response is valid\"\n"
-            + "}").author("user").build();
-        Message exampleA = Message.builder()
-            .content("{\"code\": \"pm.test(\"Status code is 200\", function () {\n"
-                + "    pm.response.to.have.status(200);\n"
-                + "});\", \"explanation\": \"To verify the status code is 200\"}")
-            .author("assistant").build();
+        Message exampleQ = Message.builder().content(AIConstants.USER_Q_1).author("user").build();
+        Message exampleA = Message.builder().content(AIConstants.AI_A_1).author("assistant").build();
         messages.add(exampleQ);
         messages.add(exampleA);
 
@@ -105,7 +95,7 @@ public class BisonAIProvider implements AIProvider {
 
         try {
             final EndpointName endpointName =
-                EndpointName.ofProjectLocationPublisherModelName(project, location, publisher, model);
+                EndpointName.ofProjectLocationPublisherModelName(AIConstants.GOOGLE_PROJECT_ID, location, publisher, model);
             // Initialize client that will be used to send requests. This client only needs to be created
             // once, and can be reused for multiple requests.
             Value.Builder instanceValue = Value.newBuilder();

@@ -110,6 +110,13 @@
         <artifactId>mapstruct</artifactId>
         <version>${org.mapstruct.version}</version>
       </dependency>
+      <dependency>
+        <artifactId>libraries-bom</artifactId>
+        <groupId>com.google.cloud</groupId>
+        <scope>import</scope>
+        <type>pom</type>
+        <version>26.32.0</version>
+      </dependency>
       <!--project file-->
       <dependency>
         <artifactId>arex-web-model</artifactId>
