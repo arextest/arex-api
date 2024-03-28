@@ -40,7 +40,10 @@ public class GeminiProvider implements AIProvider {
     }
 
     private static GenerateContentResponse gen(String prompt) throws IOException {
-        GenerationConfig config = GenerationConfig.newBuilder().setMaxOutputTokens(8192).build();
+        GenerationConfig config = GenerationConfig.newBuilder()
+            .setMaxOutputTokens(8192)
+            .setTemperature(0.5F)
+            .build();
         List<Content> prompts = getBasePrompts();
         prompts.add(Content.newBuilder().setRole("user").addParts(Part.newBuilder().setText(prompt)).build());
         return client.generateContent(prompts, config);
