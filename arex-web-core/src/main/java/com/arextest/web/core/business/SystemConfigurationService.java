@@ -76,7 +76,7 @@ public class SystemConfigurationService {
     }
     for (String key : removeKeys) {
       try {
-        flag &= systemConfigurationRepository.deleteConfig(key);
+        systemConfigurationRepository.deleteConfig(key);
       } catch (Exception e) {
         LOGGER.error("Failed to delete system configuration: {}", key, e);
         flag = false;
