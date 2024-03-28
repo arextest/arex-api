@@ -68,7 +68,7 @@ public class SystemConfigurationService {
     boolean flag = true;
     for (SystemConfiguration config : systemConfigurations) {
       try {
-        flag &= systemConfigurationRepository.saveConfig(config);
+        systemConfigurationRepository.saveConfig(config);
       } catch (Exception e) {
         LOGGER.error("Failed to save system configuration: {}", config, e);
         flag = false;
@@ -76,7 +76,7 @@ public class SystemConfigurationService {
     }
     for (String key : removeKeys) {
       try {
-        flag &= systemConfigurationRepository.deleteConfig(key);
+        systemConfigurationRepository.deleteConfig(key);
       } catch (Exception e) {
         LOGGER.error("Failed to delete system configuration: {}", key, e);
         flag = false;
