@@ -36,25 +36,34 @@ public class SystemConfigurationService {
 
   public boolean saveConfig(SystemConfiguration systemConfiguration) {
     List<SystemConfiguration> systemConfigurations = new ArrayList<>();
-    if (systemConfiguration.getCallbackUrl() != null) {
+    List<String> removeKeys = new ArrayList<>();
+    if (StringUtils.isNotBlank(systemConfiguration.getCallbackUrl())) {
       SystemConfiguration callbackUrl = new SystemConfiguration();
       callbackUrl.setCallbackUrl(systemConfiguration.getCallbackUrl());
       callbackUrl.setKey(SystemConfigurationCollection.KeySummary.CALLBACK_URL);
       systemConfigurations.add(callbackUrl);
+    } else {
+      removeKeys.add(SystemConfigurationCollection.KeySummary.CALLBACK_URL);
     }
-    if (systemConfiguration.getDesensitizationJar() != null) {
+    if (systemConfiguration.getDesensitizationJar() != null
+        && StringUtils.isNotBlank(systemConfiguration.getDesensitizationJar().getJarUrl())) {
       SystemConfiguration desensitizationJar = new SystemConfiguration();
       desensitizationJar.setDesensitizationJar(systemConfiguration.getDesensitizationJar());
       desensitizationJar.setKey(SystemConfigurationCollection.KeySummary.DESERIALIZATION_JAR);
       systemConfigurations.add(desensitizationJar);
+    } else {
+      removeKeys.add(SystemConfigurationCollection.KeySummary.DESERIALIZATION_JAR);
     }
-    if (systemConfiguration.getComparePluginInfo() != null) {
+    if (systemConfiguration.getComparePluginInfo() != null
+        && StringUtils.isNotBlank(systemConfiguration.getComparePluginInfo().getComparePluginUrl())) {
       SystemConfiguration comparePluginInfoConfig = new SystemConfiguration();
       ComparePluginInfo comparePluginInfo = systemConfiguration.getComparePluginInfo();
       comparePluginInfo.setTransMethodList(identifyTransformMethod(comparePluginInfo));
       comparePluginInfoConfig.setComparePluginInfo(comparePluginInfo);
       comparePluginInfoConfig.setKey(SystemConfigurationCollection.KeySummary.COMPARE_PLUGIN_INFO);
       systemConfigurations.add(comparePluginInfoConfig);
+    } else {
+      removeKeys.add(SystemConfigurationCollection.KeySummary.COMPARE_PLUGIN_INFO);
     }
     boolean flag = true;
     for (SystemConfiguration config : systemConfigurations) {
@@ -62,6 +71,14 @@ public class SystemConfigurationService {
         flag &= systemConfigurationRepository.saveConfig(config);
       } catch (Exception e) {
         LOGGER.error("Failed to save system configuration: {}", config, e);
+        flag = false;
+      }
+    }
+    for (String key : removeKeys) {
+      try {
+        flag &= systemConfigurationRepository.deleteConfig(key);
+      } catch (Exception e) {
+        LOGGER.error("Failed to delete system configuration: {}", key, e);
         flag = false;
       }
     }
