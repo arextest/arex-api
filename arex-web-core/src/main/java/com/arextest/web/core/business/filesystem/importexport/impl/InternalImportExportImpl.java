@@ -1,6 +1,8 @@
 package com.arextest.web.core.business.filesystem.importexport.impl;
 
+import com.arextest.common.exceptions.ArexException;
 import com.arextest.web.common.LogUtils;
+import com.arextest.web.common.exception.ArexApiResponseCode;
 import com.arextest.web.core.business.filesystem.FileSystemUtils;
 import com.arextest.web.core.business.filesystem.ItemInfo;
 import com.arextest.web.core.business.filesystem.ItemInfoFactory;
@@ -26,6 +28,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -62,10 +65,15 @@ public class InternalImportExportImpl implements ImportExport {
     try {
       collection = objectMapper.readValue(importString, ItemCollectionDto.class);
     } catch (JsonProcessingException e) {
-      LogUtils.error(LOGGER, "Failed to import items", e);
+      throw new ArexException(ArexApiResponseCode.FS_FORMAT_ERROR, "Failed to import items", e);
     }
 
     if (collection == null) {
+      return false;
+    }
+
+    if (!checkCollection(collection)) {
+      LOGGER.error("Failed to import items, collection's format is not correct");
       return false;
     }
 
@@ -198,5 +206,22 @@ public class InternalImportExportImpl implements ImportExport {
       }
     }
     return item;
+  }
+
+  // true: collection is correct, false: collection is not correct
+  private boolean checkCollection(ItemCollectionDto collection) {
+    if (collection == null || collection.getItems() == null) {
+      return false;
+    }
+    collection.getItems().removeIf(Objects::isNull);
+    if (CollectionUtils.isEmpty(collection.getItems())) {
+      return false;
+    }
+    for (Item item : collection.getItems()) {
+      if (!FSInfoItem.ALL_TYPES.contains(item.getNodeType())) {
+        return false;
+      }
+    }
+    return true;
   }
 }
