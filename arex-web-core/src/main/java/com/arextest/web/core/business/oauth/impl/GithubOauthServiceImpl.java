@@ -1,13 +1,15 @@
 package com.arextest.web.core.business.oauth.impl;
 
-import com.arextest.web.common.HttpUtils;
 import com.arextest.web.common.LogUtils;
-import java.util.HashMap;
+import com.arextest.web.core.business.beans.httpclient.HttpWebServiceApiClient;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
+import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 
 /**
@@ -29,6 +31,9 @@ public class GithubOauthServiceImpl extends AbstractOauthServiceImpl {
   @Value("${arex.oauth.github.secret}")
   private String secret;
 
+  @Resource
+  private HttpWebServiceApiClient httpWebServiceApiClient;
+
   @Override
   public String getClientId() {
     return clientId;
@@ -45,20 +50,26 @@ public class GithubOauthServiceImpl extends AbstractOauthServiceImpl {
       return null;
     }
     try {
-      Map<String, String> headers = new HashMap<>();
-      headers.put(ACCEPT, APPLICATION_JSON);
-      ResponseEntity<Map> tokenResponse =
-          HttpUtils.get(String.format(GITHUB_ACCESS_TOKEN_URL, clientId, secret, code), Map.class,
-              APPLICATION_JSON, headers, TIMEOUT);
-      Map<String, String> tokenBody = Objects.requireNonNull(tokenResponse.getBody());
+      HttpHeaders headers = new HttpHeaders();
+      headers.add(ACCEPT, APPLICATION_JSON);
+      headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
+      String url = String.format(GITHUB_ACCESS_TOKEN_URL, clientId, secret, code);
+      Map tokenResponse =
+          httpWebServiceApiClient.getWithoutInterceptors(
+              url, Collections.emptyMap(), headers, TIMEOUT,
+              Map.class);
+      Map<String, String> tokenBody = Objects.requireNonNull(tokenResponse);
       String accessToken = tokenBody.get(ACCESS_TOKEN);
 
-      headers = new HashMap<>();
-      headers.put(AUTHORIZATION, TOKEN + accessToken);
-      headers.put(ACCEPT, APPLICATION_JSON);
-      ResponseEntity<Map> result = HttpUtils.get(GITHUB_USER_URL, Map.class, APPLICATION_JSON,
-          headers, TIMEOUT);
-      Map<String, String> body = Objects.requireNonNull(result.getBody());
+      headers = new HttpHeaders();
+      headers.add(AUTHORIZATION, TOKEN + accessToken);
+      headers.add(ACCEPT, APPLICATION_JSON);
+      headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
+      Map result = httpWebServiceApiClient.getWithoutInterceptors(GITHUB_USER_URL,
+          Collections.emptyMap(),
+          headers, TIMEOUT,
+          Map.class);
+      Map<String, String> body = Objects.requireNonNull(result);
       return body.get(EMAIL);
     } catch (Exception e) {
       LogUtils.error(LOGGER, "get github user error", e);

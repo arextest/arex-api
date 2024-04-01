@@ -1,14 +1,16 @@
 package com.arextest.web.core.business.oauth.impl;
 
-import com.arextest.web.common.HttpUtils;
 import com.arextest.web.common.LogUtils;
-import java.util.HashMap;
+import com.arextest.web.core.business.beans.httpclient.HttpWebServiceApiClient;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
+import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 
 /**
@@ -29,6 +31,8 @@ public class GitlabOauthServiceImpl extends AbstractOauthServiceImpl {
   private String secret;
   @Value("${arex.oauth.gitlab.uri}")
   private String gitlabUri;
+  @Resource
+  private HttpWebServiceApiClient httpWebServiceApiClient;
 
   @Override
   public String getClientId() {
@@ -55,16 +59,23 @@ public class GitlabOauthServiceImpl extends AbstractOauthServiceImpl {
     }
     String tokenUrl = String.format(gitlabUri + TOKEN_SUFFIX, clientId, secret, code, redirectUri);
     try {
-      ResponseEntity<Map> tokenResponse =
-          HttpUtils.post(tokenUrl, new HashMap<>(), Map.class, APPLICATION_JSON, null, TIMEOUT);
-      Map<String, String> tokenBody = Objects.requireNonNull(tokenResponse.getBody());
+      HttpHeaders headers = new HttpHeaders();
+      headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
+      Map tokenResponse =
+          httpWebServiceApiClient.getWithoutInterceptors(
+              tokenUrl, Collections.emptyMap(), headers, TIMEOUT,
+              Map.class);
+      Map<String, String> tokenBody = Objects.requireNonNull(tokenResponse);
+
+      HttpHeaders tokenHeaders = new HttpHeaders();
       String accessToken = tokenBody.get(ACCESS_TOKEN);
-      ;
-      Map<String, String> headers = new HashMap<>();
-      headers.put(AUTHORIZATION, BEARER + accessToken);
-      ResponseEntity<Map> userResponse =
-          HttpUtils.get(gitlabUri + USER_SUFFIX, Map.class, APPLICATION_JSON, headers, TIMEOUT);
-      Map<String, String> userBody = Objects.requireNonNull(userResponse.getBody());
+      headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
+      tokenHeaders.add(AUTHORIZATION, BEARER + accessToken);
+      Map userResponse =
+          httpWebServiceApiClient.getWithoutInterceptors(gitlabUri + USER_SUFFIX,
+              Collections.emptyMap(), headers, TIMEOUT,
+              Map.class);
+      Map<String, String> userBody = Objects.requireNonNull(userResponse);
       return userBody.get(EMAIL);
     } catch (Exception e) {
       LogUtils.error(LOGGER, "gitlab get user error", e);

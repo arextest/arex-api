@@ -2,7 +2,7 @@ package com.arextest.web.core.business;
 
 import com.arextest.common.jwt.JWTService;
 import com.arextest.web.common.LoadResource;
-import com.arextest.web.core.business.util.MailUtils;
+import com.arextest.web.core.business.beans.MailService;
 import com.arextest.web.core.repository.UserRepository;
 import com.arextest.web.model.contract.contracts.login.LoginAsGuestResponseType;
 import com.arextest.web.model.contract.contracts.login.ModifyUserFavoriteAppRequestType;
@@ -39,7 +39,7 @@ public class LoginService {
   private LoadResource loadResource;
 
   @Resource
-  private MailUtils mailUtils;
+  private MailService mailService;
 
   @Resource
   private JWTService jwtService;
@@ -54,7 +54,7 @@ public class LoginService {
     if (success) {
       template = template.replace(VERIFICATION_CODE_PLACEHOLDER, user.getVerificationCode());
       success =
-          mailUtils.sendEmail(user.getUserName(), SEND_VERIFICATION_CODE_SUBJECT, template,
+          mailService.sendEmail(user.getUserName(), SEND_VERIFICATION_CODE_SUBJECT, template,
               SendEmailType.LOGIN);
     }
     return success;

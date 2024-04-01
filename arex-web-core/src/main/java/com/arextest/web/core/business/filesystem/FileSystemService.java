@@ -10,7 +10,7 @@ import com.arextest.web.core.business.filesystem.importexport.impl.ImportExportF
 import com.arextest.web.core.business.filesystem.pincase.StorageCase;
 import com.arextest.web.core.business.filesystem.recovery.RecoveryFactory;
 import com.arextest.web.core.business.filesystem.recovery.RecoveryService;
-import com.arextest.web.core.business.util.MailUtils;
+import com.arextest.web.core.business.beans.MailService;
 import com.arextest.web.core.repository.FSCaseRepository;
 import com.arextest.web.core.repository.FSFolderRepository;
 import com.arextest.web.core.repository.FSInterfaceRepository;
@@ -176,7 +176,7 @@ public class FileSystemService {
   private ItemInfoFactory itemInfoFactory;
 
   @Resource
-  private MailUtils mailUtils;
+  private MailService mailService;
 
   @Resource
   private StorageCase storageCase;
@@ -1044,7 +1044,7 @@ public class FileSystemService {
         .replace(WORKSPACE_NAME_PLACEHOLDER, workspace.getWorkspaceName())
         .replace(LINK_PLACEHOLDER, address);
 
-    return mailUtils.sendEmail(invitee,
+    return mailService.sendEmail(invitee,
         String.format(INVITATION_MAIL_SUBJECT, workspace.getWorkspaceName()),
         context, SendEmailType.INVITATION);
   }

@@ -2,14 +2,15 @@ package com.arextest.web.core.business.filesystem.pincase;
 
 import com.arextest.model.mock.AREXMocker;
 import com.arextest.model.mock.MockCategoryType;
-import com.arextest.web.common.HttpUtils;
 import com.arextest.web.common.LogUtils;
 import com.arextest.web.common.exception.RecordCaseNotFoundArexException;
 import com.arextest.web.common.exception.UnsupportedCategoryArexException;
+import com.arextest.web.core.business.beans.httpclient.HttpWebServiceApiClient;
 import com.arextest.web.model.contract.contracts.casedetail.ViewRecordResponseType;
 import com.arextest.web.model.dto.filesystem.FSCaseDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
@@ -19,7 +20,6 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 @Slf4j
@@ -44,21 +44,25 @@ public class StorageCase {
   @Resource
   private ObjectMapper objectMapper;
 
+  @Resource
+  private HttpWebServiceApiClient httpWebServiceApiClient;
+
   @SneakyThrows
   public FSCaseDto getViewRecord(String recordId) {
     ObjectNode request = objectMapper.createObjectNode();
     request.put(RECORD_ID, recordId);
-    ResponseEntity<ViewRecordResponseType> response = HttpUtils.post(
-        storageServiceUrl + STORAGE_VIEW_RECORD_URL,
-        request.toString(), ViewRecordResponseType.class);
+
+    ViewRecordResponseType response = httpWebServiceApiClient.jsonPostWithInterceptors(
+        storageServiceUrl + STORAGE_VIEW_RECORD_URL, request.toString(),
+        ViewRecordResponseType.class);
 
     Optional.ofNullable(response)
-        .map(ResponseEntity::getBody)
         .map(ViewRecordResponseType::getRecordResult)
         .filter(result -> !result.isEmpty())
-        .orElseThrow(() -> new RecordCaseNotFoundArexException("Record case not found: " + recordId));
+        .orElseThrow(
+            () -> new RecordCaseNotFoundArexException("Record case not found: " + recordId));
 
-    List<AREXMocker> mockers = response.getBody().getRecordResult();
+    List<AREXMocker> mockers = response.getRecordResult();
     Optional<AREXMocker> entryPoint = mockers.stream()
         .filter(m -> (m.getCategoryType() != null && m.getCategoryType().isEntryPoint()))
         .findFirst();
@@ -84,15 +88,15 @@ public class StorageCase {
     ObjectNode request = objectMapper.createObjectNode();
     request.put(RECORD_ID, recordId);
     request.put(SOURCE_PROVIDER, PINNED);
-    ResponseEntity<ViewRecordResponseType> response = HttpUtils.post(
-        storageServiceUrl + STORAGE_VIEW_RECORD_URL,
-        request.toString(), ViewRecordResponseType.class);
-    if (response == null || response.getBody() == null
-        || response.getBody().getRecordResult() == null) {
+    ViewRecordResponseType response = httpWebServiceApiClient.jsonPostWithInterceptors(
+        storageServiceUrl + STORAGE_VIEW_RECORD_URL, request.toString(),
+        ViewRecordResponseType.class);
+
+    if (response == null || response.getRecordResult() == null) {
       return null;
     }
 
-    List<AREXMocker> mockers = response.getBody().getRecordResult();
+    List<AREXMocker> mockers = response.getRecordResult();
     return mockers.stream()
         .filter(m -> m.getCategoryType() != null && m.getCategoryType().isEntryPoint())
         .findFirst().orElse(null);
@@ -106,11 +110,10 @@ public class StorageCase {
   public boolean pinnedCase(String recordId, String newRecordId) {
     try {
       String url = storageServiceUrl + STORAGE_PIN_CASE_URL + recordId + "/" + newRecordId + "/";
-      ResponseEntity<CopyResponseType> response = HttpUtils.get(url, CopyResponseType.class);
-      if (response == null || response.getBody() == null) {
-        return false;
-      }
-      if (response.getBody().getCopied() == 0) {
+      CopyResponseType response = httpWebServiceApiClient.getWithInterceptors(url,
+          Collections.emptyMap(),
+          CopyResponseType.class);
+      if (response == null || response.getCopied() == 0) {
         return false;
       }
       return true;

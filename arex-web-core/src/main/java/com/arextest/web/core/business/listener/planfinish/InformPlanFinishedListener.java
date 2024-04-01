@@ -3,12 +3,13 @@ package com.arextest.web.core.business.listener.planfinish;
 import com.arextest.config.model.dao.config.SystemConfigurationCollection;
 import com.arextest.config.model.dto.system.SystemConfiguration;
 import com.arextest.config.repository.SystemConfigurationRepository;
-import com.arextest.web.common.HttpUtils;
 import com.arextest.web.core.business.QueryPlanStatisticsService;
+import com.arextest.web.core.business.beans.httpclient.HttpWebServiceApiClient;
 import com.arextest.web.model.contract.contracts.CallbackInformRequestType;
 import com.arextest.web.model.contract.contracts.QueryPlanStatisticsRequestType;
 import com.arextest.web.model.contract.contracts.QueryPlanStatisticsResponseType;
 import com.arextest.web.model.contract.contracts.common.PlanStatistic;
+import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -28,10 +29,13 @@ public class InformPlanFinishedListener implements PlanFinishedLinstener {
   private QueryPlanStatisticsService queryPlanStatisticsService;
   @Autowired
   private SystemConfigurationRepository systemConfigRepository;
+  @Resource
+  private HttpWebServiceApiClient httpWebServiceApiClient;
 
   @Override
   public String planFinishedAction(String appId, String planId, Integer status) {
-    SystemConfiguration systemConfig = systemConfigRepository.getSystemConfigByKey(SystemConfigurationCollection.KeySummary.CALLBACK_URL);
+    SystemConfiguration systemConfig = systemConfigRepository.getSystemConfigByKey(
+        SystemConfigurationCollection.KeySummary.CALLBACK_URL);
     if (systemConfig == null || systemConfig.getCallbackUrl() == null) {
       return FAIL_STR;
     }
@@ -43,7 +47,8 @@ public class InformPlanFinishedListener implements PlanFinishedLinstener {
     PlanStatistic planStatistic = queryPlanStatisticsResponseType.getPlanStatisticList().get(0);
     try {
       CallbackInformRequestType requestType = buildRequest(planStatistic);
-      HttpUtils.post(systemConfig.getCallbackUrl(), requestType, Object.class);
+      httpWebServiceApiClient.jsonPostWithoutInterceptors(systemConfig.getCallbackUrl(),
+          requestType, Object.class);
     } catch (Throwable e) {
       LOGGER.error("callback inform failed, planId:{}", planId, e);
       return FAIL_STR;
