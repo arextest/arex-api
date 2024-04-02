@@ -47,7 +47,7 @@ public class InformPlanFinishedListener implements PlanFinishedLinstener {
     PlanStatistic planStatistic = queryPlanStatisticsResponseType.getPlanStatisticList().get(0);
     try {
       CallbackInformRequestType requestType = buildRequest(planStatistic);
-      httpWebServiceApiClient.post(false, systemConfig.getCallbackUrl(),
+      httpWebServiceApiClient.post(systemConfig.getCallbackUrl(),
           requestType, Object.class);
     } catch (Throwable e) {
       LOGGER.error("callback inform failed, planId:{}", planId, e);

@@ -25,7 +25,7 @@ public class ScheduleService {
     }
 
     Map<String, String> stringStringMap = Collections.singletonMap("planId", planId);
-    String res = httpWebServiceApiClient.get(true, stopPlanUrl, stringStringMap,
+    String res = httpWebServiceApiClient.get(stopPlanUrl, stringStringMap,
         String.class);
     if (StringUtils.isEmpty(res)) {
       return null;

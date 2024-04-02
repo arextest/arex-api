@@ -56,7 +56,7 @@ public class RecordService {
     queryCaseCountRequestType.setOperation(requestType.getOperationName());
     queryCaseCountRequestType.setEndTime(requestType.getEndTime());
     queryCaseCountRequestType.setBeginTime(requestType.getBeginTime());
-    QueryCaseCountResponseType queryCaseCountResponseType = httpWebServiceApiClient.post(true,
+    QueryCaseCountResponseType queryCaseCountResponseType = httpWebServiceApiClient.post(
         countRecordUrl, queryCaseCountRequestType, QueryCaseCountResponseType.class);
     CountRecordResponseType responseType = new CountRecordResponseType();
     responseType.setRecordedCaseCount(
@@ -80,7 +80,7 @@ public class RecordService {
     String operationType = requestType.getOperationType();
     pagedRequestType.setCategory(MockCategoryType.createEntryPoint(operationType));
 
-    PagedResponseType listResponse = httpWebServiceApiClient.post(true, listRecordUrl,
+    PagedResponseType listResponse = httpWebServiceApiClient.post(listRecordUrl,
         pagedRequestType, PagedResponseType.class);
 
     if (listResponse != null) {
@@ -88,7 +88,7 @@ public class RecordService {
           .map(arexMocker -> toRecordItem(arexMocker, operationType)).collect(Collectors.toList()));
     }
 
-    QueryCaseCountResponseType countResponse = httpWebServiceApiClient.post(true,
+    QueryCaseCountResponseType countResponse = httpWebServiceApiClient.post(
         countRecordUrl, pagedRequestType, QueryCaseCountResponseType.class);
 
     if (countResponse != null) {
@@ -105,7 +105,7 @@ public class RecordService {
     countOperationCaseRequestType.setAppId(requestType.getAppId());
     countOperationCaseRequestType.setEndTime(requestType.getEndTime());
     countOperationCaseRequestType.setBeginTime(requestType.getBeginTime());
-    CountOperationCaseResponseType response = httpWebServiceApiClient.post(true,
+    CountOperationCaseResponseType response = httpWebServiceApiClient.post(
         aggCountRecordUrl, countOperationCaseRequestType,
         CountOperationCaseResponseType.class);
 
