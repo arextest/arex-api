@@ -60,7 +60,7 @@ public class ReplayQueryController {
     headers.put("downgrade", Boolean.toString(downgrade));
 
     // original response from arex-storage
-    ViewRecordResponseType storageRes = httpWebServiceApiClient.jsonPostWithInterceptors(viewRecordUrl,
+    ViewRecordResponseType storageRes = httpWebServiceApiClient.post(true, viewRecordUrl,
         requestType, ViewRecordResponseType.class, headers);
 
     CaseDetailResponse res = new CaseDetailResponse();

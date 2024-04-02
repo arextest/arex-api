@@ -55,7 +55,7 @@ public class GithubOauthServiceImpl extends AbstractOauthServiceImpl {
       headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
       String url = String.format(GITHUB_ACCESS_TOKEN_URL, clientId, secret, code);
       Map tokenResponse =
-          httpWebServiceApiClient.getWithoutInterceptors(
+          httpWebServiceApiClient.get(
               url, Collections.emptyMap(), headers, TIMEOUT,
               Map.class);
       Map<String, String> tokenBody = Objects.requireNonNull(tokenResponse);
@@ -65,7 +65,7 @@ public class GithubOauthServiceImpl extends AbstractOauthServiceImpl {
       headers.add(AUTHORIZATION, TOKEN + accessToken);
       headers.add(ACCEPT, APPLICATION_JSON);
       headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
-      Map result = httpWebServiceApiClient.getWithoutInterceptors(GITHUB_USER_URL,
+      Map result = httpWebServiceApiClient.get(GITHUB_USER_URL,
           Collections.emptyMap(),
           headers, TIMEOUT,
           Map.class);

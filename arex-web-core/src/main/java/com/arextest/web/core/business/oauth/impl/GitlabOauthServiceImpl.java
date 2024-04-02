@@ -62,7 +62,7 @@ public class GitlabOauthServiceImpl extends AbstractOauthServiceImpl {
       HttpHeaders headers = new HttpHeaders();
       headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
       Map tokenResponse =
-          httpWebServiceApiClient.getWithoutInterceptors(
+          httpWebServiceApiClient.get(
               tokenUrl, Collections.emptyMap(), headers, TIMEOUT,
               Map.class);
       Map<String, String> tokenBody = Objects.requireNonNull(tokenResponse);
@@ -72,7 +72,7 @@ public class GitlabOauthServiceImpl extends AbstractOauthServiceImpl {
       headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
       tokenHeaders.add(AUTHORIZATION, BEARER + accessToken);
       Map userResponse =
-          httpWebServiceApiClient.getWithoutInterceptors(gitlabUri + USER_SUFFIX,
+          httpWebServiceApiClient.get(gitlabUri + USER_SUFFIX,
               Collections.emptyMap(), headers, TIMEOUT,
               Map.class);
       Map<String, String> userBody = Objects.requireNonNull(userResponse);

@@ -52,7 +52,7 @@ public class StorageCase {
     ObjectNode request = objectMapper.createObjectNode();
     request.put(RECORD_ID, recordId);
 
-    ViewRecordResponseType response = httpWebServiceApiClient.jsonPostWithInterceptors(
+    ViewRecordResponseType response = httpWebServiceApiClient.post(true,
         storageServiceUrl + STORAGE_VIEW_RECORD_URL, request.toString(),
         ViewRecordResponseType.class);
 
@@ -88,7 +88,7 @@ public class StorageCase {
     ObjectNode request = objectMapper.createObjectNode();
     request.put(RECORD_ID, recordId);
     request.put(SOURCE_PROVIDER, PINNED);
-    ViewRecordResponseType response = httpWebServiceApiClient.jsonPostWithInterceptors(
+    ViewRecordResponseType response = httpWebServiceApiClient.post(true,
         storageServiceUrl + STORAGE_VIEW_RECORD_URL, request.toString(),
         ViewRecordResponseType.class);
 
@@ -110,7 +110,7 @@ public class StorageCase {
   public boolean pinnedCase(String recordId, String newRecordId) {
     try {
       String url = storageServiceUrl + STORAGE_PIN_CASE_URL + recordId + "/" + newRecordId + "/";
-      CopyResponseType response = httpWebServiceApiClient.getWithInterceptors(url,
+      CopyResponseType response = httpWebServiceApiClient.get(true, url,
           Collections.emptyMap(),
           CopyResponseType.class);
       if (response == null || response.getCopied() == 0) {

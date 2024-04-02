@@ -28,7 +28,7 @@ public class MailService {
     }
     try {
       SendMailRequest request = new SendMailRequest(mailBox, subject, htmlMsg, CONTENT_TYPE, type);
-      SendMailResponse response = httpWebServiceApiClient.jsonPostWithoutInterceptors(
+      SendMailResponse response = httpWebServiceApiClient.post(false,
           sendEmailUrl, request,
           SendMailResponse.class);
       return response.getData().getSuccess();
