@@ -5,19 +5,18 @@ import com.arextest.common.context.ArexContext;
 import com.arextest.common.enums.AuthRejectStrategy;
 import com.arextest.common.model.response.ResponseCode;
 import com.arextest.model.mock.AREXMocker;
-import com.arextest.model.mock.Mocker;
 import com.arextest.model.replay.ViewRecordRequestType;
 import com.arextest.model.response.Response;
 import com.arextest.model.response.ResponseStatusType;
-import com.arextest.web.common.HttpUtils;
+import com.arextest.web.core.business.beans.httpclient.HttpWebServiceApiClient;
 import com.arextest.web.core.business.casedetail.CaseDetailMockerProcessor;
 import com.arextest.web.model.contract.contracts.casedetail.CaseDetailResponse;
 import com.arextest.web.model.contract.contracts.casedetail.ViewRecordResponseType;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.Resource;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -36,6 +35,9 @@ public class ReplayQueryController {
 
   @Value("${arex.storage.view.record.url}")
   private String viewRecordUrl;
+
+  @Resource
+  private HttpWebServiceApiClient httpWebServiceApiClient;
 
   @ResponseBody
   @GetMapping(value = "/viewRecord/")
@@ -58,14 +60,14 @@ public class ReplayQueryController {
     headers.put("downgrade", Boolean.toString(downgrade));
 
     // original response from arex-storage
-    ResponseEntity<ViewRecordResponseType> storageRes =
-        HttpUtils.post(viewRecordUrl, requestType, ViewRecordResponseType.class, headers);
+    ViewRecordResponseType storageRes = httpWebServiceApiClient.post(true, viewRecordUrl,
+        requestType, ViewRecordResponseType.class, headers);
 
     CaseDetailResponse res = new CaseDetailResponse();
     ResponseStatusType status = new ResponseStatusType();
     status.setTimestamp(System.currentTimeMillis());
 
-    if (storageRes == null || storageRes.getBody() == null) {
+    if (storageRes == null) {
       status.setResponseDesc("call storage failed");
       status.setResponseCode(ResponseCode.REQUESTED_RESOURCE_NOT_FOUND.getCodeValue());
       res.setResponseStatusType(status);
@@ -73,8 +75,8 @@ public class ReplayQueryController {
       status.setResponseDesc("success");
       status.setResponseCode(ResponseCode.SUCCESS.getCodeValue());
       res.setResponseStatusType(status);
-      res.setDesensitized(storageRes.getBody().isDesensitized());
-      List<AREXMocker> mockers = storageRes.getBody().getRecordResult();
+      res.setDesensitized(storageRes.isDesensitized());
+      List<AREXMocker> mockers = storageRes.getRecordResult();
       res.setRecordResult(CaseDetailMockerProcessor.convertMocker(mockers));
     }
     return res;

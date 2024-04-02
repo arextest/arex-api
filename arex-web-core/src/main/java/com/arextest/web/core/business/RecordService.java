@@ -12,7 +12,7 @@ import com.arextest.model.replay.QueryCaseCountRequestType;
 import com.arextest.model.replay.QueryCaseCountResponseType;
 import com.arextest.model.replay.SortingOption;
 import com.arextest.model.replay.SortingTypeEnum;
-import com.arextest.web.common.HttpUtils;
+import com.arextest.web.core.business.beans.httpclient.HttpWebServiceApiClient;
 import com.arextest.web.model.contract.contracts.record.AggCountRecordResponseType;
 import com.arextest.web.model.contract.contracts.record.CountRecordRequestType;
 import com.arextest.web.model.contract.contracts.record.CountRecordResponseType;
@@ -28,7 +28,6 @@ import java.util.stream.Collectors;
 import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -36,14 +35,20 @@ import org.springframework.stereotype.Service;
 public class RecordService {
 
   private static final String CREATE_TIME_COLUMN_NAME = "creationTime";
+
   @Value("${arex.storage.countRecord.url}")
   private String countRecordUrl;
+
   @Value("${arex.storage.listRecord.url}")
   private String listRecordUrl;
+
   @Value("${arex.storage.aggCountRecord.url}")
   private String aggCountRecordUrl;
   @Resource
   private ApplicationOperationConfigurationRepositoryImpl applicationOperationConfigurationRepository;
+
+  @Resource
+  private HttpWebServiceApiClient httpWebServiceApiClient;
 
   public CountRecordResponseType countRecord(CountRecordRequestType requestType) {
     QueryCaseCountRequestType queryCaseCountRequestType = new QueryCaseCountRequestType();
@@ -51,11 +56,11 @@ public class RecordService {
     queryCaseCountRequestType.setOperation(requestType.getOperationName());
     queryCaseCountRequestType.setEndTime(requestType.getEndTime());
     queryCaseCountRequestType.setBeginTime(requestType.getBeginTime());
-    ResponseEntity<QueryCaseCountResponseType> response =
-        HttpUtils.post(countRecordUrl, queryCaseCountRequestType, QueryCaseCountResponseType.class);
+    QueryCaseCountResponseType queryCaseCountResponseType = httpWebServiceApiClient.post(true,
+        countRecordUrl, queryCaseCountRequestType, QueryCaseCountResponseType.class);
     CountRecordResponseType responseType = new CountRecordResponseType();
     responseType.setRecordedCaseCount(
-        Optional.ofNullable(response.getBody()).map(QueryCaseCountResponseType::getCount)
+        Optional.ofNullable(queryCaseCountResponseType).map(QueryCaseCountResponseType::getCount)
             .orElse(0L));
 
     return responseType;
@@ -72,20 +77,22 @@ public class RecordService {
     ListRecordResponseType responseType = new ListRecordResponseType();
     List<ListRecordResponseType.RecordItem> recordItemList = new ArrayList<>();
     responseType.setRecordList(recordItemList);
-
-    ResponseEntity<PagedResponseType> listResponse;
     String operationType = requestType.getOperationType();
     pagedRequestType.setCategory(MockCategoryType.createEntryPoint(operationType));
 
-    listResponse = HttpUtils.post(listRecordUrl, pagedRequestType, PagedResponseType.class);
-    if (listResponse != null && listResponse.getBody() != null) {
-      recordItemList.addAll(listResponse.getBody().getRecords().stream()
+    PagedResponseType listResponse = httpWebServiceApiClient.post(true, listRecordUrl,
+        pagedRequestType, PagedResponseType.class);
+
+    if (listResponse != null) {
+      recordItemList.addAll(listResponse.getRecords().stream()
           .map(arexMocker -> toRecordItem(arexMocker, operationType)).collect(Collectors.toList()));
     }
-    ResponseEntity<QueryCaseCountResponseType> countResponse =
-        HttpUtils.post(countRecordUrl, pagedRequestType, QueryCaseCountResponseType.class);
-    if (countResponse != null && countResponse.getBody() != null) {
-      responseType.setTotalCount(countResponse.getBody().getCount());
+
+    QueryCaseCountResponseType countResponse = httpWebServiceApiClient.post(true,
+        countRecordUrl, pagedRequestType, QueryCaseCountResponseType.class);
+
+    if (countResponse != null) {
+      responseType.setTotalCount(countResponse.getCount());
     }
     return responseType;
   }
@@ -98,11 +105,11 @@ public class RecordService {
     countOperationCaseRequestType.setAppId(requestType.getAppId());
     countOperationCaseRequestType.setEndTime(requestType.getEndTime());
     countOperationCaseRequestType.setBeginTime(requestType.getBeginTime());
-    ResponseEntity<CountOperationCaseResponseType> response =
-        HttpUtils.post(aggCountRecordUrl, countOperationCaseRequestType,
-            CountOperationCaseResponseType.class);
+    CountOperationCaseResponseType response = httpWebServiceApiClient.post(true,
+        aggCountRecordUrl, countOperationCaseRequestType,
+        CountOperationCaseResponseType.class);
 
-    Map<String, Long> countMap = Optional.ofNullable(response.getBody())
+    Map<String, Long> countMap = Optional.ofNullable(response)
         .map(CountOperationCaseResponseType::getCountMap).orElse(new HashMap<>());
     operationList.forEach(operation -> operation
         .setRecordedCaseCount(countMap.getOrDefault(operation.getOperationName(), 0L).intValue()));

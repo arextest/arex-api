@@ -1,22 +1,26 @@
-package com.arextest.web.core.business.util;
+package com.arextest.web.core.business.beans;
 
-import com.arextest.web.common.HttpUtils;
 import com.arextest.web.common.LogUtils;
+import com.arextest.web.core.business.beans.httpclient.HttpWebServiceApiClient;
+import javax.annotation.Resource;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-public class MailUtils {
+public class MailService {
 
   private static final String CONTENT_TYPE = "text/html; charset=UTF-8";
+
+  private String sendEmailUrl;
+
   @Value("${arex.email.domain}")
   private String arexEmailDomain;
-  private String sendEmailUrl;
+  @Resource
+  private HttpWebServiceApiClient httpWebServiceApiClient;
 
   public boolean sendEmail(String mailBox, String subject, String htmlMsg, int type) {
     if (StringUtils.isEmpty(sendEmailUrl)) {
@@ -24,9 +28,10 @@ public class MailUtils {
     }
     try {
       SendMailRequest request = new SendMailRequest(mailBox, subject, htmlMsg, CONTENT_TYPE, type);
-      ResponseEntity<SendMailResponse> response = HttpUtils.post(sendEmailUrl, request,
+      SendMailResponse response = httpWebServiceApiClient.post(false,
+          sendEmailUrl, request,
           SendMailResponse.class);
-      return response.getBody().getData().getSuccess();
+      return response.getData().getSuccess();
     } catch (Exception e) {
       LogUtils.error(LOGGER, "Failed to send email. type:{}", type);
       return false;

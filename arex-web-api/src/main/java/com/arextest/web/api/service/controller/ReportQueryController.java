@@ -5,7 +5,6 @@ import com.arextest.common.enums.AuthRejectStrategy;
 import com.arextest.common.model.response.Response;
 import com.arextest.common.model.response.ResponseCode;
 import com.arextest.common.utils.ResponseUtils;
-import com.arextest.web.common.HttpUtils;
 import com.arextest.web.core.business.DiffSceneService;
 import com.arextest.web.core.business.MsgShowService;
 import com.arextest.web.core.business.QueryPlanItemStatisticService;
@@ -16,6 +15,7 @@ import com.arextest.web.core.business.QueryResponseTypeStatisticService;
 import com.arextest.web.core.business.RecordService;
 import com.arextest.web.core.business.ReplayInfoService;
 import com.arextest.web.core.business.ReportService;
+import com.arextest.web.core.business.ScheduleService;
 import com.arextest.web.core.business.SchemaInferService;
 import com.arextest.web.core.business.iosummary.SceneReportService;
 import com.arextest.web.model.contract.contracts.ChangeReplayStatusRequestType;
@@ -74,8 +74,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -115,8 +113,8 @@ public class ReportQueryController {
   private SceneReportService sceneReportService;
   @Resource
   private RecordService recordService;
-  @Value("${arex.schedule.stop.url}")
-  private String stopPlanUrl;
+  @Resource
+  private ScheduleService scheduleService;
 
   @Deprecated
   @PostMapping("/pushCompareResults")
@@ -317,14 +315,13 @@ public class ReportQueryController {
   public Response deleteReport(@PathVariable String planId) {
     try {
       SuccessResponseType response = new SuccessResponseType();
-      ResponseEntity<String> stopRes = HttpUtils.get(stopPlanUrl + "/?planId=" + planId,
-          String.class);
-      if (!stopRes.hasBody() || StringUtils.isEmpty(stopRes.getBody())) {
+      String stopRes = scheduleService.stopPlan(planId);
+      if (StringUtils.isEmpty(stopRes)) {
         LOGGER.error("stop plan error, planId:{}", planId);
         return ResponseUtils.errorResponse("stop plan error",
             ResponseCode.REQUESTED_HANDLE_EXCEPTION);
       }
-      LOGGER.info("stop plan success, {}", stopRes.getBody());
+      LOGGER.info("stop plan success, {}", stopRes);
       response.setSuccess(reportService.deleteReport(planId));
       return ResponseUtils.successResponse(response);
     } catch (Throwable t) {
