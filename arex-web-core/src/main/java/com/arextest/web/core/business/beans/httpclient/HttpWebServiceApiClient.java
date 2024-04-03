@@ -35,11 +35,10 @@ import org.springframework.web.client.RestTemplate;
  */
 @Component
 @Slf4j
+@SuppressWarnings({"java:S119"})
 public final class HttpWebServiceApiClient {
 
   private RestTemplate restTemplate;
-
-  private RestTemplate outerRestTemplate;
   @Resource
   private ObjectMapper objectMapper;
   private int connectTimeOut = 10000;
@@ -77,43 +76,37 @@ public final class HttpWebServiceApiClient {
       // Add interceptors (e.g. logging, metrics, etc
       this.restTemplate.setInterceptors(clientHttpRequestInterceptors);
     }
-
-    // set outer restTemplate
-    this.outerRestTemplate = new RestTemplate(httpMessageConverterList);
-    this.outerRestTemplate.setRequestFactory(requestFactory);
   }
 
-  public <TResponse> TResponse get(boolean inner, String url,
+  public <TResponse> TResponse get(String url,
       Map<String, ?> urlVariables,
       Class<TResponse> responseType) {
     try {
-      RestTemplate template = inner ? restTemplate : outerRestTemplate;
-      return template.getForObject(url, responseType, urlVariables);
+      return restTemplate.getForObject(url, responseType, urlVariables);
     } catch (Exception e) {
       LOGGER.error("Failed to get response from url: {}", url, e);
     }
     return null;
   }
 
-  public <TResponse> ResponseEntity<TResponse> get(boolean inner, String url,
+  public <TResponse> ResponseEntity<TResponse> get(String url,
       Map<String, ?> urlVariables,
       ParameterizedTypeReference<TResponse> responseType) {
     try {
-      RestTemplate template = inner ? restTemplate : outerRestTemplate;
-      return template.exchange(url, HttpMethod.GET, null, responseType, urlVariables);
+      return restTemplate.exchange(url, HttpMethod.GET, null, responseType, urlVariables);
     } catch (Exception e) {
       LOGGER.error("Failed to get response from url: {}", url, e);
     }
     return null;
   }
 
-  public <TResponse> TResponse get(boolean inner, String url,
+  public <TResponse> TResponse get(String url,
       Map<String, ?> urlVariables,
       MultiValueMap<String, String> headers, Class<TResponse> responseType) {
     try {
-      RestTemplate template = inner ? restTemplate : outerRestTemplate;
+
       HttpEntity<?> request = new HttpEntity<>(headers);
-      return template.exchange(url, HttpMethod.GET, request, responseType, urlVariables)
+      return restTemplate.exchange(url, HttpMethod.GET, request, responseType, urlVariables)
           .getBody();
     } catch (Exception e) {
       LOGGER.error("Failed to get response from url: {}", url, e);
@@ -130,6 +123,9 @@ public final class HttpWebServiceApiClient {
       requestFactory.setReadTimeout(readTimeout);
       RestTemplate template = new RestTemplate();
       template.setRequestFactory(requestFactory);
+      if (CollectionUtils.isNotEmpty(clientHttpRequestInterceptors)) {
+        template.setInterceptors(clientHttpRequestInterceptors);
+      }
       HttpEntity<?> request = new HttpEntity<>(headers);
       return template.exchange(url, HttpMethod.GET, request, responseType, urlVariables)
           .getBody();
@@ -139,25 +135,23 @@ public final class HttpWebServiceApiClient {
     return null;
   }
 
-  public <TRequest, TResponse> TResponse post(boolean inner, String url,
+  public <TRequest, TResponse> TResponse post(String url,
       TRequest request,
       Class<TResponse> responseType) {
     try {
-      RestTemplate template = inner ? restTemplate : outerRestTemplate;
-      return template.postForObject(url, wrapJsonContentType(request), responseType);
+      return restTemplate.postForObject(url, wrapJsonContentType(request), responseType);
     } catch (Exception e) {
       LOGGER.error("Failed to post request to url: {}, request: {}", url, request, e);
     }
     return null;
   }
 
-  public <TRequest, TResponse> TResponse post(boolean inner, String url,
+  public <TRequest, TResponse> TResponse post(String url,
       TRequest request,
       Class<TResponse> responseType,
       Map<String, String> headers) {
     try {
-      RestTemplate template = inner ? restTemplate : outerRestTemplate;
-      return template.postForObject(url, wrapJsonContentType(request, headers), responseType);
+      return restTemplate.postForObject(url, wrapJsonContentType(request, headers), responseType);
     } catch (Exception e) {
       LOGGER.error("Failed to post request to url: {}, request: {}", url, request, e);
     }
