@@ -138,7 +138,7 @@ public class FSCaseRepositoryImpl implements FSCaseRepository {
     Query query = Query.query(
         Criteria.where(FSInterfaceCollection.Fields.workspaceId).is(workspaceId));
     if (StringUtils.isNotEmpty(name)) {
-      query.addCriteria(Criteria.where(FSInterfaceCollection.Fields.name).regex(name));
+      query.addCriteria(Criteria.where(FSInterfaceCollection.Fields.name).regex(name, "i"));
     }
     if (includeLabels != null && !includeLabels.isEmpty()) {
       query.addCriteria(new Criteria().orOperator(

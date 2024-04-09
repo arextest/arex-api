@@ -113,7 +113,7 @@ public class FSFolderRepositoryImpl implements FSFolderRepository {
     Query query = Query.query(
         Criteria.where(FSFolderCollection.Fields.workspaceId).is(workspaceId));
     if (StringUtils.isNotEmpty(name)) {
-      query.addCriteria(Criteria.where(FSFolderCollection.Fields.name).regex(name));
+      query.addCriteria(Criteria.where(FSFolderCollection.Fields.name).regex(name,"i"));
     }
     if (pageSize != null) {
       query.limit(pageSize);
