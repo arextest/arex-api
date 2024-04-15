@@ -25,13 +25,12 @@ import org.springframework.data.mongodb.core.mapping.MongoMappingContext;
 @Slf4j
 @Configuration
 public class MongodbConfiguration {
-
-  private static final String APP_ID = "appId";
-  private static final String DATE = "date";
   private static final String AREX_STORAGE_DB = "arex_storage_db";
   @Value("${arex.mongo.uri}")
   private String mongoUrl;
 
+  @Bean
+  @ConditionalOnMissingBean
   public MongoDatabaseFactory mongoDbFactory() {
     try {
       ConnectionString connectionString = new ConnectionString(mongoUrl);
@@ -57,12 +56,10 @@ public class MongodbConfiguration {
 
   @Bean
   @ConditionalOnMissingBean
-  public MongoTemplate mongoTemplate() {
-    DbRefResolver dbRefResolver = new DefaultDbRefResolver(this.mongoDbFactory());
-    MappingMongoConverter converter = new MappingMongoConverter(dbRefResolver,
-        new MongoMappingContext());
+  public MongoTemplate mongoTemplate(MongoDatabaseFactory factory) {
+    DbRefResolver dbRefResolver = new DefaultDbRefResolver(factory);
+    MappingMongoConverter converter = new MappingMongoConverter(dbRefResolver, new MongoMappingContext());
     converter.setTypeMapper(new DefaultMongoTypeMapper(null));
-    MongoTemplate template = new MongoTemplate(this.mongoDbFactory(), converter);
-    return template;
+    return new MongoTemplate(this.mongoDbFactory(), converter);
   }
 }
