@@ -46,7 +46,8 @@ public interface PlanMapper {
 
   @Named("convertErrorMessage")
   default String convertErrorMessage(ReportPlanStatisticDto dto) {
-    if (dto != null && Objects.equals(dto.getStatus(), ReplayStatusType.FAIL_INTERRUPTED)) {
+    if (dto != null && (Objects.equals(dto.getStatus(), ReplayStatusType.FAIL_INTERRUPTED)
+      || Objects.equals(dto.getStatus(), ReplayStatusType.CANCELLED))) {
       return dto.getErrorMessage();
     }
     return null;
