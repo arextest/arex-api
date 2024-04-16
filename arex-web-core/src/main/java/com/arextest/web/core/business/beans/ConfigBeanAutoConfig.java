@@ -24,8 +24,10 @@ public class ConfigBeanAutoConfig {
 
   @Bean
   public ApplicationServiceConfigurationRepositoryImpl
-  applicationServiceConfigurationRepositoryImpl(MongoTemplate mongoTemplate) {
-    return new ApplicationServiceConfigurationRepositoryImpl(mongoTemplate);
+  applicationServiceConfigurationRepositoryImpl(MongoTemplate mongoTemplate,
+      ApplicationOperationConfigurationRepositoryImpl operationConfigurationRepository) {
+    return new ApplicationServiceConfigurationRepositoryImpl(mongoTemplate,
+        operationConfigurationRepository);
   }
 
   @Bean
