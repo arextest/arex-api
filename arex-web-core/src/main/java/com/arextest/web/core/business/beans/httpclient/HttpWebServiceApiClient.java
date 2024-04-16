@@ -114,6 +114,12 @@ public final class HttpWebServiceApiClient {
     return null;
   }
 
+  @SuppressWarnings("rawtypes")
+  public Map rawPost(String url, HttpHeaders headers) {
+    HttpEntity<?> request = new HttpEntity<>(headers);
+    return restTemplate.postForObject(url, request, Map.class);
+  }
+
   public <TResponse> TResponse get(String url,
       Map<String, ?> urlVariables,
       MultiValueMap<String, String> headers, Integer readTimeout,

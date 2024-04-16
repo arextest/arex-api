@@ -19,42 +19,44 @@ public class ConfigBeanAutoConfig {
   @Bean
   public ApplicationConfigurationRepositoryImpl applicationConfigurationRepositoryImpl(
       MongoTemplate mongoTemplate) {
-    return new ApplicationConfigurationRepositoryImpl(mongoTemplate.getDb());
+    return new ApplicationConfigurationRepositoryImpl(mongoTemplate);
   }
 
   @Bean
   public ApplicationServiceConfigurationRepositoryImpl
-  applicationServiceConfigurationRepositoryImpl(MongoTemplate mongoTemplate) {
-    return new ApplicationServiceConfigurationRepositoryImpl(mongoTemplate.getDb());
+  applicationServiceConfigurationRepositoryImpl(MongoTemplate mongoTemplate,
+      ApplicationOperationConfigurationRepositoryImpl operationConfigurationRepository) {
+    return new ApplicationServiceConfigurationRepositoryImpl(mongoTemplate,
+        operationConfigurationRepository);
   }
 
   @Bean
   public ApplicationOperationConfigurationRepositoryImpl
   applicationOperationConfigurationRepositoryImpl(MongoTemplate mongoTemplate) {
-    return new ApplicationOperationConfigurationRepositoryImpl(mongoTemplate.getDb());
+    return new ApplicationOperationConfigurationRepositoryImpl(mongoTemplate);
   }
 
   @Bean
   public InstancesConfigurationRepositoryImpl instancesConfigurationRepositoryImpl(
       MongoTemplate mongoTemplate) {
-    return new InstancesConfigurationRepositoryImpl(mongoTemplate.getDb());
+    return new InstancesConfigurationRepositoryImpl(mongoTemplate);
   }
 
   @Bean
   public ServiceCollectConfigurationRepositoryImpl
   serviceCollectConfigurationRepositoryImpl(MongoTemplate mongoTemplate) {
-    return new ServiceCollectConfigurationRepositoryImpl(mongoTemplate.getDb());
+    return new ServiceCollectConfigurationRepositoryImpl(mongoTemplate);
   }
 
   @Bean
   public DynamicClassConfigurationRepositoryImpl
   dynamicClassConfigurationRepositoryImpl(MongoTemplate mongoTemplate) {
-    return new DynamicClassConfigurationRepositoryImpl(mongoTemplate.getDb());
+    return new DynamicClassConfigurationRepositoryImpl(mongoTemplate);
   }
 
   @Bean
   public SystemConfigurationRepositoryImpl systemConfigurationRepository (
       MongoTemplate mongoTemplate) {
-    return new SystemConfigurationRepositoryImpl(mongoTemplate.getDb());
+    return new SystemConfigurationRepositoryImpl(mongoTemplate);
   }
 }
