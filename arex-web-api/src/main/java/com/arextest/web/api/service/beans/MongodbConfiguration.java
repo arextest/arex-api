@@ -55,7 +55,7 @@ public class MongodbConfiguration {
 
   @Bean
   @ConditionalOnMissingBean(MongoOperations.class)
-  MongoTemplate mongoTemplate(MongoDatabaseFactory factory, MongoConverter converter) {
+  public MongoTemplate mongoTemplate(MongoDatabaseFactory factory, MongoConverter converter) {
     return new MongoTemplate(factory, converter);
   }
 }
