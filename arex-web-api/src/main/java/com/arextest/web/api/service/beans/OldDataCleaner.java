@@ -66,6 +66,7 @@ public class OldDataCleaner implements InitializingBean {
     CompletableFuture.runAsync(cleanConfigComparisonIgnoreCategoryCollection())
         .thenRunAsync(buildAddComparisonIgnoreCategoryTask());
     CompletableFuture.runAsync(buildAddMissingRecordServiceConfigTask());
+    CompletableFuture.runAsync(flushAppNameTask());
   }
 
   /**
@@ -318,6 +319,45 @@ public class OldDataCleaner implements InitializingBean {
     return new LockRefreshTask<>(cacheProvider, redisLeaseTime, task, refreshTaskContext);
   }
 
+  /**
+   * Flush the appName field in the AppCollection, if the appName is "unknown app name", "", null,
+   * this method was introduced at 0.6.4.5
+   * @return
+   */
+  private Runnable flushAppNameTask() {
+    Consumer<RefreshTaskContext> task = (RefreshTaskContext refreshTaskContext) -> {
+      if (isTaskFinish(refreshTaskContext)) {
+        LOGGER.info("skip flushAppNameTask");
+        return;
+      }
+
+      LOGGER.info("start flushAppNameTask");
+      Query filter = new Query(Criteria.where(AppCollection.Fields.appName)
+          .in("unknown app name", "", null));
+      filter.fields().include(AppCollection.Fields.appId).include(AppCollection.Fields.appName);
+      List<AppCollection> appCollections = mongoTemplate.find(filter, AppCollection.class);
+      if (CollectionUtils.isNotEmpty(appCollections)) {
+        BulkOperations ops = mongoTemplate.bulkOps(BulkOperations.BulkMode.UNORDERED, AppCollection.class);
+        for (AppCollection appCollection : appCollections) {
+          Query query = new Query(Criteria.where("id").is(appCollection.getId()));
+          Update update = new Update();
+          update.set(AppCollection.Fields.appName, appCollection.getAppId());
+          ops.updateMulti(query, update);
+        }
+        ops.execute();
+      }
+
+      // set completion position flag
+      markTaskFinish(refreshTaskContext);
+      LOGGER.info("finish flushAppNameTask");
+    };
+
+    RefreshTaskContext refreshTaskContext = new RefreshTaskContext(mongoTemplate,
+        RefreshTaskName.FLUSH_APP_NAME);
+    return new LockRefreshTask<>(cacheProvider, redisLeaseTime, task, refreshTaskContext);
+  }
+
+
   private DesensitizationJar dtoFromDao(DesensitizationJarCollection dao) {
     DesensitizationJar desensitizationJar = new DesensitizationJar();
     if (dao == null) {
@@ -416,6 +456,9 @@ public class OldDataCleaner implements InitializingBean {
 
     // to do the method "buildAddComparisonIgnoreCategoryTask"
     String BUILD_ADD_COMPARISON_IGNORE_CATEGORY = "missingComparisonIgnoreCategory";
+
+    // to do the method "flushAppNameTask"
+    String FLUSH_APP_NAME = "flushAppName";
 
   }
 
