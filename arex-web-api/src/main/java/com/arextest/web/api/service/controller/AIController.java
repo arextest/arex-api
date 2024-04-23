@@ -28,22 +28,14 @@ import lombok.extern.slf4j.Slf4j;
 @Controller
 @RequestMapping("/api/ai/")
 @CrossOrigin(origins = "*", maxAge = 3600)
+@ConditionalOnBean(AIProvider.class)
 @RequiredArgsConstructor
 public class AIController {
-  private final Optional<AIProvider> provider;
-
-  private static final TestScriptGenRes EMPTY_RES = new TestScriptGenRes();
-  static {
-    EMPTY_RES.setCode("");
-    EMPTY_RES.setExplanation("No provider found");
-  }
+  private final AIProvider provider;
 
   @PostMapping("/generateTestScript")
   @ResponseBody
   public Response generateTestScript(@RequestBody GenReq req) {
-    return ResponseUtils.successResponse(provider
-        .map(p -> p.generateScripts(req))
-        .orElse(EMPTY_RES)
-    );
+    return ResponseUtils.successResponse(provider.generateScripts(req));
   }
 }
