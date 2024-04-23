@@ -115,7 +115,7 @@
         <groupId>com.google.cloud</groupId>
         <scope>import</scope>
         <type>pom</type>
-        <version>26.32.0</version>
+        <version>${gcloud.version}</version>
       </dependency>
       <dependency>
         <groupId>com.azure</groupId>
@@ -521,6 +521,7 @@
     <lombok.version>1.18.30</lombok.version>
     <lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
     <org.mapstruct.version>1.5.5.Final</org.mapstruct.version>
+    <gcloud.version>26.32.0</gcloud.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <shedlock-spring.version>4.34.0</shedlock-spring.version>
     <snakeyaml.version>1.29</snakeyaml.version>
