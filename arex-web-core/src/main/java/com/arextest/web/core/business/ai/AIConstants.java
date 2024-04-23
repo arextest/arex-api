@@ -15,7 +15,6 @@ public class AIConstants {
     MAPPER.configure(JsonReadFeature.ALLOW_UNESCAPED_CONTROL_CHARS.mappedFeature(), true);
   }
 
-  public static final String GOOGLE_PROJECT_ID = "trip-flt-bi-dbprj";
 
   public static final String CONTEXT_PROMPT =
       "Your are an domain expert in API testing, and you are asked to generate a postman test script, your don't need to response to this message.\n"

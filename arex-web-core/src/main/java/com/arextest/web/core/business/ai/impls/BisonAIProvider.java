@@ -1,6 +1,5 @@
 package com.arextest.web.core.business.ai.impls;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -38,10 +37,17 @@ import lombok.extern.slf4j.Slf4j;
 @ConditionalOnProperty(prefix = "arex.ai", name = "provider", havingValue = "bison")
 public class BisonAIProvider implements AIProvider {
   private static final String location = "asia-northeast1";
-  private static final PredictionServiceClient client = getClient();
   private static final String publisher = "google";
   private static final String model = "codechat-bison-32k@002";
   private static final String parameters = "{\n" + "  \"temperature\": 0,\n" + "  \"maxOutputTokens\": 8192\n" + "}";
+  private final PredictionServiceClient client = getClient();
+
+  private final String projectId;
+
+  public BisonAIProvider(
+      @org.springframework.beans.factory.annotation.Value("${arex.ai.bison.projectId}") String projectId) {
+    this.projectId = projectId;
+  }
 
   private static List<Message> generateBasePrompt() {
     List<Message> messages = new ArrayList<>();
@@ -53,7 +59,7 @@ public class BisonAIProvider implements AIProvider {
     return messages;
   }
 
-  private static PredictionServiceClient getClient() {
+  private PredictionServiceClient getClient() {
     try {
       String endpoint = String.format("%s-aiplatform.googleapis.com:443", location);
       PredictionServiceSettings.Builder clientSettingBuilder = PredictionServiceSettings.newBuilder();
@@ -76,11 +82,11 @@ public class BisonAIProvider implements AIProvider {
   }
 
   // Get a text prompt from a supported text model
-  private static VertexRes predictTextPrompt(RequestEntity instance) throws IOException {
+  private VertexRes predictTextPrompt(RequestEntity instance) {
 
     try {
       final EndpointName endpointName = EndpointName
-          .ofProjectLocationPublisherModelName(AIConstants.GOOGLE_PROJECT_ID, location, publisher, model);
+          .ofProjectLocationPublisherModelName(projectId, location, publisher, model);
       // Initialize client that will be used to send requests. This client only needs to be created
       // once, and can be reused for multiple requests.
       Value.Builder instanceValue = Value.newBuilder();

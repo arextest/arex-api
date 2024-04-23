@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
@@ -30,11 +31,17 @@ import lombok.extern.slf4j.Slf4j;
 public class GeminiProvider implements AIProvider {
   private static final String location = "asia-northeast1";
   private static final String modelName = "gemini-1.0-pro";
-  private static final GenerativeModel client = getClient();
+  private final GenerativeModel client;
+  private final String projectId;
 
-  private static GenerativeModel getClient() {
+  public GeminiProvider(@Value("${arex.ai.gemini.projectId}") String projectId) {
+    this.projectId = projectId;
+    this.client = getClient();
+  }
+
+  private GenerativeModel getClient() {
     try {
-      VertexAI vertexAI = new VertexAI(AIConstants.GOOGLE_PROJECT_ID, location);
+      VertexAI vertexAI = new VertexAI(projectId, location);
       GenerativeModel model = new GenerativeModel(modelName, vertexAI);
       return model;
     } catch (Exception e) {
@@ -43,7 +50,7 @@ public class GeminiProvider implements AIProvider {
     }
   }
 
-  private static GenerateContentResponse gen(String prompt) throws IOException {
+  private GenerateContentResponse gen(String prompt) throws IOException {
     GenerationConfig config = GenerationConfig.newBuilder().setMaxOutputTokens(8192).setTemperature(0.5F).build();
     List<Content> prompts = getBasePrompts();
     prompts.add(Content.newBuilder()
