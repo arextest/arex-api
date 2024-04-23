@@ -110,6 +110,33 @@
         <artifactId>mapstruct</artifactId>
         <version>${org.mapstruct.version}</version>
       </dependency>
+      <dependency>
+        <artifactId>libraries-bom</artifactId>
+        <groupId>com.google.cloud</groupId>
+        <scope>import</scope>
+        <type>pom</type>
+        <version>${gcloud.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.azure</groupId>
+        <artifactId>azure-ai-openai</artifactId>
+        <version>${azure.openai.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.azure</groupId>
+        <artifactId>azure-identity</artifactId>
+        <version>${azure.identity.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>net.java.dev.jna</groupId>
+        <artifactId>jna-platform</artifactId>
+        <version>${jna.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.microsoft.azure</groupId>
+        <artifactId>msal4j</artifactId>
+        <version>${msal.version}</version>
+      </dependency>
       <!--project file-->
       <dependency>
         <artifactId>arex-web-model</artifactId>
@@ -219,6 +246,16 @@
         <artifactId>caffeine</artifactId>
         <groupId>com.github.ben-manes.caffeine</groupId>
         <version>${caffeine.version}</version>
+        <exclusions>
+          <exclusion>
+            <artifactId>error_prone_annotations</artifactId>
+            <groupId>com.google.errorprone</groupId>
+          </exclusion>
+          <exclusion>
+            <artifactId>checker-qual</artifactId>
+            <groupId>org.checkerframework</groupId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <artifactId>shedlock-spring</artifactId>
@@ -467,7 +504,7 @@
     <arex-storage-config.version>1.1.28</arex-storage-config.version>
     <arex-storage.version>1.1.27</arex-storage.version>
     <arex-compare-extension.version>0.0.1</arex-compare-extension.version>
-    <caffeine.version>2.8.0</caffeine.version>
+    <caffeine.version>2.9.3</caffeine.version>
     <commons-collections4.version>4.4</commons-collections4.version>
     <commons-email.version>1.5</commons-email.version>
     <commons-lang3.version>3.8.1</commons-lang3.version>
@@ -484,6 +521,11 @@
     <lombok.version>1.18.30</lombok.version>
     <lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
     <org.mapstruct.version>1.5.5.Final</org.mapstruct.version>
+    <gcloud.version>26.32.0</gcloud.version>
+    <azure.openai.version>1.0.0-beta.6</azure.openai.version>
+    <azure.identity.version>1.11.1</azure.identity.version>
+    <jna.version>5.13.0</jna.version>
+    <msal.version>1.14.0</msal.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <shedlock-spring.version>4.34.0</shedlock-spring.version>
     <snakeyaml.version>1.29</snakeyaml.version>

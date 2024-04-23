@@ -84,7 +84,7 @@ public class AuthorizationInterceptor extends AbstractInterceptorHandler {
     defaultPatterns.add("/api/login/oauthInfo/**");
     defaultPatterns.add("/api/login/refresh/**");
     // healthCheck
-    defaultPatterns.add("/vi/health");
+    defaultPatterns.add("/vi/*");
     // called by arex-schedule
     defaultPatterns.add("/api/report/init");
     defaultPatterns.add("/api/report/pushCompareResults");
