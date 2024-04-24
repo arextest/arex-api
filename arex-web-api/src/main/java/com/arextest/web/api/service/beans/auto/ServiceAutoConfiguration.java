@@ -2,6 +2,9 @@ package com.arextest.web.api.service.beans.auto;
 
 import com.arextest.common.jwt.JWTService;
 import com.arextest.common.jwt.JWTServiceImpl;
+import com.arextest.config.repository.impl.ApplicationConfigurationRepositoryImpl;
+import com.arextest.config.repository.impl.SystemConfigurationRepositoryImpl;
+import com.arextest.web.api.service.aspect.AppAuthAspectExecutor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
@@ -22,5 +25,16 @@ public class ServiceAutoConfiguration {
   public JWTService jwtService() {
     return new JWTServiceImpl(ACCESS_EXPIRE_TIME, REFRESH_EXPIRE_TIME, tokenSecret);
   }
+
+
+  @Bean
+  @ConditionalOnMissingBean(AppAuthAspectExecutor.class)
+  public AppAuthAspectExecutor appAuthAspectExecutor(
+      ApplicationConfigurationRepositoryImpl applicationConfigurationRepository,
+      SystemConfigurationRepositoryImpl systemConfigurationRepository, JWTService jwtService) {
+    return new AppAuthAspectExecutor(applicationConfigurationRepository,
+        systemConfigurationRepository, jwtService);
+  }
+
 
 }
