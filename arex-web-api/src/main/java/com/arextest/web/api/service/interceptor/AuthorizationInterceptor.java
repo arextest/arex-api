@@ -92,6 +92,7 @@ public class AuthorizationInterceptor extends AbstractInterceptorHandler {
     defaultPatterns.add("/api/report/updateReportInfo");
     defaultPatterns.add("/api/report/analyzeCompareResults");
     defaultPatterns.add("/api/report/removeRecordsAndScenes");
+    defaultPatterns.add("/api/report/deletePlanItemStatistics");
     defaultPatterns.add("/api/report/removeErrorMsg");
     defaultPatterns.add("/api/system/config/list");
     defaultPatterns.add("/api/config/comparison/summary/queryConfigOfCategory");

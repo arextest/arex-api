@@ -20,11 +20,10 @@ import com.arextest.web.core.business.SchemaInferService;
 import com.arextest.web.core.business.iosummary.SceneReportService;
 import com.arextest.web.model.contract.contracts.ChangeReplayStatusRequestType;
 import com.arextest.web.model.contract.contracts.ChangeReplayStatusResponseType;
+import com.arextest.web.model.contract.contracts.DeletePlanItemStatisticsRequestType;
 import com.arextest.web.model.contract.contracts.DownloadReplayMsgRequestType;
 import com.arextest.web.model.contract.contracts.FeedbackSceneRequest;
 import com.arextest.web.model.contract.contracts.OverwriteContractRequestType;
-import com.arextest.web.model.contract.contracts.PushCompareResultsRequestType;
-import com.arextest.web.model.contract.contracts.PushCompareResultsResponseType;
 import com.arextest.web.model.contract.contracts.QueryCategoryStatisticRequestType;
 import com.arextest.web.model.contract.contracts.QueryCategoryStatisticResponseType;
 import com.arextest.web.model.contract.contracts.QueryContractRequestType;
@@ -69,9 +68,6 @@ import com.arextest.web.model.contract.contracts.replay.AnalyzeCompareResultsReq
 import com.arextest.web.model.contract.contracts.replay.AnalyzeCompareResultsResponseType;
 import com.arextest.web.model.contract.contracts.replay.UpdateReportInfoRequestType;
 import com.arextest.web.model.contract.contracts.replay.UpdateReportInfoResponseType;
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
@@ -82,6 +78,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 
 @Slf4j
 @Controller
@@ -219,6 +219,15 @@ public class ReportQueryController {
         planItemId);
     return ResponseUtils.successResponse(planItemStatistic);
   }
+
+  @PostMapping("/deletePlanItemStatistics")
+  @ResponseBody
+  public Response deletePlanItemStatistics(@RequestBody DeletePlanItemStatisticsRequestType request) {
+    SuccessResponse response = new SuccessResponse();
+    response.setSuccess(reportService.deletePlanItemStatistic(request.getPlanItemIds()));
+    return ResponseUtils.successResponse(response);
+  }
+
 
   @PostMapping("/queryResponseTypeStatistic")
   @ResponseBody

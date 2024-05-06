@@ -143,4 +143,8 @@ public class ReportService {
   public List<MockCategoryType> listCategoryType() {
     return new ArrayList<>(MockCategoryType.DEFAULTS);
   }
+
+  public boolean deletePlanItemStatistic(List<String> planItemIds) {
+    return planItemStatisticRepository.deletePlanItemsByPlanItemIds(planItemIds);
+  }
 }
