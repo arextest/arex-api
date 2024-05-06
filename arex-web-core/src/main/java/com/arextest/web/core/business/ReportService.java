@@ -35,7 +35,6 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 public class ReportService {
-
   @Resource
   private ReplayCompareResultRepository replayCompareResultRepository;
   @Resource
@@ -47,33 +46,9 @@ public class ReportService {
   @Resource
   private StatisticService statisticService;
   @Resource
-  private SceneService sceneService;
-  @Resource
   private PlanFinishedService planFinishedService;
   @Resource
   private SummaryService summaryService;
-  @Resource
-  private SceneReportService sceneReportService;
-
-  @Deprecated
-  public boolean saveCompareResults(PushCompareResultsRequestType request) {
-    List<CompareResultDto> results = new ArrayList<>(request.getResults().size());
-    for (CompareResult cr : request.getResults()) {
-      results.add(CompareResultMapper.INSTANCE.dtoFromContract(cr));
-    }
-
-    boolean success = replayCompareResultRepository.saveResults(results);
-    if (!success) {
-      return false;
-    }
-    // save caseSummary to db
-    summaryService.analysis(results);
-
-    statisticService.statisticPlanItems(results);
-
-    sceneService.statisticScenes(results);
-    return true;
-  }
 
   public boolean analyzeCompareResults(AnalyzeCompareResultsRequestType request) {
     List<AnalyzeCompareResultsRequestType.AnalyzeCompareInfoItem> analyzeCompareInfoItems =

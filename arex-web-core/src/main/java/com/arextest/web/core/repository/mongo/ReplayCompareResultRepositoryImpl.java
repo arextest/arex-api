@@ -65,25 +65,6 @@ public class ReplayCompareResultRepositoryImpl implements ReplayCompareResultRep
   private MongoTemplate mongoTemplate;
 
   @Override
-  public boolean saveResults(List<CompareResultDto> results) {
-    try {
-      List<ReplayCompareResultCollection> rs = new ArrayList<>(results.size());
-      for (CompareResultDto cr : results) {
-        rs.add(CompareResultMapper.INSTANCE.daoFromDto(cr));
-      }
-      mongoTemplate.insertAll(rs);
-      results.clear();
-      for (ReplayCompareResultCollection r : rs) {
-        results.add(CompareResultMapper.INSTANCE.dtoFromDao(r));
-      }
-      return true;
-    } catch (Exception e) {
-      LogUtils.error(LOGGER, "failed to insert compare results", e);
-    }
-    return false;
-  }
-
-  @Override
   public boolean updateResults(List<CompareResultDto> results) {
     try {
       BulkOperations bulkOperations =

@@ -116,16 +116,6 @@ public class ReportQueryController {
   @Resource
   private ScheduleService scheduleService;
 
-  @Deprecated
-  @PostMapping("/pushCompareResults")
-  @ResponseBody
-  // from schedule
-  public Response pushCompareResults(@Valid @RequestBody PushCompareResultsRequestType request) {
-    PushCompareResultsResponseType response = new PushCompareResultsResponseType();
-    response.setSuccess(reportService.saveCompareResults(request));
-    return ResponseUtils.successResponse(response);
-  }
-
   @PostMapping("/analyzeCompareResults")
   @ResponseBody
   public Response analyzeCompareResults(
