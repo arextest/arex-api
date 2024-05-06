@@ -10,8 +10,6 @@ import java.util.Set;
 
 public interface ReplayCompareResultRepository extends RepositoryProvider {
 
-  boolean saveResults(List<CompareResultDto> results);
-
   boolean updateResults(List<CompareResultDto> results);
 
   Long countWithDistinct(String planItemId, Integer diffResultCode, String keyword);

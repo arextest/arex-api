@@ -27,16 +27,6 @@ public class AsyncTaskConfig {
     return newExecutor("message-clip-executor-", 2, 4, 30, 1000);
   }
 
-  @Bean("report-scene-executor")
-  public ThreadPoolTaskExecutor reportSceneExecutor() {
-    return newExecutor("report-scene-executor-", 2, 4, 60, 1000);
-  }
-
-  @Bean("report-statistic-executor")
-  public ThreadPoolTaskExecutor reportStatisticExecutor() {
-    return newExecutor("report-statistic-executor-", 2, 4, 60, 1000);
-  }
-
   @Bean("custom-fork-join-executor")
   public ThreadPoolTaskExecutor newForkJoinPool() {
     int parallelism = Runtime.getRuntime().availableProcessors();
