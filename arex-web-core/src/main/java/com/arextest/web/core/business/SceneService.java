@@ -1,6 +1,5 @@
 package com.arextest.web.core.business;
 
-import com.arextest.web.common.LogUtils;
 import com.arextest.web.core.business.util.ListUtils;
 import com.arextest.web.core.repository.ReportDiffAggStatisticRepository;
 import com.arextest.web.model.contract.contracts.common.LogEntity;
@@ -17,12 +16,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
 import javax.annotation.Resource;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -38,34 +35,6 @@ public class SceneService {
   private static final String BASE_MISSING = "%baseMissing%";
   private static final String TEST_MISSING = "%testMissing%";
   private static volatile Map<DiffAggKey, DiffAggDto> result = new HashMap<>();
-  @Resource
-  private ReportDiffAggStatisticRepository reportDiffAggStatisticRepository;
-  @Resource(name = "report-scene-executor")
-  private ThreadPoolTaskExecutor executor;
-
-  public static void main(String[] args) {
-    CompareResultDto dto = new CompareResultDto();
-    List<LogEntity> logs = new ArrayList<>();
-    LogEntity log = new LogEntity();
-
-    UnmatchedPairEntity entity = new UnmatchedPairEntity();
-    List<NodeEntity> left = new ArrayList<>();
-    // left.add(new NodeEntity(null, 6));
-    // left.add(new NodeEntity("test", 0));
-    // left.add(new NodeEntity(null, 3));
-    // left.add(new NodeEntity("Subject", 0));
-    entity.setLeftUnmatchedPath(left);
-    entity.setUnmatchedType(UnmatchedType.UNMATCHED);
-    log.setBaseValue("aaa");
-    log.setPathPair(entity);
-    log.setLogTag(new LogTag());
-    logs.add(log);
-    dto.setLogs(logs);
-    dto.setDiffResultCode(DiffResultCode.COMPARED_WITH_DIFFERENCE);
-
-    new SceneService().statisticScenes(dto);
-
-  }
 
   /**
    * calculate multi compareResults
@@ -216,43 +185,6 @@ public class SceneService {
     sceneMap.put(baseMissing, new ArrayList<>());
     List<Pair<Integer, String>> scene = sceneMap.get(baseMissing);
     scene.add(new MutablePair<>(0, baseMissing));
-  }
-
-  /**
-   * Enter the calculated scene information into the database by means of a job
-   */
-  public void report() {
-
-    Map<DiffAggKey, DiffAggDto> tmp = null;
-    synchronized (SceneService.class) {
-      long currentTimestamp = System.currentTimeMillis();
-      if (MapUtils.isEmpty(result)) {
-        return;
-      }
-      tmp = result;
-      result = new HashMap<>();
-      LogUtils.info(LOGGER, "lock reporting diff scene cost time: {} ms",
-          System.currentTimeMillis() - currentTimestamp);
-    }
-
-    CompletableFuture.completedFuture(tmp).thenApplyAsync(t -> {
-      if (MapUtils.isEmpty(t)) {
-        return null;
-      }
-      try {
-        long currentTimestamp = System.currentTimeMillis();
-
-        for (Map.Entry<DiffAggKey, DiffAggDto> diffScene : t.entrySet()) {
-          reportDiffAggStatisticRepository.updateDiffScenes(diffScene.getValue());
-        }
-        LogUtils.info(LOGGER, "report diff scene cost time: {} ms. map key count:{}",
-            System.currentTimeMillis() - currentTimestamp, t.size());
-        t.clear();
-      } catch (Throwable e) {
-        LOGGER.error("report diff scene error", e);
-      }
-      return null;
-    }, executor);
   }
 
   private String getLogEntityIndexes(List<Pair<Integer, String>> scenePart) {
