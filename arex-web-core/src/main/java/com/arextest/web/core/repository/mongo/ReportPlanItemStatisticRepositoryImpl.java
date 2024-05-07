@@ -238,4 +238,12 @@ public class ReportPlanItemStatisticRepositoryImpl implements ReportPlanItemStat
     Query query = Query.query(Criteria.where(PLAN_ITEM_ID).in(planItemIds));
     return mongoTemplate.updateMulti(query, update, ReportPlanItemStatisticCollection.class).getMatchedCount() == planItemIds.size();
   }
+
+  @Override
+  public boolean deletePlanItemsByPlanItemIds(List<String> planItemIds) {
+    Query query = Query.query(Criteria.where(PLAN_ITEM_ID).in(planItemIds));
+    DeleteResult deleteResult = mongoTemplate.remove(query,
+        ReportPlanItemStatisticCollection.class);
+    return deleteResult.getDeletedCount() > 0;
+  }
 }
