@@ -10,11 +10,11 @@ import com.arextest.common.utils.ResponseUtils;
 final class InvalidResponse {
 
   static final Response REQUESTED_APP_ID_IS_EMPTY =
-      ResponseUtils.parameterInvalidResponse("The requested " + "appId is empty");
+      ResponseUtils.parameterInvalidResponse("The requested appId is empty");
   static final Response REQUESTED_IP_IS_EMPTY =
-      ResponseUtils.parameterInvalidResponse("The requested " + "Ip is empty");
+      ResponseUtils.parameterInvalidResponse("The requested Ip is empty");
   static final Response REQUESTED_INTERFACE_ID_IS_EMPTY =
-      ResponseUtils.parameterInvalidResponse("The requested " + "interfaceId is empty");
+      ResponseUtils.parameterInvalidResponse("The requested interfaceId is empty");
 
   private InvalidResponse() {
   }

@@ -9,6 +9,7 @@ import com.arextest.web.common.LogUtils;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -28,6 +29,11 @@ public class ControllerException {
     String message = allErrors.stream().map(s -> s.getDefaultMessage())
         .collect(Collectors.joining(";"));
     return ResponseUtils.errorResponse(message, ResponseCode.REQUESTED_PARAMETER_INVALID);
+  }
+
+  @ExceptionHandler(HttpMessageNotReadableException.class)
+  public Response handleDefaultException(HttpMessageNotReadableException e) {
+    return ResponseUtils.errorResponse("Required request body is missing", ResponseCode.REQUESTED_HANDLE_EXCEPTION);
   }
 
   @ExceptionHandler(Throwable.class)
