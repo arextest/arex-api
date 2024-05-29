@@ -754,10 +754,15 @@ public class FileSystemService {
 
     FSQueryCaseResponseType response = FSCaseMapper.INSTANCE.contractFromDto(caseDto);
 
-    if (response.getBody() != null) {
-      String body = response.getBody().getBody();
-      response.getBody().setBody(ZstdUtils.base64Decode(body));
+    try {
+      if (response.getBody() != null) {
+        String body = response.getBody().getBody();
+        response.getBody().setBody(ZstdUtils.base64Decode(body));
+      }
+    } catch (Exception e) {
+      LogUtils.error(LOGGER, "Failed to decode body, recordId: {}", recordId);
     }
+
     return response;
   }
 
