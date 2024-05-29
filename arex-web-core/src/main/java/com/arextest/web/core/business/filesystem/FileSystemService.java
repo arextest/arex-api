@@ -4,6 +4,7 @@ import com.arextest.common.exceptions.ArexException;
 import com.arextest.common.jwt.JWTService;
 import com.arextest.web.common.LoadResource;
 import com.arextest.web.common.LogUtils;
+import com.arextest.web.common.ZstdUtils;
 import com.arextest.web.common.exception.ArexApiResponseCode;
 import com.arextest.web.core.business.filesystem.importexport.ImportExport;
 import com.arextest.web.core.business.filesystem.importexport.impl.ImportExportFactory;
@@ -751,7 +752,13 @@ public class FileSystemService {
       setAddressEndpoint(planId, caseDto.getAddress());
     }
 
-    return FSCaseMapper.INSTANCE.contractFromDto(caseDto);
+    FSQueryCaseResponseType response = FSCaseMapper.INSTANCE.contractFromDto(caseDto);
+
+    if (response.getBody() != null) {
+      String body = response.getBody().getBody();
+      response.getBody().setBody(ZstdUtils.base64Decode(body));
+    }
+    return response;
   }
 
   public List<String> addItemsByAppAndInterface(FSAddItemsByAppAndInterfaceRequestType request) {
