@@ -6,6 +6,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.util.Base64;
+import java.util.regex.Pattern;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.Strings;
 
@@ -16,6 +17,19 @@ import org.apache.logging.log4j.util.Strings;
 public class ZstdUtils {
 
   private static final int ONE_K_BUFFER_SIZE = 1024;
+
+  private static final String PATTERN_STRING = "^([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)?$";
+  private static final Pattern BASE_64_PATTERN = Pattern.compile(PATTERN_STRING);
+
+  public static String base64Decode(String requestMessage) {
+    if (Strings.isEmpty(requestMessage)) {
+      return requestMessage;
+    }
+    if (BASE_64_PATTERN.matcher(requestMessage).matches()) {
+      return new String(Base64.getDecoder().decode(requestMessage));
+    }
+    return requestMessage;
+  }
 
   public static byte[] compress(byte[] bytes) {
     if (bytes == null) {
