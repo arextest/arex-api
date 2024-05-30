@@ -8,7 +8,9 @@ public class FSExportItemRequestType {
 
   @NotBlank(message = "WorkspaceId cannot be empty")
   private String workspaceId;
-  private String[] path;
+  private String infoId;
+  private Integer nodeType;
+
   /**
    * @see com.arextest.web.model.enums.ImportExportType
    */

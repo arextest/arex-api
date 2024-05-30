@@ -10,7 +10,8 @@ public class FSAddItemRequestType {
   private String id;
   private String workspaceName;
   private String userName;
-  private String[] parentPath;
+  private String parentInfoId;
+  private Integer parentNodeType;
   @NotBlank(message = "Node name cannot be empty")
   private String nodeName;
   @NotNull(message = "NodeType cannot be empty")
