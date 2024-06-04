@@ -4,14 +4,10 @@ import lombok.Data;
 
 /**
  * @author: QizhengMo
- * @date: 2024/3/25 15:40
+ * @date: 2024/6/4 10:54
  */
 @Data
-public class GenReq {
-  private String currentScript;
-  private String requirement;
-
-  private String apiRes;
-
+public class ModelInfo {
   private String modelName;
+  private int tokenLimit;
 }

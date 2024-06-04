@@ -1,11 +1,14 @@
 package com.arextest.web.core.business.ai.impls;
 
+import com.arextest.web.model.contract.contracts.vertexai.ModelInfo;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import lombok.NonNull;
 import org.apache.commons.lang3.time.StopWatch;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
@@ -32,22 +35,23 @@ import lombok.extern.slf4j.Slf4j;
  * @date: 2024/3/22 16:04
  */
 @Slf4j
-@Service
-@ConditionalOnProperty(prefix = "arex.ai", name = "provider", havingValue = "gpt")
 public class ChatGPTProvider implements AIProvider {
   private final String model;
   private final Integer maxToken;
   private final OpenAIClient client;
+  private final ModelInfo modelInfo = new ModelInfo();
 
-  public ChatGPTProvider(@Value("${arex.ai.gpt.tenantId}") String tenantId,
-      @Value("${arex.ai.gpt.clientId}") String clientId,
-      @Value("${arex.ai.gpt.clientSecret}") String clientSecret,
-      @Value("${arex.ai.gpt.endpoint}") String endpoint,
-      @Value("${arex.ai.gpt.model}") String model,
-      @Value("${arex.ai.gpt.maxToken}") Integer maxToken,
+  public ChatGPTProvider(String tenantId,
+      String clientId,
+      String clientSecret,
+      String endpoint,
+      String model,
+      Integer maxToken,
       Optional<HttpClient> httpClient) {
     this.model = model;
     this.maxToken = maxToken;
+    this.getModelInfo().setModelName(model);
+    this.getModelInfo().setTokenLimit(maxToken);
     client = getClient(clientId, tenantId, clientSecret, endpoint, httpClient.orElse(null));
   }
 
@@ -100,5 +104,10 @@ public class ChatGPTProvider implements AIProvider {
       res.setExplanation("Sorry, I can't generate test scripts for you now. Please try again later.");
       return res;
     }
+  }
+
+  @Override
+  public @NonNull ModelInfo getModelInfo() {
+    return modelInfo;
   }
 }

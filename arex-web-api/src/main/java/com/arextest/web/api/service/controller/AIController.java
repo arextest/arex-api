@@ -1,6 +1,7 @@
 package com.arextest.web.api.service.controller;
 
 import com.arextest.web.model.dto.vertexai.TestScriptGenRes;
+import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -31,11 +32,19 @@ import lombok.extern.slf4j.Slf4j;
 @ConditionalOnBean(AIProvider.class)
 @RequiredArgsConstructor
 public class AIController {
-  private final AIProvider provider;
+  private final List<AIProvider> providers;
 
   @PostMapping("/generateTestScript")
   @ResponseBody
   public Response generateTestScript(@RequestBody GenReq req) {
-    return ResponseUtils.successResponse(provider.generateScripts(req));
+    return ResponseUtils.successResponse(getProvider(req.getModelName()).generateScripts(req));
+  }
+
+  private AIProvider getProvider(String modelName) {
+    Optional<AIProvider> provider = providers
+        .stream()
+        .filter(p -> p.getModelInfo().getModelName().equals(modelName))
+        .findFirst();
+    return provider.orElse(providers.get(0));
   }
 }

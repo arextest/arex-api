@@ -38,10 +38,11 @@ public class AIConstants {
           + "5. Include comment block in the test script to instruct users how to extend your script. \n"
           + "\n"
           + "Output Format\n"
-          + "1. Your response should contain a JSON string only.\n"
+          + "1. Your response should be a valid JSON string, no markdown directive needed.\n"
           + "2. The returned JSON should have the fields code and explanation.\n"
           + "3. The code field should be a string that represents the test script in markdown format. \n"
-          + "4. The explanation field should be a string that briefly explains the test script. Detail explanation should be in the code comment.";
+          + "4. The explanation field should be a string that briefly explains the test script. Detail explanation should be in the code comment. \n"
+          + "5. Using this JSON schema: Response = {\"code\": str, \"explanation\": str} ";
 
   public static final String USER_Q_1 = "{\n"
       + "    \"apiRes\": \"{\\\"code\\\": 200}\",\n"
