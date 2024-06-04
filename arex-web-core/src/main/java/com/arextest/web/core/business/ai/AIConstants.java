@@ -52,4 +52,7 @@ public class AIConstants {
   public static final String AI_A_1 = "{\"code\": \"pm.test(\"Status code is 200\", function () {\n"
       + "    pm.response.to.have.status(200);\n"
       + "});\", \"explanation\": \"To verify the status code is 200\"}";
+
+  public static final String SAFE_RES_REQUIREMENT = "Please provide a smaller snippet.";
+  public static final String SAFE_RES_ASS_RES = "Sure, from now I will try to generate smaller snippet of scripts.";
 }

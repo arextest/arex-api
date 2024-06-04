@@ -75,12 +75,34 @@ public class ChatGPTProvider implements AIProvider {
   @Override
   public TestScriptGenRes generateScripts(GenReq genReq) {
     try {
+      return handle(genReq, false);
+    } catch (Exception e) {
+      LOGGER.error("generateScripts error on first attempt", e);
+
+      try {
+        return handle(genReq, true);
+      } catch (Exception e1) {
+        LOGGER.error("generateScripts error on final attempt", e1);
+        TestScriptGenRes res = new TestScriptGenRes();
+        res.setExplanation("System reaching rate limit, please try again later");
+        return res;
+      }
+    }
+  }
+
+  private TestScriptGenRes handle(GenReq req, boolean trySafe) throws RuntimeException {
+    try {
       StopWatch watch = new StopWatch();
       List<ChatRequestMessage> chatMessages = new ArrayList<>();
       chatMessages.add(new ChatRequestSystemMessage(AIConstants.CONTEXT_PROMPT));
       chatMessages.add(new ChatRequestUserMessage(AIConstants.USER_Q_1));
       chatMessages.add(new ChatRequestAssistantMessage(AIConstants.AI_A_1));
-      chatMessages.add(new ChatRequestUserMessage(AIConstants.MAPPER.writeValueAsString(genReq)));
+      chatMessages.add(new ChatRequestUserMessage(AIConstants.MAPPER.writeValueAsString(req)));
+
+      if (trySafe) {
+        chatMessages.add(new ChatRequestUserMessage(AIConstants.SAFE_RES_REQUIREMENT));
+        chatMessages.add(new ChatRequestAssistantMessage(AIConstants.SAFE_RES_ASS_RES));
+      }
 
       ChatCompletionsOptions opt = new ChatCompletionsOptions(chatMessages);
       if (maxToken != null) {
@@ -96,9 +118,7 @@ public class ChatGPTProvider implements AIProvider {
       return AIConstants.MAPPER.readValue(completion.getContent(), TestScriptGenRes.class);
     } catch (Exception e) {
       LOGGER.error("generateScripts error", e);
-      TestScriptGenRes res = new TestScriptGenRes();
-      res.setExplanation("Sorry, I can't generate test scripts for you now. Please try again later.");
-      return res;
+      throw new RuntimeException(e);
     }
   }
 }
