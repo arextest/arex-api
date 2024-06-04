@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class FileSystemUtils {
 
-  public FSNodeDto findByPath(List<FSNodeDto> list, String[] pathArr) {
+  public FSNodeDto findByPath(List<FSNodeDto> list, List<String> pathArr) {
     MutablePair<Integer, FSNodeDto> result = findByPathWithIndex(list, pathArr);
     if (result == null) {
       return null;
@@ -24,13 +24,13 @@ public class FileSystemUtils {
   }
 
   public MutablePair<Integer, FSNodeDto> findByPathWithIndex(List<FSNodeDto> list,
-      String[] pathArr) {
+      List<String> pathArr) {
     if (list == null || list.isEmpty()) {
       return null;
     }
     List<FSNodeDto> tmp = list;
-    for (int i = 0; i < pathArr.length - 1; i++) {
-      String pathNode = pathArr[i];
+    for (int i = 0; i < pathArr.size() - 1; i++) {
+      String pathNode = pathArr.get(i);
       if (tmp == null || tmp.size() == 0) {
         return null;
       }
@@ -40,7 +40,7 @@ public class FileSystemUtils {
       }
       tmp = find.getRight().getChildren();
     }
-    String last = pathArr[pathArr.length - 1];
+    String last = pathArr.get(pathArr.size() - 1);
     return findByInfoIdWithIndex(tmp, last);
   }
 

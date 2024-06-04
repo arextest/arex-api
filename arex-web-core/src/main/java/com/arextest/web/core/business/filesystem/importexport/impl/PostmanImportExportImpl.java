@@ -35,7 +35,6 @@ import java.util.Optional;
 import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
@@ -55,7 +54,7 @@ public class PostmanImportExportImpl implements ImportExport {
   private FSTreeRepository fsTreeRepository;
 
   @Override
-  public boolean importItem(FSTreeDto fsTreeDto, String[] path, String importString) {
+  public boolean importItem(FSTreeDto fsTreeDto, List<String> path, String importString) {
     Collection collection = null;
     try {
       collection = objectMapper.readValue(importString, Collection.class);
@@ -68,7 +67,7 @@ public class PostmanImportExportImpl implements ImportExport {
     }
 
     FSNodeDto parent = null;
-    if (ArrayUtils.isNotEmpty(path)) {
+    if (CollectionUtils.isNotEmpty(path)) {
       parent = fileSystemUtils.findByPath(fsTreeDto.getRoots(), path);
     }
 
