@@ -97,12 +97,12 @@ public class ChatGPTProvider implements AIProvider {
       chatMessages.add(new ChatRequestSystemMessage(AIConstants.CONTEXT_PROMPT));
       chatMessages.add(new ChatRequestUserMessage(AIConstants.USER_Q_1));
       chatMessages.add(new ChatRequestAssistantMessage(AIConstants.AI_A_1));
-      chatMessages.add(new ChatRequestUserMessage(AIConstants.MAPPER.writeValueAsString(req)));
 
       if (trySafe) {
         chatMessages.add(new ChatRequestUserMessage(AIConstants.SAFE_RES_REQUIREMENT));
         chatMessages.add(new ChatRequestAssistantMessage(AIConstants.SAFE_RES_ASS_RES));
       }
+      chatMessages.add(new ChatRequestUserMessage(AIConstants.MAPPER.writeValueAsString(req)));
 
       ChatCompletionsOptions opt = new ChatCompletionsOptions(chatMessages);
       if (maxToken != null) {
