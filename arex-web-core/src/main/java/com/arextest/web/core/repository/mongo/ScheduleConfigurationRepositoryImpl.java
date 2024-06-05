@@ -5,6 +5,7 @@ import com.arextest.web.common.LogUtils;
 import com.arextest.web.core.repository.mongo.util.MongoHelper;
 import com.arextest.web.model.contract.contracts.config.replay.ScheduleConfiguration;
 import com.arextest.web.model.dao.mongodb.ReplayScheduleConfigCollection;
+import com.arextest.web.model.dao.mongodb.ReplayScheduleConfigCollection.Fields;
 import com.arextest.web.model.dao.mongodb.entity.AbstractComparisonDetails;
 import com.arextest.web.model.mapper.ReplayScheduleConfigMapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -25,11 +26,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class ScheduleConfigurationRepositoryImpl implements
     ConfigRepositoryProvider<ScheduleConfiguration> {
-
-  private static final String TARGET_ENV = "targetEnv";
-  private static final String SEND_MAX_QPS = "sendMaxQps";
-  private static final String OFFSET_DAYS = "offsetDays";
-  private static final String EXCLUSION_OPERATION_MAP = "excludeOperationMap";
 
   @Autowired
   MongoTemplate mongoTemplate;
@@ -62,11 +58,12 @@ public class ScheduleConfigurationRepositoryImpl implements
     Query query = Query.query(
         Criteria.where(AbstractComparisonDetails.Fields.appId).is(configuration.getAppId()));
     Update update = MongoHelper.getConfigUpdate();
-    MongoHelper.appendSpecifiedProperties(update, configuration, TARGET_ENV, SEND_MAX_QPS,
-        OFFSET_DAYS);
+    MongoHelper.appendSpecifiedProperties(update, configuration, Fields.targetEnv,
+        Fields.sendMaxQps,
+        Fields.offsetDays, Fields.mockHandlerJarUrl);
     if (configuration.getExcludeOperationMap() != null) {
       try {
-        update.set(EXCLUSION_OPERATION_MAP,
+        update.set(Fields.excludeOperationMap,
             objectMapper.writeValueAsString(configuration.getExcludeOperationMap()));
       } catch (JsonProcessingException e) {
         LogUtils.error(LOGGER,
