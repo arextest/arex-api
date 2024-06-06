@@ -29,7 +29,9 @@ import com.arextest.web.model.contract.contracts.filesystem.FSAddItemsByAppAndIn
 import com.arextest.web.model.contract.contracts.filesystem.FSAddWorkspaceRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.FSAddWorkspaceResponseType;
 import com.arextest.web.model.contract.contracts.filesystem.FSDuplicateRequestType;
+import com.arextest.web.model.contract.contracts.filesystem.FSDuplicateResponseType;
 import com.arextest.web.model.contract.contracts.filesystem.FSExportItemRequestType;
+import com.arextest.web.model.contract.contracts.filesystem.FSGetPathInfoResponseType.FSPathInfoDto;
 import com.arextest.web.model.contract.contracts.filesystem.FSGetWorkspaceItemTreeRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.FSGetWorkspaceItemTreeResponseType;
 import com.arextest.web.model.contract.contracts.filesystem.FSGetWorkspaceItemsRequestType;
@@ -61,6 +63,7 @@ import com.arextest.web.model.contract.contracts.filesystem.FSSaveInterfaceReque
 import com.arextest.web.model.contract.contracts.filesystem.FSSearchWorkspaceItemsRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.FSSearchWorkspaceItemsResponseType;
 import com.arextest.web.model.contract.contracts.filesystem.FSTreeType;
+import com.arextest.web.model.contract.contracts.filesystem.FsMoveItemResponseType;
 import com.arextest.web.model.contract.contracts.filesystem.InviteToWorkspaceRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.InviteToWorkspaceResponseType;
 import com.arextest.web.model.contract.contracts.filesystem.LabelType;
@@ -217,6 +220,7 @@ public class FileSystemService {
     response.setSuccess(true);
     response.setInfoId(tuple.getLeft());
     response.setWorkspaceId(tuple.getRight().getId());
+    response.setPath(getAbsolutePath(tuple.getLeft(), request.getNodeType()));
     return response;
   }
 
@@ -313,8 +317,13 @@ public class FileSystemService {
     return null;
   }
 
-  public Boolean removeItem(FSRemoveItemRequestType request, String userName) {
-
+  /**
+   * add item into workspace
+   *
+   * @return <Success, Paths>
+   */
+  public MutablePair<Boolean, List<String>> removeItem(FSRemoveItemRequestType request, String userName) {
+    List<String> path = getAbsolutePath(request.getInfoId(), request.getNodeType());
     FSTreeDto treeDto = fsTreeRepository.updateFSTree(request.getId(), dto -> {
       if (dto == null) {
         return null;
@@ -325,7 +334,6 @@ public class FileSystemService {
       }
 
       String parentId = null;
-      List<String> path = getAbsolutePath(request.getInfoId(), request.getNodeType());
       for (int i = 0; i < path.size() - 1; i++) {
 
         String node = path.get(i);
@@ -344,17 +352,17 @@ public class FileSystemService {
       return dto;
     });
 
-    return treeDto != null ? true : false;
+    boolean success = treeDto != null;
+    return new MutablePair<>(success, path);
   }
 
-  public Boolean rename(FSRenameRequestType request) {
+  public MutablePair<Boolean, List<String>> rename(FSRenameRequestType request) {
 
+    List<String> path = getAbsolutePath(request.getInfoId(), request.getNodeType());
     FSTreeDto fsTreeDto = fsTreeRepository.updateFSTree(request.getId(), dto -> {
       if (dto == null) {
         return null;
       }
-
-      List<String> path = getAbsolutePath(request.getInfoId(), request.getNodeType());
 
       FSNodeDto fsNodeDto = fileSystemUtils.findByPath(dto.getRoots(), path);
       if (fsNodeDto == null) {
@@ -370,16 +378,17 @@ public class FileSystemService {
       fsNodeDto.setNodeName(request.getNewName());
       return dto;
     });
-    return fsTreeDto != null ? true : false;
+    boolean success = fsTreeDto != null;
+    return new MutablePair<>(success, path);
   }
 
-  public MutablePair<String, FSTreeDto> duplicate(FSDuplicateRequestType request) {
+  public FSDuplicateResponseType duplicate(FSDuplicateRequestType request) {
     try {
       AtomicReference<String> infoId = new AtomicReference<>();
+      List<String> path = getAbsolutePath(request.getInfoId(), request.getNodeType());
       FSTreeDto treeDto = fsTreeRepository.updateFSTree(request.getId(), dto -> {
         FSNodeDto parent = null;
         FSNodeDto current;
-        List<String> path = getAbsolutePath(request.getInfoId(), request.getNodeType());
         if (path.size() != 1) {
           parent = fileSystemUtils.findByPath(dto.getRoots(), path.subList(0, path.size() - 1));
           current = fileSystemUtils.findByInfoId(parent.getChildren(),
@@ -397,18 +406,24 @@ public class FileSystemService {
         }
         return dto;
       });
-
-      return new MutablePair<>(infoId.get(), treeDto);
+      FSDuplicateResponseType response = new FSDuplicateResponseType();
+      response.setSuccess(true);
+      response.setInfoId(infoId.get());
+      response.setWorkspaceId(treeDto.getId());
+      response.setPath(path);
+      return response;
     } catch (Exception e) {
       throw new ArexException(ArexApiResponseCode.FS_DUPLICATE_ITEM_ERROR,
           "failed to duplicate item", e);
     }
   }
 
-  public Boolean move(FSMoveItemRequestType request) {
+  public FsMoveItemResponseType move(FSMoveItemRequestType request) {
+    FsMoveItemResponseType response = new FsMoveItemResponseType();
     try {
+      List<String> fromPath = getAbsolutePath(request.getFromInfoId(), request.getFromNodeType());
       FSTreeDto treeDto = fsTreeRepository.updateFSTree(request.getId(), dto -> {
-        List<String> fromPath = getAbsolutePath(request.getFromInfoId(), request.getFromNodeType());
+
         List<String> toParentPath = getAbsolutePath(request.getToParentInfoId(),
             request.getToParentNodeType());
         MutablePair<Integer, FSNodeDto> current =
@@ -445,10 +460,15 @@ public class FileSystemService {
         }
         return dto;
       });
-      return treeDto != null ? true : false;
+      response.setSuccess(treeDto != null);
+      response.setFromPath(fromPath);
+      response.setToPath(getAbsolutePath(request.getFromInfoId(), request.getFromNodeType()));
+
+      return response;
     } catch (Exception e) {
       LogUtils.error(LOGGER, "failed to move item", e);
-      return false;
+      response.setSuccess(false);
+      return response;
     }
   }
 
@@ -1183,7 +1203,7 @@ public class FileSystemService {
     }
     FSNodeType fsNodeType = FSNodeMapper.INSTANCE.contractFromDto(fsNodeDto);
     response.setNode(fsNodeType);
-
+    response.setPath(getAbsolutePath(fsNodeType.getInfoId(), fsNodeType.getNodeType()));
     return response;
   }
 
@@ -1308,7 +1328,7 @@ public class FileSystemService {
 
     FSTreeType treeType = FSTreeMapper.INSTANCE.contractFromDto(treeDto);
     response.setFsTree(treeType);
-
+    response.setPath(getAbsolutePath(request.getInfoId(), request.getNodeType()));
     return response;
   }
 
@@ -1462,6 +1482,30 @@ public class FileSystemService {
         break;
       }
       path.add(0, fsItemDto.getParentId());
+      curInfoId = fsItemDto.getParentId();
+      curNodeType = fsItemDto.getParentNodeType();
+    }
+    return path;
+  }
+
+  public List<FSPathInfoDto> getAbsolutePathInfo(String infoId, Integer nodeType) {
+    List<FSPathInfoDto> path = Lists.newArrayList();
+    if (StringUtils.isBlank(infoId)) {
+      return path;
+    }
+    String curInfoId = infoId;
+    Integer curNodeType = nodeType;
+    while (true) {
+      ItemInfo itemInfo = itemInfoFactory.getItemInfo(curNodeType);
+      if (itemInfo == null) {
+        throw new ArexException(ArexApiResponseCode.FS_UNKNOWN_NODE_TYPE,
+            "Unknown node type: " + nodeType);
+      }
+      FSItemDto fsItemDto = itemInfo.queryById(curInfoId);
+      if (fsItemDto == null) {
+        break;
+      }
+      path.add(0, new FSPathInfoDto(fsItemDto.getId(), fsItemDto.getName()));
       curInfoId = fsItemDto.getParentId();
       curNodeType = fsItemDto.getParentNodeType();
     }
