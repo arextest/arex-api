@@ -1508,6 +1508,9 @@ public class FileSystemService {
       path.add(0, new FSPathInfoDto(fsItemDto.getId(), fsItemDto.getName()));
       curInfoId = fsItemDto.getParentId();
       curNodeType = fsItemDto.getParentNodeType();
+      if (StringUtils.isEmpty(curInfoId)) {
+        break;
+      }
     }
     return path;
   }
