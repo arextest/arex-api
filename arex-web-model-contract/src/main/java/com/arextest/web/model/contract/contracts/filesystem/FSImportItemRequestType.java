@@ -12,7 +12,8 @@ public class FSImportItemRequestType {
 
   @NotBlank(message = "WorkspaceId cannot be empty")
   private String workspaceId;
-  private String[] path;
+  private String parentInfoId;
+  private Integer parentNodeType;
   private int type;
   @NotBlank(message = "Import string cannot be empty")
   private String importString;

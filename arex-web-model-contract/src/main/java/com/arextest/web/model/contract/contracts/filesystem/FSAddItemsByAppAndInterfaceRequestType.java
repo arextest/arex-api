@@ -12,7 +12,10 @@ import lombok.Data;
 public class FSAddItemsByAppAndInterfaceRequestType {
   @NotBlank(message = "WorkspaceId cannot be empty")
   private String workspaceId;
-  private List<String> path;
+
+  private String parentInfoId;
+  private Integer parentNodeType;
+
   private String appName;
   private String interfaceName;
   @NotBlank(message = "operationId cannot be empty")

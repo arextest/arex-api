@@ -12,7 +12,7 @@ import java.util.Map;
  */
 public interface ImportExport {
 
-  boolean importItem(FSTreeDto fsTreeDto, String[] path, String importString);
+  boolean importItem(FSTreeDto fsTreeDto, List<String> path, String importString);
 
   String exportItem(List<FSNodeDto> nodes, Map<String, FSItemDto> itemInfos);
 }

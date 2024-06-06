@@ -59,7 +59,7 @@ public class InternalImportExportImpl implements ImportExport {
   private FSTreeRepository fsTreeRepository;
 
   @Override
-  public boolean importItem(FSTreeDto fsTreeDto, String[] path, String importString) {
+  public boolean importItem(FSTreeDto fsTreeDto, List<String> path, String importString) {
     List<FSNodeDto> nodes = new ArrayList<>();
     ItemCollectionDto collection = null;
     try {
@@ -78,7 +78,7 @@ public class InternalImportExportImpl implements ImportExport {
     }
 
     FSNodeDto parent = null;
-    if (ArrayUtils.isNotEmpty(path)) {
+    if (CollectionUtils.isNotEmpty(path)) {
       parent = fileSystemUtils.findByPath(fsTreeDto.getRoots(), path);
     }
     for (Item item : collection.getItems()) {
