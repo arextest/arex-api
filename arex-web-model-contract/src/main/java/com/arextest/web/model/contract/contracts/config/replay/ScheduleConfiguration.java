@@ -35,6 +35,11 @@ public class ScheduleConfiguration extends AbstractConfiguration {
    */
   private Integer sendMaxQps;
 
+  /**
+   * the jar url of mock handler
+   */
+  private String mockHandlerJarUrl;
+
   private Set<String> excludeServiceOperationSet;
 
   private Set<String> includeServiceOperationSet;
