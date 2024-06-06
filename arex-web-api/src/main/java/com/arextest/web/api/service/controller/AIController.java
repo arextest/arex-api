@@ -1,11 +1,10 @@
 package com.arextest.web.api.service.controller;
 
-import com.arextest.web.model.dto.vertexai.TestScriptGenRes;
 import java.util.List;
 import java.util.Optional;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,7 +17,6 @@ import com.arextest.common.utils.ResponseUtils;
 import com.arextest.web.core.business.ai.AIProvider;
 import com.arextest.web.model.contract.contracts.vertexai.GenReq;
 
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -26,12 +24,13 @@ import lombok.extern.slf4j.Slf4j;
  * @date: 2024/3/25 15:15
  */
 @Slf4j
-@Controller
 @RequestMapping("/api/ai/")
+@Controller
 @CrossOrigin(origins = "*", maxAge = 3600)
-@ConditionalOnBean(AIProvider.class)
+@ConditionalOnBean(value = AIProvider.class)
 @RequiredArgsConstructor
 public class AIController {
+  @Getter
   private final List<AIProvider> providers;
 
   @PostMapping("/generateTestScript")

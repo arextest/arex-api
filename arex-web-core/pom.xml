@@ -17,14 +17,6 @@
       <artifactId>google-cloud-vertexai</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.azure</groupId>
-      <artifactId>azure-ai-openai</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.azure</groupId>
-      <artifactId>azure-identity</artifactId>
-    </dependency>
-    <dependency>
       <artifactId>arex-web-model</artifactId>
       <groupId>com.arextest</groupId>
     </dependency>

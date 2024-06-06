@@ -118,24 +118,9 @@
         <version>${gcloud.version}</version>
       </dependency>
       <dependency>
-        <groupId>com.azure</groupId>
-        <artifactId>azure-ai-openai</artifactId>
-        <version>${azure.openai.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.azure</groupId>
-        <artifactId>azure-identity</artifactId>
-        <version>${azure.identity.version}</version>
-      </dependency>
-      <dependency>
         <groupId>net.java.dev.jna</groupId>
         <artifactId>jna-platform</artifactId>
         <version>${jna.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.microsoft.azure</groupId>
-        <artifactId>msal4j</artifactId>
-        <version>${msal.version}</version>
       </dependency>
       <!--project file-->
       <dependency>
@@ -523,8 +508,6 @@
     <org.mapstruct.version>1.5.5.Final</org.mapstruct.version>
     <!--https://mvnrepository.com/artifact/com.google.cloud/libraries-bom-->
     <gcloud.version>26.40.0</gcloud.version>
-    <azure.openai.version>1.0.0-beta.6</azure.openai.version>
-    <azure.identity.version>1.11.1</azure.identity.version>
     <jna.version>5.13.0</jna.version>
     <msal.version>1.14.0</msal.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

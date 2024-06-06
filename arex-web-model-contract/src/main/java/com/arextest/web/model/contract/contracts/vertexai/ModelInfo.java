@@ -9,5 +9,5 @@ import lombok.Data;
 @Data
 public class ModelInfo {
   private String modelName;
-  private int tokenLimit;
+  private Integer tokenLimit;
 }

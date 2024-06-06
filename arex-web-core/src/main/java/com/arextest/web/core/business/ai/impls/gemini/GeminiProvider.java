@@ -1,4 +1,4 @@
-package com.arextest.web.core.business.ai.impls;
+package com.arextest.web.core.business.ai.impls.gemini;
 
 import com.arextest.web.model.contract.contracts.vertexai.ModelInfo;
 import java.io.IOException;
@@ -6,8 +6,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import lombok.NonNull;
+import lombok.Setter;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Service;
 
 import com.arextest.web.core.business.ai.AIConstants;
@@ -28,6 +31,9 @@ import lombok.extern.slf4j.Slf4j;
  * @date: 2024/3/22 16:04
  */
 @Slf4j
+@Service
+@ConditionalOnExpression("#{systemProperties['arex.ai.providers'].contains('gemini1')}")
+@EnableConfigurationProperties(GeminiConfig.class)
 public class GeminiProvider implements AIProvider {
   private static final String location = "asia-northeast1";
   private final GenerativeModel client;
@@ -38,10 +44,10 @@ public class GeminiProvider implements AIProvider {
 
   private final ModelInfo modelInfo = new ModelInfo();
 
-  public GeminiProvider(String projectId, String modelName, Integer maxToken) {
-    this.projectId = projectId;
-    this.modelName = modelName;
-    this.maxToken = maxToken == null ? 0 : maxToken;
+  public GeminiProvider(GeminiConfig config) {
+    this.projectId = config.getProjectId();
+    this.modelName = config.getModelName();
+    this.maxToken = config.getMaxToken() == null ? 0 : config.getMaxToken();
 
     this.client = getClient();
 
