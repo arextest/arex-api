@@ -1464,28 +1464,10 @@ public class FileSystemService {
   }
 
   private List<String> getAbsolutePath(String infoId, Integer nodeType) {
-    List<String> path = Lists.newArrayList();
-    if (StringUtils.isBlank(infoId)) {
-      return path;
-    }
-    path.add(infoId);
-    String curInfoId = infoId;
-    Integer curNodeType = nodeType;
-    while (true) {
-      ItemInfo itemInfo = itemInfoFactory.getItemInfo(curNodeType);
-      if (itemInfo == null) {
-        throw new ArexException(ArexApiResponseCode.FS_UNKNOWN_NODE_TYPE,
-            "Unknown node type: " + nodeType);
-      }
-      FSItemDto fsItemDto = itemInfo.queryById(curInfoId);
-      if (fsItemDto == null || StringUtils.isEmpty(fsItemDto.getParentId())) {
-        break;
-      }
-      path.add(0, fsItemDto.getParentId());
-      curInfoId = fsItemDto.getParentId();
-      curNodeType = fsItemDto.getParentNodeType();
-    }
-    return path;
+    return getAbsolutePathInfo(infoId, nodeType)
+        .stream()
+        .map(FSPathInfoDto::getId)
+        .collect(Collectors.toList());
   }
 
   public List<FSPathInfoDto> getAbsolutePathInfo(String infoId, Integer nodeType) {
