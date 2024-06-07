@@ -11,8 +11,6 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class GeminiConfig {
-  private String projectId;
-  private String modelName;
-  private Integer maxToken;
+@ConfigurationProperties(prefix = "arex.ai.gemini1")
+public class Gemini1Config extends GeminiConfig {
 }

@@ -33,7 +33,7 @@ public class AIConstants {
           + "Script Criteria\n"
           + "1. You can assume the library postman is imported in the scope, you do not need to import it again. \n"
           + "2. When testing JSON data, make sure you are accessing the correct field, for example, when given {\"data\": []}\n, you should access it by pm.response.json().data\n"
-          + "3. If currentScript is given, avoid testing fields already exist in currentScript. \n"
+          + "3. If currentScript is given, avoid generating duplicate test case. \n"
           + "4. If no currentScript is given, provide more tests for users to bootstrap. \n"
           + "5. Include comment block in the test script to instruct users how to extend your script. \n"
           + "\n"

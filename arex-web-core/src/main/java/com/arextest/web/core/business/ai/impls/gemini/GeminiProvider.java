@@ -31,10 +31,7 @@ import lombok.extern.slf4j.Slf4j;
  * @date: 2024/3/22 16:04
  */
 @Slf4j
-@Service
-@ConditionalOnExpression("#{systemProperties['arex.ai.providers'].contains('gemini1')}")
-@EnableConfigurationProperties(GeminiConfig.class)
-public class GeminiProvider implements AIProvider {
+abstract public class GeminiProvider implements AIProvider {
   private static final String location = "asia-northeast1";
   private final GenerativeModel client;
 
