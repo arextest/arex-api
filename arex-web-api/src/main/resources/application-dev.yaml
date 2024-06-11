@@ -6,11 +6,11 @@ logging:
 arex:
   storage:
     service:
-      url: http://10.144.62.53:8093
+      url: http://10.118.1.217:8093
   schedule:
     service:
-      url: http://10.144.62.53:8092
+      url: http://10.118.1.217:8092
   mongo:
-    uri: mongodb://arex:password@10.144.62.53:27017/arex_storage_db
+    uri: mongodb://arex:password@10.118.1.217:27017/arex_storage_db
   redis:
-    uri: redis://10.144.62.53:6379/
+    uri: redis://10.118.1.217:6379/

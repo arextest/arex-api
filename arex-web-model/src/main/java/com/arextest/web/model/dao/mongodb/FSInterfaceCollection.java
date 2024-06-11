@@ -7,6 +7,7 @@ import com.arextest.web.model.dao.mongodb.entity.KeyValuePairDao;
 import com.arextest.web.model.dao.mongodb.entity.ScriptBlockDao;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import lombok.Data;
 import lombok.experimental.FieldNameConstants;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -32,4 +33,5 @@ public class FSInterfaceCollection extends ModelBase {
   private Map<String, Object> customTags;
   private String operationId;
   private String operationResponse;
+  private Set<String> labelIds;
 }

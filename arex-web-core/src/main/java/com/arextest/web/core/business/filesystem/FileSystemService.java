@@ -598,12 +598,21 @@ public class FileSystemService {
         if (node == null) {
           return null;
         }
+        boolean isChanged = false;
         if (request.getAddress() != null
             && !Objects.equals(request.getAddress().getMethod(), node.getMethod())) {
           node.setMethod(request.getAddress().getMethod());
-          return dto;
+          isChanged = true;
         }
-        return null;
+        if (!SetUtils.isEqualSet(node.getLabelIds(), request.getLabelIds())) {
+          node.setLabelIds(request.getLabelIds());
+          isChanged = true;
+        }
+        if (isChanged) {
+          return dto;
+        } else {
+          return null;
+        }
       });
       return true;
     } catch (Exception e) {
