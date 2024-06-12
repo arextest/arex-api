@@ -4,6 +4,7 @@ import com.arextest.web.model.contract.contracts.common.KeyValuePairType;
 import com.arextest.web.model.contract.contracts.common.ScriptBlockType;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.validation.constraints.NotBlank;
 import lombok.Data;
 
@@ -25,4 +26,5 @@ public class FSSaveInterfaceRequestType {
   private Map<String, Object> customTags;
   private String operationId;
   private String operationResponse;
+  private Set<String> labelIds;
 }

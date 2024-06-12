@@ -142,11 +142,11 @@ public class FSCaseRepositoryImpl implements FSCaseRepository {
     }
     if (includeLabels != null && !includeLabels.isEmpty()) {
       query.addCriteria(new Criteria().orOperator(
-          Criteria.where(FSCaseCollection.Fields.labelIds).in(includeLabels)));
+          Criteria.where(FSInterfaceCollection.Fields.labelIds).in(includeLabels)));
     }
     if (excludeLabels != null && !excludeLabels.isEmpty()) {
       query.addCriteria(new Criteria().orOperator(
-          Criteria.where(FSCaseCollection.Fields.labelIds).nin(excludeLabels)));
+          Criteria.where(FSInterfaceCollection.Fields.labelIds).nin(excludeLabels)));
     }
     if (pageSize != null) {
       query.limit(pageSize);

@@ -598,12 +598,21 @@ public class FileSystemService {
         if (node == null) {
           return null;
         }
+        boolean isChanged = false;
         if (request.getAddress() != null
             && !Objects.equals(request.getAddress().getMethod(), node.getMethod())) {
           node.setMethod(request.getAddress().getMethod());
-          return dto;
+          isChanged = true;
         }
-        return null;
+        if (!SetUtils.isEqualSet(node.getLabelIds(), request.getLabelIds())) {
+          node.setLabelIds(request.getLabelIds());
+          isChanged = true;
+        }
+        if (isChanged) {
+          return dto;
+        } else {
+          return null;
+        }
       });
       return true;
     } catch (Exception e) {
@@ -1257,7 +1266,7 @@ public class FileSystemService {
           .collect(Collectors.toList());
       response.setCaseNodes(fsNodeTypes);
     }, customForkJoinExecutor);
-    CompletableFuture<Void> folderCompletableFuture = CompletableFuture.runAsync(() -> {
+    CompletableFuture<Void> interfaceCompletableFuture = CompletableFuture.runAsync(() -> {
       List<FSInterfaceDto> fsInterfaceDtos = fsInterfaceRepository.queryInterfaces(workspaceId,
           keywords, includeLabelTypes, excludeLabelTypes, pageSize);
       List<FSNodeType> fsNodeTypes = fsInterfaceDtos.stream().map(
@@ -1270,7 +1279,7 @@ public class FileSystemService {
           .collect(Collectors.toList());
       response.setInterfaceNodes(fsNodeTypes);
     }, customForkJoinExecutor);
-    CompletableFuture<Void> interfaceCompletableFuture = CompletableFuture.runAsync(() -> {
+    CompletableFuture<Void> folderCompletableFuture = CompletableFuture.runAsync(() -> {
       List<FSFolderDto> fsFolderDtos = fsFolderRepository.queryFolders(workspaceId, keywords,
           includeLabelTypes, excludeLabelTypes, pageSize);
       List<FSNodeType> fsNodeTypes = fsFolderDtos.stream().map(fsFolderDto -> {
