@@ -1266,7 +1266,7 @@ public class FileSystemService {
           .collect(Collectors.toList());
       response.setCaseNodes(fsNodeTypes);
     }, customForkJoinExecutor);
-    CompletableFuture<Void> folderCompletableFuture = CompletableFuture.runAsync(() -> {
+    CompletableFuture<Void> interfaceCompletableFuture = CompletableFuture.runAsync(() -> {
       List<FSInterfaceDto> fsInterfaceDtos = fsInterfaceRepository.queryInterfaces(workspaceId,
           keywords, includeLabelTypes, excludeLabelTypes, pageSize);
       List<FSNodeType> fsNodeTypes = fsInterfaceDtos.stream().map(
@@ -1279,7 +1279,7 @@ public class FileSystemService {
           .collect(Collectors.toList());
       response.setInterfaceNodes(fsNodeTypes);
     }, customForkJoinExecutor);
-    CompletableFuture<Void> interfaceCompletableFuture = CompletableFuture.runAsync(() -> {
+    CompletableFuture<Void> folderCompletableFuture = CompletableFuture.runAsync(() -> {
       List<FSFolderDto> fsFolderDtos = fsFolderRepository.queryFolders(workspaceId, keywords,
           includeLabelTypes, excludeLabelTypes, pageSize);
       List<FSNodeType> fsNodeTypes = fsFolderDtos.stream().map(fsFolderDto -> {

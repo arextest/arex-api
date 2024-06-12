@@ -13,6 +13,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
@@ -115,6 +116,14 @@ public class FSInterfaceRepositoryImpl implements FSInterfaceRepository {
         Criteria.where(FSInterfaceCollection.Fields.workspaceId).is(workspaceId));
     if (StringUtils.isNotEmpty(name)) {
       query.addCriteria(Criteria.where(FSInterfaceCollection.Fields.name).regex(name,"i"));
+    }
+    if (CollectionUtils.isNotEmpty(includeLabels)) {
+      query.addCriteria(new Criteria().orOperator(
+          Criteria.where(FSInterfaceCollection.Fields.labelIds).in(includeLabels)));
+    }
+    if (CollectionUtils.isNotEmpty(excludeLabels)) {
+      query.addCriteria(new Criteria().orOperator(
+          Criteria.where(FSInterfaceCollection.Fields.labelIds).nin(excludeLabels)));
     }
     if (pageSize != null) {
       query.limit(pageSize);
