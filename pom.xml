@@ -283,6 +283,11 @@
         <version>2.17.1</version>
       </dependency>
       <dependency>
+        <groupId>org.redisson</groupId>
+        <artifactId>redisson</artifactId>
+        <version>3.20.1</version>
+      </dependency>
+      <dependency>
         <artifactId>google-api-client</artifactId>
         <groupId>com.google.api-client</groupId>
         <version>${google-oauth-client.version}</version>
@@ -498,8 +503,8 @@
 
   <properties>
     <!-- Maven CI Friendly Versions https://maven.apache.org/maven-ci-friendly.html -->
-    <revision>0.6.4.10</revision>
-    <arex-common.version>0.1.26</arex-common.version>
+    <revision>0.6.4.11</revision>
+    <arex-common.version>0.1.28</arex-common.version>
     <arex-extension-interface.version>0.0.1</arex-extension-interface.version>
     <arex-storage-config.version>1.1.28</arex-storage-config.version>
     <arex-storage.version>1.1.27</arex-storage.version>

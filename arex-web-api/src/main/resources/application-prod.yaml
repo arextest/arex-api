@@ -8,5 +8,7 @@ arex:
   schedule:
     service:
       url: http://arex-schedule-service:8080
+spring:
   redis:
-    uri: redis://redis:6379/
+    host: redis
+    port: 6379
