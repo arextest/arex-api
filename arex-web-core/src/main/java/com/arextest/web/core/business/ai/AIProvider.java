@@ -1,8 +1,10 @@
 package com.arextest.web.core.business.ai;
 
-import com.arextest.web.model.contract.contracts.vertexai.GenReq;
-import com.arextest.web.model.contract.contracts.vertexai.ModelInfo;
-import com.arextest.web.model.dto.vertexai.TestScriptGenRes;
+import com.arextest.web.model.contract.contracts.ai.FixReq;
+import com.arextest.web.model.contract.contracts.ai.GenReq;
+import com.arextest.web.model.contract.contracts.ai.ModelInfo;
+import com.arextest.web.model.contract.contracts.ai.TestScriptFixRes;
+import com.arextest.web.model.contract.contracts.ai.TestScriptGenRes;
 import lombok.NonNull;
 
 /**
@@ -11,5 +13,7 @@ import lombok.NonNull;
  */
 public interface AIProvider {
   TestScriptGenRes generateScripts(GenReq genReq);
+  TestScriptFixRes fixScript(FixReq fixReq);
+
   @NonNull ModelInfo getModelInfo();
 }

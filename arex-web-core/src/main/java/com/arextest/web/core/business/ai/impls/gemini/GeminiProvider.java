@@ -1,22 +1,18 @@
 package com.arextest.web.core.business.ai.impls.gemini;
 
-import com.arextest.web.model.contract.contracts.vertexai.ModelInfo;
+import com.arextest.web.model.contract.contracts.ai.FixReq;
+import com.arextest.web.model.contract.contracts.ai.ModelInfo;
+import com.arextest.web.model.contract.contracts.ai.TestScriptFixRes;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import lombok.NonNull;
-import lombok.Setter;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.stereotype.Service;
 
 import com.arextest.web.core.business.ai.AIConstants;
 import com.arextest.web.core.business.ai.AIProvider;
-import com.arextest.web.model.contract.contracts.vertexai.GenReq;
-import com.arextest.web.model.dto.vertexai.TestScriptGenRes;
+import com.arextest.web.model.contract.contracts.ai.GenReq;
+import com.arextest.web.model.contract.contracts.ai.TestScriptGenRes;
 import com.google.cloud.vertexai.VertexAI;
 import com.google.cloud.vertexai.api.Content;
 import com.google.cloud.vertexai.api.GenerateContentResponse;
@@ -118,6 +114,11 @@ abstract public class GeminiProvider implements AIProvider {
       res.setExplanation("Sorry, I can't generate test scripts for you now. Please try again later.");
       return res;
     }
+  }
+
+  @Override
+  public TestScriptFixRes fixScript(FixReq fixReq) {
+    return null;
   }
 
   @Override

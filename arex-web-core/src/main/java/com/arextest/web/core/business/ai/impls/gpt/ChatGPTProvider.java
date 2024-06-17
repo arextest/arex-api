@@ -1,13 +1,15 @@
 package com.arextest.web.core.business.ai.impls.gpt;
 
 import com.arextest.web.core.business.ai.impls.gpt.OpenAICompletionReq.Message;
+import com.arextest.web.model.contract.contracts.ai.FixReq;
+import com.arextest.web.model.contract.contracts.ai.TestScriptFixRes;
 import java.util.Arrays;
 
 import com.arextest.web.core.business.ai.AIConstants;
 import com.arextest.web.core.business.ai.AIProvider;
-import com.arextest.web.model.contract.contracts.vertexai.GenReq;
-import com.arextest.web.model.contract.contracts.vertexai.ModelInfo;
-import com.arextest.web.model.dto.vertexai.TestScriptGenRes;
+import com.arextest.web.model.contract.contracts.ai.GenReq;
+import com.arextest.web.model.contract.contracts.ai.ModelInfo;
+import com.arextest.web.model.contract.contracts.ai.TestScriptGenRes;
 import com.google.api.client.http.ByteArrayContent;
 import com.google.api.client.http.GenericUrl;
 import com.google.api.client.http.HttpContent;
@@ -68,6 +70,11 @@ abstract public class ChatGPTProvider implements AIProvider {
         return res;
       }
     }
+  }
+
+  @Override
+  public TestScriptFixRes fixScript(FixReq fixReq) {
+    return null;
   }
 
   private TestScriptGenRes handle(GenReq req, boolean trySafe) throws RuntimeException {

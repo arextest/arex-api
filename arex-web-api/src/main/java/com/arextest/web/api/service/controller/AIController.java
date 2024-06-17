@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.arextest.common.model.response.Response;
 import com.arextest.common.utils.ResponseUtils;
 import com.arextest.web.core.business.ai.AIProvider;
-import com.arextest.web.model.contract.contracts.vertexai.GenReq;
+import com.arextest.web.model.contract.contracts.ai.GenReq;
 
 import lombok.extern.slf4j.Slf4j;
 

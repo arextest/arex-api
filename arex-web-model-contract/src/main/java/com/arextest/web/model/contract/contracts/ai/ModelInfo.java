@@ -1,4 +1,4 @@
-package com.arextest.web.model.contract.contracts.vertexai;
+package com.arextest.web.model.contract.contracts.ai;
 
 import lombok.Data;
 
