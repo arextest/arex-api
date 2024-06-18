@@ -63,7 +63,6 @@ import com.arextest.web.model.contract.contracts.filesystem.FSSaveInterfaceReque
 import com.arextest.web.model.contract.contracts.filesystem.FSSearchWorkspaceItemsRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.FSSearchWorkspaceItemsResponseType;
 import com.arextest.web.model.contract.contracts.filesystem.FSTreeType;
-import com.arextest.web.model.contract.contracts.filesystem.FsMoveItemResponseType;
 import com.arextest.web.model.contract.contracts.filesystem.InviteToWorkspaceRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.InviteToWorkspaceResponseType;
 import com.arextest.web.model.contract.contracts.filesystem.LabelType;
@@ -122,6 +121,7 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.SetUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.springframework.beans.factory.annotation.Value;
@@ -220,7 +220,6 @@ public class FileSystemService {
     response.setSuccess(true);
     response.setInfoId(tuple.getLeft());
     response.setWorkspaceId(tuple.getRight().getId());
-    response.setPath(getAbsolutePath(tuple.getLeft(), request.getNodeType()));
     return response;
   }
 
@@ -256,8 +255,7 @@ public class FileSystemService {
 
       FSTreeDto workspace = fsTreeRepository.updateFSTree(workspaceId, dto -> {
         List<FSNodeDto> targetTreeNodes = null;
-        List<String> parentPath = getAbsolutePath(request.getParentInfoId(),
-            request.getParentNodeType());
+        List<String> parentPath = request.getParentPath();
         if (CollectionUtils.isEmpty(parentPath)) {
           infoId.set(itemInfo.initItem(null, null, dto.getId(), request.getNodeName()));
           targetTreeNodes = dto.getRoots();
@@ -322,8 +320,9 @@ public class FileSystemService {
    *
    * @return <Success, Paths>
    */
-  public MutablePair<Boolean, List<String>> removeItem(FSRemoveItemRequestType request, String userName) {
-    List<String> path = getAbsolutePath(request.getInfoId(), request.getNodeType());
+  public Boolean removeItem(FSRemoveItemRequestType request,
+      String userName) {
+    List<String> path = request.getRemoveNodePath();
     FSTreeDto treeDto = fsTreeRepository.updateFSTree(request.getId(), dto -> {
       if (dto == null) {
         return null;
@@ -352,13 +351,12 @@ public class FileSystemService {
       return dto;
     });
 
-    boolean success = treeDto != null;
-    return new MutablePair<>(success, path);
+    return treeDto != null;
   }
 
-  public MutablePair<Boolean, List<String>> rename(FSRenameRequestType request) {
+  public Boolean rename(FSRenameRequestType request) {
 
-    List<String> path = getAbsolutePath(request.getInfoId(), request.getNodeType());
+    List<String> path = request.getPath();
     FSTreeDto fsTreeDto = fsTreeRepository.updateFSTree(request.getId(), dto -> {
       if (dto == null) {
         return null;
@@ -378,14 +376,13 @@ public class FileSystemService {
       fsNodeDto.setNodeName(request.getNewName());
       return dto;
     });
-    boolean success = fsTreeDto != null;
-    return new MutablePair<>(success, path);
+    return fsTreeDto != null;
   }
 
   public FSDuplicateResponseType duplicate(FSDuplicateRequestType request) {
     try {
       AtomicReference<String> infoId = new AtomicReference<>();
-      List<String> path = getAbsolutePath(request.getInfoId(), request.getNodeType());
+      List<String> path = request.getPath();
       FSTreeDto treeDto = fsTreeRepository.updateFSTree(request.getId(), dto -> {
         FSNodeDto parent = null;
         FSNodeDto current;
@@ -410,7 +407,6 @@ public class FileSystemService {
       response.setSuccess(true);
       response.setInfoId(infoId.get());
       response.setWorkspaceId(treeDto.getId());
-      response.setPath(path);
       return response;
     } catch (Exception e) {
       throw new ArexException(ArexApiResponseCode.FS_DUPLICATE_ITEM_ERROR,
@@ -418,14 +414,12 @@ public class FileSystemService {
     }
   }
 
-  public FsMoveItemResponseType move(FSMoveItemRequestType request) {
-    FsMoveItemResponseType response = new FsMoveItemResponseType();
+  public Boolean move(FSMoveItemRequestType request) {
     try {
-      List<String> fromPath = getAbsolutePath(request.getFromInfoId(), request.getFromNodeType());
+      List<String> fromPath = request.getFromNodePath();
       FSTreeDto treeDto = fsTreeRepository.updateFSTree(request.getId(), dto -> {
 
-        List<String> toParentPath = getAbsolutePath(request.getToParentInfoId(),
-            request.getToParentNodeType());
+        List<String> toParentPath = request.getToParentPath();
         MutablePair<Integer, FSNodeDto> current =
             fileSystemUtils.findByPathWithIndex(dto.getRoots(), fromPath);
         if (current == null) {
@@ -460,15 +454,11 @@ public class FileSystemService {
         }
         return dto;
       });
-      response.setSuccess(treeDto != null);
-      response.setFromPath(fromPath);
-      response.setToPath(getAbsolutePath(request.getFromInfoId(), request.getFromNodeType()));
+      return treeDto != null;
 
-      return response;
     } catch (Exception e) {
       LogUtils.error(LOGGER, "failed to move item", e);
-      response.setSuccess(false);
-      return response;
+      return false;
     }
   }
 
@@ -801,8 +791,8 @@ public class FileSystemService {
 
   public List<String> addItemsByAppAndInterface(FSAddItemsByAppAndInterfaceRequestType request) {
     List<String> path = new ArrayList<>();
-    if (StringUtils.isNotBlank(request.getParentInfoId())) {
-      path.addAll(getAbsolutePath(request.getParentInfoId(), request.getParentNodeType()));
+    if (CollectionUtils.isNotEmpty(request.getParentPath())) {
+      path.addAll(request.getParentPath());
     } else {
       FSTreeDto treeDto = fsTreeRepository.queryFSTreeById(request.getWorkspaceId());
       if (treeDto == null) {
@@ -837,8 +827,7 @@ public class FileSystemService {
         addInterfaceRequest.setId(treeDto.getId());
         addInterfaceRequest.setNodeName(request.getInterfaceName());
         addInterfaceRequest.setNodeType(FSInfoItem.INTERFACE);
-        addInterfaceRequest.setParentInfoId(defaultPath[0]);
-        addInterfaceRequest.setParentNodeType(FSInfoItem.FOLDER);
+        addInterfaceRequest.setParentPath(Collections.singletonList(defaultPath[0]));
         MutablePair<String, FSTreeDto> addInterface = addItem(addInterfaceRequest);
         if (addInterface == null) {
           LogUtils.error(LOGGER, "Add interface failed, workspaceId: {}, nodeName: {}",
@@ -925,10 +914,10 @@ public class FileSystemService {
   public MutablePair<Boolean, String> exportItem(FSExportItemRequestType request) {
     FSTreeDto treeDto = fsTreeRepository.queryFSTreeById(request.getWorkspaceId());
     List<FSNodeDto> nodes;
-    if (StringUtils.isBlank(request.getInfoId())) {
+    if (CollectionUtils.isEmpty(request.getPath())) {
       nodes = treeDto.getRoots();
     } else {
-      List<String> path = getAbsolutePath(request.getInfoId(), request.getNodeType());
+      List<String> path = request.getPath();
       FSNodeDto node = fileSystemUtils.findByPath(treeDto.getRoots(), path);
       nodes = Arrays.asList(node);
     }
@@ -952,8 +941,7 @@ public class FileSystemService {
     if (ie == null) {
       return false;
     }
-    List<String> parentPath = getAbsolutePath(request.getParentInfoId(), request.getParentNodeType());
-    return ie.importItem(treeDto, parentPath, request.getImportString());
+    return ie.importItem(treeDto, request.getParentPath(), request.getImportString());
   }
 
   private void setAddressEndpoint(String planId, AddressDto addressDto) {
@@ -1198,7 +1186,7 @@ public class FileSystemService {
     }
     FSNodeDto fsNodeDto = new FSNodeDto();
     fsNodeDto.setChildren(treeDto.getRoots());
-    List<String> parentPath = getAbsolutePath(request.getParentInfoId(), request.getParentNodeType());
+    List<String> parentPath = request.getParentPath();
     if (CollectionUtils.isNotEmpty(parentPath)) {
       fsNodeDto = fileSystemUtils.findByPath(fsNodeDto.getChildren(), parentPath);
     }

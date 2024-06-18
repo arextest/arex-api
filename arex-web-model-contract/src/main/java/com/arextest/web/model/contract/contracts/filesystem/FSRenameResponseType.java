@@ -7,5 +7,4 @@ import lombok.Data;
 public class FSRenameResponseType {
 
   private Boolean success;
-  private List<String> path;
 }

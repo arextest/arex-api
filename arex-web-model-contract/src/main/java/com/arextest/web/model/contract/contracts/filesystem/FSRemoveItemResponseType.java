@@ -7,5 +7,4 @@ import lombok.Data;
 public class FSRemoveItemResponseType {
 
   private Boolean success;
-  private List<String> path;
 }

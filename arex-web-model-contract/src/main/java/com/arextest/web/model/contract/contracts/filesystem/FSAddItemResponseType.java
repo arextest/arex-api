@@ -9,5 +9,4 @@ public class FSAddItemResponseType {
   private Boolean success;
   private String infoId;
   private String workspaceId;
-  private List<String> path;
 }
