@@ -12,7 +12,7 @@ public class FSExportItemRequestType {
   private List<String> path;
 
   /**
-   * @see com.arextest.web.model.enums.ImportExportType
+   * com.arextest.web.model.enums.ImportExportType
    */
   private int type;
 }
