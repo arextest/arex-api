@@ -14,6 +14,5 @@ import lombok.NonNull;
 public interface AIProvider {
   TestScriptGenRes generateScripts(GenReq genReq);
   TestScriptFixRes fixScript(FixReq fixReq);
-
   @NonNull ModelInfo getModelInfo();
 }
