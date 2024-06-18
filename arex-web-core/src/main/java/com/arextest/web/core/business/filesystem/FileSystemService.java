@@ -268,7 +268,7 @@ public class FileSystemService {
           boolean error = false;
           for (int i = 1; i < parentPath.size(); i++) {
             String node = parentPath.get(i);
-            if (current.getChildren() == null || current.getChildren().size() == 0) {
+            if (current.getChildren() == null || current.getChildren().isEmpty()) {
               error = true;
               break;
             }
