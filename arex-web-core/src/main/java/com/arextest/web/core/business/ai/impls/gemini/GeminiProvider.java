@@ -110,9 +110,7 @@ abstract public class GeminiProvider implements AIProvider {
       return AIConstants.MAPPER.readValue(text, TestScriptGenRes.class);
     } catch (Exception e) {
       LOGGER.error("generateScripts error", e);
-      TestScriptGenRes res = new TestScriptGenRes();
-      res.setExplanation("Sorry, I can't generate test scripts for you now. Please try again later.");
-      return res;
+      return AIConstants.GENERAL_INVALID_RES;
     }
   }
 

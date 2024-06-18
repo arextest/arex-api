@@ -65,9 +65,7 @@ abstract public class ChatGPTProvider implements AIProvider {
         return handle(genReq, true);
       } catch (Exception e1) {
         LOGGER.error("generateScripts error on final attempt", e1);
-        TestScriptGenRes res = new TestScriptGenRes();
-        res.setExplanation("System reaching rate limit, please try again later");
-        return res;
+        return AIConstants.GENERAL_INVALID_RES;
       }
     }
   }

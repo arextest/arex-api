@@ -62,12 +62,11 @@ public abstract class ClaudeProvider implements AIProvider {
           )
           .build();
       ConverseResponse res = this.bedrockClient.converse(req);
-      return new TestScriptGenRes();
+      return AIConstants.MAPPER.readValue(res.output().message().content().get(0).text(), TestScriptGenRes.class);
     } catch (Exception e) {
       LOGGER.error("Failed to generate scripts: {}", e.getMessage(), e);
+      return AIConstants.GENERAL_INVALID_RES;
     }
-
-    return null;
   }
 
   @Override

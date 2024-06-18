@@ -1,5 +1,6 @@
 package com.arextest.web.core.business.ai;
 
+import com.arextest.web.model.contract.contracts.ai.TestScriptGenRes;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -13,6 +14,11 @@ public class AIConstants {
   static {
     MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     MAPPER.configure(JsonReadFeature.ALLOW_UNESCAPED_CONTROL_CHARS.mappedFeature(), true);
+  }
+
+  public static final TestScriptGenRes GENERAL_INVALID_RES = new TestScriptGenRes();
+  static {
+    GENERAL_INVALID_RES.setExplanation("Sorry, I can't generate test scripts for you now. Please try again later.");
   }
 
   public static final String CONTEXT_PROMPT =
