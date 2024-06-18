@@ -44,7 +44,7 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: ${{ secrets.DOCKERHUB_SNAPSHOT_USERNAME }}/arex-api:${{ needs.tag.outputs.tag }}
-          outputs: type=docker,dest=/tmp/myimage.tar
+          outputs: type=oci,dest=/tmp/myimage.tar
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
