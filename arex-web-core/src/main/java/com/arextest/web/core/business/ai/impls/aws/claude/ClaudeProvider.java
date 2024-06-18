@@ -28,7 +28,7 @@ import software.amazon.awssdk.services.bedrockruntime.model.SystemContentBlock;
 @Slf4j
 public abstract class ClaudeProvider implements AIProvider {
   private final BedrockRuntimeClient bedrockClient;
-  private static final ModelInfo modelInfo = new ModelInfo();
+  private final ModelInfo modelInfo = new ModelInfo();
   private static final String ROLE_USER = "user";
   private static final String ROLE_ASSISTANT = "assistant";
 
