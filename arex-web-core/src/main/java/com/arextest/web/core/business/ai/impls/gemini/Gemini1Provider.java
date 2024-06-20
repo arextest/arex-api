@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
  * @date: 2024/6/6 18:41
  */
 @EnableConfigurationProperties(Gemini1Config.class)
-@ConditionalOnExpression("#{systemProperties['arex.ai.providers'].contains('gemini1')}")
+@ConditionalOnExpression("#{'${arex.ai.providers:{}}'.contains('gemini1')}")
 @Service
 public class Gemini1Provider extends GeminiProvider {
   public Gemini1Provider(Gemini1Config config) {

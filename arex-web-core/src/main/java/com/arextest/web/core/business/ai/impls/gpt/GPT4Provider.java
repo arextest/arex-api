@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
  */
 @Service
 @EnableConfigurationProperties(GPT4Config.class)
-@ConditionalOnExpression("#{systemProperties['arex.ai.providers'].contains('gpt4')}")
+@ConditionalOnExpression("#{'${arex.ai.providers:{}}'.contains('gpt4')}")
 public class GPT4Provider extends ChatGPTProvider {
   public GPT4Provider(GPT4Config config) {
     super(config);

@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
  * @date: 2024/6/18 14:29
  */
 @EnableConfigurationProperties(SonnetConfig.class)
-@ConditionalOnExpression("#{systemProperties['arex.ai.providers'].contains('claude-sonnet')}")
+@ConditionalOnExpression("#{'${arex.ai.providers:{}}'.contains('claude-sonnet')}")
 @Service
 public class ClaudeSonnetProvider extends ClaudeProvider {
   public ClaudeSonnetProvider(SonnetConfig config) {

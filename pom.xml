@@ -290,7 +290,7 @@
       <dependency>
         <groupId>software.amazon.awssdk</groupId>
         <artifactId>bom</artifactId>
-        <version>2.26.3</version>
+        <version>${aws.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -520,6 +520,7 @@
     <org.mapstruct.version>1.5.5.Final</org.mapstruct.version>
     <!--https://mvnrepository.com/artifact/com.google.cloud/libraries-bom-->
     <gcloud.version>26.40.0</gcloud.version>
+    <aws.version>2.26.3</aws.version>
     <jna.version>5.13.0</jna.version>
     <msal.version>1.14.0</msal.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

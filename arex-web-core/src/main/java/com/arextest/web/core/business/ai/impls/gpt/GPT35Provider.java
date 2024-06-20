@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
  * @date: 2024/6/6 18:48
  */
 @Service
-@ConditionalOnExpression("#{systemProperties['arex.ai.providers'].contains('gpt35')}")
+@ConditionalOnExpression("#{'${arex.ai.providers:{}}'.contains('gpt35')}")
 @EnableConfigurationProperties(GPT35Config.class)
 public class GPT35Provider extends ChatGPTProvider {
   public GPT35Provider(GPT35Config config) {
