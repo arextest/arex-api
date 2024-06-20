@@ -121,9 +121,7 @@ public class FileSystemController {
     }
     String userName = jwtService.getUserName(token);
     FSRemoveItemResponseType response = new FSRemoveItemResponseType();
-    MutablePair<Boolean, List<String>> result = fileSystemService.removeItem(request, userName);
-    response.setSuccess(result.getLeft());
-    response.setPath(result.getRight());
+    response.setSuccess(fileSystemService.removeItem(request, userName));
     return ResponseUtils.successResponse(response);
   }
 
@@ -136,9 +134,7 @@ public class FileSystemController {
           ResponseCode.AUTHENTICATION_FAILED);
     }
     FSRenameResponseType response = new FSRenameResponseType();
-    MutablePair<Boolean, List<String>> result = fileSystemService.rename(request);
-    response.setSuccess(result.getLeft());
-    response.setPath(result.getRight());
+    response.setSuccess(fileSystemService.rename(request));
     return ResponseUtils.successResponse(response);
   }
 
@@ -157,7 +153,9 @@ public class FileSystemController {
   @PostMapping("/move")
   @ResponseBody
   public Response move(@Valid @RequestBody FSMoveItemRequestType request) {
-    return ResponseUtils.successResponse(fileSystemService.move(request));
+    SuccessResponseType response = new SuccessResponseType();
+    response.setSuccess(fileSystemService.move(request));
+    return ResponseUtils.successResponse(response);
   }
 
   @PostMapping("/addWorkspace")
@@ -396,6 +394,7 @@ public class FileSystemController {
     return ResponseUtils.successResponse(response);
   }
 
+  @Deprecated
   @PostMapping("/getWorkspaceItem")
   @ResponseBody
   public Response getWorkspaceItem(@RequestHeader(name = Constants.ACCESS_TOKEN) String token,
@@ -422,6 +421,7 @@ public class FileSystemController {
     return ResponseUtils.successResponse(response);
   }
 
+  @Deprecated
   @PostMapping("/getWorkspaceItemTree")
   @ResponseBody
   public Response getWorkspaceItemTree(@RequestHeader(name = Constants.ACCESS_TOKEN) String token,
