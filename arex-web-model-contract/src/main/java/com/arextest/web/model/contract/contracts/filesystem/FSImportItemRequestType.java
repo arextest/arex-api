@@ -1,5 +1,6 @@
 package com.arextest.web.model.contract.contracts.filesystem;
 
+import java.util.List;
 import javax.validation.constraints.NotBlank;
 import lombok.Data;
 
@@ -12,8 +13,7 @@ public class FSImportItemRequestType {
 
   @NotBlank(message = "WorkspaceId cannot be empty")
   private String workspaceId;
-  private String parentInfoId;
-  private Integer parentNodeType;
+  private List<String> parentPath;
   private int type;
   @NotBlank(message = "Import string cannot be empty")
   private String importString;

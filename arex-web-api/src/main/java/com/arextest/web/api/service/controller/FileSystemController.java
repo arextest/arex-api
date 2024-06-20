@@ -21,6 +21,8 @@ import com.arextest.web.model.contract.contracts.filesystem.FSDuplicateRequestTy
 import com.arextest.web.model.contract.contracts.filesystem.FSDuplicateResponseType;
 import com.arextest.web.model.contract.contracts.filesystem.FSExportItemRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.FSExportItemResponseType;
+import com.arextest.web.model.contract.contracts.filesystem.FSGetPathInfoRequestType;
+import com.arextest.web.model.contract.contracts.filesystem.FSGetPathInfoResponseType;
 import com.arextest.web.model.contract.contracts.filesystem.FSGetWorkspaceItemTreeRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.FSGetWorkspaceItemTreeResponseType;
 import com.arextest.web.model.contract.contracts.filesystem.FSGetWorkspaceItemsRequestType;
@@ -60,7 +62,6 @@ import com.arextest.web.model.contract.contracts.filesystem.RecoverItemInfoReque
 import com.arextest.web.model.contract.contracts.filesystem.RemoveUserFromWorkspaceType;
 import com.arextest.web.model.contract.contracts.filesystem.ValidInvitationRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.ValidInvitationResponseType;
-import com.arextest.web.model.dto.filesystem.FSTreeDto;
 import java.util.List;
 import javax.annotation.Resource;
 import javax.validation.Valid;
@@ -133,8 +134,7 @@ public class FileSystemController {
           ResponseCode.AUTHENTICATION_FAILED);
     }
     FSRenameResponseType response = new FSRenameResponseType();
-    Boolean success = fileSystemService.rename(request);
-    response.setSuccess(success);
+    response.setSuccess(fileSystemService.rename(request));
     return ResponseUtils.successResponse(response);
   }
 
@@ -146,11 +146,7 @@ public class FileSystemController {
       return ResponseUtils.errorResponse(Constants.NO_PERMISSION,
           ResponseCode.AUTHENTICATION_FAILED);
     }
-    FSDuplicateResponseType response = new FSDuplicateResponseType();
-    MutablePair<String, FSTreeDto> result = fileSystemService.duplicate(request);
-    response.setSuccess(true);
-    response.setInfoId(result.getLeft());
-    response.setWorkspaceId(result.getRight().getId());
+    FSDuplicateResponseType response = fileSystemService.duplicate(request);
     return ResponseUtils.successResponse(response);
   }
 
@@ -398,6 +394,7 @@ public class FileSystemController {
     return ResponseUtils.successResponse(response);
   }
 
+  @Deprecated
   @PostMapping("/getWorkspaceItem")
   @ResponseBody
   public Response getWorkspaceItem(@RequestHeader(name = Constants.ACCESS_TOKEN) String token,
@@ -424,6 +421,7 @@ public class FileSystemController {
     return ResponseUtils.successResponse(response);
   }
 
+  @Deprecated
   @PostMapping("/getWorkspaceItemTree")
   @ResponseBody
   public Response getWorkspaceItemTree(@RequestHeader(name = Constants.ACCESS_TOKEN) String token,
@@ -447,6 +445,15 @@ public class FileSystemController {
           ResponseCode.AUTHENTICATION_FAILED);
     }
     BatchGetInterfaceCaseResponseType response = fileSystemService.batchGetInterfaceCase(request);
+    return ResponseUtils.successResponse(response);
+  }
+
+  @PostMapping("/getPathInfo")
+  @ResponseBody
+  public Response getPathInfo(@RequestBody FSGetPathInfoRequestType request) {
+    FSGetPathInfoResponseType response = new FSGetPathInfoResponseType();
+    response.setPathInfo(
+        fileSystemService.getAbsolutePathInfo(request.getInfoId(), request.getNodeType()));
     return ResponseUtils.successResponse(response);
   }
 

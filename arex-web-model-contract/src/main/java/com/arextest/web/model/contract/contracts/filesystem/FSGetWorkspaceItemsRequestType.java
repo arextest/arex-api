@@ -9,6 +9,5 @@ public class FSGetWorkspaceItemsRequestType {
 
   private String workspaceId;
 
-  private String parentInfoId;
-  private Integer parentNodeType;
+  private List<String> parentPath;
 }

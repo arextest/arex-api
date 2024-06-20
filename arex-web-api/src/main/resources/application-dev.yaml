@@ -6,11 +6,42 @@ logging:
 arex:
   storage:
     service:
-      url: http://10.118.1.217:8093
+      url: http://10.118.1.217:18093
   schedule:
     service:
-      url: http://10.118.1.217:8092
+      url: http://10.118.1.217:18092
   mongo:
-    uri: mongodb://arex:password@10.118.1.217:27017/arex_storage_db
+    uri: mongodb://arex:password@10.118.1.217:37017/arex_storage_db
+
+# standalone without password
+spring:
   redis:
-    uri: redis://10.118.1.217:6379/
+    host: 10.118.1.217
+    port: 16379
+
+# standalone with password
+#spring:
+#  redis:
+#    host: 127.0.0.1
+#    port: 16379
+#    password: mypassword
+
+# sentinel with password
+#spring:
+#  redis:
+#    redisson:
+#      config: '{"sentinelServersConfig":{"sentinelAddresses":["redis://10.144.62.53:36379","redis://10.144.62.53:36380","redis://10.144.62.53:36381"],"masterName":"mymaster","password":"redis","checkSentinelsList":false}}'
+
+# cluster with password
+#spring:
+#  redis:
+#    cluster:
+#      nodes:
+#        - 10.18.101.13:7001
+#        - 10.18.101.13:7002
+#        - 10.18.101.13:7003
+#        - 10.18.101.13:7004
+#        - 10.18.101.13:7005
+#        - 10.18.101.13:7006
+#      max-redirects: 3
+#    password: bingo
