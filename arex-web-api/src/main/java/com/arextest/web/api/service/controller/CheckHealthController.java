@@ -2,7 +2,12 @@ package com.arextest.web.api.service.controller;
 
 import com.arextest.common.model.response.Response;
 import com.arextest.common.utils.ResponseUtils;
+import com.arextest.web.core.business.ai.AIProvider;
+import com.arextest.web.model.contract.contracts.ai.ModelInfo;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import javax.annotation.Resource;
 import lombok.Builder;
 import lombok.Data;
@@ -35,6 +40,7 @@ public class CheckHealthController {
   @Builder
   public static class FeatureCheckRes {
     private boolean aiEnabled;
+    private List<ModelInfo> modelInfos;
   }
 
   @GetMapping("/checkFeature")
@@ -43,6 +49,12 @@ public class CheckHealthController {
     return ResponseUtils.successResponse(FeatureCheckRes
         .builder()
         .aiEnabled(aiController.isPresent())
+        .modelInfos(aiController
+            .map(controller -> controller.getProviders()
+                .stream()
+                .map(AIProvider::getModelInfo)
+                .collect(Collectors.toList()))
+            .orElse(Collections.emptyList()))
         .build());
   }
 }

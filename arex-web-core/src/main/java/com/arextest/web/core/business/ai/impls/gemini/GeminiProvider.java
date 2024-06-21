@@ -1,17 +1,18 @@
-package com.arextest.web.core.business.ai.impls;
+package com.arextest.web.core.business.ai.impls.gemini;
 
+import com.arextest.web.model.contract.contracts.ai.FixReq;
+import com.arextest.web.model.contract.contracts.ai.ModelInfo;
+import com.arextest.web.model.contract.contracts.ai.TestScriptFixRes;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.stereotype.Service;
+import lombok.NonNull;
 
 import com.arextest.web.core.business.ai.AIConstants;
 import com.arextest.web.core.business.ai.AIProvider;
-import com.arextest.web.model.contract.contracts.vertexai.GenReq;
-import com.arextest.web.model.dto.vertexai.TestScriptGenRes;
+import com.arextest.web.model.contract.contracts.ai.GenReq;
+import com.arextest.web.model.contract.contracts.ai.TestScriptGenRes;
 import com.google.cloud.vertexai.VertexAI;
 import com.google.cloud.vertexai.api.Content;
 import com.google.cloud.vertexai.api.GenerateContentResponse;
@@ -26,23 +27,37 @@ import lombok.extern.slf4j.Slf4j;
  * @date: 2024/3/22 16:04
  */
 @Slf4j
-@Service
-@ConditionalOnProperty(prefix = "arex.ai", name = "provider", havingValue = "gemini")
-public class GeminiProvider implements AIProvider {
+abstract public class GeminiProvider implements AIProvider {
   private static final String location = "asia-northeast1";
-  private static final String modelName = "gemini-1.0-pro";
   private final GenerativeModel client;
-  private final String projectId;
 
-  public GeminiProvider(@Value("${arex.ai.gemini.projectId}") String projectId) {
-    this.projectId = projectId;
+  private final String modelName;
+  private final String projectId;
+  private final Integer maxToken;
+
+  private final ModelInfo modelInfo = new ModelInfo();
+
+  public GeminiProvider(GeminiConfig config) {
+    this.projectId = config.getProjectId();
+    this.modelName = config.getModelName();
+    this.maxToken = config.getMaxToken() == null ? 0 : config.getMaxToken();
+
     this.client = getClient();
+
+    // init model info
+    this.modelInfo.setModelName(this.client.getModelName());
+    this.modelInfo.setTokenLimit(this.client.getGenerationConfig().getMaxOutputTokens());
   }
 
   private GenerativeModel getClient() {
     try {
       VertexAI vertexAI = new VertexAI(projectId, location);
       GenerativeModel model = new GenerativeModel(modelName, vertexAI);
+      model.withGenerationConfig(GenerationConfig.newBuilder()
+          .setTemperature(0.3F)
+          .setMaxOutputTokens(maxToken)
+          .setResponseMimeType("application/json")
+          .build());
       return model;
     } catch (Exception e) {
       LOGGER.error("getClient error", e);
@@ -51,13 +66,12 @@ public class GeminiProvider implements AIProvider {
   }
 
   private GenerateContentResponse gen(String prompt) throws IOException {
-    GenerationConfig config = GenerationConfig.newBuilder().setMaxOutputTokens(8192).setTemperature(0.5F).build();
     List<Content> prompts = getBasePrompts();
     prompts.add(Content.newBuilder()
         .setRole("user")
         .addParts(Part.newBuilder().setText(prompt))
         .build());
-    return client.generateContent(prompts, config);
+    return client.generateContent(prompts);
   }
 
   private static List<Content> getBasePrompts() {
@@ -86,13 +100,27 @@ public class GeminiProvider implements AIProvider {
   public TestScriptGenRes generateScripts(GenReq genReq) {
     try {
       GenerateContentResponse genRes = gen(AIConstants.MAPPER.writeValueAsString(genReq));
-      return AIConstants.MAPPER.readValue(genRes.getCandidates(0).getContent().getParts(0).getText(),
-          TestScriptGenRes.class);
+      String text = genRes.getCandidates(0).getContent().getParts(0).getText();
+      try {
+        // remove ```json and ``` from the response
+        text = text.contains("```") ? text.substring(7, text.length() - 3) : text;
+      } catch (Exception ignore) {
+      }
+
+      return AIConstants.MAPPER.readValue(text, TestScriptGenRes.class);
     } catch (Exception e) {
       LOGGER.error("generateScripts error", e);
-      TestScriptGenRes res = new TestScriptGenRes();
-      res.setExplanation("Sorry, I can't generate test scripts for you now. Please try again later.");
-      return res;
+      return AIConstants.GENERAL_INVALID_RES;
     }
+  }
+
+  @Override
+  public TestScriptFixRes fixScript(FixReq fixReq) {
+    return null;
+  }
+
+  @Override
+  public @NonNull ModelInfo getModelInfo() {
+    return this.modelInfo;
   }
 }

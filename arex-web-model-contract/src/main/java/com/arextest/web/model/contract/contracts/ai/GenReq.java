@@ -1,4 +1,4 @@
-package com.arextest.web.model.contract.contracts.vertexai;
+package com.arextest.web.model.contract.contracts.ai;
 
 import lombok.Data;
 
@@ -12,4 +12,6 @@ public class GenReq {
   private String requirement;
 
   private String apiRes;
+
+  private String modelName;
 }

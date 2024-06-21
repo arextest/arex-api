@@ -1,4 +1,4 @@
-package com.arextest.web.model.dto.vertexai;
+package com.arextest.web.model.contract.contracts.ai;
 
 import lombok.Data;
 
@@ -7,7 +7,6 @@ import lombok.Data;
  * @date: 2024/3/25 14:46
  */
 @Data
-public class TestScriptGenRes {
+public class TestScriptFixRes {
   private String code;
-  private String explanation;
 }

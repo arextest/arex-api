@@ -17,14 +17,6 @@
       <artifactId>google-cloud-vertexai</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.azure</groupId>
-      <artifactId>azure-ai-openai</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.azure</groupId>
-      <artifactId>azure-identity</artifactId>
-    </dependency>
-    <dependency>
       <artifactId>arex-web-model</artifactId>
       <groupId>com.arextest</groupId>
     </dependency>
@@ -113,6 +105,27 @@
       <artifactId>arex-compare-extension</artifactId>
       <groupId>com.arextest</groupId>
     </dependency>
+    <dependency>
+      <groupId>software.amazon.awssdk</groupId>
+      <artifactId>sts</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>software.amazon.awssdk</groupId>
+      <artifactId>bedrock</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>software.amazon.awssdk</groupId>
+      <artifactId>bedrockruntime</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>software.amazon.awssdk</groupId>
+      <artifactId>sso</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>software.amazon.awssdk</groupId>
+      <artifactId>ssooidc</artifactId>
+    </dependency>
+
   </dependencies>
   <modelVersion>4.0.0</modelVersion>
 
