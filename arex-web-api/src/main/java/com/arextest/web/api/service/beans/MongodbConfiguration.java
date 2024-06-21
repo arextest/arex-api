@@ -1,5 +1,11 @@
 package com.arextest.web.api.service.beans;
 
+import com.arextest.web.common.LogUtils;
+import com.mongodb.ConnectionString;
+import com.mongodb.MongoClientSettings;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
+import lombok.extern.slf4j.Slf4j;
 import org.bson.codecs.configuration.CodecRegistries;
 import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.codecs.pojo.PojoCodecProvider;
@@ -11,19 +17,14 @@ import org.springframework.data.mongodb.MongoDatabaseFactory;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.SimpleMongoClientDatabaseFactory;
+import org.springframework.data.mongodb.core.convert.DefaultMongoTypeMapper;
+import org.springframework.data.mongodb.core.convert.MappingMongoConverter;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
-
-import com.arextest.web.common.LogUtils;
-import com.mongodb.ConnectionString;
-import com.mongodb.MongoClientSettings;
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoClients;
-
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Configuration
 public class MongodbConfiguration {
+
   private static final String AREX_STORAGE_DB = "arex_storage_db";
   @Value("${arex.mongo.uri}")
   private String mongoUrl;
@@ -56,6 +57,11 @@ public class MongodbConfiguration {
   @Bean
   @ConditionalOnMissingBean(MongoOperations.class)
   public MongoTemplate mongoTemplate(MongoDatabaseFactory factory, MongoConverter converter) {
-    return new MongoTemplate(factory, converter);
+    // remove the field "_class" in the document.
+    // https://stackoverflow.com/questions/6810488/spring-data-mongodb-mappingmongoconverter-remove-class/
+    MappingMongoConverter mappingMongoConverter = (MappingMongoConverter) converter;
+    mappingMongoConverter.setTypeMapper(new DefaultMongoTypeMapper(null));
+
+    return new MongoTemplate(factory, mappingMongoConverter);
   }
 }

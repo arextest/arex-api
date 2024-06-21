@@ -1,10 +1,13 @@
 package com.arextest.web.api.service.controller.config;
 
 import com.arextest.common.model.response.Response;
+import com.arextest.common.utils.ResponseUtils;
 import com.arextest.config.model.dto.ModifyType;
 import com.arextest.config.model.dto.record.DynamicClassConfiguration;
 import com.arextest.web.core.business.config.ConfigurableHandler;
+import com.arextest.web.core.business.config.record.DynamicClassConfigurableHandler;
 import com.arextest.web.core.business.config.record.ServiceCollectConfigurableHandler;
+import java.util.List;
 import javax.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -25,6 +28,9 @@ public class DynamicClassConfigurableController extends
   @Resource
   private ServiceCollectConfigurableHandler serviceCollectConfigurableHandler;
 
+  @Resource
+  private DynamicClassConfigurableHandler dynamicClassConfigurableHandler;
+
   public DynamicClassConfigurableController(
       @Autowired ConfigurableHandler<DynamicClassConfiguration> configurableHandler) {
     super(configurableHandler);
@@ -40,4 +46,15 @@ public class DynamicClassConfigurableController extends
 
     return super.modify(modifyType, configuration);
   }
+
+  @RequestMapping("/replace/{appId}")
+  @ResponseBody
+  public Response replace(@PathVariable String appId,
+      @RequestBody List<DynamicClassConfiguration> configurations) {
+    serviceCollectConfigurableHandler.updateServiceCollectTime(appId);
+    return ResponseUtils.successResponse(
+        dynamicClassConfigurableHandler.replace(appId, configurations)
+    );
+  }
+
 }
