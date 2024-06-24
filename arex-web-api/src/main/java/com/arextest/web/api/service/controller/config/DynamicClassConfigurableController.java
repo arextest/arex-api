@@ -47,6 +47,7 @@ public class DynamicClassConfigurableController extends
     return super.modify(modifyType, configuration);
   }
 
+  @SuppressWarnings("java:S3752")
   @RequestMapping("/replace/{appId}")
   @ResponseBody
   public Response replace(@PathVariable String appId,
