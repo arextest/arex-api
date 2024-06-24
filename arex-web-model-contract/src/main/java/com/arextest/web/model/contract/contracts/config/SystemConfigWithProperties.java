@@ -1,13 +1,16 @@
 package com.arextest.web.model.contract.contracts.config;
+
 import com.arextest.config.model.dto.system.SystemConfiguration;
 import java.util.Set;
 import lombok.Data;
+import lombok.ToString;
 
 /**
  * @author wildeslam.
  * @create 2024/2/20 17:45
  */
 @Data
+@ToString(callSuper = true)
 public class SystemConfigWithProperties extends SystemConfiguration {
 
   /**

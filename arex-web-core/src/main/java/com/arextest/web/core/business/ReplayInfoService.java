@@ -30,6 +30,10 @@ public class ReplayInfoService {
     if (request == null) {
       return false;
     }
+
+    ImmutableMap<String, String> logTag = ImmutableMap.of("planId", request.getPlanId());
+    LogUtils.info(LOGGER, logTag, "init the plan, request: {}", request);
+
     try {
       ReportPlanStatisticDto reportPlanStatisticDto = PlanMapper.INSTANCE.dtoFromContract(request);
       reportPlanStatisticDto.setDataChangeCreateTime(System.currentTimeMillis());
@@ -50,16 +54,15 @@ public class ReplayInfoService {
         });
       }
     } catch (Exception e) {
-      LogUtils.error(LOGGER, "updateReplayBaseInfo", e);
+      LogUtils.error(LOGGER, logTag, "updateReplayBaseInfo", e);
       return false;
     }
     return true;
   }
 
   public boolean updatePlan(UpdateReportInfoRequestType request) {
-    LogUtils.info(LOGGER, ImmutableMap.of("planId", request.getPlanId()),
-        "update the info of plan, request: {}",
-        request);
+    ImmutableMap<String, String> logTag = ImmutableMap.of("planId", request.getPlanId());
+    LogUtils.info(LOGGER, logTag, "update the info of plan, request: {}", request);
     try {
       ReportPlanStatisticDto reportPlanStatisticDto = PlanMapper.INSTANCE.dtoFromContract(request);
       reportPlanStatisticRepository.findAndModifyBaseInfo(reportPlanStatisticDto);
@@ -74,7 +77,7 @@ public class ReplayInfoService {
         });
       }
     } catch (Exception e) {
-      LogUtils.error(LOGGER, "updatePlan", e);
+      LogUtils.error(LOGGER, logTag, "updatePlan", e);
       return false;
     }
     return true;

@@ -5,6 +5,8 @@ import com.arextest.common.enums.AuthRejectStrategy;
 import com.arextest.common.model.response.Response;
 import com.arextest.common.model.response.ResponseCode;
 import com.arextest.common.utils.ResponseUtils;
+import com.arextest.web.common.LogUtils;
+import com.arextest.web.common.LogUtils.LogTagKeySummary;
 import com.arextest.web.core.business.DiffSceneService;
 import com.arextest.web.core.business.MsgShowService;
 import com.arextest.web.core.business.QueryPlanItemStatisticService;
@@ -68,6 +70,10 @@ import com.arextest.web.model.contract.contracts.replay.AnalyzeCompareResultsReq
 import com.arextest.web.model.contract.contracts.replay.AnalyzeCompareResultsResponseType;
 import com.arextest.web.model.contract.contracts.replay.UpdateReportInfoRequestType;
 import com.arextest.web.model.contract.contracts.replay.UpdateReportInfoResponseType;
+import com.google.common.collect.ImmutableMap;
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
@@ -78,10 +84,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
-
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
 
 @Slf4j
 @Controller
@@ -222,7 +224,8 @@ public class ReportQueryController {
 
   @PostMapping("/deletePlanItemStatistics")
   @ResponseBody
-  public Response deletePlanItemStatistics(@RequestBody DeletePlanItemStatisticsRequestType request) {
+  public Response deletePlanItemStatistics(
+      @RequestBody DeletePlanItemStatisticsRequestType request) {
     SuccessResponse response = new SuccessResponse();
     response.setSuccess(reportService.deletePlanItemStatistic(request.getPlanItemIds()));
     return ResponseUtils.successResponse(response);
@@ -312,19 +315,21 @@ public class ReportQueryController {
   @GetMapping("/delete/{planId}")
   @ResponseBody
   public Response deleteReport(@PathVariable String planId) {
+    ImmutableMap<String, String> logTag = ImmutableMap.of(
+        LogTagKeySummary.PLAN_ID, planId);
     try {
       SuccessResponseType response = new SuccessResponseType();
       String stopRes = scheduleService.stopPlan(planId);
       if (StringUtils.isEmpty(stopRes)) {
-        LOGGER.error("stop plan error, planId:{}", planId);
+        LogUtils.error(LOGGER, logTag, "stop plan error, planId:{}", planId);
         return ResponseUtils.errorResponse("stop plan error",
             ResponseCode.REQUESTED_HANDLE_EXCEPTION);
       }
-      LOGGER.info("stop plan success, {}", stopRes);
+      LogUtils.info(LOGGER, logTag, "stop plan success, {}", stopRes);
       response.setSuccess(reportService.deleteReport(planId));
       return ResponseUtils.successResponse(response);
     } catch (Throwable t) {
-      LOGGER.error("delete plan error", t);
+      LogUtils.error(LOGGER, logTag, "delete plan error", t);
       return ResponseUtils.errorResponse(t.getMessage(), ResponseCode.REQUESTED_HANDLE_EXCEPTION);
     }
   }

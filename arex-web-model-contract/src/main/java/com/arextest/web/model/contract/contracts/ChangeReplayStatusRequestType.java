@@ -3,8 +3,10 @@ package com.arextest.web.model.contract.contracts;
 import java.util.List;
 import javax.validation.constraints.NotBlank;
 import lombok.Data;
+import lombok.ToString;
 
 @Data
+@ToString
 public class ChangeReplayStatusRequestType {
 
   @NotBlank(message = "Plan id cannot be empty")
