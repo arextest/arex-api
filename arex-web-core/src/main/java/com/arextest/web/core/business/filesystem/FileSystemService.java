@@ -2,6 +2,8 @@ package com.arextest.web.core.business.filesystem;
 
 import com.arextest.common.exceptions.ArexException;
 import com.arextest.common.jwt.JWTService;
+import com.arextest.config.model.dto.record.ServiceCollectConfiguration;
+import com.arextest.config.repository.ConfigRepositoryProvider;
 import com.arextest.web.common.LoadResource;
 import com.arextest.web.common.LogUtils;
 import com.arextest.web.common.ZstdUtils;
@@ -12,6 +14,7 @@ import com.arextest.web.core.business.filesystem.importexport.impl.ImportExportF
 import com.arextest.web.core.business.filesystem.pincase.StorageCase;
 import com.arextest.web.core.business.filesystem.recovery.RecoveryFactory;
 import com.arextest.web.core.business.filesystem.recovery.RecoveryService;
+import com.arextest.web.core.business.util.JsonUtils;
 import com.arextest.web.core.repository.FSCaseRepository;
 import com.arextest.web.core.repository.FSFolderRepository;
 import com.arextest.web.core.repository.FSInterfaceRepository;
@@ -20,6 +23,8 @@ import com.arextest.web.core.repository.FSTreeRepository;
 import com.arextest.web.core.repository.ReportPlanStatisticRepository;
 import com.arextest.web.core.repository.UserRepository;
 import com.arextest.web.core.repository.UserWorkspaceRepository;
+import com.arextest.web.core.repository.mongo.ScheduleConfigurationRepositoryImpl;
+import com.arextest.web.model.contract.contracts.config.replay.ScheduleConfiguration;
 import com.arextest.web.model.contract.contracts.filesystem.BatchGetInterfaceCaseRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.BatchGetInterfaceCaseResponseType;
 import com.arextest.web.model.contract.contracts.filesystem.ChangeRoleRequestType;
@@ -123,6 +128,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.MutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
@@ -148,6 +154,7 @@ public class FileSystemService {
   private static final String NULL_PLAN_ID = "undefined";
   private static final String EQUALS = "=";
   private static final String NOT_EQUALS = "!=";
+  private static final String SKIP_MOCK_HEADER = "X-AREX-Exclusion-Operations";
 
   @Value("${arex.api.case.inherited}")
   private String arexCaseInherited;
@@ -208,6 +215,9 @@ public class FileSystemService {
 
   @Resource(name = "custom-fork-join-executor")
   private ThreadPoolTaskExecutor customForkJoinExecutor;
+
+  @Resource
+  private ConfigRepositoryProvider<ScheduleConfiguration> scheduleConfigurationProvider;
 
   public FSAddItemResponseType addItemForController(FSAddItemRequestType request) {
     FSAddItemResponseType response = new FSAddItemResponseType();
@@ -743,7 +753,9 @@ public class FileSystemService {
     if (StringUtils.isBlank(recordId)) {
       return new FSQueryCaseResponseType();
     }
-    FSCaseDto caseDto = storageCase.getViewRecord(recordId);
+    Pair<FSCaseDto, String> caseAndAppIdPair = storageCase.getViewRecord(recordId);
+    FSCaseDto caseDto = caseAndAppIdPair.getLeft();
+    String appId = caseAndAppIdPair.getRight();
     if (caseDto == null) {
       return new FSQueryCaseResponseType();
     }
@@ -755,6 +767,7 @@ public class FileSystemService {
     header.setValue(recordId);
     header.setActive(true);
     caseDto.getHeaders().add(0, header);
+    caseDto.getHeaders().add(generateSkipMockHeader(appId));
 
     if (StringUtils.equalsIgnoreCase(planId, NULL_PLAN_ID)) {
       String oldHost = caseDto.getHeaders().stream()
@@ -941,6 +954,23 @@ public class FileSystemService {
       return false;
     }
     return ie.importItem(treeDto, request.getParentPath(), request.getImportString());
+  }
+
+  public KeyValuePairDto generateSkipMockHeader(String appId) {
+    List<ScheduleConfiguration> scheduleConfigurations = scheduleConfigurationProvider.listBy(appId);
+    if (CollectionUtils.isEmpty(scheduleConfigurations)) {
+      return null;
+    }
+    ScheduleConfiguration scheduleConfiguration = scheduleConfigurations.get(0);
+    String kvValue = JsonUtils.toJsonString(scheduleConfiguration.getExcludeOperationMap());
+    if (StringUtils.isBlank(kvValue)) {
+      return null;
+    }
+    KeyValuePairDto kvDto = new KeyValuePairDto();
+    kvDto.setKey(SKIP_MOCK_HEADER);
+    kvDto.setValue(kvValue);
+    kvDto.setActive(true);
+    return kvDto;
   }
 
   private void setAddressEndpoint(String planId, AddressDto addressDto) {
