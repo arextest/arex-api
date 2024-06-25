@@ -125,6 +125,7 @@ import javax.annotation.Resource;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.MutablePair;
@@ -767,7 +768,10 @@ public class FileSystemService {
     header.setValue(recordId);
     header.setActive(true);
     caseDto.getHeaders().add(0, header);
-    caseDto.getHeaders().add(generateSkipMockHeader(appId));
+    KeyValuePairDto skipMockHeader = generateSkipMockHeader(appId);
+    if(skipMockHeader != null) {
+      caseDto.getHeaders().add(skipMockHeader);
+    }
 
     if (StringUtils.equalsIgnoreCase(planId, NULL_PLAN_ID)) {
       String oldHost = caseDto.getHeaders().stream()
@@ -962,6 +966,9 @@ public class FileSystemService {
       return null;
     }
     ScheduleConfiguration scheduleConfiguration = scheduleConfigurations.get(0);
+    if (MapUtils.isEmpty(scheduleConfiguration.getExcludeOperationMap())) {
+      return null;
+    }
     String kvValue = JsonUtils.toJsonString(scheduleConfiguration.getExcludeOperationMap());
     if (StringUtils.isBlank(kvValue)) {
       return null;
