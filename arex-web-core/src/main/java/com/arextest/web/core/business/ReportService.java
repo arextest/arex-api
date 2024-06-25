@@ -2,7 +2,7 @@ package com.arextest.web.core.business;
 
 import com.arextest.model.mock.MockCategoryType;
 import com.arextest.web.common.LogUtils;
-import com.arextest.web.core.business.iosummary.SceneReportService;
+import com.arextest.web.common.LogUtils.LogTagKeySummary;
 import com.arextest.web.core.business.iosummary.SummaryService;
 import com.arextest.web.core.business.listener.planfinish.PlanFinishedService;
 import com.arextest.web.core.repository.ReplayCompareResultRepository;
@@ -10,16 +10,15 @@ import com.arextest.web.core.repository.ReportDiffAggStatisticRepository;
 import com.arextest.web.core.repository.ReportPlanItemStatisticRepository;
 import com.arextest.web.core.repository.ReportPlanStatisticRepository;
 import com.arextest.web.model.contract.contracts.ChangeReplayStatusRequestType;
-import com.arextest.web.model.contract.contracts.PushCompareResultsRequestType;
 import com.arextest.web.model.contract.contracts.RemoveErrorMsgRequest;
 import com.arextest.web.model.contract.contracts.RemoveRecordsAndScenesRequest;
-import com.arextest.web.model.contract.contracts.common.CompareResult;
 import com.arextest.web.model.contract.contracts.replay.AnalyzeCompareResultsRequestType;
 import com.arextest.web.model.dto.CompareResultDto;
 import com.arextest.web.model.dto.PlanItemDto;
 import com.arextest.web.model.dto.ReportPlanStatisticDto;
 import com.arextest.web.model.enums.ReplayStatusType;
 import com.arextest.web.model.mapper.CompareResultMapper;
+import com.google.common.collect.ImmutableMap;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -35,6 +34,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 public class ReportService {
+
   @Resource
   private ReplayCompareResultRepository replayCompareResultRepository;
   @Resource
@@ -57,6 +57,16 @@ public class ReportService {
         .map(CompareResultMapper.INSTANCE::dtoFromAnalyzeContract).collect(Collectors.toList());
 
     if (CollectionUtils.isNotEmpty(results)) {
+      CompareResultDto compareResultDto = results.get(0);
+      LogUtils.info(LOGGER,
+          ImmutableMap.of(
+              LogTagKeySummary.PLAN_ID, compareResultDto.getPlanId(),
+              LogTagKeySummary.PLAN_ITEM_ID, compareResultDto.getPlanItemId(),
+              LogTagKeySummary.RECORD_ID, compareResultDto.getRecordId(),
+              LogTagKeySummary.REPLAY_ID, compareResultDto.getReplayId()
+          ),
+          "analyze compare results"
+      );
       // save caseSummary to db
       summaryService.analysis(results);
       statisticService.statisticPlanItems(results);
@@ -65,13 +75,16 @@ public class ReportService {
   }
 
   public boolean changeReportStatus(ChangeReplayStatusRequestType request) {
+    String planId = request.getPlanId();
+    LogUtils.info(LOGGER, ImmutableMap.of(LogTagKeySummary.PLAN_ID, planId),
+        "change report status, request: {}",
+        request);
     if (request.getStatus() == ReplayStatusType.FINISHED) {
       ReportPlanStatisticDto plan = planStatisticRepository.findByPlanId(request.getPlanId());
       int retryTimes = 3;
       boolean match = false;
       for (int i = 0; i < retryTimes; i++) {
-        int count = replayCompareResultRepository.queryCompareResultCountByPlanId(
-            request.getPlanId());
+        int count = replayCompareResultRepository.queryCompareResultCountByPlanId(planId);
         if (!Objects.equals(count, plan.getTotalCaseCount())) {
           try {
             Thread.sleep(6000);
@@ -84,7 +97,8 @@ public class ReportService {
         }
       }
       if (!match) {
-        LogUtils.error(LOGGER, "The number of received cases does not match the declaration.");
+        LogUtils.error(LOGGER, ImmutableMap.of(LogTagKeySummary.PLAN_ID, planId),
+            "The number of received cases does not match the declaration.");
       }
     }
     ReportPlanStatisticDto planDto = planStatisticRepository.changePlanStatus(request.getPlanId(),

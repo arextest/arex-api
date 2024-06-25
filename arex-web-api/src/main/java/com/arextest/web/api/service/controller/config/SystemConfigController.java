@@ -3,8 +3,10 @@ package com.arextest.web.api.service.controller.config;
 import com.arextest.common.model.response.Response;
 import com.arextest.common.model.response.ResponseCode;
 import com.arextest.common.utils.ResponseUtils;
+import com.arextest.web.common.LogUtils;
 import com.arextest.web.core.business.SystemConfigurationService;
 import com.arextest.web.model.contract.contracts.config.SaveSystemConfigRequestType;
+import com.arextest.web.model.contract.contracts.config.SystemConfigWithProperties;
 import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
@@ -42,8 +44,10 @@ public class SystemConfigController {
   @GetMapping("/list")
   @ResponseBody
   public Response listSystemConfig() {
+    SystemConfigWithProperties systemConfigWithProperties = systemConfigurationService.listSystemConfig();
+    LogUtils.info(LOGGER, "listSystemConfig:{}", systemConfigWithProperties);
     return ResponseUtils.successResponse(
-        systemConfigurationService.listSystemConfig()
+        systemConfigWithProperties
     );
   }
 

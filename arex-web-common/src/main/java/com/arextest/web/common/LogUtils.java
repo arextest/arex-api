@@ -166,4 +166,19 @@ public class LogUtils {
     CommonMetrics.incErrorCount(AREX_API, NetworkInterfaceManager.INSTANCE.getLocalHostAddress());
     clear();
   }
+
+  public static class LogTagKeySummary {
+
+    public static final String PLAN_ID = "planId";
+
+    public static final String PLAN_ITEM_ID = "planItemId";
+
+    public static final String RECORD_ID = "recordId";
+
+    public static final String REPLAY_ID = "replayId";
+
+    public static final String PLAN_STATUS = "planStatus";
+
+  }
+
 }
