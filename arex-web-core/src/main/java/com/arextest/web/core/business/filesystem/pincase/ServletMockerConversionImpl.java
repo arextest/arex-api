@@ -8,6 +8,7 @@ import com.arextest.web.model.dto.KeyValuePairDto;
 import com.arextest.web.model.dto.filesystem.AddressDto;
 import com.arextest.web.model.dto.filesystem.BodyDto;
 import com.arextest.web.model.dto.filesystem.FSCaseDto;
+import com.arextest.web.model.dto.filesystem.FormDataDto;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -29,6 +30,7 @@ public class ServletMockerConversionImpl implements MockerConversion {
   private static final String HTTP_METHOD = "HttpMethod";
   private static final String REQUEST_PATH = "RequestPath";
   private static final String SERVLET = "Servlet";
+  private static final String FORM_DATA_TYPE_TEXT = "text";
 
   @Override
   public String getCategoryName() {
@@ -100,6 +102,13 @@ public class ServletMockerConversionImpl implements MockerConversion {
           } else {
             bodyDto.setBody(targetRequest.getBody());
           }
+
+          // set formData
+          if (contentType.toLowerCase().contains(NetworkConstants.FORM_DATA)) {
+            String formData = new String(Base64.getDecoder().decode(targetRequest.getBody()));
+            bodyDto.setFormData(formatFormData(formData));
+          }
+
           caseDto.setBody(bodyDto);
         }
       }
@@ -109,5 +118,22 @@ public class ServletMockerConversionImpl implements MockerConversion {
       LogUtils.error(LOGGER, "Failed to convert AREXMocker to FSCaseDto", e);
       return null;
     }
+  }
+
+  private List<FormDataDto> formatFormData(String formData) {
+    List<FormDataDto> formDataDtos = new ArrayList<>();
+    String[] formDatas = formData.split(AND);
+    for (String data : formDatas) {
+      String[] kv = data.split(EQUAL);
+      if (kv.length != 2) {
+        continue;
+      }
+      FormDataDto formDataDto = new FormDataDto();
+      formDataDto.setKey(kv[0]);
+      formDataDto.setValue(kv[1]);
+      formDataDto.setType(FORM_DATA_TYPE_TEXT);
+      formDataDtos.add(formDataDto);
+    }
+    return formDataDtos;
   }
 }
