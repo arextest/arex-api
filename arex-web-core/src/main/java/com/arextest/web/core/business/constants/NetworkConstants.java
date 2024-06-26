@@ -9,4 +9,6 @@ public class NetworkConstants {
   public static final String RAW = "raw";
 
   public static final String JSON = "json";
+
+  public static final String FORM_DATA = "form-data";
 }
