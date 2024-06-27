@@ -19,6 +19,7 @@ import lombok.Data;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -48,7 +49,7 @@ public class StorageCase {
   private HttpWebServiceApiClient httpWebServiceApiClient;
 
   @SneakyThrows
-  public FSCaseDto getViewRecord(String recordId) {
+  public Pair<FSCaseDto, String> getViewRecord(String recordId) {
     ObjectNode request = objectMapper.createObjectNode();
     request.put(RECORD_ID, recordId);
 
@@ -75,7 +76,9 @@ public class StorageCase {
     }
     MockerConversion mockerConversion = factory.get(categoryName);
 
-    return mockerConversion.mockerConvertToFsCase(entryPoint.get());
+    FSCaseDto fsCaseDto = mockerConversion.mockerConvertToFsCase(entryPoint.get());
+    String appId = entryPoint.map(AREXMocker::getAppId).orElse(StringUtils.EMPTY);
+    return Pair.of(fsCaseDto, appId);
   }
 
   public String getConfigBatchNo(String recordId) {

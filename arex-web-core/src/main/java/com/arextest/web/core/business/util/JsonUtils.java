@@ -69,4 +69,13 @@ public class JsonUtils {
     }
     return (obj.startsWith("{") && obj.endsWith("}")) || (obj.startsWith("[") && obj.endsWith("]"));
   }
+
+  public static String toJsonString(Object obj) {
+    try {
+      return COMMON_MAPPER.writeValueAsString(obj);
+    } catch (Exception e) {
+      LOGGER.error("toJsonString error", e);
+      return null;
+    }
+  }
 }
