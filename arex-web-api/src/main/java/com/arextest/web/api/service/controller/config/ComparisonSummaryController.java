@@ -4,6 +4,7 @@ import com.arextest.common.model.response.Response;
 import com.arextest.common.utils.ResponseUtils;
 import com.arextest.web.core.business.config.replay.ComparisonSummaryService;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonSummaryConfiguration;
+import com.arextest.web.model.contract.contracts.config.replay.QueryCompareConfigRequestType;
 import com.arextest.web.model.contract.contracts.config.replay.QueryConfigOfCategoryRequestType;
 import com.arextest.web.model.contract.contracts.config.replay.ReplayCompareConfig;
 import javax.annotation.Resource;
@@ -53,6 +54,14 @@ public class ComparisonSummaryController {
     return ResponseUtils.successResponse(
         comparisonSummaryService.queryConfigOfCategory(request)
     );
+  }
+
+  @PostMapping("/queryCompareConfig")
+  @ResponseBody
+  public Response queryCompareConfig(@RequestBody QueryCompareConfigRequestType request) {
+    ReplayCompareConfig replayCompareConfig = comparisonSummaryService.getReplayComparisonConfig(
+        request.getAppId(), request.getOperationName());
+    return ResponseUtils.successResponse(replayCompareConfig);
   }
 
 }
