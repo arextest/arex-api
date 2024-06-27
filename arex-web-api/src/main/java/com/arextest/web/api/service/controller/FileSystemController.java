@@ -352,8 +352,10 @@ public class FileSystemController {
   @PostMapping("/addItemsByAppNameAndInterfaceName")
   @ResponseBody
   public Response addItemsByAppAndInterface(
+      @RequestHeader(name = Constants.ACCESS_TOKEN) String token,
       @Valid @RequestBody FSAddItemsByAppAndInterfaceRequestType request) {
-    List<String> path = fileSystemService.addItemsByAppAndInterface(request);
+    String userName = jwtService.getUserName(token);
+    List<String> path = fileSystemService.addItemsByAppAndInterface(request, userName);
     FSAddItemsByAppAndInterfaceResponseType response = new FSAddItemsByAppAndInterfaceResponseType();
     if (CollectionUtils.isEmpty(path)) {
       response.setSuccess(false);
