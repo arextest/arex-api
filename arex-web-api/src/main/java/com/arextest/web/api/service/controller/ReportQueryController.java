@@ -438,6 +438,12 @@ public class ReportQueryController {
     return ResponseUtils.successResponse(schemaInferService.queryAllContracts(requestType));
   }
 
+  @PostMapping("/queryAllContracts/internal")
+  @ResponseBody
+  public Response queryAllContractsIntern(@Valid @RequestBody QueryContractRequestType requestType) {
+    return ResponseUtils.successResponse(schemaInferService.queryAllContractsInternal(requestType));
+  }
+
   @PostMapping("/queryFlatContract")
   @ResponseBody
   public Response queryFlatContract(@Valid @RequestBody QueryContractRequestType requestType) {

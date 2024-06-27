@@ -107,6 +107,8 @@ public class AuthorizationInterceptor extends AbstractInterceptorHandler {
     // invite to workspace
     defaultPatterns.add("/api/filesystem/validInvitation");
 
+    defaultPatterns.add("/api/report/queryAllContracts/internal");
+
     // add custom patterns
     if (StringUtils.isNotBlank(interceptorPatterns)) {
       String[] patterns = interceptorPatterns.split(",");

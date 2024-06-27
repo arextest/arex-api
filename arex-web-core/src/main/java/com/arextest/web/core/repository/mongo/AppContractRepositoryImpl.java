@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.mongodb.core.BulkOperations;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -182,9 +183,13 @@ public class AppContractRepositoryImpl implements AppContractRepository {
 
   @Override
   public List<AppContractDto> queryAppContracts(String appId, String operationId) {
-    Query query = Query.query(
-        Criteria.where(AppContractCollection.Fields.operationId).is(operationId)
-            .and(AppContractCollection.Fields.appId).is(appId));
+    Query query = new Query();
+    if (StringUtils.isNotBlank(appId)) {
+      query.addCriteria(Criteria.where(AppContractCollection.Fields.appId).is(appId));
+    }
+    if (StringUtils.isNotBlank(operationId)) {
+      query.addCriteria(Criteria.where(AppContractCollection.Fields.operationId).is(operationId));
+    }
     List<AppContractCollection> daos = mongoTemplate.find(query, AppContractCollection.class);
     return daos.stream().map(AppContractMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
   }
