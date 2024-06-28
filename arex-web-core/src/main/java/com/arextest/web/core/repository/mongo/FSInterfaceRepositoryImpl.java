@@ -134,7 +134,7 @@ public class FSInterfaceRepositoryImpl implements FSInterfaceRepository {
   }
 
   @Override
-  public List<FSInterfaceDto> queryInterfaceByParentIds(List<String> parentIds) {
+  public List<FSInterfaceDto> queryInterfaceByParentIds(Set<String> parentIds) {
     Query query = Query.query(Criteria.where(FSInterfaceCollection.Fields.parentId).in(parentIds));
     List<FSInterfaceCollection> daos = mongoTemplate.find(query, FSInterfaceCollection.class);
     return daos.stream().map(FSInterfaceMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
