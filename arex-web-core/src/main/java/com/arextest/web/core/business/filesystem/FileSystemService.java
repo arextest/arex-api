@@ -96,6 +96,7 @@ import com.arextest.web.model.mapper.FSCaseMapper;
 import com.arextest.web.model.mapper.FSFolderMapper;
 import com.arextest.web.model.mapper.FSInterfaceMapper;
 import com.arextest.web.model.mapper.FSNodeMapper;
+import com.arextest.web.model.mapper.FSRequestMapper;
 import com.arextest.web.model.mapper.FSTreeMapper;
 import com.arextest.web.model.mapper.UserWorkspaceMapper;
 import com.arextest.web.model.mapper.WorkspaceMapper;
@@ -882,16 +883,21 @@ public class FileSystemService {
       path.addAll(Arrays.asList(defaultPath));
 
       // save interface
-      FSSaveInterfaceRequestType saveInterfaceRequest = buildSaveInterfaceRequest(request,
-          defaultPath[1]);
+      FSSaveInterfaceRequestType saveInterfaceRequest = FSRequestMapper.INSTANCE.buildSaveInterfaceRequest(
+          request);
+      saveInterfaceRequest.setId(defaultPath[1]);
       saveInterface(saveInterfaceRequest, userName);
 
       //save case
-      FSSaveCaseRequestType saveCaseRequest = buildSaveCaseRequest(request, defaultPath[2]);
+      FSSaveCaseRequestType saveCaseRequest = FSRequestMapper.INSTANCE.buildSaveCaseRequest(
+          request);
+      saveCaseRequest.setId(defaultPath[2]);
       saveCase(saveCaseRequest, userName);
 
       //pin case
-      FSPinMockRequestType pinMockRequest = buildPinMockRequest(request, defaultPath[2]);
+      FSPinMockRequestType pinMockRequest = FSRequestMapper.INSTANCE.buildPinMockRequest(request);
+      pinMockRequest.setInfoId(defaultPath[2]);
+      pinMockRequest.setNodeType(FSInfoItem.CASE);
       pinMock(pinMockRequest);
     }
 
@@ -1566,51 +1572,5 @@ public class FileSystemService {
       }
     }
     return path;
-  }
-
-  private FSSaveInterfaceRequestType buildSaveInterfaceRequest(
-      FSAddItemsByAppAndInterfaceRequestType in, String id) {
-    FSSaveInterfaceRequestType out = new FSSaveInterfaceRequestType();
-    out.setAddress(in.getAddress());
-    out.setBody(in.getBody());
-    out.setId(id);
-    out.setHeaders(in.getHeaders());
-    out.setLabelIds(in.getLabelIds());
-    out.setAuth(in.getAuth());
-    out.setDescription(in.getDescription());
-    out.setParams(in.getParams());
-    out.setWorkspaceId(in.getWorkspaceId());
-    out.setPreRequestScripts(in.getPreRequestScripts());
-    out.setTestAddress(in.getTestAddress());
-    out.setTestScripts(in.getTestScripts());
-    return out;
-  }
-
-  private FSSaveCaseRequestType buildSaveCaseRequest(FSAddItemsByAppAndInterfaceRequestType in,
-      String id) {
-    FSSaveCaseRequestType out = new FSSaveCaseRequestType();
-    out.setId(id);
-    out.setAddress(in.getAddress());
-    out.setBody(in.getBody());
-    out.setHeaders(in.getHeaders());
-    out.setLabelIds(in.getLabelIds());
-    out.setAuth(in.getAuth());
-    out.setDescription(in.getDescription());
-    out.setParams(in.getParams());
-    out.setWorkspaceId(in.getWorkspaceId());
-    out.setPreRequestScripts(in.getPreRequestScripts());
-    out.setTestAddress(in.getTestAddress());
-    out.setTestScripts(in.getTestScripts());
-    return out;
-  }
-
-  private FSPinMockRequestType buildPinMockRequest(FSAddItemsByAppAndInterfaceRequestType in,
-      String id) {
-    FSPinMockRequestType out = new FSPinMockRequestType();
-    out.setNodeType(FSInfoItem.CASE);
-    out.setRecordId(in.getNodeName());
-    out.setWorkspaceId(in.getWorkspaceId());
-    out.setInfoId(id);
-    return out;
   }
 }
