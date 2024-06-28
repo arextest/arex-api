@@ -853,8 +853,8 @@ public class FileSystemService {
               request.getInterfaceName());
           return null;
         }
-        interfaceNode = fileSystemUtils.findByNodeName(addInterface.getRight().getRoots(),
-            request.getInterfaceName());
+        interfaceNode = fileSystemUtils.deepFindByInfoId(addInterface.getRight().getRoots(),
+            addInterface.getLeft());
         defaultPath[1] = addInterface.getLeft();
       } else {
         defaultPath[1] = interfaceNode.getInfoId();
@@ -868,7 +868,7 @@ public class FileSystemService {
         addCaseRequest.setId(treeDto.getId());
         addCaseRequest.setNodeName(request.getNodeName());
         addCaseRequest.setNodeType(FSInfoItem.CASE);
-        addCaseRequest.setParentPath(Arrays.asList(defaultPath));
+        addCaseRequest.setParentPath(Arrays.asList(defaultPath[0], defaultPath[1]));
         MutablePair<String, FSTreeDto> addCase = addItem(addCaseRequest);
         if (addCase == null) {
           LogUtils.error(LOGGER, "Add case failed, workspaceId: {}, nodeName: {}",
