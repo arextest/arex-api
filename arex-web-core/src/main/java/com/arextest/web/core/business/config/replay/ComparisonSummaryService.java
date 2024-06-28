@@ -7,6 +7,7 @@ import com.arextest.config.repository.impl.ApplicationOperationConfigurationRepo
 import com.arextest.web.common.LogUtils;
 import com.arextest.web.core.business.ConfigLoadService;
 import com.arextest.web.core.business.config.ConfigurableHandler;
+import com.arextest.web.core.business.config.application.ApplicationOperationConfigurableHandler;
 import com.arextest.web.core.repository.AppContractRepository;
 import com.arextest.web.model.contract.contracts.common.enums.ExpirationType;
 import com.arextest.web.model.contract.contracts.compare.CategoryDetail;
@@ -70,6 +71,9 @@ public class ComparisonSummaryService {
   ApplicationOperationConfigurationRepositoryImpl applicationOperationConfigurationRepositoryImpl;
 
   @Resource
+  ApplicationOperationConfigurableHandler applicationOperationConfigurableHandler;
+
+  @Resource
   ConfigLoadService configLoadService;
 
   public ComparisonSummaryService(
@@ -106,39 +110,7 @@ public class ComparisonSummaryService {
   }
 
   public ReplayCompareConfig getReplayComparisonConfig(String appId) {
-    ReplayCompareConfig result = new ReplayCompareConfig();
-    // store all config items, key is operationId and null, the null for global config
-    Map<String, ReplayCompareConfig.ReplayComparisonItem> replayComparisonItemMap;
-
-    // build operation config and global config
-    AppOperationAndDependencyInfo appOperationAndDependencyInfo = this.getOperationInfos(appId);
-    Map<String, ApplicationOperationConfiguration> operationInfoMap =
-        appOperationAndDependencyInfo.getOperationMap();
-    Map<String, Map<String, AppContractDto>> appContractDtoMap =
-        appOperationAndDependencyInfo.getAppContractDtoMap();
-    replayComparisonItemMap = this.buildMultiConfiguration(appId, operationInfoMap,
-        appContractDtoMap);
-
-    // merge global config to all operation config
-    this.mergeGlobalComparisonConfig(replayComparisonItemMap, operationInfoMap, appContractDtoMap);
-
-    // build global config
-    ReplayCompareConfig.GlobalComparisonItem globalComparisonItem = new ReplayCompareConfig.GlobalComparisonItem();
-    ReplayCompareConfig.ReplayComparisonItem replayComparisonItem = replayComparisonItemMap.get(
-        null);
-    if (replayComparisonItem != null) {
-      BeanUtils.copyProperties(replayComparisonItem, globalComparisonItem);
-      result.setGlobalComparisonItem(globalComparisonItem);
-    }
-
-    ReplayComparisonItem globalReplayComparison = replayComparisonItemMap.get(null);
-    List<ReplayComparisonItem> operationReplayComparison = replayComparisonItemMap.entrySet()
-        .stream()
-        .filter(item -> Objects.nonNull(item.getKey())).map(Entry::getValue)
-        .collect(Collectors.toList());
-    result.setReplayComparisonItems(operationReplayComparison);
-    this.setDefaultWhenMissingDependency(globalReplayComparison, result);
-    return result;
+    return getReplayComparisonConfig(appId, null);
   }
 
   public QueryConfigOfCategoryResponseType queryConfigOfCategory(
@@ -189,7 +161,45 @@ public class ComparisonSummaryService {
     return responseType;
   }
 
+  public ReplayCompareConfig getReplayComparisonConfig(String appId, String operationName) {
+    ReplayCompareConfig result = new ReplayCompareConfig();
+    // store all config items, key is operationId and null, the null for global config
+    Map<String, ReplayCompareConfig.ReplayComparisonItem> replayComparisonItemMap;
 
+    // build operation config and global config
+    AppOperationAndDependencyInfo appOperationAndDependencyInfo = this.getOperationInfos(appId,
+        operationName);
+
+    Map<String, ApplicationOperationConfiguration> operationInfoMap =
+        appOperationAndDependencyInfo.getOperationMap();
+    Map<String, Map<String, AppContractDto>> appContractDtoMap =
+        appOperationAndDependencyInfo.getAppContractDtoMap();
+    replayComparisonItemMap = this.buildMultiConfiguration(appId, operationInfoMap,
+        appContractDtoMap);
+
+    // merge global config to all operation config
+    this.mergeGlobalComparisonConfig(replayComparisonItemMap, operationInfoMap, appContractDtoMap);
+
+    // build global config
+    ReplayCompareConfig.GlobalComparisonItem globalComparisonItem = new ReplayCompareConfig.GlobalComparisonItem();
+    ReplayCompareConfig.ReplayComparisonItem replayComparisonItem = replayComparisonItemMap.get(
+        null);
+    if (replayComparisonItem != null) {
+      BeanUtils.copyProperties(replayComparisonItem, globalComparisonItem);
+      result.setGlobalComparisonItem(globalComparisonItem);
+    }
+
+    ReplayComparisonItem globalReplayComparison = replayComparisonItemMap.get(null);
+    List<ReplayComparisonItem> operationReplayComparison = replayComparisonItemMap.entrySet()
+        .stream()
+        .filter(item -> Objects.nonNull(item.getKey())).map(Entry::getValue)
+        .collect(Collectors.toList());
+    result.setReplayComparisonItems(operationReplayComparison);
+    this.setDefaultWhenMissingDependency(globalReplayComparison, result);
+    return result;
+  }
+
+  // region query compareconfig of interface
   protected void getComparisonExclusionsConfiguration(String interfaceId,
       ComparisonSummaryConfiguration comparisonSummaryConfiguration) {
     Set<List<String>> exclusionSet = new HashSet<>();
@@ -245,6 +255,7 @@ public class ComparisonSummaryService {
   protected void getAdditionalComparisonConfiguration(String interfaceId,
       ComparisonSummaryConfiguration comparisonSummaryConfiguration) {
   }
+  // endregion
 
   protected Map<String, ReplayCompareConfig.ReplayComparisonItem> buildMultiConfiguration(
       String appId,
@@ -339,6 +350,7 @@ public class ComparisonSummaryService {
    * @param appId appId
    * @return Map<String, ApplicationOperationConfiguration>
    */
+  @Deprecated
   protected AppOperationAndDependencyInfo getOperationInfos(String appId) {
     AppOperationAndDependencyInfo appOperationAndDependencyInfo = new AppOperationAndDependencyInfo();
 
@@ -354,6 +366,31 @@ public class ComparisonSummaryService {
             }
           }
         });
+
+    List<String> operationIdList = new ArrayList<>(operationMap.keySet());
+    // appContractDtoList filter the operation and group by operationId
+    List<AppContractDto> appContractDtos = appContractRepository.queryAppContractListByOpIds(
+        operationIdList,
+        Collections.singletonList(AppContractCollection.Fields.contract));
+    Map<String,
+        Map<String, AppContractDto>> appContractDtoMap = appContractDtos.stream()
+        .filter(
+            item -> Objects.equals(item.getContractType(), ContractTypeEnum.DEPENDENCY.getCode()))
+        .collect(Collectors.groupingBy(AppContractDto::getOperationId,
+            Collectors.toMap(AppContractDto::getId, Function.identity())));
+
+    appOperationAndDependencyInfo.setOperationMap(operationMap);
+    appOperationAndDependencyInfo.setAppContractDtoMap(appContractDtoMap);
+    return appOperationAndDependencyInfo;
+  }
+
+  protected AppOperationAndDependencyInfo getOperationInfos(String appId, String operationName) {
+    AppOperationAndDependencyInfo appOperationAndDependencyInfo = new AppOperationAndDependencyInfo();
+
+    List<ApplicationOperationConfiguration> applicationOperationConfigurations =
+        applicationOperationConfigurableHandler.queryOperationByName(appId, operationName);
+    Map<String, ApplicationOperationConfiguration> operationMap = applicationOperationConfigurations.stream()
+        .collect(Collectors.toMap(ApplicationOperationConfiguration::getId, Function.identity()));
 
     List<String> operationIdList = new ArrayList<>(operationMap.keySet());
     // appContractDtoList filter the operation and group by operationId
@@ -397,6 +434,12 @@ public class ComparisonSummaryService {
                 new ReplayCompareConfig.ReplayComparisonItem());
         tempReplayComparisonItem.setOperationId(operationId);
         ApplicationOperationConfiguration operationConfiguration = operationMap.get(operationId);
+
+        // not the config of global and not exist in the list of operations
+        if (operationId != null && operationConfiguration == null) {
+          continue;
+        }
+
         if (operationConfiguration != null) {
           tempReplayComparisonItem
               .setOperationTypes(new ArrayList<>(operationConfiguration.getOperationTypes()));
