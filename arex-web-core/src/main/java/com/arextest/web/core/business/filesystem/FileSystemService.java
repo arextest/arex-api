@@ -1441,7 +1441,7 @@ public class FileSystemService {
           } else if (FSInfoItem.FOLDER == fsNodeType.getNodeType()) {
             completableFutures
                 .add(CompletableFuture.runAsync(() -> {
-                  Set<String> ids = new HashSet<>();
+                  List<String> ids = Lists.newArrayList();
                   ids.add(fsNodeType.getInfoId());
                   this.queryLastChildFolder(
                       Collections.singletonList(fsNodeType.getInfoId()), ids);
@@ -1484,7 +1484,7 @@ public class FileSystemService {
     }
   }
 
-  private void queryLastChildFolder(List<String> ids, Set<String> result) {
+  private void queryLastChildFolder(List<String> ids, List<String> result) {
     List<FSItemDto> children = fsFolderRepository.queryByIdsByParentIds(ids);
     if (CollectionUtils.isNotEmpty(children)) {
       Set<String> pids = children.stream().map(FSItemDto::getParentId).collect(Collectors.toSet());
