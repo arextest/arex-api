@@ -861,25 +861,20 @@ public class FileSystemService {
       }
 
       // add case
-      FSNodeDto caseNode = fileSystemUtils.findByNodeName(interfaceNode.getChildren(),
-          request.getNodeName());
-      if (caseNode == null) {
-        FSAddItemRequestType addCaseRequest = new FSAddItemRequestType();
-        addCaseRequest.setId(treeDto.getId());
-        addCaseRequest.setNodeName(request.getNodeName());
-        addCaseRequest.setNodeType(FSInfoItem.CASE);
-        addCaseRequest.setParentPath(Arrays.asList(defaultPath[0], defaultPath[1]));
-        MutablePair<String, FSTreeDto> addCase = addItem(addCaseRequest);
-        if (addCase == null) {
-          LogUtils.error(LOGGER, "Add case failed, workspaceId: {}, nodeName: {}",
-              request.getWorkspaceId(),
-              request.getNodeName());
-          return null;
-        }
-        defaultPath[2] = addCase.getLeft();
-      } else {
-        defaultPath[2] = caseNode.getInfoId();
+      FSAddItemRequestType addCaseRequest = new FSAddItemRequestType();
+      addCaseRequest.setId(treeDto.getId());
+      addCaseRequest.setNodeName(request.getNodeName());
+      addCaseRequest.setNodeType(FSInfoItem.CASE);
+      addCaseRequest.setParentPath(Arrays.asList(defaultPath[0], defaultPath[1]));
+      MutablePair<String, FSTreeDto> addCase = addItem(addCaseRequest);
+      if (addCase == null) {
+        LogUtils.error(LOGGER, "Add case failed, workspaceId: {}, nodeName: {}",
+            request.getWorkspaceId(),
+            request.getNodeName());
+        return null;
       }
+      defaultPath[2] = addCase.getLeft();
+
       path.addAll(Arrays.asList(defaultPath));
 
       // save interface
