@@ -1,21 +1,28 @@
 package com.arextest.web.core.business.config.application;
 
+import com.arextest.config.model.dao.config.ServiceOperationCollection;
 import com.arextest.config.model.dto.application.ApplicationOperationConfiguration;
 import com.arextest.config.model.dto.application.Dependency;
 import com.arextest.config.repository.ConfigRepositoryProvider;
 import com.arextest.config.repository.impl.ApplicationOperationConfigurationRepositoryImpl;
 import com.arextest.web.core.business.config.AbstractConfigurableHandler;
 import com.arextest.web.core.repository.AppContractRepository;
+import com.arextest.web.model.dao.mongodb.AppContractCollection;
+import com.arextest.web.model.dao.mongodb.AppContractCollection.Fields;
 import com.arextest.web.model.dto.AppContractDto;
 import com.arextest.web.model.enums.ContractTypeEnum;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import software.amazon.awssdk.services.sso.endpoints.internal.Value.Str;
 
 /**
  * @author jmo
@@ -68,4 +75,21 @@ public final class ApplicationOperationConfigurableHandler
     result.setDependencyList(dependencyList);
     return result;
   }
+
+  public List<ApplicationOperationConfiguration> queryOperationByName(String appId,
+      String operationName) {
+    Map<String, Object> queryConditions = new HashMap<>(2);
+    queryConditions.put(ServiceOperationCollection.Fields.appId, appId);
+    if (operationName != null) {
+      queryConditions.put(ServiceOperationCollection.Fields.operationName, operationName);
+    }
+    List<ApplicationOperationConfiguration> applicationOperationConfigurations =
+        applicationOperationConfigurationRepository.queryByMultiCondition(queryConditions);
+    if (CollectionUtils.isEmpty(applicationOperationConfigurations)) {
+      return Collections.emptyList();
+    }
+    return applicationOperationConfigurations;
+  }
+
+
 }

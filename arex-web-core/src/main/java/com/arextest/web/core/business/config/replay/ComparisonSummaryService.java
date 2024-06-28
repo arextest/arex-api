@@ -7,6 +7,7 @@ import com.arextest.config.repository.impl.ApplicationOperationConfigurationRepo
 import com.arextest.web.common.LogUtils;
 import com.arextest.web.core.business.ConfigLoadService;
 import com.arextest.web.core.business.config.ConfigurableHandler;
+import com.arextest.web.core.business.config.application.ApplicationOperationConfigurableHandler;
 import com.arextest.web.core.repository.AppContractRepository;
 import com.arextest.web.model.contract.contracts.common.enums.ExpirationType;
 import com.arextest.web.model.contract.contracts.compare.CategoryDetail;
@@ -47,7 +48,6 @@ import javax.annotation.Resource;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -69,6 +69,9 @@ public class ComparisonSummaryService {
 
   @Resource
   ApplicationOperationConfigurationRepositoryImpl applicationOperationConfigurationRepositoryImpl;
+
+  @Resource
+  ApplicationOperationConfigurableHandler applicationOperationConfigurableHandler;
 
   @Resource
   ConfigLoadService configLoadService;
@@ -164,8 +167,8 @@ public class ComparisonSummaryService {
     Map<String, ReplayCompareConfig.ReplayComparisonItem> replayComparisonItemMap;
 
     // build operation config and global config
-    AppOperationAndDependencyInfo appOperationAndDependencyInfo = this.getOperationInfos(appId);
-    this.filterOperationInfo(appOperationAndDependencyInfo, operationName);
+    AppOperationAndDependencyInfo appOperationAndDependencyInfo = this.getOperationInfos(appId,
+        operationName);
 
     Map<String, ApplicationOperationConfiguration> operationInfoMap =
         appOperationAndDependencyInfo.getOperationMap();
@@ -253,35 +256,6 @@ public class ComparisonSummaryService {
       ComparisonSummaryConfiguration comparisonSummaryConfiguration) {
   }
   // endregion
-
-  protected void filterOperationInfo(AppOperationAndDependencyInfo appOperationAndDependencyInfo,
-      String operationName) {
-    if (StringUtils.isEmpty(operationName)) {
-      return;
-    }
-
-    // filter operation info
-    Map<String, ApplicationOperationConfiguration> operationMap = appOperationAndDependencyInfo.getOperationMap();
-    Map<String, ApplicationOperationConfiguration> filteredOperationMap = new HashMap<>();
-    for (Map.Entry<String, ApplicationOperationConfiguration> entry : operationMap.entrySet()) {
-      if (Objects.equals(entry.getValue().getOperationName(), operationName)) {
-        filteredOperationMap.put(entry.getKey(), entry.getValue());
-      }
-    }
-    appOperationAndDependencyInfo.setOperationMap(filteredOperationMap);
-
-    // filter dependency info
-    Set<String> operationIds = filteredOperationMap.keySet();
-    Map<String, Map<String, AppContractDto>> appContractDtoMap = appOperationAndDependencyInfo.getAppContractDtoMap();
-    Map<String, Map<String, AppContractDto>> filteredAppContractDtoMap = new HashMap<>();
-    for (String operationId : operationIds) {
-      Map<String, AppContractDto> dependencyAppContract = appContractDtoMap.get(operationId);
-      if (dependencyAppContract != null) {
-        filteredAppContractDtoMap.put(operationId, dependencyAppContract);
-      }
-    }
-    appOperationAndDependencyInfo.setAppContractDtoMap(filteredAppContractDtoMap);
-  }
 
   protected Map<String, ReplayCompareConfig.ReplayComparisonItem> buildMultiConfiguration(
       String appId,
@@ -376,6 +350,7 @@ public class ComparisonSummaryService {
    * @param appId appId
    * @return Map<String, ApplicationOperationConfiguration>
    */
+  @Deprecated
   protected AppOperationAndDependencyInfo getOperationInfos(String appId) {
     AppOperationAndDependencyInfo appOperationAndDependencyInfo = new AppOperationAndDependencyInfo();
 
@@ -391,6 +366,31 @@ public class ComparisonSummaryService {
             }
           }
         });
+
+    List<String> operationIdList = new ArrayList<>(operationMap.keySet());
+    // appContractDtoList filter the operation and group by operationId
+    List<AppContractDto> appContractDtos = appContractRepository.queryAppContractListByOpIds(
+        operationIdList,
+        Collections.singletonList(AppContractCollection.Fields.contract));
+    Map<String,
+        Map<String, AppContractDto>> appContractDtoMap = appContractDtos.stream()
+        .filter(
+            item -> Objects.equals(item.getContractType(), ContractTypeEnum.DEPENDENCY.getCode()))
+        .collect(Collectors.groupingBy(AppContractDto::getOperationId,
+            Collectors.toMap(AppContractDto::getId, Function.identity())));
+
+    appOperationAndDependencyInfo.setOperationMap(operationMap);
+    appOperationAndDependencyInfo.setAppContractDtoMap(appContractDtoMap);
+    return appOperationAndDependencyInfo;
+  }
+
+  protected AppOperationAndDependencyInfo getOperationInfos(String appId, String operationName) {
+    AppOperationAndDependencyInfo appOperationAndDependencyInfo = new AppOperationAndDependencyInfo();
+
+    List<ApplicationOperationConfiguration> applicationOperationConfigurations =
+        applicationOperationConfigurableHandler.queryOperationByName(appId, operationName);
+    Map<String, ApplicationOperationConfiguration> operationMap = applicationOperationConfigurations.stream()
+        .collect(Collectors.toMap(ApplicationOperationConfiguration::getId, Function.identity()));
 
     List<String> operationIdList = new ArrayList<>(operationMap.keySet());
     // appContractDtoList filter the operation and group by operationId
