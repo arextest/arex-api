@@ -1442,6 +1442,7 @@ public class FileSystemService {
             completableFutures
                 .add(CompletableFuture.runAsync(() -> {
                   List<String> ids = Lists.newArrayList();
+                  ids.add(fsNodeType.getInfoId());
                   this.queryLastChildFolder(
                       Collections.singletonList(fsNodeType.getInfoId()), ids);
                   List<FSInterfaceDto> fsInterfaceDtos = fsInterfaceRepository.queryInterfaceByParentIds(
