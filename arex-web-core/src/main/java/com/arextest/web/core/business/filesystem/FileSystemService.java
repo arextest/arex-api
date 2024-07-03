@@ -2,7 +2,6 @@ package com.arextest.web.core.business.filesystem;
 
 import com.arextest.common.exceptions.ArexException;
 import com.arextest.common.jwt.JWTService;
-import com.arextest.config.model.dto.record.ServiceCollectConfiguration;
 import com.arextest.config.repository.ConfigRepositoryProvider;
 import com.arextest.web.common.LoadResource;
 import com.arextest.web.common.LogUtils;
@@ -23,7 +22,6 @@ import com.arextest.web.core.repository.FSTreeRepository;
 import com.arextest.web.core.repository.ReportPlanStatisticRepository;
 import com.arextest.web.core.repository.UserRepository;
 import com.arextest.web.core.repository.UserWorkspaceRepository;
-import com.arextest.web.core.repository.mongo.ScheduleConfigurationRepositoryImpl;
 import com.arextest.web.model.contract.contracts.config.replay.ScheduleConfiguration;
 import com.arextest.web.model.contract.contracts.filesystem.BatchGetInterfaceCaseRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.BatchGetInterfaceCaseResponseType;
@@ -98,6 +96,7 @@ import com.arextest.web.model.mapper.FSCaseMapper;
 import com.arextest.web.model.mapper.FSFolderMapper;
 import com.arextest.web.model.mapper.FSInterfaceMapper;
 import com.arextest.web.model.mapper.FSNodeMapper;
+import com.arextest.web.model.mapper.FSRequestMapper;
 import com.arextest.web.model.mapper.FSTreeMapper;
 import com.arextest.web.model.mapper.UserWorkspaceMapper;
 import com.arextest.web.model.mapper.WorkspaceMapper;
@@ -805,7 +804,8 @@ public class FileSystemService {
     return response;
   }
 
-  public List<String> addItemsByAppAndInterface(FSAddItemsByAppAndInterfaceRequestType request) {
+  public List<String> addItemsByAppAndInterface(FSAddItemsByAppAndInterfaceRequestType request,
+      String userName) {
     List<String> path = new ArrayList<>();
     if (CollectionUtils.isNotEmpty(request.getParentPath())) {
       path.addAll(request.getParentPath());
@@ -815,7 +815,8 @@ public class FileSystemService {
         LogUtils.error(LOGGER, "Workspace not found, workspaceId: {}", request.getWorkspaceId());
         return null;
       }
-      String[] defaultPath = new String[2];
+      String[] defaultPath = new String[3];
+      // add folder
       FSNodeDto appIdNode = fileSystemUtils.findByNodeName(treeDto.getRoots(),
           request.getAppName());
       if (appIdNode == null) {
@@ -836,6 +837,7 @@ public class FileSystemService {
       } else {
         defaultPath[0] = appIdNode.getInfoId();
       }
+      // add interface
       FSNodeDto interfaceNode = fileSystemUtils.findByNodeName(appIdNode.getChildren(),
           request.getInterfaceName());
       if (interfaceNode == null) {
@@ -851,12 +853,49 @@ public class FileSystemService {
               request.getInterfaceName());
           return null;
         }
+        interfaceNode = fileSystemUtils.deepFindByInfoId(addInterface.getRight().getRoots(),
+            addInterface.getLeft());
         defaultPath[1] = addInterface.getLeft();
       } else {
         defaultPath[1] = interfaceNode.getInfoId();
       }
+
+      // add case
+      FSAddItemRequestType addCaseRequest = new FSAddItemRequestType();
+      addCaseRequest.setId(treeDto.getId());
+      addCaseRequest.setNodeName(request.getNodeName());
+      addCaseRequest.setNodeType(FSInfoItem.CASE);
+      addCaseRequest.setParentPath(Arrays.asList(defaultPath[0], defaultPath[1]));
+      MutablePair<String, FSTreeDto> addCase = addItem(addCaseRequest);
+      if (addCase == null) {
+        LogUtils.error(LOGGER, "Add case failed, workspaceId: {}, nodeName: {}",
+            request.getWorkspaceId(),
+            request.getNodeName());
+        return null;
+      }
+      defaultPath[2] = addCase.getLeft();
+
       path.addAll(Arrays.asList(defaultPath));
+
+      // save interface
+      FSSaveInterfaceRequestType saveInterfaceRequest = FSRequestMapper.INSTANCE.buildSaveInterfaceRequest(
+          request);
+      saveInterfaceRequest.setId(defaultPath[1]);
+      saveInterface(saveInterfaceRequest, userName);
+
+      //save case
+      FSSaveCaseRequestType saveCaseRequest = FSRequestMapper.INSTANCE.buildSaveCaseRequest(
+          request);
+      saveCaseRequest.setId(defaultPath[2]);
+      saveCase(saveCaseRequest, userName);
+
+      //pin case
+      FSPinMockRequestType pinMockRequest = FSRequestMapper.INSTANCE.buildPinMockRequest(request);
+      pinMockRequest.setInfoId(defaultPath[2]);
+      pinMockRequest.setNodeType(FSInfoItem.CASE);
+      pinMock(pinMockRequest);
     }
+
 
     // add the related information about the replay interface to the manual interface
     this.addReplayInfoToManual(request.getOperationId(), path);
@@ -1442,6 +1481,7 @@ public class FileSystemService {
             completableFutures
                 .add(CompletableFuture.runAsync(() -> {
                   List<String> ids = Lists.newArrayList();
+                  ids.add(fsNodeType.getInfoId());
                   this.queryLastChildFolder(
                       Collections.singletonList(fsNodeType.getInfoId()), ids);
                   List<FSInterfaceDto> fsInterfaceDtos = fsInterfaceRepository.queryInterfaceByParentIds(
