@@ -72,28 +72,18 @@ public class SchemaInferService {
   }
 
   public List<AppContractDto> queryAllContracts(QueryContractRequestType requestType) {
-    return queryAllContracts(requestType, true);
-  }
-
-  public List<AppContractDto> queryAllContractsInternal(QueryContractRequestType requestType) {
-    return queryAllContracts(requestType, false);
-  }
-
-  private List<AppContractDto> queryAllContracts(QueryContractRequestType requestType, boolean filter) {
     List<AppContractDto> appContractList = new ArrayList<>();
-    if (requestType.getAppId() == null && requestType.getOperationId() == null) {
-      return appContractList;
-    }
-    List<AppContractDto> appContractDtos = appContractRepository.queryAppContracts(
-            requestType.getAppId(),
-            requestType.getOperationId());
-    if (filter) {
-      appContractDtos = appContractDtos.stream()
-          .filter(appContractDto -> !EXCLUDE_OPERATION_TYPE.contains(appContractDto.getOperationType()))
+    if (requestType.getAppId() != null && requestType.getOperationId() != null) {
+      List<AppContractDto> appContractDtos = appContractRepository.queryAppContracts(
+              requestType.getAppId(),
+              requestType.getOperationId())
+          .stream()
+          .filter(
+              appContractDto -> !EXCLUDE_OPERATION_TYPE.contains(appContractDto.getOperationType()))
           .collect(Collectors.toList());
-    }
-    if (CollectionUtils.isNotEmpty(appContractDtos)) {
-      appContractList.addAll(appContractDtos);
+      if (CollectionUtils.isNotEmpty(appContractDtos)) {
+        appContractList.addAll(appContractDtos);
+      }
     }
     return appContractList;
   }
