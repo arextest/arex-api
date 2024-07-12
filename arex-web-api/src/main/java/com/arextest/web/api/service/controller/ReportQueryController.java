@@ -374,6 +374,15 @@ public class ReportQueryController {
   @PostMapping("/countRecord")
   @ResponseBody
   public Response countRecord(@Valid @RequestBody CountRecordRequestType requestType) {
+    // add default time
+    long currentTime = System.currentTimeMillis();
+
+    if (requestType.getBeginTime() == null) {
+      requestType.setBeginTime(0L);
+    }
+    if (requestType.getEndTime() == null) {
+      requestType.setEndTime(currentTime);
+    }
     return ResponseUtils.successResponse(recordService.countRecord(requestType));
   }
 
