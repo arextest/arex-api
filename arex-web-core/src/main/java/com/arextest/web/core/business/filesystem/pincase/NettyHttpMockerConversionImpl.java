@@ -9,10 +9,11 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class NettyHttpMockerConversionImpl extends HttpMockerConversionImpl {
+    private static final String NETTY = "NettyProvider";
 
     @Override
     public String getCategoryName() {
-        return "NettyProvider";
+        return NETTY;
     }
 
 

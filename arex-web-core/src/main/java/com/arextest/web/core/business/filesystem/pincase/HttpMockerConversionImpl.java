@@ -34,7 +34,7 @@ public abstract class HttpMockerConversionImpl implements MockerConversion {
 
     @Override
     public FSCaseDto mockerConvertToFsCase(AREXMocker mocker) {
-        if (mocker == null) {
+        if (mocker == null || mocker.getTargetRequest() == null) {
             return null;
         }
         FSCaseDto caseDto = new FSCaseDto();
