@@ -40,9 +40,6 @@ public abstract class HttpMockerConversionImpl implements MockerConversion {
         FSCaseDto caseDto = new FSCaseDto();
 
         Mocker.Target targetRequest = mocker.getTargetRequest();
-        if (targetRequest == null) {
-            return null;
-        }
 
         try {
             AddressDto addressDto = new AddressDto();
