@@ -6,6 +6,8 @@ import com.arextest.common.utils.ResponseUtils;
 import com.arextest.config.model.dto.AbstractMultiEnvConfiguration;
 import com.arextest.config.model.dto.ModifyType;
 import com.arextest.web.core.business.config.MultiEnvConfigurableHandler;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
@@ -20,6 +22,8 @@ public abstract class AbstractMultiEnvConfigController<T extends AbstractMultiEn
     extends AbstractConfigurableController<T> {
 
   protected MultiEnvConfigurableHandler<T> multiEnvConfigurableHandler;
+
+  private static final ObjectMapper MAPPER = new ObjectMapper();
 
   protected AbstractMultiEnvConfigController(MultiEnvConfigurableHandler<T> configurableHandler) {
     super(configurableHandler);
@@ -40,9 +44,20 @@ public abstract class AbstractMultiEnvConfigController<T extends AbstractMultiEn
     } else {
       response = super.modify(modifyType, configuration);
     }
-    MDC.put("method", "com.arextest.web.api.service.controller.config.AbstractMultiEnvConfigController.modify");
-    LOGGER.info("[[title=config.modify]]modify config, modifyType: {}, request: {}", configuration, response);
+    MDC.put("method",
+        "com.arextest.web.api.service.controller.config.AbstractMultiEnvConfigController.modify");
+    LOGGER.info("[[title=config.modify]]modify config, modifyType: {}, request: {}, response:{}",
+        modifyType.toString(), buildToString(configuration), buildToString(response));
     MDC.clear();
     return response;
+  }
+
+  private String buildToString(Object object) {
+    String res = "";
+    try {
+      res = MAPPER.writeValueAsString(object);
+    } catch (JsonProcessingException e) {
+    }
+    return res;
   }
 }
