@@ -8,6 +8,7 @@ import com.arextest.config.model.dto.ModifyType;
 import com.arextest.web.core.business.config.MultiEnvConfigurableHandler;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -39,7 +40,9 @@ public abstract class AbstractMultiEnvConfigController<T extends AbstractMultiEn
     } else {
       response = super.modify(modifyType, configuration);
     }
+    MDC.put("method", "com.arextest.web.api.service.controller.config.AbstractMultiEnvConfigController.modify");
     LOGGER.info("[[title=config.modify]]modify config, modifyType: {}, request: {}", configuration, response);
+    MDC.clear();
     return response;
   }
 }
