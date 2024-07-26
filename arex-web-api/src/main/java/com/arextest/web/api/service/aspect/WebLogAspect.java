@@ -30,6 +30,7 @@ public class WebLogAspect {
   private ObjectMapper mapper;
 
   @Pointcut("execution(* com.arextest.web.api.service.controller.*.*(..)) "
+      + "&& !execution(* com.arextest.web.api.service.controller.LogsController.*(..))"
       + "&& !execution(* com.arextest.web.api.service.controller.CheckHealthController.*(..))"
       + "&& !execution(* com.arextest.web.api.service.controller.ReportQueryController.downloadReplayMsg(..))")
   public void webLog() {
