@@ -2,9 +2,11 @@ package com.arextest.web.core.business.config.record;
 
 import com.arextest.config.model.dto.record.ServiceCollectConfiguration;
 import com.arextest.config.repository.MultiEnvConfigRepositoryProvider;
+import com.arextest.config.repository.impl.ServiceCollectConfigurationRepositoryImpl;
 import com.arextest.web.core.business.config.AbstractMultiEnvConfigHandler;
 import java.util.Collections;
 import java.util.List;
+import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -17,6 +19,9 @@ import org.springframework.stereotype.Component;
 @Component
 public final class ServiceCollectConfigurableHandler
     extends AbstractMultiEnvConfigHandler<ServiceCollectConfiguration> {
+
+  @Resource
+  ServiceCollectConfigurationRepositoryImpl serviceCollectConfigurationRepository;
 
   protected ServiceCollectConfigurableHandler(
       @Autowired MultiEnvConfigRepositoryProvider<ServiceCollectConfiguration> repositoryProvider) {
@@ -39,7 +44,6 @@ public final class ServiceCollectConfigurableHandler
   }
 
   public void updateServiceCollectTime(String appId) {
-    ServiceCollectConfiguration serviceCollectConfiguration = this.useResult(appId);
-    this.update(serviceCollectConfiguration);
+    serviceCollectConfigurationRepository.updateServiceCollectTime(appId);
   }
 }
