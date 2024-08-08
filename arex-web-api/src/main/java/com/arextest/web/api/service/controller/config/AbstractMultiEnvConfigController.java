@@ -33,6 +33,17 @@ public abstract class AbstractMultiEnvConfigController<T extends AbstractMultiEn
       configuration.validateEnvConfigs();
       return ResponseUtils.successResponse(getMultiEnvConfigurableHandler().editMultiEnvList(configuration));
     }
-    return super.modify(modifyType, configuration);
+    if (modifyType == ModifyType.INSERT) {
+      configuration.validParameters();
+      return ResponseUtils.successResponse(getConfigurableHandler().insert(configuration));
+    }
+    if (modifyType == ModifyType.UPDATE) {
+      configuration.validParameters();
+      return ResponseUtils.successResponse(getConfigurableHandler().update(configuration));
+    }
+    if (modifyType == ModifyType.REMOVE) {
+      return ResponseUtils.successResponse(getConfigurableHandler().remove(configuration));
+    }
+    return ResponseUtils.resourceNotFoundResponse();
   }
 }

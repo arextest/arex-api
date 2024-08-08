@@ -1,9 +1,11 @@
 package com.arextest.web.api.service.controller;
 
+import com.arextest.common.jwt.JWTService;
 import com.arextest.common.model.response.Response;
 import com.arextest.common.model.response.ResponseCode;
-import com.arextest.common.jwt.JWTService;
 import com.arextest.common.utils.ResponseUtils;
+import com.arextest.common.utils.ResponseUtils_New;
+import com.arextest.web.common.exception.ArexApiResponseCode;
 import com.arextest.web.core.business.filesystem.FileSystemService;
 import com.arextest.web.core.business.filesystem.RolePermission;
 import com.arextest.web.model.contract.contracts.SuccessResponseType;
@@ -102,8 +104,8 @@ public class FileSystemController {
     if (StringUtils.isNotEmpty(request.getId())
         && !rolePermission.checkPermissionByToken(RolePermission.EDIT_ITEM, token,
         request.getId())) {
-      return ResponseUtils.errorResponse(Constants.NO_PERMISSION,
-          ResponseCode.AUTHENTICATION_FAILED);
+      return ResponseUtils_New.errorResponse(Constants.NO_PERMISSION,
+          ArexApiResponseCode.FS_NO_PERMISSION);
     }
     String userName = jwtService.getUserName(token);
     request.setUserName(userName);
@@ -116,8 +118,8 @@ public class FileSystemController {
   public Response removeItem(@RequestHeader(name = Constants.ACCESS_TOKEN) String token,
       @Valid @RequestBody FSRemoveItemRequestType request) {
     if (!rolePermission.checkPermissionByToken(RolePermission.EDIT_ITEM, token, request.getId())) {
-      return ResponseUtils.errorResponse(Constants.NO_PERMISSION,
-          ResponseCode.AUTHENTICATION_FAILED);
+      return ResponseUtils_New.errorResponse(Constants.NO_PERMISSION,
+          ArexApiResponseCode.FS_NO_PERMISSION);
     }
     String userName = jwtService.getUserName(token);
     FSRemoveItemResponseType response = new FSRemoveItemResponseType();
@@ -130,8 +132,8 @@ public class FileSystemController {
   public Response rename(@RequestHeader(name = Constants.ACCESS_TOKEN) String token,
       @Valid @RequestBody FSRenameRequestType request) {
     if (!rolePermission.checkPermissionByToken(RolePermission.EDIT_ITEM, token, request.getId())) {
-      return ResponseUtils.errorResponse(Constants.NO_PERMISSION,
-          ResponseCode.AUTHENTICATION_FAILED);
+      return ResponseUtils_New.errorResponse(Constants.NO_PERMISSION,
+          ArexApiResponseCode.FS_NO_PERMISSION);
     }
     FSRenameResponseType response = new FSRenameResponseType();
     response.setSuccess(fileSystemService.rename(request));
@@ -143,8 +145,8 @@ public class FileSystemController {
   public Response duplicate(@RequestHeader(name = Constants.ACCESS_TOKEN) String token,
       @Valid @RequestBody FSDuplicateRequestType request) {
     if (!rolePermission.checkPermissionByToken(RolePermission.EDIT_ITEM, token, request.getId())) {
-      return ResponseUtils.errorResponse(Constants.NO_PERMISSION,
-          ResponseCode.AUTHENTICATION_FAILED);
+      return ResponseUtils_New.errorResponse(Constants.NO_PERMISSION,
+          ArexApiResponseCode.FS_NO_PERMISSION);
     }
     FSDuplicateResponseType response = fileSystemService.duplicate(request);
     return ResponseUtils.successResponse(response);
@@ -171,8 +173,8 @@ public class FileSystemController {
       @Valid @RequestBody FSDeleteWorkspaceRequestType request) {
     if (!rolePermission.checkPermissionByToken(RolePermission.EDIT_WORKSPACE, token,
         request.getWorkspaceId())) {
-      return ResponseUtils.errorResponse(Constants.NO_PERMISSION,
-          ResponseCode.AUTHENTICATION_FAILED);
+      return ResponseUtils_New.errorResponse(Constants.NO_PERMISSION,
+          ArexApiResponseCode.FS_NO_PERMISSION);
     }
     SuccessResponseType response = new SuccessResponseType();
     response.setSuccess(fileSystemService.deleteWorkspace(request.getWorkspaceId()));
@@ -185,8 +187,8 @@ public class FileSystemController {
       @Valid @RequestBody FSRenameWorkspaceRequestType request) {
     if (!rolePermission.checkPermissionByToken(RolePermission.EDIT_WORKSPACE, token,
         request.getId())) {
-      return ResponseUtils.errorResponse(Constants.NO_PERMISSION,
-          ResponseCode.AUTHENTICATION_FAILED);
+      return ResponseUtils_New.errorResponse(Constants.NO_PERMISSION,
+          ArexApiResponseCode.FS_NO_PERMISSION);
     }
     SuccessResponseType response = new SuccessResponseType();
     response.setSuccess(fileSystemService.renameWorkspace(request));
@@ -199,8 +201,8 @@ public class FileSystemController {
       @RequestBody FSQueryWorkspaceRequestType request) {
     if (!rolePermission.checkPermissionByToken(RolePermission.VIEW_WORKSPACE, token,
         request.getId())) {
-      return ResponseUtils.errorResponse(Constants.NO_PERMISSION,
-          ResponseCode.AUTHENTICATION_FAILED);
+      return ResponseUtils_New.errorResponse(Constants.NO_PERMISSION,
+          ArexApiResponseCode.FS_NO_PERMISSION);
     }
     FSQueryWorkspaceResponseType response = fileSystemService.queryWorkspaceById(request);
     return ResponseUtils.successResponse(response);
@@ -283,8 +285,8 @@ public class FileSystemController {
       @Valid @RequestBody InviteToWorkspaceRequestType request) {
     if (!rolePermission.checkPermissionByToken(RolePermission.INVITE_TO_WORKSPACE, token,
         request.getWorkspaceId())) {
-      return ResponseUtils.errorResponse(Constants.NO_PERMISSION,
-          ResponseCode.AUTHENTICATION_FAILED);
+      return ResponseUtils_New.errorResponse(Constants.NO_PERMISSION,
+          ArexApiResponseCode.FS_NO_PERMISSION);
     }
     InviteToWorkspaceResponseType response = fileSystemService.inviteToWorkspace(request);
     return ResponseUtils.successResponse(response);
@@ -305,8 +307,8 @@ public class FileSystemController {
       @Valid @RequestBody RemoveUserFromWorkspaceType request) {
     if (!rolePermission.checkPermissionByToken(RolePermission.EDIT_WORKSPACE, token,
         request.getWorkspaceId())) {
-      return ResponseUtils.errorResponse(Constants.NO_PERMISSION,
-          ResponseCode.AUTHENTICATION_FAILED);
+      return ResponseUtils_New.errorResponse(Constants.NO_PERMISSION,
+          ArexApiResponseCode.FS_NO_PERMISSION);
     }
     SuccessResponseType response = new SuccessResponseType();
     response.setSuccess(
@@ -320,8 +322,8 @@ public class FileSystemController {
       @Valid @RequestBody ChangeRoleRequestType request) {
     if (!rolePermission.checkPermissionByToken(RolePermission.EDIT_WORKSPACE, token,
         request.getWorkspaceId())) {
-      return ResponseUtils.errorResponse(Constants.NO_PERMISSION,
-          ResponseCode.AUTHENTICATION_FAILED);
+      return ResponseUtils_New.errorResponse(Constants.NO_PERMISSION,
+          ArexApiResponseCode.FS_NO_PERMISSION);
     }
     SuccessResponseType response = new SuccessResponseType();
     response.setSuccess(fileSystemService.changeRole(request));
@@ -403,8 +405,8 @@ public class FileSystemController {
       @RequestBody FSGetWorkspaceItemsRequestType request) {
     if (!rolePermission.checkPermissionByToken(RolePermission.VIEW_WORKSPACE, token,
         request.getWorkspaceId())) {
-      return ResponseUtils.errorResponse(Constants.NO_PERMISSION,
-          ResponseCode.AUTHENTICATION_FAILED);
+      return ResponseUtils_New.errorResponse(Constants.NO_PERMISSION,
+          ArexApiResponseCode.FS_NO_PERMISSION);
     }
     FSGetWorkspaceItemsResponseType response = fileSystemService.getWorkspaceItems(request);
     return ResponseUtils.successResponse(response);
@@ -416,8 +418,8 @@ public class FileSystemController {
       @RequestBody FSSearchWorkspaceItemsRequestType request) {
     if (!rolePermission.checkPermissionByToken(RolePermission.VIEW_WORKSPACE, token,
         request.getWorkspaceId())) {
-      return ResponseUtils.errorResponse(Constants.NO_PERMISSION,
-          ResponseCode.AUTHENTICATION_FAILED);
+      return ResponseUtils_New.errorResponse(Constants.NO_PERMISSION,
+          ArexApiResponseCode.FS_NO_PERMISSION);
     }
     FSSearchWorkspaceItemsResponseType response = fileSystemService.searchWorkspaceItems(request);
     return ResponseUtils.successResponse(response);
@@ -430,8 +432,8 @@ public class FileSystemController {
       @RequestBody FSGetWorkspaceItemTreeRequestType request) {
     if (!rolePermission.checkPermissionByToken(RolePermission.VIEW_WORKSPACE, token,
         request.getWorkspaceId())) {
-      return ResponseUtils.errorResponse(Constants.NO_PERMISSION,
-          ResponseCode.AUTHENTICATION_FAILED);
+      return ResponseUtils_New.errorResponse(Constants.NO_PERMISSION,
+          ArexApiResponseCode.FS_NO_PERMISSION);
     }
     FSGetWorkspaceItemTreeResponseType response = fileSystemService.getWorkspaceItemTree(request);
     return ResponseUtils.successResponse(response);
@@ -443,8 +445,8 @@ public class FileSystemController {
       @RequestBody BatchGetInterfaceCaseRequestType request) {
     if (!rolePermission.checkPermissionByToken(RolePermission.VIEW_WORKSPACE, token,
         request.getWorkspaceId())) {
-      return ResponseUtils.errorResponse(Constants.NO_PERMISSION,
-          ResponseCode.AUTHENTICATION_FAILED);
+      return ResponseUtils_New.errorResponse(Constants.NO_PERMISSION,
+          ArexApiResponseCode.FS_NO_PERMISSION);
     }
     BatchGetInterfaceCaseResponseType response = fileSystemService.batchGetInterfaceCase(request);
     return ResponseUtils.successResponse(response);

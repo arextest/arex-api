@@ -3,6 +3,8 @@ package com.arextest.web.api.service.controller;
 import com.arextest.common.model.response.Response;
 import com.arextest.common.model.response.ResponseCode;
 import com.arextest.common.utils.ResponseUtils;
+import com.arextest.common.utils.ResponseUtils_New;
+import com.arextest.web.common.exception.ArexApiResponseCode;
 import com.arextest.web.core.business.LabelService;
 import com.arextest.web.core.business.filesystem.RolePermission;
 import com.arextest.web.model.contract.contracts.SuccessResponseType;
@@ -41,8 +43,8 @@ public class LabelController {
       @Valid @RequestBody SaveLabelRequestType request) {
     if (!rolePermission.checkPermissionByToken(RolePermission.EDIT_LABEL, token,
         request.getWorkspaceId())) {
-      return ResponseUtils.errorResponse(Constants.NO_PERMISSION,
-          ResponseCode.AUTHENTICATION_FAILED);
+      return ResponseUtils_New.errorResponse(Constants.NO_PERMISSION,
+          ArexApiResponseCode.FS_NO_PERMISSION);
     }
     SuccessResponseType response = new SuccessResponseType();
     response.setSuccess(labelService.saveLabel(request));
@@ -54,8 +56,8 @@ public class LabelController {
       @Valid @RequestBody RemoveLabelRequestType request) {
     if (!rolePermission.checkPermissionByToken(RolePermission.EDIT_LABEL, token,
         request.getWorkspaceId())) {
-      return ResponseUtils.errorResponse(Constants.NO_PERMISSION,
-          ResponseCode.AUTHENTICATION_FAILED);
+      return ResponseUtils_New.errorResponse(Constants.NO_PERMISSION,
+          ArexApiResponseCode.FS_NO_PERMISSION);
     }
     SuccessResponseType response = new SuccessResponseType();
     response.setSuccess(labelService.removeLabel(request));
@@ -68,8 +70,8 @@ public class LabelController {
       @Valid @RequestBody QueryLabelsByWorkspaceIdRequestType request) {
     if (!rolePermission.checkPermissionByToken(RolePermission.EDIT_LABEL, token,
         request.getWorkspaceId())) {
-      return ResponseUtils.errorResponse(Constants.NO_PERMISSION,
-          ResponseCode.AUTHENTICATION_FAILED);
+      return ResponseUtils_New.errorResponse(Constants.NO_PERMISSION,
+          ArexApiResponseCode.FS_NO_PERMISSION);
     }
     QueryLabelsByWorkspaceIdResponseType response = new QueryLabelsByWorkspaceIdResponseType();
     response.setLabels(labelService.queryLabelsByWorkspaceId(request.getWorkspaceId()));
