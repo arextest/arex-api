@@ -18,6 +18,7 @@ import com.arextest.web.model.contract.contracts.filesystem.FSAddItemsByAppAndIn
 import com.arextest.web.model.contract.contracts.filesystem.FSAddItemsByAppAndInterfaceResponseType;
 import com.arextest.web.model.contract.contracts.filesystem.FSAddWorkspaceRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.FSAddWorkspaceResponseType;
+import com.arextest.web.model.contract.contracts.filesystem.FSAutoGenerateRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.FSDeleteWorkspaceRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.FSDuplicateRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.FSDuplicateResponseType;
@@ -459,6 +460,24 @@ public class FileSystemController {
     response.setPathInfo(
         fileSystemService.getAbsolutePathInfo(request.getInfoId(), request.getNodeType()));
     return ResponseUtils.successResponse(response);
+  }
+
+  @PostMapping("/saveAutoGenerateCase")
+  @ResponseBody
+  public Response saveAiCase(@RequestHeader(name = Constants.ACCESS_TOKEN) String token,
+      @Valid @RequestBody FSAutoGenerateRequestType request) {
+
+    if (StringUtils.isNotEmpty(request.getWorkspaceId())
+        && !rolePermission.checkPermissionByToken(RolePermission.EDIT_ITEM, token,
+        request.getWorkspaceId())) {
+      return ResponseUtils_New.errorResponse(Constants.NO_PERMISSION,
+          ArexApiResponseCode.FS_NO_PERMISSION);
+    }
+
+    String userName = jwtService.getUserName(token);
+    return ResponseUtils.successResponse(
+        fileSystemService.saveAutoGenerateCase(userName, request)
+    );
   }
 
 }

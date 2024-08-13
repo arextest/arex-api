@@ -14,6 +14,9 @@ public class FSPinMockRequestType {
   private String workspaceId;
   @NotBlank(message = "Item InfoId cannot be empty")
   private String infoId;
+  /**
+   * @link com.arextest.web.model.enums.FSInfoItem
+   */
   private int nodeType;
   @NotBlank(message = "RecordId cannot be empty")
   private String recordId;

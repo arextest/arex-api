@@ -7,8 +7,6 @@ import com.arextest.config.repository.ConfigRepositoryProvider;
 import com.arextest.config.repository.impl.ApplicationOperationConfigurationRepositoryImpl;
 import com.arextest.web.core.business.config.AbstractConfigurableHandler;
 import com.arextest.web.core.repository.AppContractRepository;
-import com.arextest.web.model.dao.mongodb.AppContractCollection;
-import com.arextest.web.model.dao.mongodb.AppContractCollection.Fields;
 import com.arextest.web.model.dto.AppContractDto;
 import com.arextest.web.model.enums.ContractTypeEnum;
 import java.util.ArrayList;
@@ -22,7 +20,6 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import software.amazon.awssdk.services.sso.endpoints.internal.Value.Str;
 
 /**
  * @author jmo

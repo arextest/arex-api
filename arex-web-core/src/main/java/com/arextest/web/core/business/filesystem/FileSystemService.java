@@ -3,6 +3,7 @@ package com.arextest.web.core.business.filesystem;
 import com.arextest.common.exceptions.ArexException;
 import com.arextest.common.jwt.JWTService;
 import com.arextest.config.repository.ConfigRepositoryProvider;
+import com.arextest.model.mock.AREXMocker;
 import com.arextest.web.common.LoadResource;
 import com.arextest.web.common.LogUtils;
 import com.arextest.web.common.ZstdUtils;
@@ -13,13 +14,11 @@ import com.arextest.web.core.business.filesystem.importexport.impl.ImportExportF
 import com.arextest.web.core.business.filesystem.pincase.StorageCase;
 import com.arextest.web.core.business.filesystem.recovery.RecoveryFactory;
 import com.arextest.web.core.business.filesystem.recovery.RecoveryService;
-import com.arextest.web.core.business.util.JsonUtils;
 import com.arextest.web.core.repository.FSCaseRepository;
 import com.arextest.web.core.repository.FSFolderRepository;
 import com.arextest.web.core.repository.FSInterfaceRepository;
 import com.arextest.web.core.repository.FSTraceLogRepository;
 import com.arextest.web.core.repository.FSTreeRepository;
-import com.arextest.web.core.repository.ReportPlanStatisticRepository;
 import com.arextest.web.core.repository.UserRepository;
 import com.arextest.web.core.repository.UserWorkspaceRepository;
 import com.arextest.web.model.contract.contracts.config.replay.ScheduleConfiguration;
@@ -31,6 +30,7 @@ import com.arextest.web.model.contract.contracts.filesystem.FSAddItemResponseTyp
 import com.arextest.web.model.contract.contracts.filesystem.FSAddItemsByAppAndInterfaceRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.FSAddWorkspaceRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.FSAddWorkspaceResponseType;
+import com.arextest.web.model.contract.contracts.filesystem.FSAutoGenerateRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.FSDuplicateRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.FSDuplicateResponseType;
 import com.arextest.web.model.contract.contracts.filesystem.FSExportItemRequestType;
@@ -74,10 +74,8 @@ import com.arextest.web.model.contract.contracts.filesystem.UserType;
 import com.arextest.web.model.contract.contracts.filesystem.ValidInvitationRequestType;
 import com.arextest.web.model.contract.contracts.filesystem.ValidInvitationResponseType;
 import com.arextest.web.model.dto.KeyValuePairDto;
-import com.arextest.web.model.dto.ReportPlanStatisticDto;
 import com.arextest.web.model.dto.UserDto;
 import com.arextest.web.model.dto.WorkspaceDto;
-import com.arextest.web.model.dto.filesystem.AddressDto;
 import com.arextest.web.model.dto.filesystem.FSCaseDto;
 import com.arextest.web.model.dto.filesystem.FSFolderDto;
 import com.arextest.web.model.dto.filesystem.FSInterfaceAndCaseBaseDto;
@@ -113,7 +111,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
 import java.util.UUID;
@@ -124,11 +121,9 @@ import javax.annotation.Resource;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.MutablePair;
-import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
@@ -146,15 +141,10 @@ public class FileSystemService {
   private static final String GET_METHOD = "GET";
   private static final String AREX_RECORD_ID = "arex-record-id";
   private static final String AREX_REPLAY_PREPARE_DEPENDENCY = "arex_replay_prepare_dependency";
+  // fixme: should be removed
   private static final String PINNED_PRE_FIX = "pinned_";
-  private static final String LOCAL_HOST = "http://127.0.0.1";
-  private static final String DEFAULT_PORT = "8080";
-  private static final String HOST_KEY = "host";
-  private static final String COLON = ":";
-  private static final String NULL_PLAN_ID = "undefined";
   private static final String EQUALS = "=";
   private static final String NOT_EQUALS = "!=";
-  private static final String SKIP_MOCK_HEADER = "X-AREX-Exclusion-Operations";
 
   @Value("${arex.api.case.inherited}")
   private String arexCaseInherited;
@@ -203,9 +193,6 @@ public class FileSystemService {
 
   @Resource
   private RecoveryFactory recoveryFactory;
-
-  @Resource
-  private ReportPlanStatisticRepository reportPlanStatisticRepository;
 
   @Resource
   private ObjectMapper objectMapper;
@@ -753,43 +740,10 @@ public class FileSystemService {
     if (StringUtils.isBlank(recordId)) {
       return new FSQueryCaseResponseType();
     }
-    Pair<FSCaseDto, String> caseAndAppIdPair = storageCase.getViewRecord(recordId);
-    FSCaseDto caseDto = caseAndAppIdPair.getLeft();
-    String appId = caseAndAppIdPair.getRight();
+    FSCaseDto caseDto = storageCase.getViewRecord(recordId, planId);
     if (caseDto == null) {
       return new FSQueryCaseResponseType();
     }
-    if (caseDto.getHeaders() == null) {
-      caseDto.setHeaders(new ArrayList<>());
-    }
-    KeyValuePairDto header = new KeyValuePairDto();
-    header.setKey(AREX_RECORD_ID);
-    header.setValue(recordId);
-    header.setActive(true);
-    caseDto.getHeaders().add(0, header);
-    KeyValuePairDto skipMockHeader = generateSkipMockHeader(appId);
-    if(skipMockHeader != null) {
-      caseDto.getHeaders().add(skipMockHeader);
-    }
-
-    if (StringUtils.equalsIgnoreCase(planId, NULL_PLAN_ID)) {
-      String oldHost = caseDto.getHeaders().stream()
-          .filter(h -> h.getKey().equalsIgnoreCase(HOST_KEY))
-          .findFirst()
-          .map(KeyValuePairDto::getValue)
-          .orElse(null);
-      String port;
-      if (oldHost == null || !oldHost.contains(COLON)) {
-        port = DEFAULT_PORT;
-      } else {
-        port = oldHost.split(COLON)[1];
-      }
-      caseDto.getAddress()
-          .setEndpoint(contactUrl(LOCAL_HOST + COLON + port, caseDto.getAddress().getEndpoint()));
-    } else {
-      setAddressEndpoint(planId, caseDto.getAddress());
-    }
-
     FSQueryCaseResponseType response = FSCaseMapper.INSTANCE.contractFromDto(caseDto);
 
     try {
@@ -896,7 +850,6 @@ public class FileSystemService {
       pinMock(pinMockRequest);
     }
 
-
     // add the related information about the replay interface to the manual interface
     this.addReplayInfoToManual(request.getOperationId(), path);
     return path;
@@ -997,37 +950,6 @@ public class FileSystemService {
       return false;
     }
     return ie.importItem(treeDto, request.getParentPath(), request.getImportString());
-  }
-
-  public KeyValuePairDto generateSkipMockHeader(String appId) {
-    List<ScheduleConfiguration> scheduleConfigurations = scheduleConfigurationProvider.listBy(appId);
-    if (CollectionUtils.isEmpty(scheduleConfigurations)) {
-      return null;
-    }
-    ScheduleConfiguration scheduleConfiguration = scheduleConfigurations.get(0);
-    if (MapUtils.isEmpty(scheduleConfiguration.getExcludeOperationMap())) {
-      return null;
-    }
-    String kvValue = JsonUtils.toJsonString(scheduleConfiguration.getExcludeOperationMap());
-    if (StringUtils.isBlank(kvValue)) {
-      return null;
-    }
-    KeyValuePairDto kvDto = new KeyValuePairDto();
-    kvDto.setKey(SKIP_MOCK_HEADER);
-    kvDto.setValue(kvValue);
-    kvDto.setActive(true);
-    return kvDto;
-  }
-
-  private void setAddressEndpoint(String planId, AddressDto addressDto) {
-    ReportPlanStatisticDto reportPlanStatisticDto = reportPlanStatisticRepository.findByPlanId(
-        planId);
-    if (addressDto != null) {
-      addressDto.setEndpoint(this.contactUrl(
-          reportPlanStatisticDto == null ? StringUtils.EMPTY
-              : reportPlanStatisticDto.getTargetEnv(),
-          addressDto.getEndpoint()));
-    }
   }
 
   private Map<Integer, List<String>> getItemInfoIds(List<FSNodeDto> list) {
@@ -1201,22 +1123,6 @@ public class FileSystemService {
       }
     }
     treeDtos.add(targetIndex, dupNodeDto);
-  }
-
-  private String contactUrl(String domain, String operation) {
-    String result = null;
-    domain = Optional.ofNullable(domain).orElse(StringUtils.EMPTY);
-    operation = Optional.ofNullable(operation).orElse(StringUtils.EMPTY);
-    boolean domainContain = StringUtils.endsWith(domain, "/");
-    boolean operationContain = StringUtils.startsWith(operation, "/");
-    if (domainContain && operationContain) {
-      result = domain + operation.substring(1);
-    } else if (!domainContain && !operationContain) {
-      result = domain + "/" + operation;
-    } else {
-      result = domain + operation;
-    }
-    return result;
   }
 
   private List<FSQueryItemType.ParentNodeType> getParentPath(String parentInfoId,
@@ -1568,5 +1474,39 @@ public class FileSystemService {
       }
     }
     return path;
+  }
+
+
+  public boolean saveAutoGenerateCase(String userName, FSAutoGenerateRequestType request) {
+
+    String recordId = request.getRecordId();
+    List<AREXMocker> mockers = request.getMockers();
+    FSCaseDto caseDto = storageCase.convertMockerToFsCase(mockers, recordId, "undefined", false);
+    if (caseDto == null) {
+      // todo add log
+      return false;
+    }
+
+    FSAddItemRequestType fsAddItemRequestType = FSRequestMapper.INSTANCE.buildAddItemRequest(
+        request);
+    fsAddItemRequestType.setUserName(userName);
+    fsAddItemRequestType.setCaseSourceType(
+        StringUtils.isEmpty(recordId) ? CaseSourceType.AI_MANUAL_CASE
+            : CaseSourceType.AI_REPLAY_CASE);
+    MutablePair<String, FSTreeDto> tuple = addItem(fsAddItemRequestType);
+    if (tuple == null) {
+      // todo add log
+      return false;
+    }
+    caseDto.setId(tuple.getLeft());
+    caseDto.setName(request.getNodeName());
+    caseDto.setRecordId(recordId);
+    caseDto = fsCaseRepository.saveCase(caseDto);
+    fsTraceLogUtils.logUpdateItem(userName, caseDto);
+
+    if (StringUtils.isNotEmpty(recordId)) {
+      storageCase.batchPinnedCase(recordId, mockers);
+    }
+    return true;
   }
 }

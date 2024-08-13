@@ -2,7 +2,6 @@ package com.arextest.web.core.business.util;
 
 import com.arextest.common.utils.JsonTraverseUtils;
 import com.arextest.web.model.dto.CompareResultDto;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Base64;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +13,7 @@ import org.apache.commons.lang3.StringUtils;
  */
 @Slf4j
 public class JsonUtils {
+
   public static final ObjectMapper COMMON_MAPPER = new ObjectMapper();
 
   public static void downgrade(CompareResultDto compareResult) {
