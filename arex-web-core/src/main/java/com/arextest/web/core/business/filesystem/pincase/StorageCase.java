@@ -35,6 +35,7 @@ public class StorageCase {
   private static final String DASH = "-";
   private static final String STORAGE_VIEW_RECORD_URL = "/api/storage/replay/query/viewRecord";
   private static final String STORAGE_PIN_CASE_URL = "/api/storage/edit/pinned/";
+  private static final String STORAGE_COPY_CASE_URL = "/api/storage/edit/copy?sourceProviderName=Pinned&targetProviderName=Pinned&srcRecordId=%s&targetRecordId=%s";
   private static final String CONFIG_BATCH_NO = "configBatchNo";
   @Value("${arex.storage.service.url}")
   private String storageServiceUrl;
@@ -123,6 +124,23 @@ public class StorageCase {
     } catch (Exception e) {
       LogUtils.error(LOGGER, "Failed to pinned case.", e);
       return false;
+    }
+  }
+
+  public String copyPinnedCase(String oldId) {
+    String newId = getNewRecordId(oldId);
+    try {
+      String url = storageServiceUrl + String.format(STORAGE_COPY_CASE_URL, oldId, newId);
+      CopyResponseType response = httpWebServiceApiClient.get(url,
+          Collections.emptyMap(),
+          CopyResponseType.class);
+      if (response == null || response.getCopied() == 0) {
+        return null;
+      }
+      return newId;
+    } catch (Exception e) {
+      LogUtils.error(LOGGER, "Failed to copy case.", e);
+      return null;
     }
   }
 
