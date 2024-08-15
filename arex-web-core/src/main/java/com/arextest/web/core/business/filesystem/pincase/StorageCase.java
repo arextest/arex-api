@@ -107,7 +107,9 @@ public class StorageCase {
   }
 
   public String getNewRecordId(String recordId) {
-    return recordId + DASH + System.currentTimeMillis() + DASH + new Random(
+    // avoid extremely long recordId, limit to 30 characters
+    String trimmed = recordId.length() > 30 ? recordId.substring(0, 30) : recordId;
+    return trimmed + DASH + System.currentTimeMillis() + DASH + new Random(
         System.currentTimeMillis()).nextInt(99);
   }
 
