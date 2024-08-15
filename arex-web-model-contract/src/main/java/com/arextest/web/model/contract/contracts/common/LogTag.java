@@ -6,4 +6,14 @@ import lombok.Data;
 public class LogTag {
 
   private int errorType;
+
+  private NodeErrorType nodeErrorType;
+
+
+  @Data
+  public static class NodeErrorType {
+
+    private String baseNodeType;
+    private String testNodeType;
+  }
 }
