@@ -35,7 +35,7 @@ public class StorageCase {
   private static final String DASH = "-";
   private static final String STORAGE_VIEW_RECORD_URL = "/api/storage/replay/query/viewRecord";
   private static final String STORAGE_PIN_CASE_URL = "/api/storage/edit/pinned/";
-  private static final String STORAGE_COPY_CASE_URL = "/api/storage/edit/copy?sourceProviderName=Pinned&targetProviderName=Pinned&srcRecordId=%s&targetRecordId=%s";
+  private static final String STORAGE_COPY_CASE_URL = "/api/storage/edit/copy/?srcProviderName=Pinned&targetProviderName=Pinned&srcRecordId=%s&targetRecordId=%s";
   private static final String CONFIG_BATCH_NO = "configBatchNo";
   @Value("${arex.storage.service.url}")
   private String storageServiceUrl;
