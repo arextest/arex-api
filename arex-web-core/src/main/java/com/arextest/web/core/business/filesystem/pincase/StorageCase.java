@@ -30,13 +30,13 @@ public class StorageCase {
   public static final String PINNED = "Pinned";
   public static final String SOURCE_PROVIDER = "sourceProvider";
   private static final String RECORD_ID = "recordId";
-  private static final String AND = "&";
-  private static final String EQUAL = "=";
   private static final String DASH = "-";
   private static final String STORAGE_VIEW_RECORD_URL = "/api/storage/replay/query/viewRecord";
   private static final String STORAGE_PIN_CASE_URL = "/api/storage/edit/pinned/";
   private static final String STORAGE_COPY_CASE_URL = "/api/storage/edit/copy/?srcProviderName=Pinned&targetProviderName=Pinned&srcRecordId=%s&targetRecordId=%s";
   private static final String CONFIG_BATCH_NO = "configBatchNo";
+  private static final Random RANDOM = new Random();
+
   @Value("${arex.storage.service.url}")
   private String storageServiceUrl;
 
@@ -109,8 +109,7 @@ public class StorageCase {
   public String getNewRecordId(String recordId) {
     // avoid extremely long recordId, limit to 30 characters
     String trimmed = recordId.length() > 30 ? recordId.substring(0, 30) : recordId;
-    return trimmed + DASH + System.currentTimeMillis() + DASH + new Random(
-        System.currentTimeMillis()).nextInt(99);
+    return trimmed + DASH + System.currentTimeMillis() + DASH + RANDOM.nextInt(99);
   }
 
   public boolean pinnedCase(String recordId, String newRecordId) {
