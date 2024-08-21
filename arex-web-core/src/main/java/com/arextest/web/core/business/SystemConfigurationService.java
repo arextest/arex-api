@@ -1,21 +1,17 @@
 package com.arextest.web.core.business;
 
-import com.arextest.common.model.classloader.RemoteJarClassLoader;
-import com.arextest.common.utils.RemoteJarLoaderUtils;
 import com.arextest.config.model.dao.config.SystemConfigurationCollection;
 import com.arextest.config.model.dto.system.ComparePluginInfo;
 import com.arextest.config.model.dto.system.SystemConfiguration;
 import com.arextest.config.repository.SystemConfigurationRepository;
-import com.arextest.diff.service.DecompressService;
+import com.arextest.web.core.business.config.replay.ComparisonTransformConfigurableHandler;
 import com.arextest.web.model.contract.contracts.config.SystemConfigWithProperties;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+import java.util.Objects;
 import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -33,6 +29,8 @@ public class SystemConfigurationService {
 
   @Resource
   private ConfigLoadService configLoadService;
+  @Resource
+  private ComparisonTransformConfigurableHandler comparisonTransformConfigurableHandler;
 
   public boolean saveConfig(SystemConfiguration systemConfiguration) {
     List<SystemConfiguration> systemConfigurations = new ArrayList<>();
@@ -55,10 +53,10 @@ public class SystemConfigurationService {
       removeKeys.add(SystemConfigurationCollection.KeySummary.DESERIALIZATION_JAR);
     }
     if (systemConfiguration.getComparePluginInfo() != null
-        && StringUtils.isNotBlank(systemConfiguration.getComparePluginInfo().getComparePluginUrl())) {
+        && StringUtils.isNotBlank(
+        systemConfiguration.getComparePluginInfo().getComparePluginUrl())) {
       SystemConfiguration comparePluginInfoConfig = new SystemConfiguration();
       ComparePluginInfo comparePluginInfo = systemConfiguration.getComparePluginInfo();
-      comparePluginInfo.setTransMethodList(identifyTransformMethod(comparePluginInfo));
       comparePluginInfoConfig.setComparePluginInfo(comparePluginInfo);
       comparePluginInfoConfig.setKey(SystemConfigurationCollection.KeySummary.COMPARE_PLUGIN_INFO);
       systemConfigurations.add(comparePluginInfoConfig);
@@ -92,6 +90,7 @@ public class SystemConfigurationService {
 
   public SystemConfigWithProperties listSystemConfig() {
     List<SystemConfiguration> systemConfigurations = systemConfigurationRepository.getAllSystemConfigList();
+    appendTransformMethod(systemConfigurations);
     SystemConfiguration systemConfiguration = SystemConfiguration.mergeConfigs(
         systemConfigurations);
     return this.appendGlobalCompareConfig(
@@ -103,28 +102,23 @@ public class SystemConfigurationService {
     return systemConfigurationRepository.deleteConfig(key);
   }
 
-  private List<String> identifyTransformMethod(ComparePluginInfo comparePluginInfo) {
-    String comparePluginUrl = comparePluginInfo.getComparePluginUrl();
-    if (StringUtils.isEmpty(comparePluginUrl)) {
-      return Collections.emptyList();
-    }
 
-    Set<String> result = new HashSet<>();
-    try {
-      RemoteJarClassLoader remoteJarClassLoader = RemoteJarLoaderUtils.loadJar(comparePluginUrl);
-      List<DecompressService> decompressServices = RemoteJarLoaderUtils.loadService(
-          DecompressService.class, remoteJarClassLoader);
-      decompressServices.forEach(
-          decompressService -> {
-            if (decompressService.getAliasName() != null) {
-              result.add(decompressService.getAliasName());
+  private void appendTransformMethod(List<SystemConfiguration> systemConfigurations) {
+    if (CollectionUtils.isNotEmpty(systemConfigurations)) {
+      systemConfigurations.stream()
+          .filter(item -> Objects.equals(item.getKey(),
+              SystemConfigurationCollection.KeySummary.COMPARE_PLUGIN_INFO))
+          .forEach(item -> {
+            if (item.getComparePluginInfo() == null ||
+                StringUtils.isEmpty(item.getComparePluginInfo().getComparePluginUrl())) {
+              return;
             }
+            List<String> transformMethodList = comparisonTransformConfigurableHandler.getTransformMethodList(
+                item);
+            ComparePluginInfo comparePluginInfo = item.getComparePluginInfo();
+            comparePluginInfo.setTransMethodList(transformMethodList);
           });
-      remoteJarClassLoader.close();
-    } catch (RuntimeException | IOException e) {
-      LOGGER.error("identifyTransformMethod failed, url:{}, exception:{}", comparePluginUrl, e);
     }
-    return new ArrayList<>(result);
   }
 
   private SystemConfigWithProperties appendGlobalCompareConfig(ConfigLoadService configLoadService,
