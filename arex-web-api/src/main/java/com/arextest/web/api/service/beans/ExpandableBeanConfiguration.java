@@ -3,6 +3,7 @@ package com.arextest.web.api.service.beans;
 import com.arextest.common.cache.CacheProvider;
 import com.arextest.config.repository.impl.SystemConfigurationRepositoryImpl;
 import com.arextest.web.core.business.ConfigLoadService;
+import com.arextest.web.core.business.filesystem.FileSystemService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -36,6 +37,12 @@ public class ExpandableBeanConfiguration {
       ConfigLoadService configLoadService,
       SystemConfigurationRepositoryImpl systemConfigurationRepository) {
     return new SystemConfigBootstrap(configLoadService, systemConfigurationRepository);
+  }
+
+  @Bean
+  @ConditionalOnMissingBean(FileSystemService.class)
+  public FileSystemService fileSystemService() {
+    return new FileSystemService();
   }
 
 }

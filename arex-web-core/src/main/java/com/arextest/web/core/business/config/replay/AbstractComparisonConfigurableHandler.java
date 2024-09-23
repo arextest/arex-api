@@ -3,7 +3,6 @@ package com.arextest.web.core.business.config.replay;
 import com.arextest.config.repository.ConfigRepositoryProvider;
 import com.arextest.web.core.business.config.AbstractConfigurableHandler;
 import com.arextest.web.core.repository.AppContractRepository;
-import com.arextest.web.model.contract.contracts.common.enums.ExpirationType;
 import com.arextest.web.model.contract.contracts.config.replay.AbstractComparisonDetailsConfiguration;
 import com.arextest.web.model.dto.AppContractDto;
 import com.arextest.web.model.enums.ContractTypeEnum;
@@ -16,6 +15,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -86,9 +86,10 @@ public abstract class AbstractComparisonConfigurableHandler<T extends AbstractCo
     return this.useResultAsList(appId, null);
   }
 
-  public boolean removeDetailsExpired(T comparisonDetails) {
-    return comparisonDetails.getExpirationType() == ExpirationType.SOFT_TIME_EXPIRED.getCodeValue()
-        && comparisonDetails.getExpirationDate().getTime() < System.currentTimeMillis();
+  public void removeDetailsExpired(List<T> comparisonDetails, Boolean filterExpired) {
+    if (CollectionUtils.isNotEmpty(comparisonDetails) && Boolean.TRUE.equals(filterExpired)) {
+      comparisonDetails.removeIf(T::expired);
+    }
   }
 
   @Override

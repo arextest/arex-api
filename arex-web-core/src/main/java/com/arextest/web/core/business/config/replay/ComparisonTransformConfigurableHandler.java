@@ -45,7 +45,7 @@ public class ComparisonTransformConfigurableHandler
       String operationId, List<String> dependencyIds) {
     List<ComparisonTransformConfiguration> configs = comparisonTransformConfigurationRepository.queryConfigOfCategory(
         appId, operationId, dependencyIds);
-    configs.removeIf(this::removeDetailsExpired);
+    removeDetailsExpired(configs, true);
     return configs;
   }
 
@@ -74,7 +74,7 @@ public class ComparisonTransformConfigurableHandler
     SystemConfiguration comparePluginInfoConfig = systemConfigurationService.getSystemConfigByKey(
         KeySummary.COMPARE_PLUGIN_INFO);
 
-    return comparePluginInfoConfig ==null || comparePluginInfoConfig.getComparePluginInfo() == null
+    return comparePluginInfoConfig == null || comparePluginInfoConfig.getComparePluginInfo() == null
         ? Collections.emptyList()
         : comparePluginInfoConfig.getComparePluginInfo().getTransMethodList();
   }

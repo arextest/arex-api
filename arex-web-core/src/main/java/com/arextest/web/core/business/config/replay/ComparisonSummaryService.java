@@ -205,6 +205,8 @@ public class ComparisonSummaryService {
     Set<List<String>> exclusionSet = new HashSet<>();
     List<ComparisonExclusionsConfiguration> comparisonExclusionsConfigurationList =
         exclusionsConfigurableHandler.queryByInterfaceId(interfaceId);
+    exclusionsConfigurableHandler.removeDetailsExpired(comparisonExclusionsConfigurationList
+        , true);
     Optional.ofNullable(comparisonExclusionsConfigurationList).orElse(Collections.emptyList())
         .forEach(item -> {
           exclusionSet.add(item.getExclusions());
@@ -217,6 +219,8 @@ public class ComparisonSummaryService {
     Set<List<String>> inclusionSet = new HashSet<>();
     List<ComparisonInclusionsConfiguration> comparisonInclusionsConfigurationList =
         inclusionsConfigurableHandler.queryByInterfaceId(interfaceId);
+    inclusionsConfigurableHandler.removeDetailsExpired(
+        comparisonInclusionsConfigurationList, true);
     Optional.ofNullable(comparisonInclusionsConfigurationList).orElse(Collections.emptyList())
         .forEach(item -> {
           inclusionSet.add(item.getInclusions());
@@ -229,6 +233,8 @@ public class ComparisonSummaryService {
     Map<List<String>, List<List<String>>> listSortMap = new HashMap<>();
     List<ComparisonListSortConfiguration> comparisonListSortConfigurationList =
         listSortConfigurableHandler.queryByInterfaceId(interfaceId);
+    listSortConfigurableHandler.removeDetailsExpired(
+        comparisonListSortConfigurationList, true);
     Optional.ofNullable(comparisonListSortConfigurationList).orElse(Collections.emptyList())
         .forEach(item -> {
           if (CollectionUtils.isNotEmpty(item.getListPath())) {
@@ -243,6 +249,8 @@ public class ComparisonSummaryService {
     Map<List<String>, List<String>> referenceMap = new HashMap<>();
     List<ComparisonReferenceConfiguration> comparisonReferenceConfigurationList =
         referenceConfigurableHandler.queryByInterfaceId(interfaceId);
+    referenceConfigurableHandler.removeDetailsExpired(
+        comparisonReferenceConfigurationList, true);
     Optional.ofNullable(comparisonReferenceConfigurationList).orElse(Collections.emptyList())
         .forEach(item -> {
           if (CollectionUtils.isNotEmpty(item.getFkPath())) {
@@ -267,10 +275,8 @@ public class ComparisonSummaryService {
     buildComparisonConfig(replayConfigurationMap,
         exclusionsConfigurableHandler.useResultAsList(appId),
         (configurations, summaryConfiguration) -> {
+          exclusionsConfigurableHandler.removeDetailsExpired(configurations, true);
           Set<List<String>> operationExclusion = configurations.stream()
-              .filter(config ->
-                  config.getExpirationType() == ExpirationType.PINNED_NEVER_EXPIRED.getCodeValue()
-                      || config.getExpirationDate().getTime() > System.currentTimeMillis())
               .map(ComparisonExclusionsConfiguration::getExclusions).collect(Collectors.toSet());
           summaryConfiguration.setExclusionList(operationExclusion);
         }, operationInfoMap, appContractDtoMap);
@@ -278,6 +284,7 @@ public class ComparisonSummaryService {
     buildComparisonConfig(replayConfigurationMap,
         ignoreCategoryConfigurableHandler.useResultAsList(appId),
         (configurations, summaryConfiguration) -> {
+          ignoreCategoryConfigurableHandler.removeDetailsExpired(configurations, true);
           List<CategoryDetail> ignoreCategoryTypes = configurations.stream()
               .map(ComparisonIgnoreCategoryConfiguration::getIgnoreCategoryDetail)
               .collect(Collectors.toList());

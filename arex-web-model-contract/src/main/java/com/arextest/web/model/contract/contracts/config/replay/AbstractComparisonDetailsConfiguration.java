@@ -4,6 +4,7 @@ import com.arextest.config.model.dto.AbstractConfiguration;
 import com.arextest.web.model.contract.contracts.common.enums.CompareConfigType;
 import com.arextest.web.model.contract.contracts.common.enums.ExpirationType;
 import java.util.Date;
+import java.util.Optional;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
@@ -62,6 +63,12 @@ public abstract class AbstractComparisonDetailsConfiguration extends AbstractCon
         fsInterfaceId)) {
       throw new Exception("appId, operationId and interfaceId cannot be empty at the same time");
     }
+  }
+
+  public boolean expired() {
+    return ExpirationType.SOFT_TIME_EXPIRED.getCodeValue() == expirationType
+        && Optional.ofNullable(expirationDate).map(Date::getTime).orElse(0L)
+        < System.currentTimeMillis();
   }
 
 }

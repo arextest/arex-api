@@ -450,6 +450,7 @@ public class ReportQueryController {
     return ResponseUtils.successResponse(schemaInferService.overwriteContract(requestType));
   }
 
+  // todo from storage to get it
   @GetMapping("/listCategoryType")
   @ResponseBody
   public Response listCategoryType() {

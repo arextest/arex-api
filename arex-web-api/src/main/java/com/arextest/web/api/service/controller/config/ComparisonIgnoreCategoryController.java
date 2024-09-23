@@ -6,10 +6,8 @@ import com.arextest.web.core.business.config.ConfigurableHandler;
 import com.arextest.web.core.business.config.replay.ComparisonIgnoreCategoryConfigurableHandler;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonIgnoreCategoryConfiguration;
 import com.arextest.web.model.contract.contracts.config.replay.QueryComparisonRequestType;
-import javax.annotation.Resource;
-import lombok.Getter;
+import java.util.List;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -27,13 +25,13 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class ComparisonIgnoreCategoryController
     extends AbstractConfigurableController<ComparisonIgnoreCategoryConfiguration> {
 
-  @Getter
-  @Resource
-  ComparisonIgnoreCategoryConfigurableHandler configurableHandler;
+  ComparisonIgnoreCategoryConfigurableHandler ignoreCategoryHandler;
 
   protected ComparisonIgnoreCategoryController(
-      @Autowired ConfigurableHandler<ComparisonIgnoreCategoryConfiguration> configurableHandler) {
+      ConfigurableHandler<ComparisonIgnoreCategoryConfiguration> configurableHandler,
+      ComparisonIgnoreCategoryConfigurableHandler ignoreCategoryHandler) {
     super(configurableHandler);
+    this.ignoreCategoryHandler = ignoreCategoryHandler;
   }
 
   /**
@@ -41,18 +39,25 @@ public class ComparisonIgnoreCategoryController
    */
   @RequestMapping("/queryByInterfaceId")
   @ResponseBody
-  public final Response queryByInterfaceId(@RequestParam String interfaceId) {
+  public final Response queryByInterfaceId(@RequestParam String interfaceId,
+      @RequestParam(defaultValue = "false") Boolean filterExpired) {
     if (StringUtils.isEmpty(interfaceId)) {
       return InvalidResponse.REQUESTED_INTERFACE_ID_IS_EMPTY;
     }
-    return ResponseUtils.successResponse(getConfigurableHandler().queryByInterfaceId(interfaceId));
+
+    List<ComparisonIgnoreCategoryConfiguration> configs = ignoreCategoryHandler.queryByInterfaceId(
+        interfaceId);
+    ignoreCategoryHandler.removeDetailsExpired(configs, filterExpired);
+    return ResponseUtils.successResponse(configs);
   }
 
   @PostMapping("/queryComparisonConfig")
   @ResponseBody
   public Response queryComparisonConfig(@RequestBody QueryComparisonRequestType request) {
-    return ResponseUtils.successResponse(
-        this.configurableHandler.queryComparisonConfig(request.getAppId(),
-            request.getOperationId(), request.getOperationType(), request.getOperationName()));
+    List<ComparisonIgnoreCategoryConfiguration> configs =
+        this.ignoreCategoryHandler.queryComparisonConfig(request.getAppId(),
+            request.getOperationId(), request.getOperationType(), request.getOperationName());
+    ignoreCategoryHandler.removeDetailsExpired(configs, request.getFilterExpired());
+    return ResponseUtils.successResponse(configs);
   }
 }
