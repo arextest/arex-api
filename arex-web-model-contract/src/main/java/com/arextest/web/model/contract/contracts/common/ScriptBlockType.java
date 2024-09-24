@@ -9,9 +9,10 @@ import lombok.Data;
 @Data
 public class ScriptBlockType {
 
-  private String type;
-  private String icon;
-  private String label;
-  private String value;
-  private Boolean disabled;
+    private String type;
+    private String icon;
+    private String label;
+    private String value;
+    private String description;
+    private Boolean disabled;
 }

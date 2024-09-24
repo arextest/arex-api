@@ -14,4 +14,5 @@ public class ScriptBlockDto {
   private String label;
   private String value;
   private Boolean disabled;
+  private String description;
 }
