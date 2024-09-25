@@ -12,7 +12,6 @@ import com.arextest.web.model.mapper.ConfigComparisonTransformMapper;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.Resource;
-import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -32,17 +31,12 @@ public class ComparisonRootTransformController {
     List<ComparisonTransformConfiguration> configs = comparisonTransformConfigurableHandler.
         queryComparisonConfig(request.getAppId(), request.getOperationId(),
             request.getOperationType(), request.getOperationName());
-    if (Boolean.TRUE.equals(request.getFilterExpired()) && CollectionUtils.isNotEmpty(configs)) {
-      configs.removeIf(
-          config -> comparisonTransformConfigurableHandler.removeDetailsExpired(config));
-    }
+    comparisonTransformConfigurableHandler.removeDetailsExpired(configs,
+        request.getFilterExpired());
     List<ComparisonRootTransformConfiguration> rootTransformConfigurations = configs.stream()
-        .map(ConfigComparisonTransformMapper.INSTANCE::requestTypeFromDto).filter(item -> {
-          if (item.getTransformMethodName() != null) {
-            return true;
-          }
-          return false;
-        }).collect(Collectors.toList());
+        .map(ConfigComparisonTransformMapper.INSTANCE::requestTypeFromDto)
+        .filter(item -> item.getTransformMethodName() != null)
+        .collect(Collectors.toList());
     return ResponseUtils.successResponse(rootTransformConfigurations);
   }
 

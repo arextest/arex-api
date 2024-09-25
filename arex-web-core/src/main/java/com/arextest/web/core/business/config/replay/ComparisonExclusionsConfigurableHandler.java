@@ -36,9 +36,10 @@ public class ComparisonExclusionsConfigurableHandler
 
   public List<ComparisonExclusionsConfiguration> queryConfigOfCategory(String appId,
       String operationId, List<String> dependencyIds) {
-    List<ComparisonExclusionsConfiguration> configs = comparisonExclusionsConfigurationRepository.queryConfigOfCategory(
-        appId, operationId, dependencyIds);
-    configs.removeIf(this::removeDetailsExpired);
+    List<ComparisonExclusionsConfiguration> configs =
+        comparisonExclusionsConfigurationRepository.queryConfigOfCategory(appId, operationId,
+            dependencyIds);
+    removeDetailsExpired(configs, true);
     return configs;
   }
 

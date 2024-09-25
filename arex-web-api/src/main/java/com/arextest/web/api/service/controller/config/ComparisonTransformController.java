@@ -7,11 +7,7 @@ import com.arextest.web.core.business.config.replay.ComparisonTransformConfigura
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonTransformConfiguration;
 import com.arextest.web.model.contract.contracts.config.replay.QueryComparisonRequestType;
 import java.util.List;
-import javax.annotation.Resource;
-import lombok.Getter;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,13 +21,13 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class ComparisonTransformController extends
     AbstractConfigurableController<ComparisonTransformConfiguration> {
 
-  @Getter
-  @Resource
-  ComparisonTransformConfigurableHandler comparisonTransformConfigurableHandler;
+  ComparisonTransformConfigurableHandler transformHandler;
 
   public ComparisonTransformController(
-      @Autowired ConfigurableHandler<ComparisonTransformConfiguration> configurableHandler) {
+      ConfigurableHandler<ComparisonTransformConfiguration> configurableHandler,
+      ComparisonTransformConfigurableHandler transformHandler) {
     super(configurableHandler);
+    this.transformHandler = transformHandler;
   }
 
   @Deprecated
@@ -44,11 +40,8 @@ public class ComparisonTransformController extends
       return InvalidResponse.REQUESTED_APP_ID_IS_EMPTY;
     }
     List<ComparisonTransformConfiguration> configs =
-        getComparisonTransformConfigurableHandler().useResultAsList(appId, operationId);
-    if (filterExpired && CollectionUtils.isNotEmpty(configs)) {
-      configs.removeIf(
-          config -> getComparisonTransformConfigurableHandler().removeDetailsExpired(config));
-    }
+        transformHandler.useResultAsList(appId, operationId);
+    transformHandler.removeDetailsExpired(configs, filterExpired);
     return ResponseUtils.successResponse(configs);
   }
 
@@ -66,24 +59,18 @@ public class ComparisonTransformController extends
       return InvalidResponse.REQUESTED_INTERFACE_ID_IS_EMPTY;
     }
     List<ComparisonTransformConfiguration> configs =
-        getComparisonTransformConfigurableHandler().queryByInterfaceId(interfaceId);
-    if (filterExpired && CollectionUtils.isNotEmpty(configs)) {
-      configs.removeIf(
-          config -> getComparisonTransformConfigurableHandler().removeDetailsExpired(config));
-    }
+        transformHandler.queryByInterfaceId(interfaceId);
+    transformHandler.removeDetailsExpired(configs, filterExpired);
     return ResponseUtils.successResponse(configs);
   }
 
   @PostMapping("/queryComparisonConfig")
   @ResponseBody
   public Response queryComparisonConfig(@RequestBody QueryComparisonRequestType request) {
-    List<ComparisonTransformConfiguration> configs = getComparisonTransformConfigurableHandler().
+    List<ComparisonTransformConfiguration> configs = transformHandler.
         queryComparisonConfig(request.getAppId(), request.getOperationId(),
             request.getOperationType(), request.getOperationName());
-    if (Boolean.TRUE.equals(request.getFilterExpired()) && CollectionUtils.isNotEmpty(configs)) {
-      configs.removeIf(
-          config -> getComparisonTransformConfigurableHandler().removeDetailsExpired(config));
-    }
+    transformHandler.removeDetailsExpired(configs, request.getFilterExpired());
     return ResponseUtils.successResponse(configs);
   }
 
@@ -93,8 +80,7 @@ public class ComparisonTransformController extends
     if (StringUtils.isEmpty(appId)) {
       return InvalidResponse.REQUESTED_APP_ID_IS_EMPTY;
     }
-    return ResponseUtils.successResponse(
-        getComparisonTransformConfigurableHandler().getTransformMethodList());
+    return ResponseUtils.successResponse(transformHandler.getTransformMethodList());
   }
 
 }

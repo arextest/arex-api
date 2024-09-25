@@ -131,10 +131,8 @@ import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-import org.springframework.stereotype.Component;
 
 @Slf4j
-@Component
 public class FileSystemService {
 
   private static final String DEFAULT_WORKSPACE_NAME = "MyWorkSpace";
@@ -768,7 +766,7 @@ public class FileSystemService {
     header.setActive(true);
     caseDto.getHeaders().add(0, header);
     KeyValuePairDto skipMockHeader = generateSkipMockHeader(appId);
-    if(skipMockHeader != null) {
+    if (skipMockHeader != null) {
       caseDto.getHeaders().add(skipMockHeader);
     }
 
@@ -896,7 +894,6 @@ public class FileSystemService {
       pinMock(pinMockRequest);
     }
 
-
     // add the related information about the replay interface to the manual interface
     this.addReplayInfoToManual(request.getOperationId(), path);
     return path;
@@ -1000,7 +997,8 @@ public class FileSystemService {
   }
 
   public KeyValuePairDto generateSkipMockHeader(String appId) {
-    List<ScheduleConfiguration> scheduleConfigurations = scheduleConfigurationProvider.listBy(appId);
+    List<ScheduleConfiguration> scheduleConfigurations = scheduleConfigurationProvider.listBy(
+        appId);
     if (CollectionUtils.isEmpty(scheduleConfigurations)) {
       return null;
     }
@@ -1128,7 +1126,7 @@ public class FileSystemService {
     }
   }
 
-  private Boolean sendInviteEmail(String arexUiUrl, String invitor, String invitee,
+  protected Boolean sendInviteEmail(String arexUiUrl, String invitor, String invitee,
       String workspaceId,
       String token) {
     FSTreeDto workspace = fsTreeRepository.queryFSTreeById(workspaceId);
