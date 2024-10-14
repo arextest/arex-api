@@ -8,6 +8,7 @@ import com.arextest.web.model.contract.contracts.config.replay.ComparisonExclusi
 import com.arextest.web.model.contract.contracts.config.replay.QueryComparisonRequestType;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,19 +21,18 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class ComparisonExclusionsController extends
     AbstractConfigurableController<ComparisonExclusionsConfiguration> {
 
+  @Autowired
   ComparisonExclusionsConfigurableHandler exclusionsHandler;
 
   protected ComparisonExclusionsController(
-      ConfigurableHandler<ComparisonExclusionsConfiguration> configurableHandler,
-      ComparisonExclusionsConfigurableHandler exclusionsHandler) {
+      ConfigurableHandler<ComparisonExclusionsConfiguration> configurableHandler) {
     super(configurableHandler);
-    this.exclusionsHandler = exclusionsHandler;
   }
 
   @Deprecated
   @RequestMapping("/useResultAsList")
   @ResponseBody
-  public final Response useResultList(@RequestParam String appId,
+  public Response useResultList(@RequestParam String appId,
       @RequestParam(required = false) String operationId,
       @RequestParam(defaultValue = "false") Boolean filterExpired) {
     if (StringUtils.isEmpty(appId)) {
@@ -52,7 +52,7 @@ public class ComparisonExclusionsController extends
    */
   @RequestMapping("/queryByInterfaceId")
   @ResponseBody
-  public final Response queryByInterfaceId(@RequestParam String interfaceId,
+  public Response queryByInterfaceId(@RequestParam String interfaceId,
       @RequestParam(defaultValue = "false") Boolean filterExpired) {
     if (StringUtils.isEmpty(interfaceId)) {
       return InvalidResponse.REQUESTED_INTERFACE_ID_IS_EMPTY;

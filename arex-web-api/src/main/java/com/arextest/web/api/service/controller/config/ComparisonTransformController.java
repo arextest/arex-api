@@ -8,6 +8,7 @@ import com.arextest.web.model.contract.contracts.config.replay.ComparisonTransfo
 import com.arextest.web.model.contract.contracts.config.replay.QueryComparisonRequestType;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,19 +22,18 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class ComparisonTransformController extends
     AbstractConfigurableController<ComparisonTransformConfiguration> {
 
-  ComparisonTransformConfigurableHandler transformHandler;
+  @Autowired
+  private ComparisonTransformConfigurableHandler transformHandler;
 
   public ComparisonTransformController(
-      ConfigurableHandler<ComparisonTransformConfiguration> configurableHandler,
-      ComparisonTransformConfigurableHandler transformHandler) {
+      ConfigurableHandler<ComparisonTransformConfiguration> configurableHandler) {
     super(configurableHandler);
-    this.transformHandler = transformHandler;
   }
 
   @Deprecated
   @GetMapping("/useResultAsList")
   @ResponseBody
-  public final Response useResultList(@RequestParam String appId,
+  public Response useResultList(@RequestParam String appId,
       @RequestParam(required = false) String operationId,
       @RequestParam(defaultValue = "false") Boolean filterExpired) {
     if (StringUtils.isEmpty(appId)) {
@@ -53,7 +53,7 @@ public class ComparisonTransformController extends
    */
   @GetMapping("/queryByInterfaceId")
   @ResponseBody
-  public final Response queryByInterfaceId(@RequestParam String interfaceId,
+  public Response queryByInterfaceId(@RequestParam String interfaceId,
       @RequestParam(defaultValue = "false") Boolean filterExpired) {
     if (StringUtils.isEmpty(interfaceId)) {
       return InvalidResponse.REQUESTED_INTERFACE_ID_IS_EMPTY;
@@ -76,7 +76,7 @@ public class ComparisonTransformController extends
 
   @GetMapping("/getTransformMethod")
   @ResponseBody
-  public final Response getTransformMethod(@RequestParam String appId) {
+  public Response getTransformMethod(@RequestParam String appId) {
     if (StringUtils.isEmpty(appId)) {
       return InvalidResponse.REQUESTED_APP_ID_IS_EMPTY;
     }
