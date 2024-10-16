@@ -5,8 +5,10 @@ import com.arextest.web.core.repository.mongo.util.MongoHelper;
 import com.arextest.web.model.dao.mongodb.iosummary.CaseSummaryCollection;
 import com.arextest.web.model.dto.iosummary.CaseSummary;
 import com.arextest.web.model.mapper.CaseSummaryMapper;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -59,4 +61,20 @@ public class CaseSummaryRepositoryImpl implements CaseSummaryRepository {
     return caseSummaryCollections.stream().map(CaseSummaryMapper.INSTANCE::dtoFromDao)
         .collect(Collectors.toList());
   }
+
+  @Override
+  public List<CaseSummary> queryCaseSummary(String planId, String planItemId,
+      List<String> recordIds) {
+    if (CollectionUtils.isNotEmpty(recordIds)) {
+      return Collections.emptyList();
+    }
+    Query query = Query.query(Criteria.where(PLAN_ID).is(planId).and(PLAN_ITEM_ID)
+        .is(planItemId).and(RECORD_ID).in(recordIds));
+    List<CaseSummaryCollection> caseSummaryCollections = mongoTemplate.find(query,
+        CaseSummaryCollection.class);
+    return caseSummaryCollections.stream().map(CaseSummaryMapper.INSTANCE::dtoFromDao)
+        .collect(Collectors.toList());
+  }
+
+
 }

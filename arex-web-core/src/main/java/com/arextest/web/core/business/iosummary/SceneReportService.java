@@ -13,6 +13,7 @@ import com.arextest.web.model.dto.CompareResultDto;
 import com.arextest.web.model.dto.PlanItemDto;
 import com.arextest.web.model.dto.ReportPlanStatisticDto;
 import com.arextest.web.model.dto.iosummary.CaseSummary;
+import com.arextest.web.model.dto.iosummary.DiffDetail;
 import com.arextest.web.model.dto.iosummary.SceneInfo;
 import com.arextest.web.model.dto.iosummary.SubSceneInfo;
 import com.arextest.web.model.enums.DiffResultCode;
@@ -101,7 +102,7 @@ public class SceneReportService {
 
   public QuerySceneInfoResponseType querySceneInfo(String planId, String planItemId) {
     QuerySceneInfoResponseType response = new QuerySceneInfoResponseType();
-    List<SceneInfo> sceneInfos = sceneInfoRepository.querySceneInfo(planId, planItemId);
+    List<SceneInfo> sceneInfos = queryCompleteSceneInfo(planId, planItemId);
     sceneInfos = checkDuplicateScene(sceneInfos);
     List<QuerySceneInfoResponseType.SceneInfoType> sceneInfoTypes =
         sceneInfos.stream().map(SceneInfoMapper.INSTANCE::contractFromDto)
@@ -145,7 +146,7 @@ public class SceneReportService {
     final Integer feedbackType = request.getFeedbackType();
 
     // update scene
-    List<SceneInfo> sceneInfos = sceneInfoRepository.querySceneInfo(planId, planItemId);
+    List<SceneInfo> sceneInfos = queryCompleteSceneInfo(planId, planItemId);
     sceneInfos.forEach(sceneInfo -> {
       if (MapUtils.isNotEmpty(sceneInfo.getSubSceneInfoMap())) {
         sceneInfo.getSubSceneInfoMap().forEach((groupKey, subSceneInfo) -> {
@@ -174,6 +175,37 @@ public class SceneReportService {
     planFinishedService.onPlanReCalculateEvent(reportPlanStatisticDto.getAppId(), planId,
         reportPlanStatisticDto.getStatus());
     return true;
+  }
+
+
+  public List<SceneInfo> queryCompleteSceneInfo(String planId, String planItemId) {
+    List<SceneInfo> sceneInfos = sceneInfoRepository.querySceneInfo(planId, planItemId);
+    if (CollectionUtils.isEmpty(sceneInfos)) {
+      return sceneInfos;
+    }
+
+    Map<String, SubSceneInfo> recordIdToSubSceneInfoMap = new HashMap<>();
+    sceneInfos.forEach(item -> {
+
+      List<SubSceneInfo> subScenes = item.getSubScenes();
+      if (CollectionUtils.isEmpty(subScenes)) {
+        return;
+      }
+      subScenes.forEach(subSceneInfo -> recordIdToSubSceneInfoMap.put(subSceneInfo.getRecordId(),
+          subSceneInfo));
+
+
+    });
+    List<String> recordIds = new ArrayList<>(recordIdToSubSceneInfoMap.keySet());
+    List<CaseSummary> caseSummaries = caseSummaryRepository.queryCaseSummary(planId, planItemId,
+        recordIds);
+    for (CaseSummary caseSummary : caseSummaries) {
+      String recordId = caseSummary.getRecordId();
+      List<DiffDetail> diffDetails = caseSummary.getDiffs();
+      SubSceneInfo subSceneInfo = recordIdToSubSceneInfoMap.get(recordId);
+      subSceneInfo.setDetails(diffDetails);
+    }
+    return sceneInfos;
   }
 
   private boolean checkAllSubScenes(SceneInfo sceneInfo) {
