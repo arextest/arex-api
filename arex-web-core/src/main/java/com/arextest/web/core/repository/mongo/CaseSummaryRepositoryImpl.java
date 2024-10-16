@@ -65,7 +65,7 @@ public class CaseSummaryRepositoryImpl implements CaseSummaryRepository {
   @Override
   public List<CaseSummary> queryCaseSummary(String planId, String planItemId,
       List<String> recordIds) {
-    if (CollectionUtils.isNotEmpty(recordIds)) {
+    if (CollectionUtils.isEmpty(recordIds)) {
       return Collections.emptyList();
     }
     Query query = Query.query(Criteria.where(PLAN_ID).is(planId).and(PLAN_ITEM_ID)
