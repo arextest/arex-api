@@ -68,8 +68,6 @@ public class SceneInfoRepositoryImpl implements SceneInfoRepository {
           subSceneInfo.getRecordId());
       update.set(toColumnName(groupKeyName, SubSceneInfoDao.Fields.replayId),
           subSceneInfo.getReplayId());
-      update.set(toColumnName(groupKeyName, SubSceneInfoDao.Fields.details),
-          subSceneInfo.getDetails());
     }
 
     SceneInfoCollection andModify = mongoTemplate.findAndModify(query, update,

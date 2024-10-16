@@ -21,14 +21,14 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 @Slf4j
 public class ExpandableBeanConfiguration {
 
-  @Lazy(false)
-  @Bean
-  @ConditionalOnMissingBean(name = "oldDataCleaner")
-  public OldDataCleaner oldDataCleaner(CacheProvider cacheProvider,
-      MongoTemplate mongoTemplate, SystemConfigurationRepositoryImpl systemConfigurationRepository,
-      @Value("${arex.api.redis.lease-time}") long redisLeaseTime) {
-    return new OldDataCleaner(cacheProvider, mongoTemplate, redisLeaseTime, systemConfigurationRepository);
-  }
+//  @Lazy(false)
+//  @Bean
+//  @ConditionalOnMissingBean(name = "oldDataCleaner")
+//  public OldDataCleaner oldDataCleaner(CacheProvider cacheProvider,
+//      MongoTemplate mongoTemplate, SystemConfigurationRepositoryImpl systemConfigurationRepository,
+//      @Value("${arex.api.redis.lease-time}") long redisLeaseTime) {
+//    return new OldDataCleaner(cacheProvider, mongoTemplate, redisLeaseTime, systemConfigurationRepository);
+//  }
 
   @Lazy(false)
   @Bean

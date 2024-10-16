@@ -10,4 +10,6 @@ public interface CaseSummaryRepository extends RepositoryProvider {
   boolean upsert(CaseSummary summary);
 
   List<CaseSummary> query(String planId, String planItemId);
+
+  List<CaseSummary> queryCaseSummary(String planId, String planItemId, List<String> recordIds);
 }
