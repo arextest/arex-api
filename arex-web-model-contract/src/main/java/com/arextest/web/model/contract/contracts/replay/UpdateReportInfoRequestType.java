@@ -15,6 +15,7 @@ public class UpdateReportInfoRequestType {
   @NotBlank(message = "planId cannot be empty")
   private String planId;
   private Integer totalCaseCount;
+  private String targetHost;
 
   private List<UpdateReportItem> updateReportItems;
 
