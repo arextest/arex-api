@@ -1,6 +1,6 @@
 package com.arextest.web.model.contract.contracts.config.replay;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data

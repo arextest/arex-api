@@ -5,7 +5,7 @@ import com.arextest.web.model.contract.contracts.common.ScriptBlockType;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import javax.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 @Data

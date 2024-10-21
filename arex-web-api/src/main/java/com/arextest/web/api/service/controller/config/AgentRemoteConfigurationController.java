@@ -29,10 +29,10 @@
 // import org.springframework.web.bind.annotation.RequestMapping;
 // import org.springframework.web.bind.annotation.ResponseBody;
 //
-// import javax.annotation.PostConstruct;
-// import javax.annotation.Resource;
-// import javax.servlet.http.HttpServletRequest;
-// import javax.servlet.http.HttpServletResponse;
+// import jakarta.annotation.PostConstruct;
+// import jakarta.annotation.Resource;
+// import jakarta.servlet.http.HttpServletRequest;
+// import jakarta.servlet.http.HttpServletResponse;
 // import java.util.List;
 // import java.util.Set;
 // import java.util.concurrent.Executors;

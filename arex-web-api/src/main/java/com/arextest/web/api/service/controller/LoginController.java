@@ -16,8 +16,8 @@ import com.arextest.web.model.contract.contracts.login.UpdateUserProfileRequestT
 import com.arextest.web.model.contract.contracts.login.UserProfileResponseType;
 import com.arextest.web.model.contract.contracts.login.VerifyRequestType;
 import com.arextest.web.model.contract.contracts.login.VerifyResponseType;
-import javax.annotation.Resource;
-import javax.validation.Valid;
+import jakarta.annotation.Resource;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;

@@ -1,7 +1,7 @@
 package com.arextest.web.api.service.beans;
 
 import com.arextest.web.api.service.converter.ZstdJacksonMessageConverter;
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import org.springframework.boot.autoconfigure.http.HttpMessageConverters;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

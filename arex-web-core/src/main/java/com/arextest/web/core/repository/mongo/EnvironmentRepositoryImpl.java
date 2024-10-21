@@ -6,7 +6,7 @@ import com.arextest.web.model.dao.mongodb.EnvironmentCollection;
 import com.arextest.web.model.dto.EnvironmentDto;
 import com.arextest.web.model.mapper.EnvironmentMapper;
 import java.util.List;
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;

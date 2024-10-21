@@ -1,6 +1,6 @@
 package com.arextest.web.model.contract.contracts.environment;
 
-import javax.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 @Data

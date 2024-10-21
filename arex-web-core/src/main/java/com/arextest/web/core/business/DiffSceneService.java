@@ -13,7 +13,7 @@ import com.arextest.web.model.mapper.DifferenceMapper;
 import com.arextest.web.model.mapper.SceneMapper;
 import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 

@@ -7,7 +7,7 @@ import com.arextest.web.model.dto.filesystem.FSTraceLogDto;
 import com.arextest.web.model.mapper.FSTraceLogMapper;
 import java.util.List;
 import java.util.stream.Collectors;
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;

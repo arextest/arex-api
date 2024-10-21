@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -34,6 +34,7 @@ import org.springframework.data.mongodb.core.aggregation.TypedAggregation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.data.mongodb.core.query.UpdateDefinition;
 import org.springframework.stereotype.Component;
 
 import java.util.HashSet;
@@ -70,7 +71,7 @@ public class ReplayCompareResultRepositoryImpl implements ReplayCompareResultRep
       BulkOperations bulkOperations =
           mongoTemplate.bulkOps(BulkOperations.BulkMode.UNORDERED,
               ReplayCompareResultCollection.class);
-      List<org.springframework.data.util.Pair<Query, Update>> updates = new ArrayList<>();
+      List<org.springframework.data.util.Pair<Query, UpdateDefinition>> updates = new ArrayList<>();
       for (CompareResultDto compareResultDto : results) {
         Query query = new Query();
         query.addCriteria(Criteria.where(DASH_ID).is(compareResultDto.getId()));

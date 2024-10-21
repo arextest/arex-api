@@ -11,7 +11,7 @@ import com.arextest.web.model.dto.EnvironmentDto;
 import com.arextest.web.model.mapper.EnvironmentMapper;
 import java.util.Collections;
 import java.util.List;
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;

@@ -8,7 +8,7 @@ import com.arextest.web.model.dto.filesystem.FSTraceLogDto;
 import com.arextest.web.model.enums.TraceType;
 import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 

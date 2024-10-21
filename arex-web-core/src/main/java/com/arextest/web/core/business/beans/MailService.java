@@ -2,7 +2,7 @@ package com.arextest.web.core.business.beans;
 
 import com.arextest.web.common.LogUtils;
 import com.arextest.web.core.business.beans.httpclient.HttpWebServiceApiClient;
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;

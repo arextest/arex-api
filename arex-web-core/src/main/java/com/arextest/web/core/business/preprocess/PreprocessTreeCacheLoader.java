@@ -5,7 +5,7 @@ import com.arextest.web.model.dto.MessagePreprocessDto;
 import com.github.benmanes.caffeine.cache.CacheLoader;
 import java.util.HashMap;
 import java.util.List;
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import org.springframework.stereotype.Component;
 
 @Component

@@ -7,7 +7,7 @@ import com.arextest.web.common.LogUtils;
 import com.arextest.web.core.business.SystemConfigurationService;
 import com.arextest.web.model.contract.contracts.config.SaveSystemConfigRequestType;
 import com.arextest.web.model.contract.contracts.config.SystemConfigWithProperties;
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;

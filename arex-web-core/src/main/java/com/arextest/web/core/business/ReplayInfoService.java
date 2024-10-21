@@ -12,7 +12,7 @@ import com.arextest.web.model.mapper.PlanItemMapper;
 import com.arextest.web.model.mapper.PlanMapper;
 import com.google.common.collect.ImmutableMap;
 import java.util.Date;
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Component;

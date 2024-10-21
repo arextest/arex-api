@@ -11,7 +11,7 @@ import com.arextest.web.model.mapper.UserMapper;
 import com.mongodb.client.result.UpdateResult;
 import java.util.List;
 import java.util.stream.Collectors;
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;

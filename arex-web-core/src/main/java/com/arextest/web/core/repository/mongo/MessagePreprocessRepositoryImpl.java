@@ -7,7 +7,7 @@ import com.arextest.web.model.dto.MessagePreprocessDto;
 import com.arextest.web.model.mapper.MessagePreprocessMapper;
 import java.util.List;
 import java.util.stream.Collectors;
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;

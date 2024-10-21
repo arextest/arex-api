@@ -7,7 +7,7 @@ import com.arextest.web.model.dto.LogsDto;
 import com.arextest.web.model.mapper.LogsMapper;
 import java.util.List;
 import java.util.stream.Collectors;
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import org.springframework.stereotype.Component;
 
 /**

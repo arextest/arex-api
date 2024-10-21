@@ -5,7 +5,7 @@ import com.arextest.config.repository.ConfigRepositoryProvider;
 import com.arextest.config.repository.impl.DynamicClassConfigurationRepositoryImpl;
 import com.arextest.web.core.business.config.AbstractConfigurableHandler;
 import java.util.List;
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;

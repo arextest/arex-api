@@ -7,7 +7,7 @@ import com.arextest.web.core.repository.FSTreeRepository;
 import com.arextest.web.model.dto.filesystem.FSNodeDto;
 import com.arextest.web.model.dto.filesystem.FSTraceLogDto;
 import com.arextest.web.model.dto.filesystem.FSTreeDto;
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Component;
 
