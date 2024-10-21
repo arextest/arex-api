@@ -53,7 +53,7 @@ public class QueryYamlTemplateService {
     options.setIndent(2);
     options.setPrettyFlow(false);
     options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
-    Representer representer = new Representer();
+    Representer representer = new Representer(new DumperOptions());
     representer.addClassTag(YamlTemplate.class, Tag.MAP);
     Yaml yaml = new Yaml(representer, options);
     response.setConfigTemplate(yaml.dump(yamlTemplate));
