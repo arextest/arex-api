@@ -6,7 +6,7 @@ import com.arextest.web.core.business.config.ConfigurableHandler;
 import com.arextest.web.core.business.config.replay.ComparisonEncryptionConfigurableHandler;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonEncryptionConfiguration;
 import com.arextest.web.model.contract.contracts.config.replay.QueryComparisonRequestType;
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;

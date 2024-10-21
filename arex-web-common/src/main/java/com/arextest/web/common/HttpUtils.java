@@ -56,7 +56,7 @@ public class HttpUtils {
       if (timeout != null && timeout > 0) {
         HttpComponentsClientHttpRequestFactory httpRequestFactory =
             new HttpComponentsClientHttpRequestFactory();
-        httpRequestFactory.setReadTimeout(timeout);
+        httpRequestFactory.setConnectionRequestTimeout(timeout);
         restTemplate = new RestTemplate(httpRequestFactory);
       }
       HttpHeaders httpHeaders = new HttpHeaders();

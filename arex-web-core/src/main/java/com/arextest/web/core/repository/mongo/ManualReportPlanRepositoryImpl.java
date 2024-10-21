@@ -5,7 +5,7 @@ import com.arextest.web.core.repository.mongo.util.MongoHelper;
 import com.arextest.web.model.dao.mongodb.ManualReportPlanCollection;
 import com.arextest.web.model.dto.manualreport.ManualReportPlanDto;
 import com.arextest.web.model.mapper.ManualReportPlanMapper;
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Component;
 

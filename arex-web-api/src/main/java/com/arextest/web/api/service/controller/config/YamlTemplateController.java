@@ -9,7 +9,7 @@ import com.arextest.web.model.contract.contracts.config.yamlTemplate.PushYamlTem
 import com.arextest.web.model.contract.contracts.config.yamlTemplate.PushYamlTemplateResponseType;
 import com.arextest.web.model.contract.contracts.config.yamlTemplate.QueryYamlTemplateRequestType;
 import com.arextest.web.model.contract.contracts.config.yamlTemplate.QueryYamlTemplateResponseType;
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;

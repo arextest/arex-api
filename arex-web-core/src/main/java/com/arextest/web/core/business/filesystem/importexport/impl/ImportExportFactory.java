@@ -2,7 +2,7 @@ package com.arextest.web.core.business.filesystem.importexport.impl;
 
 import com.arextest.web.core.business.filesystem.importexport.ImportExport;
 import java.util.Map;
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import org.springframework.stereotype.Component;
 
 /**

@@ -3,7 +3,7 @@ package com.arextest.web.api.service.interceptor;
 import com.arextest.common.interceptor.AbstractInterceptorHandler;
 import java.util.Comparator;
 import java.util.List;
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;

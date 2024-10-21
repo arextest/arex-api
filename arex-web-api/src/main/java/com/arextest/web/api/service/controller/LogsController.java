@@ -5,7 +5,7 @@ import com.arextest.common.utils.ResponseUtils;
 import com.arextest.web.core.business.LogsService;
 import com.arextest.web.model.contract.contracts.QueryLogsRequestType;
 import com.arextest.web.model.contract.contracts.QueryLogsResponseType;
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

@@ -1,6 +1,6 @@
 package com.arextest.web.api.service.converter;
 
-import static org.springframework.http.converter.json.AbstractJackson2HttpMessageConverter.DEFAULT_CHARSET;
+import static org.springframework.http.codec.FormHttpMessageReader.DEFAULT_CHARSET;
 
 import com.arextest.common.utils.SerializationUtils;
 import com.arextest.web.model.contract.contracts.PushCompareResultsRequestType;

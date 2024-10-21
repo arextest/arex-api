@@ -9,7 +9,7 @@ import com.arextest.web.core.repository.mongo.ComparisonExclusionsConfigurationR
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonExclusionsConfiguration;
 import com.arextest.web.model.dto.filesystem.FSInterfaceDto;
 import java.util.List;
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

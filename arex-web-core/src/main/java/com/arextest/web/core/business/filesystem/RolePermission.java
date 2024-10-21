@@ -4,7 +4,7 @@ import com.arextest.common.jwt.JWTService;
 import com.arextest.web.core.repository.UserWorkspaceRepository;
 import com.arextest.web.model.dto.filesystem.UserWorkspaceDto;
 import com.arextest.web.model.enums.RoleType;
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 

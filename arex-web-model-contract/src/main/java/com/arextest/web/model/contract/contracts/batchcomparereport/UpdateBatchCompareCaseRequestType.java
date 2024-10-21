@@ -3,7 +3,7 @@
 // import com.arextest.web.model.contract.contracts.config.replay.ComparisonSummaryConfiguration;
 // import lombok.Data;
 //
-// import javax.validation.constraints.NotBlank;
+// import jakarta.validation.constraints.NotBlank;
 //
 // /**
 // * Created by rchen9 on 2023/2/7.
