@@ -205,11 +205,6 @@
         <groupId>com.google.guava</groupId>
         <version>${guava.version}</version>
       </dependency>
-      <dependency>
-        <artifactId>snakeyaml</artifactId>
-        <groupId>org.yaml</groupId>
-        <version>${snakeyaml.version}</version>
-      </dependency>
       <!-- test -->
       <dependency>
         <artifactId>junit</artifactId>
@@ -525,7 +520,6 @@
     <msal.version>1.14.0</msal.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <shedlock-spring.version>4.34.0</shedlock-spring.version>
-    <snakeyaml.version>1.29</snakeyaml.version>
     <google-http-client.version>1.35.0</google-http-client.version>
     <spring.boot.version>3.2.3</spring.boot.version>
     <springfox-boot-starter.version>3.0.0</springfox-boot-starter.version>
