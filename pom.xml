@@ -22,6 +22,7 @@
           <source>8</source>
           <target>8</target>
           <compilerArgument>-Xlint:deprecation</compilerArgument>
+          <parameters>true</parameters>
           <annotationProcessorPaths>
             <!--https://bootify.io/spring-data/mapstruct-with-maven-and-lombok.html-->
             <path>
