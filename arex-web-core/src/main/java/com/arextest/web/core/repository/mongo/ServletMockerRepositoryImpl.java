@@ -6,7 +6,7 @@ import com.arextest.web.model.dto.ServletMockerDto;
 import com.arextest.web.model.mapper.ServletMockerMapper;
 import java.util.List;
 import java.util.stream.Collectors;
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;

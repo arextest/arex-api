@@ -19,7 +19,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.DumperOptions;
@@ -53,7 +53,7 @@ public class QueryYamlTemplateService {
     options.setIndent(2);
     options.setPrettyFlow(false);
     options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
-    Representer representer = new Representer();
+    Representer representer = new Representer(new DumperOptions());
     representer.addClassTag(YamlTemplate.class, Tag.MAP);
     Yaml yaml = new Yaml(representer, options);
     response.setConfigTemplate(yaml.dump(yamlTemplate));

@@ -7,8 +7,8 @@ import com.arextest.web.model.contract.contracts.manualreport.InitManualReportRe
 import com.arextest.web.model.contract.contracts.manualreport.InitManualReportResponseType;
 import com.arextest.web.model.contract.contracts.manualreport.QueryReportCasesRequestType;
 import com.arextest.web.model.contract.contracts.manualreport.QueryReportCasesResponseType;
-import javax.annotation.Resource;
-import javax.validation.Valid;
+import jakarta.annotation.Resource;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;

@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -21,6 +21,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.data.mongodb.core.query.UpdateDefinition;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Repository;
 
@@ -39,7 +40,7 @@ public class AppContractRepositoryImpl implements AppContractRepository {
     try {
       BulkOperations bulkOperations =
           mongoTemplate.bulkOps(BulkOperations.BulkMode.UNORDERED, AppContractCollection.class);
-      List<Pair<Query, Update>> updates = new ArrayList<>();
+      List<Pair<Query, UpdateDefinition>> updates = new ArrayList<>();
       for (AppContractDto appContractDto : appContractDtos) {
         AppContractCollection collection = AppContractMapper.INSTANCE.daoFromDto(appContractDto);
         Query query = new Query();

@@ -13,7 +13,7 @@
 // import org.springframework.stereotype.Controller;
 // import org.springframework.web.bind.annotation.*;
 //
-// import javax.annotation.Resource;
+// import jakarta.annotation.Resource;
 //
 // /**
 // * Created by rchen9 on 2022/6/29.

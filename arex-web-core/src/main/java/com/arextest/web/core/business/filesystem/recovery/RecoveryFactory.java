@@ -1,7 +1,7 @@
 package com.arextest.web.core.business.filesystem.recovery;
 
 import java.util.Map;
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import org.springframework.stereotype.Component;
 
 /**

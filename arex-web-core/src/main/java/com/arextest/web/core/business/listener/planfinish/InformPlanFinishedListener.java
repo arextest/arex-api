@@ -9,7 +9,7 @@ import com.arextest.web.model.contract.contracts.CallbackInformRequestType;
 import com.arextest.web.model.contract.contracts.QueryPlanStatisticsRequestType;
 import com.arextest.web.model.contract.contracts.QueryPlanStatisticsResponseType;
 import com.arextest.web.model.contract.contracts.common.PlanStatistic;
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

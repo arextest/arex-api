@@ -1,7 +1,7 @@
 package com.arextest.web.model.contract.contracts.replay;
 
 import java.util.List;
-import javax.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import lombok.ToString;
 

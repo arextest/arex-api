@@ -5,7 +5,7 @@ import com.arextest.web.core.repository.mongo.util.MongoHelper;
 import com.arextest.web.model.dao.mongodb.PreprocessConfigCollection;
 import com.arextest.web.model.dto.PreprocessConfigDto;
 import com.arextest.web.model.mapper.PreprocessConfigMapper;
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;

@@ -14,8 +14,8 @@ import com.arextest.web.model.contract.contracts.environment.RemoveEnvironmentRe
 import com.arextest.web.model.contract.contracts.environment.SaveEnvironmentRequestType;
 import com.arextest.web.model.contract.contracts.environment.SaveEnvironmentResponseType;
 import java.util.List;
-import javax.annotation.Resource;
-import javax.validation.Valid;
+import jakarta.annotation.Resource;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;

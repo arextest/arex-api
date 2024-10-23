@@ -2,7 +2,7 @@ package com.arextest.web.model.contract.contracts;
 
 import com.arextest.web.model.contract.contracts.common.CompareResult;
 import java.util.List;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data

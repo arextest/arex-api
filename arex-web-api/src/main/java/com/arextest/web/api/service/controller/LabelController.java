@@ -12,8 +12,8 @@ import com.arextest.web.model.contract.contracts.label.QueryLabelsByWorkspaceIdR
 import com.arextest.web.model.contract.contracts.label.QueryLabelsByWorkspaceIdResponseType;
 import com.arextest.web.model.contract.contracts.label.RemoveLabelRequestType;
 import com.arextest.web.model.contract.contracts.label.SaveLabelRequestType;
-import javax.annotation.Resource;
-import javax.validation.Valid;
+import jakarta.annotation.Resource;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;

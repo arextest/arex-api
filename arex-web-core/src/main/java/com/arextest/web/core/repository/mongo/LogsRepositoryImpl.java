@@ -7,7 +7,7 @@ import com.arextest.web.model.mapper.LogsMapper;
 import com.arextest.web.model.params.QueryLogsParam;
 import java.util.List;
 import java.util.stream.Collectors;
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;

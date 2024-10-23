@@ -5,7 +5,7 @@ import com.arextest.web.model.dto.filesystem.FSFolderDto;
 import com.arextest.web.model.dto.filesystem.FSItemDto;
 import java.util.List;
 import java.util.Set;
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import org.springframework.stereotype.Component;
 
 @Component("ItemInfo-3")

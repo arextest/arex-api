@@ -6,7 +6,7 @@ import com.arextest.config.repository.impl.ServiceCollectConfigurationRepository
 import com.arextest.web.core.business.config.AbstractMultiEnvConfigHandler;
 import java.util.Collections;
 import java.util.List;
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

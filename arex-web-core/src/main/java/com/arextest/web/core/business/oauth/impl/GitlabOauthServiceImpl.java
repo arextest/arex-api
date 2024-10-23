@@ -5,7 +5,7 @@ import com.arextest.web.core.business.beans.httpclient.HttpWebServiceApiClient;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;

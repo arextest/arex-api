@@ -5,7 +5,7 @@ import com.arextest.web.core.repository.UserRepository;
 import com.arextest.web.model.contract.contracts.login.GetOauthInfoResponseType;
 import com.arextest.web.model.contract.contracts.login.VerifyResponseType;
 import com.arextest.web.model.dto.UserDto;
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
