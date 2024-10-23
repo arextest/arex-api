@@ -23,5 +23,8 @@ public class CaseSummaryCollection extends ModelBase {
 
   private List<DiffDetailDao> diffs;
 
+  private Long categoryKey;
+  private Long groupKey;
+
   private Date dataCreateTime;
 }
