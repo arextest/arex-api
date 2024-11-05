@@ -7,6 +7,7 @@ import com.arextest.config.model.dto.ModifyType;
 import com.arextest.web.core.business.config.replay.ComparisonTransformConfigurableHandler;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonRootTransformConfiguration;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonTransformConfiguration;
+import com.arextest.web.model.contract.contracts.config.replay.PageQueryComparisonRequestType;
 import com.arextest.web.model.contract.contracts.config.replay.QueryComparisonRequestType;
 import com.arextest.web.model.mapper.ConfigComparisonTransformMapper;
 import java.util.List;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -66,6 +68,14 @@ public class ComparisonRootTransformController {
           comparisonTransformConfigurableHandler.remove(transformConfiguration));
     }
     return ResponseUtils.resourceNotFoundResponse();
+  }
+
+  @PostMapping("/pageQueryComparisonConfig")
+  @ResponseBody
+  public Response pageQueryComparisonConfig(@RequestBody PageQueryComparisonRequestType request) {
+    return ResponseUtils.successResponse(
+        comparisonTransformConfigurableHandler.pageQueryComparisonConfig(request)
+    );
   }
 
 

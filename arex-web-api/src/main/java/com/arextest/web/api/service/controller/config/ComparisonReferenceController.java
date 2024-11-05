@@ -5,6 +5,7 @@ import com.arextest.common.utils.ResponseUtils;
 import com.arextest.web.core.business.config.ConfigurableHandler;
 import com.arextest.web.core.business.config.replay.ComparisonReferenceConfigurableHandler;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonReferenceConfiguration;
+import com.arextest.web.model.contract.contracts.config.replay.PageQueryComparisonRequestType;
 import com.arextest.web.model.contract.contracts.config.replay.QueryComparisonRequestType;
 import jakarta.annotation.Resource;
 import lombok.Getter;
@@ -66,6 +67,14 @@ public class ComparisonReferenceController extends
         getComparisonReferenceConfigurableHandler().queryComparisonConfig(
             request.getAppId(), request.getOperationId(), request.getOperationType(),
             request.getOperationName()));
+  }
+
+  @PostMapping("/pageQueryComparisonConfig")
+  @ResponseBody
+  public Response pageQueryComparisonConfig(@RequestBody PageQueryComparisonRequestType request) {
+    return ResponseUtils.successResponse(
+        comparisonReferenceConfigurableHandler.pageQueryComparisonConfig(request)
+    );
   }
 
 }

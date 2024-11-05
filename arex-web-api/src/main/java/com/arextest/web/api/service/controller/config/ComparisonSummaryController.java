@@ -28,6 +28,9 @@ public class ComparisonSummaryController {
   @Resource
   ComparisonSummaryService comparisonSummaryService;
 
+//  @Resource
+//  PageComparisonSummaryService pageComparisonSummaryService;
+
   @RequestMapping("/queryByInterfaceId")
   @ResponseBody
   public final Response queryByInterfaceId(@RequestParam String interfaceId) {
@@ -63,5 +66,12 @@ public class ComparisonSummaryController {
         request.getAppId(), request.getOperationName());
     return ResponseUtils.successResponse(replayCompareConfig);
   }
+
+//  @PostMapping("/{category}/queryCompareConfigByCategory")
+//  public Response queryCompareConfigByCategory(@PathVariable ComparisonCategoryType category,
+//      @Valid @RequestBody PageQueryComparisonRequestType request) {
+//    return ResponseUtils.successResponse(
+//        pageComparisonSummaryService.queryCompareConfigByCategory(category, request);
+//  }
 
 }
