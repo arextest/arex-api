@@ -12,7 +12,7 @@ public class PageQueryComparisonRequestType implements PagingRequest {
   @NotBlank
   private String appId;
 
-  private List<String> operationId;
+  private List<String> operationIds;
 
   private List<String> dependencyIds;
 
