@@ -1,16 +1,26 @@
 package com.arextest.web.core.business.config.replay;
 
 import com.arextest.config.model.dto.application.ApplicationOperationConfiguration;
+import com.arextest.config.model.dto.application.Dependency;
 import com.arextest.config.repository.ConfigRepositoryProvider;
+import com.arextest.config.repository.impl.ApplicationOperationConfigurationRepositoryImpl;
 import com.arextest.web.core.business.config.application.ApplicationOperationConfigurableHandler;
 import com.arextest.web.core.repository.AppContractRepository;
 import com.arextest.web.core.repository.FSInterfaceRepository;
 import com.arextest.web.core.repository.mongo.ComparisonExclusionsConfigurationRepositoryImpl;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonExclusionsConfiguration;
+import com.arextest.web.model.contract.contracts.config.replay.PageQueryComparisonRequestType;
+import com.arextest.web.model.contract.contracts.config.replay.PageQueryComparisonResponseType;
+import com.arextest.web.model.dto.config.PageQueryComparisonDto;
+import com.arextest.web.model.dto.config.PageQueryComparisonResultDto;
 import com.arextest.web.model.dto.filesystem.FSInterfaceDto;
-import java.util.List;
+import com.arextest.web.model.mapper.PageQueryComparisonMapper;
 import jakarta.annotation.Resource;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -27,6 +37,10 @@ public class ComparisonExclusionsConfigurableHandler
   ApplicationOperationConfigurableHandler applicationOperationConfigurableHandler;
   @Resource
   ComparisonExclusionsConfigurationRepositoryImpl comparisonExclusionsConfigurationRepository;
+  @Resource
+  ApplicationOperationConfigurationRepositoryImpl applicationOperationConfigurationRepository;
+  @Resource
+  AppContractRepository appContractRepository;
 
   protected ComparisonExclusionsConfigurableHandler(
       @Autowired ConfigRepositoryProvider<ComparisonExclusionsConfiguration> repositoryProvider,
@@ -63,4 +77,43 @@ public class ComparisonExclusionsConfigurableHandler
     }
     return result;
   }
+
+  public PageQueryComparisonResponseType pageQueryComparisonConfig(
+      PageQueryComparisonRequestType requestType) {
+    PageQueryComparisonDto pageQueryComparisonDto = PageQueryComparisonMapper.INSTANCE.dtoFromContract(
+        requestType);
+    PageQueryComparisonResultDto<ComparisonExclusionsConfiguration> queryResult =
+        comparisonExclusionsConfigurationRepository.pageQueryComparisonConfig(
+            pageQueryComparisonDto);
+
+    // get the information of interface and dependency involved in the configuration
+    List<ComparisonExclusionsConfiguration> configs = queryResult.getConfigs();
+    Pair<Map<String, String>, Map<String, Dependency>> operationAndDependencyInfos =
+        getOperationAndDependencyInfos(configs, applicationOperationConfigurationRepository,
+            appContractRepository);
+    Map<String, String> operationInfos = operationAndDependencyInfos.getLeft();
+    Map<String, Dependency> dependencyInfos = operationAndDependencyInfos.getRight();
+    PageQueryComparisonResponseType result = new PageQueryComparisonResponseType();
+    result.setTotalCount(queryResult.getTotalCount());
+    result.setExclusions(contractFromDto(configs, operationInfos, dependencyInfos));
+    return result;
+  }
+
+  private List<PageQueryComparisonResponseType.ExclusionInfo> contractFromDto(
+      List<ComparisonExclusionsConfiguration> dto, Map<String, String> operationInfo,
+      Map<String, Dependency> dependencyInfo) {
+    List<PageQueryComparisonResponseType.ExclusionInfo> result = new ArrayList<>();
+    for (ComparisonExclusionsConfiguration item : dto) {
+      if (item.getOperationId() != null && operationInfo.get(item.getOperationId()) == null) {
+        continue;
+      }
+      if (item.getDependencyId() != null && dependencyInfo.get(item.getDependencyId()) == null) {
+        continue;
+      }
+      result.add(
+          PageQueryComparisonMapper.INSTANCE.contractFromDto(item, operationInfo, dependencyInfo));
+    }
+    return result;
+  }
+
 }

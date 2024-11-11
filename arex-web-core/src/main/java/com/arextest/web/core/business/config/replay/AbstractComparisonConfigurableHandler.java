@@ -1,6 +1,9 @@
 package com.arextest.web.core.business.config.replay;
 
+import com.arextest.config.model.dto.application.ApplicationOperationConfiguration;
+import com.arextest.config.model.dto.application.Dependency;
 import com.arextest.config.repository.ConfigRepositoryProvider;
+import com.arextest.config.repository.impl.ApplicationOperationConfigurationRepositoryImpl;
 import com.arextest.web.core.business.config.AbstractConfigurableHandler;
 import com.arextest.web.core.repository.AppContractRepository;
 import com.arextest.web.model.contract.contracts.config.replay.AbstractComparisonDetailsConfiguration;
@@ -17,6 +20,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 
 /**
  * @author jmo
@@ -112,6 +116,34 @@ public abstract class AbstractComparisonConfigurableHandler<T extends AbstractCo
 
   public boolean removeByAppId(String appId) {
     return repositoryProvider.listBy(appId).isEmpty() || repositoryProvider.removeByAppId(appId);
+  }
+
+  protected Pair<Map<String, String>, Map<String, Dependency>> getOperationAndDependencyInfos(
+      List<T> configs,
+      ApplicationOperationConfigurationRepositoryImpl applicationOperationConfigurationRepository,
+      AppContractRepository appContractRepository) {
+    Map<String, String> operationInfos = new HashMap<>();
+    Map<String, Dependency> dependencyInfos = new HashMap<>();
+    for (T item : configs) {
+      operationInfos.put(item.getOperationId(), null);
+      dependencyInfos.put(item.getDependencyId(), null);
+    }
+    List<ApplicationOperationConfiguration> operationConfigurations =
+        applicationOperationConfigurationRepository.queryByOperationIdList(operationInfos.keySet());
+    for (ApplicationOperationConfiguration operationConfiguration : operationConfigurations) {
+      operationInfos.put(operationConfiguration.getId(), operationConfiguration.getOperationName());
+    }
+
+    List<AppContractDto> appContractDtos = appContractRepository.queryAppContractsByIds(
+        dependencyInfos.keySet());
+    for (AppContractDto appContractDto : appContractDtos) {
+      Dependency dependency = new Dependency();
+      dependency.setDependencyId(appContractDto.getId());
+      dependency.setOperationType(appContractDto.getOperationType());
+      dependency.setOperationName(appContractDto.getOperationName());
+      dependencyInfos.put(appContractDto.getId(), dependency);
+    }
+    return Pair.of(operationInfos, dependencyInfos);
   }
 
   void addDependencyId(List<T> comparisonDetails) {

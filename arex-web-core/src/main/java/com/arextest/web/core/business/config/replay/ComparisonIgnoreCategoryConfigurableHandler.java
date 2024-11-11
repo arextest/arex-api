@@ -1,22 +1,31 @@
 package com.arextest.web.core.business.config.replay;
 
 import com.arextest.config.model.dto.application.ApplicationOperationConfiguration;
+import com.arextest.config.model.dto.application.Dependency;
 import com.arextest.config.repository.ConfigRepositoryProvider;
 import com.arextest.config.repository.impl.ApplicationOperationConfigurationRepositoryImpl;
 import com.arextest.model.mock.MockCategoryType;
 import com.arextest.web.core.business.config.application.ApplicationOperationConfigurableHandler;
 import com.arextest.web.core.repository.AppContractRepository;
 import com.arextest.web.core.repository.FSInterfaceRepository;
+import com.arextest.web.core.repository.mongo.ComparisonIgnoreCategoryConfigurationRepositoryImpl;
 import com.arextest.web.model.contract.contracts.compare.CategoryDetail;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonIgnoreCategoryConfiguration;
+import com.arextest.web.model.contract.contracts.config.replay.PageQueryComparisonRequestType;
+import com.arextest.web.model.contract.contracts.config.replay.PageQueryComparisonResponseType;
+import com.arextest.web.model.dto.config.PageQueryComparisonDto;
+import com.arextest.web.model.dto.config.PageQueryComparisonResultDto;
 import com.arextest.web.model.dto.filesystem.FSInterfaceDto;
+import com.arextest.web.model.mapper.PageQueryComparisonMapper;
+import jakarta.annotation.Resource;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import jakarta.annotation.Resource;
-import java.util.List;
 
 /**
  * @author wildeslam.
@@ -26,12 +35,17 @@ import java.util.List;
 @Component
 public class ComparisonIgnoreCategoryConfigurableHandler
     extends AbstractComparisonConfigurableHandler<ComparisonIgnoreCategoryConfiguration> {
+
   @Resource
   FSInterfaceRepository fsInterfaceRepository;
   @Resource
   ApplicationOperationConfigurableHandler applicationOperationConfigurableHandler;
   @Resource
   private ApplicationOperationConfigurationRepositoryImpl applicationOperationConfigurationRepository;
+  @Resource
+  ComparisonIgnoreCategoryConfigurationRepositoryImpl ignoreCategoryConfigurationRepository;
+  @Resource
+  AppContractRepository appContractRepository;
 
   protected ComparisonIgnoreCategoryConfigurableHandler(
       @Autowired ConfigRepositoryProvider<ComparisonIgnoreCategoryConfiguration> repositoryProvider,
@@ -85,4 +99,46 @@ public class ComparisonIgnoreCategoryConfigurableHandler
     checkBeforeModify(configuration);
     return super.update(configuration);
   }
+
+
+  public PageQueryComparisonResponseType pageQueryComparisonConfig(
+      PageQueryComparisonRequestType requestType) {
+    PageQueryComparisonDto pageQueryComparisonDto = PageQueryComparisonMapper.INSTANCE.dtoFromContract(
+        requestType);
+    PageQueryComparisonResultDto<ComparisonIgnoreCategoryConfiguration> queryResult =
+        ignoreCategoryConfigurationRepository.pageQueryComparisonConfig(
+            pageQueryComparisonDto);
+
+    // get the information of interface and dependency involved in the configuration
+    List<ComparisonIgnoreCategoryConfiguration> configs = queryResult.getConfigs();
+    Pair<Map<String, String>, Map<String, Dependency>> operationAndDependencyInfos =
+        getOperationAndDependencyInfos(configs, applicationOperationConfigurationRepository,
+            appContractRepository);
+    Map<String, String> operationInfos = operationAndDependencyInfos.getLeft();
+    Map<String, Dependency> dependencyInfos = operationAndDependencyInfos.getRight();
+    PageQueryComparisonResponseType result = new PageQueryComparisonResponseType();
+    result.setTotalCount(queryResult.getTotalCount());
+    result.setIgnoreCategories(contractFromDto(configs, operationInfos, dependencyInfos));
+    return result;
+  }
+
+  private List<PageQueryComparisonResponseType.IgnoreCategoryInfo> contractFromDto(
+      List<ComparisonIgnoreCategoryConfiguration> dto, Map<String, String> operationInfo,
+      Map<String, Dependency> dependencyInfo) {
+    List<PageQueryComparisonResponseType.IgnoreCategoryInfo> result = new ArrayList<>();
+    for (ComparisonIgnoreCategoryConfiguration item : dto) {
+      if (item.getOperationId() != null && operationInfo.get(item.getOperationId()) == null) {
+        continue;
+      }
+      if (item.getDependencyId() != null && dependencyInfo.get(item.getDependencyId()) == null) {
+        continue;
+      }
+      result.add(
+          PageQueryComparisonMapper.INSTANCE.contractFromDto(item, operationInfo, dependencyInfo)
+      );
+    }
+    return result;
+  }
+
+
 }

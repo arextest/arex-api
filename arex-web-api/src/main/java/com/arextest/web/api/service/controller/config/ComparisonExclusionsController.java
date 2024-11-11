@@ -5,6 +5,7 @@ import com.arextest.common.utils.ResponseUtils;
 import com.arextest.web.core.business.config.ConfigurableHandler;
 import com.arextest.web.core.business.config.replay.ComparisonExclusionsConfigurableHandler;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonExclusionsConfiguration;
+import com.arextest.web.model.contract.contracts.config.replay.PageQueryComparisonRequestType;
 import com.arextest.web.model.contract.contracts.config.replay.QueryComparisonRequestType;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
@@ -72,5 +73,14 @@ public class ComparisonExclusionsController extends
     exclusionsHandler.removeDetailsExpired(configs, request.getFilterExpired());
     return ResponseUtils.successResponse(configs);
   }
+
+  @PostMapping("/pageQueryComparisonConfig")
+  @ResponseBody
+  public Response pageQueryComparisonConfig(@RequestBody PageQueryComparisonRequestType request) {
+    return ResponseUtils.successResponse(
+        exclusionsHandler.pageQueryComparisonConfig(request)
+    );
+  }
+
 
 }

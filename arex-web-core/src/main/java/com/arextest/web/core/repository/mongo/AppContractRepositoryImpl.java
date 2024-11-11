@@ -7,11 +7,13 @@ import com.arextest.web.model.dao.mongodb.AppContractCollection;
 import com.arextest.web.model.dto.AppContractDto;
 import com.arextest.web.model.enums.ContractTypeEnum;
 import com.arextest.web.model.mapper.AppContractMapper;
+import jakarta.annotation.Resource;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -205,10 +207,21 @@ public class AppContractRepositoryImpl implements AppContractRepository {
   @Override
   public List<AppContractDto> queryDependencyWithAppId(String appId, String operationName,
       String operationType) {
-      Query query = Query.query(Criteria.where(AppContractCollection.Fields.appId).is(appId)
-          .and(AppContractCollection.Fields.operationName).is(operationName)
-          .and(AppContractCollection.Fields.operationType).is(operationType));
-      List<AppContractCollection> daos = mongoTemplate.find(query, AppContractCollection.class);
-      return daos.stream().map(AppContractMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
+    Query query = Query.query(Criteria.where(AppContractCollection.Fields.appId).is(appId)
+        .and(AppContractCollection.Fields.operationName).is(operationName)
+        .and(AppContractCollection.Fields.operationType).is(operationType));
+    List<AppContractCollection> daos = mongoTemplate.find(query, AppContractCollection.class);
+    return daos.stream().map(AppContractMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
+  }
+
+  @Override
+  public List<AppContractDto> queryAppContractsByIds(Collection<String> ids) {
+    if (CollectionUtils.isEmpty(ids)) {
+      return Collections.emptyList();
+    }
+    Query query = new Query(Criteria.where(DASH_ID).in(ids));
+    return mongoTemplate.find(query, AppContractCollection.class)
+        .stream().map(AppContractMapper.INSTANCE::dtoFromDao)
+        .collect(Collectors.toList());
   }
 }
