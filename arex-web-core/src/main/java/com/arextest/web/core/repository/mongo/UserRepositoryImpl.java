@@ -1,5 +1,17 @@
 package com.arextest.web.core.repository.mongo;
 
+import com.arextest.web.model.dto.UserDto.Activity;
+import com.arextest.web.model.dto.UserDto.Fields;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.data.mongodb.core.FindAndModifyOptions;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.stereotype.Component;
+
 import com.arextest.web.common.LogUtils;
 import com.arextest.web.core.repository.UserRepository;
 import com.arextest.web.core.repository.mongo.util.MongoHelper;
@@ -9,23 +21,14 @@ import com.arextest.web.model.dto.UserDto;
 import com.arextest.web.model.enums.UserStatusType;
 import com.arextest.web.model.mapper.UserMapper;
 import com.mongodb.client.result.UpdateResult;
-import java.util.List;
-import java.util.stream.Collectors;
+
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.mongodb.core.FindAndModifyOptions;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
-import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 @Slf4j
 @Component
 public class UserRepositoryImpl implements UserRepository {
-
-  private static final String USER_NAME = "userName";
-  private static final String VERIFICATION_CODE = "verificationCode";
   private static final String VERIFICATION_TIME = "verificationTime";
   private static final String FAVORITE_APPS = "favoriteApps";
   private static final String LIKE_QUERY_PATTERN = ".*%s.*";
@@ -36,7 +39,7 @@ public class UserRepositoryImpl implements UserRepository {
 
   @Override
   public Boolean saveUser(UserDto user) {
-    Query query = Query.query(Criteria.where(USER_NAME).is(user.getUserName()));
+    Query query = Query.query(Criteria.where(UserDto.Fields.userName).is(user.getUserName()));
     Update update = MongoHelper.getUpdate();
     MongoHelper.appendFullProperties(update, user);
     mongoTemplate.findAndModify(query, update,
@@ -46,24 +49,34 @@ public class UserRepositoryImpl implements UserRepository {
   }
 
   @Override
+  public Boolean pushUserActivity(String userName, Activity activity) {
+    Query query = Query.query(Criteria.where(UserDto.Fields.userName).is(userName));
+    Update update = MongoHelper.getUpdate();
+    update.push(UserDto.Fields.activities, activity);
+    return mongoTemplate.upsert(query, update, UserCollection.class).getModifiedCount() > 0;
+  }
+
+  @Override
   public Boolean verify(String userName, String verificationCode) {
     Query query = Query.query(
-        Criteria.where(USER_NAME).is(userName).and(VERIFICATION_CODE).is(verificationCode)
+        Criteria.where(UserDto.Fields.userName).is(userName)
+            .and(UserDto.Fields.verificationCode).is(verificationCode)
             .and(VERIFICATION_TIME).gt(System.currentTimeMillis() - 5 * 60 * 1000));
     return mongoTemplate.exists(query, UserCollection.class);
   }
 
   @Override
   public UserDto queryUserProfile(String userName) {
-    Query query = Query.query(Criteria.where(USER_NAME).is(userName));
-    query.fields().exclude(VERIFICATION_CODE);
+    Query query = Query.query(Criteria.where(UserDto.Fields.userName).is(userName));
+    query.fields()
+        .exclude(UserDto.Fields.verificationCode, UserDto.Fields.activities);
     UserCollection dao = mongoTemplate.findOne(query, UserCollection.class);
     return UserMapper.INSTANCE.dtoFromDao(dao);
   }
 
   @Override
   public Boolean updateUserProfile(UserDto user) {
-    Query query = Query.query(Criteria.where(USER_NAME).is(user.getUserName()));
+    Query query = Query.query(Criteria.where(UserDto.Fields.userName).is(user.getUserName()));
     Update update = MongoHelper.getUpdate();
     MongoHelper.appendFullProperties(update, user);
     try {
@@ -79,13 +92,13 @@ public class UserRepositoryImpl implements UserRepository {
 
   @Override
   public Boolean existUserName(String userName) {
-    Query query = Query.query(Criteria.where(USER_NAME).is(userName));
+    Query query = Query.query(Criteria.where(UserDto.Fields.userName).is(userName));
     return mongoTemplate.exists(query, UserCollection.class);
   }
 
   @Override
   public Boolean insertUserFavoriteApp(String userName, String favoriteApp) {
-    Query query = Query.query(Criteria.where(USER_NAME).is(userName));
+    Query query = Query.query(Criteria.where(UserDto.Fields.userName).is(userName));
     Update update = MongoHelper.getUpdate();
     update.addToSet(FAVORITE_APPS, favoriteApp);
     UpdateResult upsert = mongoTemplate.upsert(query, update, UserCollection.class);
@@ -94,7 +107,7 @@ public class UserRepositoryImpl implements UserRepository {
 
   @Override
   public Boolean removeUserFavoriteApp(String userName, String favoriteApp) {
-    Query query = Query.query(Criteria.where(USER_NAME).is(userName));
+    Query query = Query.query(Criteria.where(UserDto.Fields.userName).is(userName));
     Update update = MongoHelper.getUpdate();
     update.pull(FAVORITE_APPS, favoriteApp);
     UpdateResult upsert = mongoTemplate.upsert(query, update, UserCollection.class);
