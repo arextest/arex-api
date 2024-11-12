@@ -24,6 +24,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
+@Deprecated
 @Component
 @Slf4j
 public class ComparisonEncryptionConfigurationRepositoryImpl
