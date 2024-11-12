@@ -17,7 +17,6 @@ import jakarta.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
@@ -87,11 +86,10 @@ public class ComparisonListSortConfigurableHandler
 
     // get the information of interface and dependency involved in the configuration
     List<ComparisonListSortConfiguration> configs = queryResult.getConfigs();
-    Pair<Map<String, String>, Map<String, Dependency>> operationAndDependencyInfos =
-        getOperationAndDependencyInfos(configs, applicationOperationConfigurationRepository,
-            appContractRepository);
-    Map<String, String> operationInfos = operationAndDependencyInfos.getLeft();
-    Map<String, Dependency> dependencyInfos = operationAndDependencyInfos.getRight();
+    Map<String, String> operationInfos = getOperationInfos(configs,
+        applicationOperationConfigurationRepository);
+    Map<String, Dependency> dependencyInfos = getDependencyInfos(configs, appContractRepository);
+
     PageQueryComparisonResponseType result = new PageQueryComparisonResponseType();
     result.setTotalCount(queryResult.getTotalCount());
     result.setListSorts(contractFromDto(configs, operationInfos, dependencyInfos));

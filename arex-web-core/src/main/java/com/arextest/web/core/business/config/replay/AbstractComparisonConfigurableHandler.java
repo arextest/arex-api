@@ -20,7 +20,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
 
 /**
  * @author jmo
@@ -118,22 +117,29 @@ public abstract class AbstractComparisonConfigurableHandler<T extends AbstractCo
     return repositoryProvider.listBy(appId).isEmpty() || repositoryProvider.removeByAppId(appId);
   }
 
-  protected Pair<Map<String, String>, Map<String, Dependency>> getOperationAndDependencyInfos(
+
+  protected Map<String, String> getOperationInfos(
       List<T> configs,
-      ApplicationOperationConfigurationRepositoryImpl applicationOperationConfigurationRepository,
-      AppContractRepository appContractRepository) {
+      ApplicationOperationConfigurationRepositoryImpl applicationOperationConfigurationRepository) {
     Map<String, String> operationInfos = new HashMap<>();
-    Map<String, Dependency> dependencyInfos = new HashMap<>();
     for (T item : configs) {
       operationInfos.put(item.getOperationId(), null);
-      dependencyInfos.put(item.getDependencyId(), null);
     }
     List<ApplicationOperationConfiguration> operationConfigurations =
         applicationOperationConfigurationRepository.queryByOperationIdList(operationInfos.keySet());
     for (ApplicationOperationConfiguration operationConfiguration : operationConfigurations) {
       operationInfos.put(operationConfiguration.getId(), operationConfiguration.getOperationName());
     }
+    return operationInfos;
+  }
 
+  protected Map<String, Dependency> getDependencyInfos(
+      List<T> configs,
+      AppContractRepository appContractRepository) {
+    Map<String, Dependency> dependencyInfos = new HashMap<>();
+    for (T item : configs) {
+      dependencyInfos.put(item.getDependencyId(), null);
+    }
     List<AppContractDto> appContractDtos = appContractRepository.queryAppContractsByIds(
         dependencyInfos.keySet());
     for (AppContractDto appContractDto : appContractDtos) {
@@ -143,8 +149,9 @@ public abstract class AbstractComparisonConfigurableHandler<T extends AbstractCo
       dependency.setOperationName(appContractDto.getOperationName());
       dependencyInfos.put(appContractDto.getId(), dependency);
     }
-    return Pair.of(operationInfos, dependencyInfos);
+    return dependencyInfos;
   }
+
 
   void addDependencyId(List<T> comparisonDetails) {
     Map<AppContractDto, String> notFoundAppContractMap = new HashMap<>();
