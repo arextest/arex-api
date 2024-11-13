@@ -1,6 +1,9 @@
 package com.arextest.web.core.business.config.replay;
 
+import com.arextest.config.model.dto.application.ApplicationOperationConfiguration;
+import com.arextest.config.model.dto.application.Dependency;
 import com.arextest.config.repository.ConfigRepositoryProvider;
+import com.arextest.config.repository.impl.ApplicationOperationConfigurationRepositoryImpl;
 import com.arextest.web.core.business.config.AbstractConfigurableHandler;
 import com.arextest.web.core.repository.AppContractRepository;
 import com.arextest.web.model.contract.contracts.config.replay.AbstractComparisonDetailsConfiguration;
@@ -113,6 +116,42 @@ public abstract class AbstractComparisonConfigurableHandler<T extends AbstractCo
   public boolean removeByAppId(String appId) {
     return repositoryProvider.listBy(appId).isEmpty() || repositoryProvider.removeByAppId(appId);
   }
+
+
+  protected Map<String, String> getOperationInfos(
+      List<T> configs,
+      ApplicationOperationConfigurationRepositoryImpl applicationOperationConfigurationRepository) {
+    Map<String, String> operationInfos = new HashMap<>();
+    for (T item : configs) {
+      operationInfos.put(item.getOperationId(), null);
+    }
+    List<ApplicationOperationConfiguration> operationConfigurations =
+        applicationOperationConfigurationRepository.queryByOperationIdList(operationInfos.keySet());
+    for (ApplicationOperationConfiguration operationConfiguration : operationConfigurations) {
+      operationInfos.put(operationConfiguration.getId(), operationConfiguration.getOperationName());
+    }
+    return operationInfos;
+  }
+
+  protected Map<String, Dependency> getDependencyInfos(
+      List<T> configs,
+      AppContractRepository appContractRepository) {
+    Map<String, Dependency> dependencyInfos = new HashMap<>();
+    for (T item : configs) {
+      dependencyInfos.put(item.getDependencyId(), null);
+    }
+    List<AppContractDto> appContractDtos = appContractRepository.queryAppContractsByIds(
+        dependencyInfos.keySet());
+    for (AppContractDto appContractDto : appContractDtos) {
+      Dependency dependency = new Dependency();
+      dependency.setDependencyId(appContractDto.getId());
+      dependency.setOperationType(appContractDto.getOperationType());
+      dependency.setOperationName(appContractDto.getOperationName());
+      dependencyInfos.put(appContractDto.getId(), dependency);
+    }
+    return dependencyInfos;
+  }
+
 
   void addDependencyId(List<T> comparisonDetails) {
     Map<AppContractDto, String> notFoundAppContractMap = new HashMap<>();

@@ -7,15 +7,20 @@ import com.arextest.web.model.contract.contracts.common.enums.CompareConfigType;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonInclusionsConfiguration;
 import com.arextest.web.model.dao.mongodb.ConfigComparisonInclusionsCollection;
 import com.arextest.web.model.dao.mongodb.entity.AbstractComparisonDetails;
+import com.arextest.web.model.dao.mongodb.entity.AbstractComparisonDetails.Fields;
+import com.arextest.web.model.dto.config.PageQueryComparisonDto;
+import com.arextest.web.model.dto.config.PageQueryComparisonResultDto;
 import com.arextest.web.model.mapper.ConfigComparisonInclusionsMapper;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.BulkOperations;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -180,4 +185,44 @@ public class ComparisonInclusionsConfigurationRepositoryImpl
         mongoTemplate.findOne(query, ConfigComparisonInclusionsCollection.class);
     return ConfigComparisonInclusionsMapper.INSTANCE.dtoFromDao(dao);
   }
+
+  public PageQueryComparisonResultDto<ComparisonInclusionsConfiguration> pageQueryComparisonConfig(
+      PageQueryComparisonDto pageQueryComparisonDto) {
+    PageQueryComparisonResultDto<ComparisonInclusionsConfiguration> resultDto
+        = new PageQueryComparisonResultDto<>();
+
+    Query query = new Query();
+    query.addCriteria(Criteria.where(Fields.appId).is(pageQueryComparisonDto.getAppId()));
+    query.addCriteria(Criteria.where(Fields.compareConfigType)
+        .is(CompareConfigType.REPLAY_MAIN.getCodeValue()));
+    List<String> operationIds = pageQueryComparisonDto.getOperationIds();
+    if (CollectionUtils.isNotEmpty(operationIds)) {
+      query.addCriteria(Criteria.where(Fields.operationId).in(operationIds));
+    }
+    if (CollectionUtils.isNotEmpty(pageQueryComparisonDto.getDependencyIds())) {
+      query.addCriteria(Criteria.where(Fields.dependencyId)
+          .in(pageQueryComparisonDto.getDependencyIds()));
+    }
+    if (Objects.equals(pageQueryComparisonDto.getNeedTotal(), true)) {
+      resultDto.setTotalCount(
+          mongoTemplate.count(query, ConfigComparisonInclusionsCollection.class)
+      );
+    }
+    Integer pageSize = pageQueryComparisonDto.getPageSize();
+    Integer pageIndex = pageQueryComparisonDto.getPageIndex();
+    query.skip((long) (pageIndex - 1) * pageSize).limit(pageSize);
+
+    query.with(
+        Sort.by(Sort.Direction.ASC, Fields.operationId)
+            .and(Sort.by(Sort.Direction.ASC, Fields.dependencyId))
+    );
+    List<ComparisonInclusionsConfiguration> configs = mongoTemplate.find(query,
+            ConfigComparisonInclusionsCollection.class)
+        .stream()
+        .map(ConfigComparisonInclusionsMapper.INSTANCE::dtoFromDao)
+        .collect(Collectors.toList());
+    resultDto.setConfigs(configs);
+    return resultDto;
+  }
+
 }
