@@ -1,7 +1,5 @@
 package com.arextest.web.core.repository.mongo;
 
-import com.arextest.web.model.dto.UserDto.Activity;
-import com.arextest.web.model.dto.UserDto.Fields;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -18,13 +16,13 @@ import com.arextest.web.core.repository.mongo.util.MongoHelper;
 import com.arextest.web.model.dao.mongodb.ModelBase;
 import com.arextest.web.model.dao.mongodb.UserCollection;
 import com.arextest.web.model.dto.UserDto;
+import com.arextest.web.model.dto.UserDto.Activity;
 import com.arextest.web.model.enums.UserStatusType;
 import com.arextest.web.model.mapper.UserMapper;
 import com.mongodb.client.result.UpdateResult;
 
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.util.CollectionUtils;
 
 @Slf4j
 @Component
@@ -52,7 +50,7 @@ public class UserRepositoryImpl implements UserRepository {
   public Boolean pushUserActivity(String userName, Activity activity) {
     Query query = Query.query(Criteria.where(UserDto.Fields.userName).is(userName));
     Update update = MongoHelper.getUpdate();
-    update.push(UserDto.Fields.activities, activity);
+    update.push(UserDto.Fields.activities, UserMapper.INSTANCE.activityDaoFromDto(activity));
     return mongoTemplate.upsert(query, update, UserCollection.class).getModifiedCount() > 0;
   }
 

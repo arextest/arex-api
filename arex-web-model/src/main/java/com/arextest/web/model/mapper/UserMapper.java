@@ -23,4 +23,6 @@ public interface UserMapper {
   QueryUserFavoriteAppResponseType queryUserFavoriteAppFromDto(UserDto dto);
 
   UserDto dtoFromModifyUserFavoriteApp(ModifyUserFavoriteAppRequestType request);
+
+  UserCollection.Activity activityDaoFromDto(UserDto.Activity dto);
 }
