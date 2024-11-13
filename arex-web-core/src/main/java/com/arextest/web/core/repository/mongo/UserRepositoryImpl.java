@@ -51,7 +51,7 @@ public class UserRepositoryImpl implements UserRepository {
     Query query = Query.query(Criteria.where(UserDto.Fields.userName).is(userName));
     Update update = MongoHelper.getUpdate();
     update.push(UserDto.Fields.activities, UserMapper.INSTANCE.activityDaoFromDto(activity));
-    return mongoTemplate.upsert(query, update, UserCollection.class).getModifiedCount() > 0;
+    return mongoTemplate.findAndModify(query, update, UserCollection.class) != null;
   }
 
   @Override
