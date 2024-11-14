@@ -1,6 +1,7 @@
 package com.arextest.web.model.contract.contracts.config;
 
 import com.arextest.config.model.dto.system.SystemConfiguration;
+import java.util.List;
 import java.util.Set;
 import lombok.Data;
 import lombok.ToString;
@@ -50,4 +51,12 @@ public class SystemConfigWithProperties extends SystemConfiguration {
    * ignore the compare of uuid
    */
   private Boolean ipIgnore;
+
+  private List<ScriptContentInfo> scriptContentInfos;
+
+  @Data
+  public static class ScriptContentInfo {
+    private String functionName;
+    private String scriptContent;
+  }
 }
