@@ -7,17 +7,22 @@ import com.arextest.config.model.dto.system.ComparePluginInfo;
 import com.arextest.config.model.dto.system.SystemConfiguration;
 import com.arextest.config.repository.SystemConfigurationRepository;
 import com.arextest.diff.service.DecompressService;
+import com.arextest.web.core.business.config.replay.ComparisonScriptContentHandler;
 import com.arextest.web.model.contract.contracts.config.SystemConfigWithProperties;
+import com.arextest.web.model.contract.contracts.config.SystemConfigWithProperties.ScriptContentInfo;
+import com.arextest.web.model.dto.config.ComparisonScriptContent;
+import jakarta.annotation.Resource;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 /**
@@ -33,6 +38,12 @@ public class SystemConfigurationService {
 
   @Resource
   private ConfigLoadService configLoadService;
+
+  @Resource
+  private ComparisonScriptContentHandler comparisonScriptContentHandler;
+
+  @Value("${arex.compare.scriptTemplate}")
+  private String compareTemplate;
 
   public boolean saveConfig(SystemConfiguration systemConfiguration) {
     List<SystemConfiguration> systemConfigurations = new ArrayList<>();
@@ -55,7 +66,8 @@ public class SystemConfigurationService {
       removeKeys.add(SystemConfigurationCollection.KeySummary.DESERIALIZATION_JAR);
     }
     if (systemConfiguration.getComparePluginInfo() != null
-        && StringUtils.isNotBlank(systemConfiguration.getComparePluginInfo().getComparePluginUrl())) {
+        && StringUtils.isNotBlank(
+        systemConfiguration.getComparePluginInfo().getComparePluginUrl())) {
       SystemConfiguration comparePluginInfoConfig = new SystemConfiguration();
       ComparePluginInfo comparePluginInfo = systemConfiguration.getComparePluginInfo();
       comparePluginInfo.setTransMethodList(identifyTransformMethod(comparePluginInfo));
@@ -152,6 +164,24 @@ public class SystemConfigurationService {
     } catch (RuntimeException e) {
       LOGGER.error("getCompareIgnoredTimePrecisionMillis error", e);
     }
+
+    List<ComparisonScriptContent> comparisonScriptContents = comparisonScriptContentHandler.queryAll();
+    if (CollectionUtils.isNotEmpty(comparisonScriptContents)) {
+      List<ScriptContentInfo> scriptContentInfos = new ArrayList<>();
+      for (ComparisonScriptContent item : comparisonScriptContents) {
+        ScriptContentInfo scriptContentInfo = new ScriptContentInfo();
+        scriptContentInfo.setAliasName(item.getAliasName());
+
+        String funcName = item.getId();
+        scriptContentInfo.setFunctionName("func_" + funcName);
+
+        String scriptContent = item.getContent();
+        scriptContentInfo.setScriptContent(String.format(compareTemplate, funcName, scriptContent));
+        scriptContentInfos.add(scriptContentInfo);
+      }
+      systemConfigWithProperties.setScriptContentInfos(scriptContentInfos);
+    }
+
     return systemConfigWithProperties;
   }
 }

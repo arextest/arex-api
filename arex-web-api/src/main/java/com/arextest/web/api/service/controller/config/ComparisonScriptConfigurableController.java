@@ -4,13 +4,16 @@ import com.arextest.common.model.response.Response;
 import com.arextest.common.utils.ResponseUtils;
 import com.arextest.web.core.business.config.ConfigurableHandler;
 import com.arextest.web.core.business.config.replay.ComparisonScriptConfigurableHandler;
+import com.arextest.web.core.business.config.replay.ComparisonScriptContentHandler;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonScriptConfiguration;
+import com.arextest.web.model.contract.contracts.config.replay.ComparisonScriptContentRequestType;
 import com.arextest.web.model.contract.contracts.config.replay.PageQueryComparisonRequestType;
 import com.arextest.web.model.contract.contracts.config.replay.QueryComparisonRequestType;
 import jakarta.annotation.Resource;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,6 +27,9 @@ public class ComparisonScriptConfigurableController extends
 
   @Resource
   ComparisonScriptConfigurableHandler scriptConfigurableHandler;
+
+  @Resource
+  ComparisonScriptContentHandler scriptContentHandler;
 
   protected ComparisonScriptConfigurableController(
       ConfigurableHandler<ComparisonScriptConfiguration> configurableHandler) {
@@ -64,6 +70,32 @@ public class ComparisonScriptConfigurableController extends
   public Response pageQueryComparisonConfig(@RequestBody PageQueryComparisonRequestType request) {
     return ResponseUtils.successResponse(
         scriptConfigurableHandler.pageQueryComparisonConfig(request)
+    );
+  }
+
+  @GetMapping("/queryAllScriptMethod")
+  @ResponseBody
+  public Response queryAllScriptMethod() {
+    return ResponseUtils.successResponse(
+        scriptContentHandler.queryAllScriptMethodNames()
+    );
+  }
+
+
+  @PostMapping("/saveScriptContent")
+  @ResponseBody
+  public Response saveScriptContent(
+      @RequestBody ComparisonScriptContentRequestType scriptContentRequestType) {
+    return ResponseUtils.successResponse(
+        scriptContentHandler.saveScriptContent(scriptContentRequestType)
+    );
+  }
+
+  @GetMapping("/queryAllScriptContent")
+  @ResponseBody
+  public Response queryAllScriptContent() {
+    return ResponseUtils.successResponse(
+        scriptContentHandler.queryAll()
     );
   }
 

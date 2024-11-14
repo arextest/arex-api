@@ -2,6 +2,7 @@ package com.arextest.web.model.contract.contracts.config.replay;
 
 import com.arextest.web.model.contract.contracts.compare.CategoryDetail;
 import com.arextest.web.model.contract.contracts.compare.TransformDetail;
+import com.arextest.web.model.contract.contracts.config.replay.ComparisonScriptConfiguration.ScriptMethod;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -63,6 +64,10 @@ public class ComparisonSummaryConfiguration {
   private Map<List<String>, List<List<String>>> listSortMap;
 
   private List<TransformDetail> transformDetails;
+
+  @JsonDeserialize(keyUsing = MapKeyDeserializerUtils.class)
+  @JsonSerialize(keyUsing = MapKeySerializerUtils.class)
+  private Map<List<String>, ScriptMethod> scriptMethodMap;
 
   private Map<String, Object> additionalConfig;
 

@@ -9,7 +9,6 @@ import com.arextest.web.core.business.ConfigLoadService;
 import com.arextest.web.core.business.config.ConfigurableHandler;
 import com.arextest.web.core.business.config.application.ApplicationOperationConfigurableHandler;
 import com.arextest.web.core.repository.AppContractRepository;
-import com.arextest.web.model.contract.contracts.common.enums.ExpirationType;
 import com.arextest.web.model.contract.contracts.compare.CategoryDetail;
 import com.arextest.web.model.contract.contracts.compare.TransformDetail;
 import com.arextest.web.model.contract.contracts.config.replay.AbstractComparisonDetailsConfiguration;
@@ -19,6 +18,8 @@ import com.arextest.web.model.contract.contracts.config.replay.ComparisonIgnoreC
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonInclusionsConfiguration;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonListSortConfiguration;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonReferenceConfiguration;
+import com.arextest.web.model.contract.contracts.config.replay.ComparisonScriptConfiguration;
+import com.arextest.web.model.contract.contracts.config.replay.ComparisonScriptConfiguration.ScriptMethod;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonSummaryConfiguration;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonTransformConfiguration;
 import com.arextest.web.model.contract.contracts.config.replay.QueryConfigOfCategoryRequestType;
@@ -30,6 +31,7 @@ import com.arextest.web.model.dao.mongodb.AppContractCollection;
 import com.arextest.web.model.dto.AppContractDto;
 import com.arextest.web.model.enums.ContractTypeEnum;
 import com.google.common.collect.ImmutableMap;
+import jakarta.annotation.Resource;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -44,7 +46,6 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import jakarta.annotation.Resource;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -76,6 +77,9 @@ public class ComparisonSummaryService {
   @Resource
   ConfigLoadService configLoadService;
 
+  @Resource
+  ComparisonScriptConfigurableHandler comparisonScriptConfigurableHandler;
+
   public ComparisonSummaryService(
       @Autowired ComparisonExclusionsConfigurableHandler exclusionsConfigurableHandler,
       @Autowired ComparisonInclusionsConfigurableHandler inclusionsConfigurableHandler,
@@ -105,6 +109,7 @@ public class ComparisonSummaryService {
     getComparisonInclusionsConfiguration(interfaceId, comparisonSummaryConfiguration);
     getComparisonListSortConfiguration(interfaceId, comparisonSummaryConfiguration);
     getComparisonReferenceConfiguration(interfaceId, comparisonSummaryConfiguration);
+    getComparisonScriptConfiguration(interfaceId, comparisonSummaryConfiguration);
     getAdditionalComparisonConfiguration(interfaceId, comparisonSummaryConfiguration);
     return comparisonSummaryConfiguration;
   }
@@ -260,6 +265,22 @@ public class ComparisonSummaryService {
     comparisonSummaryConfiguration.setReferenceMap(referenceMap);
   }
 
+  protected void getComparisonScriptConfiguration(String interfaceId,
+      ComparisonSummaryConfiguration comparisonSummaryConfiguration) {
+    Map<List<String>, ScriptMethod> scriptMethodMap = new HashMap<>();
+    List<ComparisonScriptConfiguration> comparisonScriptConfigurationList =
+        comparisonScriptConfigurableHandler.queryByInterfaceId(interfaceId);
+    comparisonScriptConfigurableHandler.removeDetailsExpired(
+        comparisonScriptConfigurationList, true);
+    Optional.ofNullable(comparisonScriptConfigurationList).orElse(Collections.emptyList())
+        .forEach(item -> {
+          if (CollectionUtils.isNotEmpty(item.getNodePath())) {
+            scriptMethodMap.put(item.getNodePath(), item.getScriptMethod());
+          }
+        });
+    comparisonSummaryConfiguration.setScriptMethodMap(scriptMethodMap);
+  }
+
   protected void getAdditionalComparisonConfiguration(String interfaceId,
       ComparisonSummaryConfiguration comparisonSummaryConfiguration) {
   }
@@ -339,6 +360,7 @@ public class ComparisonSummaryService {
                   }));
           summaryConfiguration.setReferenceMap(operationReferenceMap);
         }, operationInfoMap, appContractDtoMap);
+
     buildComparisonConfig(replayConfigurationMap,
         transformConfigurableHandler.useResultAsList(appId),
         (configurations, summaryConfiguration) -> {
@@ -346,6 +368,20 @@ public class ComparisonSummaryService {
               .map(ComparisonTransformConfiguration::getTransformDetail)
               .collect(Collectors.toList());
           summaryConfiguration.setTransformDetails(transformDetails);
+        }, operationInfoMap, appContractDtoMap);
+
+    buildComparisonConfig(replayConfigurationMap,
+        comparisonScriptConfigurableHandler.useResultAsList(appId),
+        (configurations, summaryConfiguration) -> {
+          Map<List<String>, ScriptMethod> scriptMethodMap = configurations.stream()
+              .filter(item -> CollectionUtils.isNotEmpty(item.getNodePath()))
+              .collect(Collectors.toMap(ComparisonScriptConfiguration::getNodePath,
+                  ComparisonScriptConfiguration::getScriptMethod, (r1, r2) -> {
+                    LogUtils.warn(LOGGER, "scriptMethod duplicate key",
+                        ImmutableMap.of("appId", appId));
+                    return r2;
+                  }));
+          summaryConfiguration.setScriptMethodMap(scriptMethodMap);
         }, operationInfoMap, appContractDtoMap);
 
     return replayConfigurationMap;
