@@ -20,8 +20,9 @@ public class ComparisonScriptConfiguration extends AbstractComparisonDetailsConf
   @Data
   public static class ScriptMethod {
 
-    private String methodName;
-    private String methodArgs;
+    private String functionId;
+    private String aliasName;
+    private String functionArgs;
   }
 
 

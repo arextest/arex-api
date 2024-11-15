@@ -27,8 +27,9 @@ public class ConfigComparisonScriptCollection extends AbstractComparisonDetails 
   @Data
   public static class ScriptMethodDao {
 
-    private String methodName;
-    private String methodArgs;
+    private String functionId;
+    private String aliasName;
+    private String functionArgs;
   }
 
 
