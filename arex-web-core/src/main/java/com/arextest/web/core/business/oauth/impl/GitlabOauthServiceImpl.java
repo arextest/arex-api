@@ -2,6 +2,7 @@ package com.arextest.web.core.business.oauth.impl;
 
 import com.arextest.web.common.LogUtils;
 import com.arextest.web.core.business.beans.httpclient.HttpWebServiceApiClient;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
@@ -60,11 +61,14 @@ public class GitlabOauthServiceImpl extends AbstractOauthServiceImpl {
     String tokenUrl = String.format(gitlabUri + TOKEN_SUFFIX, clientId, secret, code, redirectUri);
     try {
       HttpHeaders headers = new HttpHeaders();
-//      headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
-      headers.setContentType(MediaType.APPLICATION_JSON);
-      Map tokenResponse = httpWebServiceApiClient.rawPost(tokenUrl, headers);
+      headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
+//      headers.setContentType(MediaType.APPLICATION_JSON);
+//      Map tokenResponse = httpWebServiceApiClient.rawPost(tokenUrl, headers);
+      String resJson = httpWebServiceApiClient.get(tokenUrl, Collections.emptyMap(), headers, TIMEOUT, String.class);
+      LogUtils.info(LOGGER, "gitlab get user token info", resJson);
+
+      Map<String, String> tokenResponse = new ObjectMapper().readValue(resJson, Map.class);
       Map<String, String> tokenBody = Objects.requireNonNull(tokenResponse);
-      LogUtils.info(LOGGER, "gitlab get user token info", tokenBody);
 
       headers = new HttpHeaders();
       String accessToken = tokenBody.get(ACCESS_TOKEN);
