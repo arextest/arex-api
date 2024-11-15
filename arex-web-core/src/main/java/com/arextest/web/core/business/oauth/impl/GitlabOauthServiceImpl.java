@@ -63,6 +63,7 @@ public class GitlabOauthServiceImpl extends AbstractOauthServiceImpl {
       headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
       Map tokenResponse = httpWebServiceApiClient.rawPost(tokenUrl, headers);
       Map<String, String> tokenBody = Objects.requireNonNull(tokenResponse);
+      LogUtils.info(LOGGER, "gitlab get user token info", tokenBody);
 
       headers = new HttpHeaders();
       String accessToken = tokenBody.get(ACCESS_TOKEN);
@@ -75,6 +76,7 @@ public class GitlabOauthServiceImpl extends AbstractOauthServiceImpl {
       Map<String, String> userBody = Objects.requireNonNull(userResponse);
       return userBody.get(EMAIL);
     } catch (Exception e) {
+      LogUtils.error(LOGGER, "gitlab get user error info", e.getMessage());
       LogUtils.error(LOGGER, "gitlab get user error", e);
       return null;
     }
