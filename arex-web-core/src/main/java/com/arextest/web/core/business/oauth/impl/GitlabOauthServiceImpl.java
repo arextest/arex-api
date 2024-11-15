@@ -60,7 +60,8 @@ public class GitlabOauthServiceImpl extends AbstractOauthServiceImpl {
     String tokenUrl = String.format(gitlabUri + TOKEN_SUFFIX, clientId, secret, code, redirectUri);
     try {
       HttpHeaders headers = new HttpHeaders();
-      headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
+//      headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
+      headers.setContentType(MediaType.APPLICATION_JSON);
       Map tokenResponse = httpWebServiceApiClient.rawPost(tokenUrl, headers);
       Map<String, String> tokenBody = Objects.requireNonNull(tokenResponse);
       LogUtils.info(LOGGER, "gitlab get user token info", tokenBody);
