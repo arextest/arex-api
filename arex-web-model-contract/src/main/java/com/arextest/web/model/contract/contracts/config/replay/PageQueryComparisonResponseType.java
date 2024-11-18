@@ -2,6 +2,7 @@ package com.arextest.web.model.contract.contracts.config.replay;
 
 import com.arextest.web.model.contract.PagingResponse;
 import com.arextest.web.model.contract.contracts.compare.CategoryDetail;
+import com.arextest.web.model.contract.contracts.config.replay.ComparisonScriptConfiguration.ScriptMethod;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import java.util.List;
 import lombok.Data;
@@ -28,6 +29,8 @@ public class PageQueryComparisonResponseType implements PagingResponse {
 
   @JsonInclude(JsonInclude.Include.NON_NULL)
   List<RootTransformInfo> rootTransformInfos;
+
+  List<ScriptInfo> scriptInfos;
 
 
   @Data
@@ -67,6 +70,15 @@ public class PageQueryComparisonResponseType implements PagingResponse {
 
     private String transformMethodName;
   }
+
+  @Data
+  public static class ScriptInfo extends BaseConfigInfo {
+
+    private List<String> nodePath;
+
+    private ScriptMethod scriptMethod;
+  }
+
 
   @Data
   public static class BaseConfigInfo {

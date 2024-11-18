@@ -8,6 +8,7 @@ import com.arextest.web.model.contract.contracts.config.replay.ComparisonIgnoreC
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonInclusionsConfiguration;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonListSortConfiguration;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonReferenceConfiguration;
+import com.arextest.web.model.contract.contracts.config.replay.ComparisonScriptConfiguration;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonTransformConfiguration;
 import com.arextest.web.model.contract.contracts.config.replay.PageQueryComparisonRequestType;
 import com.arextest.web.model.contract.contracts.config.replay.PageQueryComparisonResponseType;
@@ -91,6 +92,17 @@ public interface PageQueryComparisonMapper {
   PageQueryComparisonResponseType.RootTransformInfo contractFromDto(
       ComparisonTransformConfiguration dto, @Context Map<String, String> operationInfo,
       @Context Map<String, Dependency> dependencyInfo);
+
+  @Mappings({
+      @Mapping(target = "operationName", source = "dto", qualifiedByName = "getOperationName"),
+      @Mapping(target = "dependencyName", source = "dto", qualifiedByName = "getDependencyName"),
+      @Mapping(target = "dependencyType", source = "dto", qualifiedByName = "getDependencyType"),
+      @Mapping(target = "expirationDate", expression = "java(dto.getExpirationDate() != null ? dto.getExpirationDate().getTime() : null)"),
+  })
+  PageQueryComparisonResponseType.ScriptInfo contractFromDto(
+      ComparisonScriptConfiguration dto, @Context Map<String, String> operationInfo,
+      @Context Map<String, Dependency> dependencyInfo);
+
 
 
   @Named("getOperationName")
