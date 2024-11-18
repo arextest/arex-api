@@ -64,6 +64,10 @@ public class ComparisonSummaryConfiguration {
 
   private List<TransformDetail> transformDetails;
 
+  @JsonDeserialize(keyUsing = MapKeyDeserializerUtils.class)
+  @JsonSerialize(keyUsing = MapKeySerializerUtils.class)
+  private Map<List<String>, ReplayScriptMethod> scriptMethodMap;
+
   private Map<String, Object> additionalConfig;
 
   private static class MapKeyDeserializerUtils extends KeyDeserializer {
@@ -87,4 +91,12 @@ public class ComparisonSummaryConfiguration {
       jsonGenerator.writeFieldName(string);
     }
   }
+
+  @Data
+  public static class ReplayScriptMethod {
+
+    private String functionName;
+    private String functionArgs;
+  }
+
 }

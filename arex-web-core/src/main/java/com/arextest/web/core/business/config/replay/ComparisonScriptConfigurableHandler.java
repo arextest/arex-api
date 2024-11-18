@@ -106,5 +106,4 @@ public class ComparisonScriptConfigurableHandler extends
     }
     return result;
   }
-
 }

@@ -46,6 +46,7 @@ arex:
     uuidIgnore: true
     ipIgnore: true
     ignoreNodeSet: ""
+    scriptTemplate: "function %s(context, baseValue, testValue, arg) {%s}"
   # arex sending email domain
   email:
     domain: https://mail.arextest.com
