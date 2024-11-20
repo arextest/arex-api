@@ -378,7 +378,7 @@ public class ReportQueryController {
     long currentTime = System.currentTimeMillis();
 
     if (requestType.getBeginTime() == null) {
-      requestType.setBeginTime(currentTime - 4 * 24 * 60 * 60 * 1000L);
+      requestType.setBeginTime(0L);
     }
     if (requestType.getEndTime() == null) {
       requestType.setEndTime(currentTime);
@@ -397,7 +397,7 @@ public class ReportQueryController {
     long currentTime = System.currentTimeMillis();
 
     if (requestType.getBeginTime() == null) {
-      requestType.setBeginTime(currentTime - 4 * 24 * 60 * 60 * 1000L);
+      requestType.setBeginTime(0L);
     }
     if (requestType.getEndTime() == null) {
       requestType.setEndTime(currentTime);
@@ -412,7 +412,7 @@ public class ReportQueryController {
     long currentTime = System.currentTimeMillis();
 
     if (requestType.getBeginTime() == null) {
-      requestType.setBeginTime(currentTime - 4 * 24 * 60 * 60 * 1000L);
+      requestType.setBeginTime(0L);
     }
     if (requestType.getEndTime() == null) {
       requestType.setEndTime(currentTime);
