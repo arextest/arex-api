@@ -1,5 +1,11 @@
 package com.arextest.web.core.business;
 
+import java.security.SecureRandom;
+import java.util.List;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Component;
+
 import com.arextest.common.jwt.JWTService;
 import com.arextest.web.common.LoadResource;
 import com.arextest.web.core.business.beans.MailService;
@@ -15,15 +21,13 @@ import com.arextest.web.model.dto.UserDto;
 import com.arextest.web.model.enums.SendEmailType;
 import com.arextest.web.model.enums.UserStatusType;
 import com.arextest.web.model.mapper.UserMapper;
-import java.security.SecureRandom;
-import java.util.List;
-import jakarta.annotation.Resource;
+
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class LoginService {
 
   private static final String SEND_VERIFICATION_CODE_SUBJECT = "[ArexTest] Verification code";
@@ -32,17 +36,11 @@ public class LoginService {
   private static final String GUEST_PREFIX = "GUEST_";
   private static final SecureRandom random = new SecureRandom();
 
-  @Resource
-  private UserRepository userRepository;
-
-  @Resource
-  private LoadResource loadResource;
-
-  @Resource
-  private MailService mailService;
-
-  @Resource
-  private JWTService jwtService;
+  private final UserRepository userRepository;
+  private final LoadResource loadResource;
+  private final MailService mailService;
+  private final JWTService jwtService;
+  private final LoginActivityService loginActivityService;
 
   public Boolean sendVerifyCodeByEmail(String emailTo) {
     String template = loadResource.getResource(VERIFICATION_CODE_EMAIL_TEMPLATE);
@@ -70,6 +68,7 @@ public class LoginService {
       userDto.setUserName(request.getUserName());
       userDto.setVerificationCode(generateVerificationCode());
       exist = userRepository.saveUser(userDto);
+      loginActivityService.onEvent(userDto.getUserName(), UserDto.ActivityType.LOGIN);
     }
     if (exist) {
       responseType.setSuccess(true);
@@ -97,6 +96,7 @@ public class LoginService {
     responseType.setUserName(userName);
     responseType.setAccessToken(jwtService.makeAccessToken(userName));
     responseType.setRefreshToken(jwtService.makeRefreshToken(userName));
+    loginActivityService.onEvent(userName, UserDto.ActivityType.LOGIN);
     return responseType;
   }
 

@@ -51,9 +51,10 @@ public class MongoHelper {
           }
         }
       } catch (IllegalAccessException e) {
-        e.printStackTrace();
+        LogUtils.error(LOGGER,
+            String.format("Class:[%s]. failed to get field %s", obj.getClass().getName(),
+                fieldName), e);
       }
-
     }
   }
 

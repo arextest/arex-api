@@ -7,6 +7,8 @@ public interface UserRepository extends RepositoryProvider {
 
   Boolean saveUser(UserDto user);
 
+  Boolean pushUserActivity(String userName, UserDto.Activity activity);
+
   Boolean verify(String userName, String verificationCode);
 
   UserDto queryUserProfile(String userName);
