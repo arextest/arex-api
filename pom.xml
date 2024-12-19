@@ -490,7 +490,7 @@
 
   <properties>
     <!-- Maven CI Friendly Versions https://maven.apache.org/maven-ci-friendly.html -->
-    <revision>0.7.0.1</revision>
+    <revision>0.7.0.2</revision>
     <arex-common.version>1.0.1</arex-common.version>
     <arex-extension-interface.version>0.0.1</arex-extension-interface.version>
     <arex-storage-config.version>2.0.4</arex-storage-config.version>
