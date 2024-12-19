@@ -99,7 +99,13 @@ public class ComparisonTransformConfigurableHandler
       PageQueryTransformRequestType requestType) {
     PageQueryTransformDto pageQueryComparisonDto = PageQueryComparisonMapper.INSTANCE.dtoFromContract(
         requestType);
-    queryIdsByKeywords(pageQueryComparisonDto, applicationOperationConfigurationRepository);
+
+    PageQueryComparisonResponseType result = new PageQueryComparisonResponseType();
+    if (!queryIdsByKeywords(pageQueryComparisonDto, applicationOperationConfigurationRepository)) {
+      result.setTotalCount(0L);
+      result.setRootTransformInfos(Collections.emptyList());
+      return result;
+    }
     PageQueryComparisonResultDto<ComparisonTransformConfiguration> queryResult =
         comparisonTransformConfigurationRepository.pageQueryComparisonConfig(
             pageQueryComparisonDto);
@@ -110,7 +116,6 @@ public class ComparisonTransformConfigurableHandler
         applicationOperationConfigurationRepository);
     Map<String, Dependency> dependencyInfos = getDependencyInfos(configs, appContractRepository);
 
-    PageQueryComparisonResponseType result = new PageQueryComparisonResponseType();
     result.setTotalCount(queryResult.getTotalCount());
     result.setRootTransformInfos(contractFromDto(configs, operationInfos, dependencyInfos));
     return result;

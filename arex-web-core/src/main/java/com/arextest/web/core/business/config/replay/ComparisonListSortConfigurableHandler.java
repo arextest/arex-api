@@ -17,6 +17,7 @@ import com.arextest.web.model.dto.filesystem.FSInterfaceDto;
 import com.arextest.web.model.mapper.PageQueryComparisonMapper;
 import jakarta.annotation.Resource;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -82,7 +83,13 @@ public class ComparisonListSortConfigurableHandler
       PageQueryListSortRequestType requestType) {
     PageQueryListSortDto pageQueryComparisonDto = PageQueryComparisonMapper.INSTANCE.dtoFromContract(
         requestType);
-    queryIdsByKeywords(pageQueryComparisonDto, applicationOperationConfigurationRepository);
+
+    PageQueryComparisonResponseType result = new PageQueryComparisonResponseType();
+    if (!queryIdsByKeywords(pageQueryComparisonDto, applicationOperationConfigurationRepository)) {
+      result.setTotalCount(0L);
+      result.setListSorts(Collections.emptyList());
+      return result;
+    }
     PageQueryComparisonResultDto<ComparisonListSortConfiguration> queryResult =
         listSortConfigurationRepository.pageQueryComparisonConfig(
             pageQueryComparisonDto);
@@ -93,7 +100,6 @@ public class ComparisonListSortConfigurableHandler
         applicationOperationConfigurationRepository);
     Map<String, Dependency> dependencyInfos = getDependencyInfos(configs, appContractRepository);
 
-    PageQueryComparisonResponseType result = new PageQueryComparisonResponseType();
     result.setTotalCount(queryResult.getTotalCount());
     result.setListSorts(contractFromDto(configs, operationInfos, dependencyInfos));
     return result;

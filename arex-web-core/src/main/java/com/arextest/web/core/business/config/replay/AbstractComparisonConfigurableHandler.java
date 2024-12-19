@@ -184,25 +184,28 @@ public abstract class AbstractComparisonConfigurableHandler<T extends AbstractCo
     }
   }
 
-  protected void queryIdsByKeywords(PageQueryComparisonDto dto,
+  protected boolean queryIdsByKeywords(PageQueryComparisonDto dto,
       ApplicationOperationConfigurationRepositoryImpl serviceOperationRepository) {
     if (StringUtils.isNotBlank(dto.getKeyOfOperationName())) {
       List<ApplicationOperationConfiguration> serviceOperations = serviceOperationRepository.queryLikeOperationName(
           dto.getAppId(), dto.getKeyOfOperationName());
-      if (CollectionUtils.isNotEmpty(serviceOperations)) {
-        dto.setOperationIds(serviceOperations.stream().map(ApplicationOperationConfiguration::getId)
-            .collect(Collectors.toList()));
+      if (CollectionUtils.isEmpty(serviceOperations)) {
+        return false;
       }
+      dto.setOperationIds(serviceOperations.stream().map(ApplicationOperationConfiguration::getId)
+          .collect(Collectors.toList()));
     }
 
     if (StringUtils.isNotBlank(dto.getKeyOfDependencyName())) {
       List<AppContractDto> contractDtos = appContractRepository.queryLikeOperationName(
           dto.getAppId(),
           dto.getKeyOfDependencyName());
-      if (CollectionUtils.isNotEmpty(contractDtos)) {
-        dto.setDependencyIds(
-            contractDtos.stream().map(AppContractDto::getId).collect(Collectors.toList()));
+      if (CollectionUtils.isEmpty(contractDtos)) {
+        return false;
       }
+      dto.setDependencyIds(
+          contractDtos.stream().map(AppContractDto::getId).collect(Collectors.toList()));
     }
+    return true;
   }
 }

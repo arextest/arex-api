@@ -19,6 +19,7 @@ import com.arextest.web.model.dto.filesystem.FSInterfaceDto;
 import com.arextest.web.model.mapper.PageQueryComparisonMapper;
 import jakarta.annotation.Resource;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
@@ -79,11 +80,17 @@ public class ComparisonExclusionsConfigurableHandler
     return result;
   }
 
+  PageQueryComparisonResponseType result = new PageQueryComparisonResponseType();
+
   public PageQueryComparisonResponseType pageQueryComparisonConfig(
       PageQueryExclusionRequestType requestType) {
     PageQueryExclusionDto pageQueryComparisonDto = PageQueryComparisonMapper.INSTANCE.dtoFromContract(
         requestType);
-    queryIdsByKeywords(pageQueryComparisonDto, applicationOperationConfigurationRepository);
+    if (!queryIdsByKeywords(pageQueryComparisonDto, applicationOperationConfigurationRepository)) {
+      result.setTotalCount(0L);
+      result.setExclusions(Collections.emptyList());
+      return result;
+    }
     PageQueryComparisonResultDto<ComparisonExclusionsConfiguration> queryResult =
         comparisonExclusionsConfigurationRepository.pageQueryComparisonConfig(
             pageQueryComparisonDto);
@@ -94,7 +101,6 @@ public class ComparisonExclusionsConfigurableHandler
         applicationOperationConfigurationRepository);
     Map<String, Dependency> dependencyInfos = getDependencyInfos(configs, appContractRepository);
 
-    PageQueryComparisonResponseType result = new PageQueryComparisonResponseType();
     result.setTotalCount(queryResult.getTotalCount());
     result.setExclusions(contractFromDto(configs, operationInfos, dependencyInfos));
     return result;
