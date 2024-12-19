@@ -224,4 +224,17 @@ public class AppContractRepositoryImpl implements AppContractRepository {
         .stream().map(AppContractMapper.INSTANCE::dtoFromDao)
         .collect(Collectors.toList());
   }
+
+  @Override
+  public List<AppContractDto> queryLikeOperationName(String appId,
+      String operationName) {
+    if (StringUtils.isBlank(operationName)) {
+      return Collections.emptyList();
+    }
+    Query query = Query.query(Criteria.where(AppContractCollection.Fields.appId).is(appId)
+        .and(AppContractCollection.Fields.operationName).regex(".*?" + operationName + ".*", "i"));
+
+    return mongoTemplate.find(query, AppContractCollection.class)
+        .stream().map(AppContractMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
+  }
 }

@@ -10,9 +10,17 @@ import com.arextest.web.model.contract.contracts.config.replay.ComparisonListSor
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonReferenceConfiguration;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonScriptConfiguration;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonTransformConfiguration;
+import com.arextest.web.model.contract.contracts.config.replay.PageQueryCategoryRequestType;
 import com.arextest.web.model.contract.contracts.config.replay.PageQueryComparisonRequestType;
 import com.arextest.web.model.contract.contracts.config.replay.PageQueryComparisonResponseType;
+import com.arextest.web.model.contract.contracts.config.replay.PageQueryExclusionRequestType;
+import com.arextest.web.model.contract.contracts.config.replay.PageQueryListSortRequestType;
+import com.arextest.web.model.contract.contracts.config.replay.PageQueryTransformRequestType;
+import com.arextest.web.model.dto.config.PageQueryCategoryDto;
 import com.arextest.web.model.dto.config.PageQueryComparisonDto;
+import com.arextest.web.model.dto.config.PageQueryExclusionDto;
+import com.arextest.web.model.dto.config.PageQueryListSortDto;
+import com.arextest.web.model.dto.config.PageQueryTransformDto;
 import java.util.Map;
 import org.mapstruct.Context;
 import org.mapstruct.Mapper;
@@ -28,6 +36,10 @@ public interface PageQueryComparisonMapper {
   PageQueryComparisonMapper INSTANCE = Mappers.getMapper(PageQueryComparisonMapper.class);
 
   PageQueryComparisonDto dtoFromContract(PageQueryComparisonRequestType contract);
+  PageQueryExclusionDto dtoFromContract(PageQueryExclusionRequestType contract);
+  PageQueryListSortDto dtoFromContract(PageQueryListSortRequestType contract);
+  PageQueryCategoryDto dtoFromContract(PageQueryCategoryRequestType contract);
+  PageQueryTransformDto dtoFromContract(PageQueryTransformRequestType contract);
 
   @Mappings({
       @Mapping(target = "exclusionPath", source = "dto.exclusions"),

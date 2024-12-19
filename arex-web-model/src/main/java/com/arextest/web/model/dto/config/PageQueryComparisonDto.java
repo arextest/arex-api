@@ -10,8 +10,10 @@ public class PageQueryComparisonDto {
   @NotBlank
   private String appId;
 
+  private String keyOfOperationName;
   private List<String> operationIds;
 
+  private String keyOfDependencyName;
   private List<String> dependencyIds;
 
   private Integer pageIndex;

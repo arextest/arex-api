@@ -11,12 +11,15 @@ import com.arextest.web.core.repository.mongo.ComparisonExclusionsConfigurationR
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonExclusionsConfiguration;
 import com.arextest.web.model.contract.contracts.config.replay.PageQueryComparisonRequestType;
 import com.arextest.web.model.contract.contracts.config.replay.PageQueryComparisonResponseType;
+import com.arextest.web.model.contract.contracts.config.replay.PageQueryExclusionRequestType;
 import com.arextest.web.model.dto.config.PageQueryComparisonDto;
 import com.arextest.web.model.dto.config.PageQueryComparisonResultDto;
+import com.arextest.web.model.dto.config.PageQueryExclusionDto;
 import com.arextest.web.model.dto.filesystem.FSInterfaceDto;
 import com.arextest.web.model.mapper.PageQueryComparisonMapper;
 import jakarta.annotation.Resource;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
@@ -77,10 +80,17 @@ public class ComparisonExclusionsConfigurableHandler
     return result;
   }
 
+  PageQueryComparisonResponseType result = new PageQueryComparisonResponseType();
+
   public PageQueryComparisonResponseType pageQueryComparisonConfig(
-      PageQueryComparisonRequestType requestType) {
-    PageQueryComparisonDto pageQueryComparisonDto = PageQueryComparisonMapper.INSTANCE.dtoFromContract(
+      PageQueryExclusionRequestType requestType) {
+    PageQueryExclusionDto pageQueryComparisonDto = PageQueryComparisonMapper.INSTANCE.dtoFromContract(
         requestType);
+    if (!queryIdsByKeywords(pageQueryComparisonDto, applicationOperationConfigurationRepository)) {
+      result.setTotalCount(0L);
+      result.setExclusions(Collections.emptyList());
+      return result;
+    }
     PageQueryComparisonResultDto<ComparisonExclusionsConfiguration> queryResult =
         comparisonExclusionsConfigurationRepository.pageQueryComparisonConfig(
             pageQueryComparisonDto);
@@ -91,7 +101,6 @@ public class ComparisonExclusionsConfigurableHandler
         applicationOperationConfigurationRepository);
     Map<String, Dependency> dependencyInfos = getDependencyInfos(configs, appContractRepository);
 
-    PageQueryComparisonResponseType result = new PageQueryComparisonResponseType();
     result.setTotalCount(queryResult.getTotalCount());
     result.setExclusions(contractFromDto(configs, operationInfos, dependencyInfos));
     return result;

@@ -6,10 +6,11 @@ import com.arextest.web.core.repository.mongo.util.MongoHelper;
 import com.arextest.web.model.contract.contracts.common.enums.CompareConfigType;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonExclusionsConfiguration;
 import com.arextest.web.model.dao.mongodb.ConfigComparisonExclusionsCollection;
+import com.arextest.web.model.dao.mongodb.CountResult;
 import com.arextest.web.model.dao.mongodb.entity.AbstractComparisonDetails;
 import com.arextest.web.model.dao.mongodb.entity.AbstractComparisonDetails.Fields;
-import com.arextest.web.model.dto.config.PageQueryComparisonDto;
 import com.arextest.web.model.dto.config.PageQueryComparisonResultDto;
+import com.arextest.web.model.dto.config.PageQueryExclusionDto;
 import com.arextest.web.model.mapper.ConfigComparisonExclusionsMapper;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
@@ -25,6 +26,11 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.BulkOperations;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
+import org.springframework.data.mongodb.core.aggregation.AggregationResults;
+import org.springframework.data.mongodb.core.aggregation.ArrayOperators;
+import org.springframework.data.mongodb.core.aggregation.StringOperators;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
@@ -235,37 +241,51 @@ public class ComparisonExclusionsConfigurationRepositoryImpl
   }
 
   public PageQueryComparisonResultDto<ComparisonExclusionsConfiguration> pageQueryComparisonConfig(
-      PageQueryComparisonDto pageQueryComparisonDto) {
+      PageQueryExclusionDto pageQueryComparisonDto) {
     PageQueryComparisonResultDto<ComparisonExclusionsConfiguration> resultDto
         = new PageQueryComparisonResultDto<>();
 
-    Query query = new Query();
-    query.addCriteria(Criteria.where(Fields.appId).is(pageQueryComparisonDto.getAppId()));
-    query.addCriteria(Criteria.where(Fields.compareConfigType)
-        .is(CompareConfigType.REPLAY_MAIN.getCodeValue()));
-    List<String> operationIds = pageQueryComparisonDto.getOperationIds();
-    if (CollectionUtils.isNotEmpty(operationIds)) {
-      query.addCriteria(Criteria.where(Fields.operationId).in(operationIds));
+    AggregationOperation project = Aggregation.project(ComparisonExclusionsConfiguration.class).and(
+        ArrayOperators.Reduce.arrayOf(ConfigComparisonExclusionsCollection.Fields.exclusions)
+            .withInitialValue("").reduce(StringOperators.Concat.valueOf("$$value")
+                .concat("/").concatValueOf("$$this"))).as("exclusionPath");
+
+    Criteria criteria = Criteria.where(Fields.appId).is(pageQueryComparisonDto.getAppId());
+    criteria.and(Fields.compareConfigType)
+        .is(CompareConfigType.REPLAY_MAIN.getCodeValue());
+    if (CollectionUtils.isNotEmpty(pageQueryComparisonDto.getOperationIds())) {
+      criteria.and(Fields.operationId).in(pageQueryComparisonDto.getOperationIds());
     }
     if (CollectionUtils.isNotEmpty(pageQueryComparisonDto.getDependencyIds())) {
-      query.addCriteria(Criteria.where(Fields.dependencyId)
-          .in(pageQueryComparisonDto.getDependencyIds()));
+      criteria.and(Fields.dependencyId).in(pageQueryComparisonDto.getDependencyIds());
     }
+    if (StringUtils.isNotEmpty(pageQueryComparisonDto.getKeyOfExclusionPath())) {
+      criteria.and("exclusionPath")
+          .regex(".*?" + pageQueryComparisonDto.getKeyOfExclusionPath() + ".*", "i");
+    }
+    AggregationOperation match = Aggregation.match(criteria);
+
     if (Objects.equals(pageQueryComparisonDto.getNeedTotal(), true)) {
-      resultDto.setTotalCount(
-          mongoTemplate.count(query, ConfigComparisonExclusionsCollection.class)
-      );
+      AggregationOperation count = Aggregation.count().as(CountResult.Fields.total);
+      Aggregation aggCount = Aggregation.newAggregation(project, match, count);
+      AggregationResults<CountResult> countResults = mongoTemplate.aggregate(aggCount,
+          ConfigComparisonExclusionsCollection.class, CountResult.class);
+      resultDto.setTotalCount(countResults.getUniqueMappedResult() == null ? 0L
+          : countResults.getUniqueMappedResult().getTotal());
     }
     Integer pageSize = pageQueryComparisonDto.getPageSize();
     Integer pageIndex = pageQueryComparisonDto.getPageIndex();
-    query.skip((long) (pageIndex - 1) * pageSize).limit(pageSize);
+    AggregationOperation skip = Aggregation.skip((long) (pageIndex - 1) * pageSize);
+    AggregationOperation limit = Aggregation.limit(pageSize);
+    AggregationOperation sort = Aggregation.sort(Sort.by(Sort.Direction.ASC, Fields.operationId)
+        .and(Sort.by(Sort.Direction.ASC, Fields.dependencyId)));
 
-    query.with(
-        Sort.by(Sort.Direction.ASC, Fields.operationId)
-            .and(Sort.by(Sort.Direction.ASC, Fields.dependencyId))
-    );
-    List<ComparisonExclusionsConfiguration> configs = mongoTemplate.find(query,
-            ConfigComparisonExclusionsCollection.class)
+    Aggregation agg = Aggregation.newAggregation(project, match, sort, skip, limit);
+    AggregationResults<ConfigComparisonExclusionsCollection> results = mongoTemplate.aggregate(agg,
+        ConfigComparisonExclusionsCollection.class,
+        ConfigComparisonExclusionsCollection.class);
+
+    List<ComparisonExclusionsConfiguration> configs = results.getMappedResults()
         .stream()
         .map(ConfigComparisonExclusionsMapper.INSTANCE::dtoFromDao)
         .collect(Collectors.toList());

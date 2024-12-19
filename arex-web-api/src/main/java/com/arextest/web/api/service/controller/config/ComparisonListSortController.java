@@ -6,6 +6,7 @@ import com.arextest.web.core.business.config.ConfigurableHandler;
 import com.arextest.web.core.business.config.replay.ComparisonListSortConfigurableHandler;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonListSortConfiguration;
 import com.arextest.web.model.contract.contracts.config.replay.PageQueryComparisonRequestType;
+import com.arextest.web.model.contract.contracts.config.replay.PageQueryListSortRequestType;
 import com.arextest.web.model.contract.contracts.config.replay.QueryComparisonRequestType;
 import jakarta.annotation.Resource;
 import lombok.Getter;
@@ -71,7 +72,7 @@ public class ComparisonListSortController extends
 
   @PostMapping("/pageQueryComparisonConfig")
   @ResponseBody
-  public Response pageQueryComparisonConfig(@RequestBody PageQueryComparisonRequestType request) {
+  public Response pageQueryComparisonConfig(@RequestBody PageQueryListSortRequestType request) {
     return ResponseUtils.successResponse(
         comparisonListSortConfigurableHandler.pageQueryComparisonConfig(request)
     );
