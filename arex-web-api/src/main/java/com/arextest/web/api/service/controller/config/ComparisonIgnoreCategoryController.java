@@ -5,6 +5,7 @@ import com.arextest.common.utils.ResponseUtils;
 import com.arextest.web.core.business.config.ConfigurableHandler;
 import com.arextest.web.core.business.config.replay.ComparisonIgnoreCategoryConfigurableHandler;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonIgnoreCategoryConfiguration;
+import com.arextest.web.model.contract.contracts.config.replay.PageQueryCategoryRequestType;
 import com.arextest.web.model.contract.contracts.config.replay.PageQueryComparisonRequestType;
 import com.arextest.web.model.contract.contracts.config.replay.QueryComparisonRequestType;
 import java.util.List;
@@ -64,7 +65,7 @@ public class ComparisonIgnoreCategoryController
 
   @PostMapping("/pageQueryComparisonConfig")
   @ResponseBody
-  public Response pageQueryComparisonConfig(@RequestBody PageQueryComparisonRequestType request) {
+  public Response pageQueryComparisonConfig(@RequestBody PageQueryCategoryRequestType request) {
     return ResponseUtils.successResponse(
         ignoreCategoryHandler.pageQueryComparisonConfig(request)
     );

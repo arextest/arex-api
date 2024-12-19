@@ -11,8 +11,10 @@ import com.arextest.web.core.repository.mongo.ComparisonExclusionsConfigurationR
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonExclusionsConfiguration;
 import com.arextest.web.model.contract.contracts.config.replay.PageQueryComparisonRequestType;
 import com.arextest.web.model.contract.contracts.config.replay.PageQueryComparisonResponseType;
+import com.arextest.web.model.contract.contracts.config.replay.PageQueryExclusionRequestType;
 import com.arextest.web.model.dto.config.PageQueryComparisonDto;
 import com.arextest.web.model.dto.config.PageQueryComparisonResultDto;
+import com.arextest.web.model.dto.config.PageQueryExclusionDto;
 import com.arextest.web.model.dto.filesystem.FSInterfaceDto;
 import com.arextest.web.model.mapper.PageQueryComparisonMapper;
 import jakarta.annotation.Resource;
@@ -78,9 +80,10 @@ public class ComparisonExclusionsConfigurableHandler
   }
 
   public PageQueryComparisonResponseType pageQueryComparisonConfig(
-      PageQueryComparisonRequestType requestType) {
-    PageQueryComparisonDto pageQueryComparisonDto = PageQueryComparisonMapper.INSTANCE.dtoFromContract(
+      PageQueryExclusionRequestType requestType) {
+    PageQueryExclusionDto pageQueryComparisonDto = PageQueryComparisonMapper.INSTANCE.dtoFromContract(
         requestType);
+    queryIdsByKeywords(pageQueryComparisonDto, applicationOperationConfigurationRepository);
     PageQueryComparisonResultDto<ComparisonExclusionsConfiguration> queryResult =
         comparisonExclusionsConfigurationRepository.pageQueryComparisonConfig(
             pageQueryComparisonDto);

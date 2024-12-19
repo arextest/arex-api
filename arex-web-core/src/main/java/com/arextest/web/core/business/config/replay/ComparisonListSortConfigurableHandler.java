@@ -9,8 +9,10 @@ import com.arextest.web.core.repository.mongo.ComparisonListSortConfigurationRep
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonListSortConfiguration;
 import com.arextest.web.model.contract.contracts.config.replay.PageQueryComparisonRequestType;
 import com.arextest.web.model.contract.contracts.config.replay.PageQueryComparisonResponseType;
+import com.arextest.web.model.contract.contracts.config.replay.PageQueryListSortRequestType;
 import com.arextest.web.model.dto.config.PageQueryComparisonDto;
 import com.arextest.web.model.dto.config.PageQueryComparisonResultDto;
+import com.arextest.web.model.dto.config.PageQueryListSortDto;
 import com.arextest.web.model.dto.filesystem.FSInterfaceDto;
 import com.arextest.web.model.mapper.PageQueryComparisonMapper;
 import jakarta.annotation.Resource;
@@ -77,9 +79,10 @@ public class ComparisonListSortConfigurableHandler
   }
 
   public PageQueryComparisonResponseType pageQueryComparisonConfig(
-      PageQueryComparisonRequestType requestType) {
-    PageQueryComparisonDto pageQueryComparisonDto = PageQueryComparisonMapper.INSTANCE.dtoFromContract(
+      PageQueryListSortRequestType requestType) {
+    PageQueryListSortDto pageQueryComparisonDto = PageQueryComparisonMapper.INSTANCE.dtoFromContract(
         requestType);
+    queryIdsByKeywords(pageQueryComparisonDto, applicationOperationConfigurationRepository);
     PageQueryComparisonResultDto<ComparisonListSortConfiguration> queryResult =
         listSortConfigurationRepository.pageQueryComparisonConfig(
             pageQueryComparisonDto);

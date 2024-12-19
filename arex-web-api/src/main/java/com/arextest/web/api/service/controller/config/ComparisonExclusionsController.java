@@ -6,6 +6,7 @@ import com.arextest.web.core.business.config.ConfigurableHandler;
 import com.arextest.web.core.business.config.replay.ComparisonExclusionsConfigurableHandler;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonExclusionsConfiguration;
 import com.arextest.web.model.contract.contracts.config.replay.PageQueryComparisonRequestType;
+import com.arextest.web.model.contract.contracts.config.replay.PageQueryExclusionRequestType;
 import com.arextest.web.model.contract.contracts.config.replay.QueryComparisonRequestType;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
@@ -76,7 +77,7 @@ public class ComparisonExclusionsController extends
 
   @PostMapping("/pageQueryComparisonConfig")
   @ResponseBody
-  public Response pageQueryComparisonConfig(@RequestBody PageQueryComparisonRequestType request) {
+  public Response pageQueryComparisonConfig(@RequestBody PageQueryExclusionRequestType request) {
     return ResponseUtils.successResponse(
         exclusionsHandler.pageQueryComparisonConfig(request)
     );

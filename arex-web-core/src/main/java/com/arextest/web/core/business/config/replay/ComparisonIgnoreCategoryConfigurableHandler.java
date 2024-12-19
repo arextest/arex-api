@@ -11,8 +11,10 @@ import com.arextest.web.core.repository.FSInterfaceRepository;
 import com.arextest.web.core.repository.mongo.ComparisonIgnoreCategoryConfigurationRepositoryImpl;
 import com.arextest.web.model.contract.contracts.compare.CategoryDetail;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonIgnoreCategoryConfiguration;
+import com.arextest.web.model.contract.contracts.config.replay.PageQueryCategoryRequestType;
 import com.arextest.web.model.contract.contracts.config.replay.PageQueryComparisonRequestType;
 import com.arextest.web.model.contract.contracts.config.replay.PageQueryComparisonResponseType;
+import com.arextest.web.model.dto.config.PageQueryCategoryDto;
 import com.arextest.web.model.dto.config.PageQueryComparisonDto;
 import com.arextest.web.model.dto.config.PageQueryComparisonResultDto;
 import com.arextest.web.model.dto.filesystem.FSInterfaceDto;
@@ -102,9 +104,10 @@ public class ComparisonIgnoreCategoryConfigurableHandler
 
 
   public PageQueryComparisonResponseType pageQueryComparisonConfig(
-      PageQueryComparisonRequestType requestType) {
-    PageQueryComparisonDto pageQueryComparisonDto = PageQueryComparisonMapper.INSTANCE.dtoFromContract(
+      PageQueryCategoryRequestType requestType) {
+    PageQueryCategoryDto pageQueryComparisonDto = PageQueryComparisonMapper.INSTANCE.dtoFromContract(
         requestType);
+    queryIdsByKeywords(pageQueryComparisonDto, applicationOperationConfigurationRepository);
     PageQueryComparisonResultDto<ComparisonIgnoreCategoryConfiguration> queryResult =
         ignoreCategoryConfigurationRepository.pageQueryComparisonConfig(
             pageQueryComparisonDto);

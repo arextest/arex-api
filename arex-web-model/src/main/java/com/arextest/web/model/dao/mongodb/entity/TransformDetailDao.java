@@ -13,6 +13,7 @@ public class TransformDetailDao {
   private List<TransformMethodDao> transformMethods;
 
   @Data
+  @FieldNameConstants
   public static class TransformMethodDao {
 
     private String methodName;
