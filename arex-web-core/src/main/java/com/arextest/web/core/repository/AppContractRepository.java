@@ -31,4 +31,6 @@ public interface AppContractRepository extends RepositoryProvider {
       String operationType);
 
   List<AppContractDto> queryAppContractsByIds(Collection<String> ids);
+
+  List<AppContractDto> queryLikeOperationName(String appId, String operationName);
 }

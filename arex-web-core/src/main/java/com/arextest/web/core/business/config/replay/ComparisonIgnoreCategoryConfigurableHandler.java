@@ -11,14 +11,17 @@ import com.arextest.web.core.repository.FSInterfaceRepository;
 import com.arextest.web.core.repository.mongo.ComparisonIgnoreCategoryConfigurationRepositoryImpl;
 import com.arextest.web.model.contract.contracts.compare.CategoryDetail;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonIgnoreCategoryConfiguration;
+import com.arextest.web.model.contract.contracts.config.replay.PageQueryCategoryRequestType;
 import com.arextest.web.model.contract.contracts.config.replay.PageQueryComparisonRequestType;
 import com.arextest.web.model.contract.contracts.config.replay.PageQueryComparisonResponseType;
+import com.arextest.web.model.dto.config.PageQueryCategoryDto;
 import com.arextest.web.model.dto.config.PageQueryComparisonDto;
 import com.arextest.web.model.dto.config.PageQueryComparisonResultDto;
 import com.arextest.web.model.dto.filesystem.FSInterfaceDto;
 import com.arextest.web.model.mapper.PageQueryComparisonMapper;
 import jakarta.annotation.Resource;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
@@ -102,9 +105,15 @@ public class ComparisonIgnoreCategoryConfigurableHandler
 
 
   public PageQueryComparisonResponseType pageQueryComparisonConfig(
-      PageQueryComparisonRequestType requestType) {
-    PageQueryComparisonDto pageQueryComparisonDto = PageQueryComparisonMapper.INSTANCE.dtoFromContract(
+      PageQueryCategoryRequestType requestType) {
+    PageQueryCategoryDto pageQueryComparisonDto = PageQueryComparisonMapper.INSTANCE.dtoFromContract(
         requestType);
+    PageQueryComparisonResponseType result = new PageQueryComparisonResponseType();
+    if (!queryIdsByKeywords(pageQueryComparisonDto, applicationOperationConfigurationRepository)) {
+      result.setTotalCount(0L);
+      result.setIgnoreCategories(Collections.emptyList());
+      return result;
+    }
     PageQueryComparisonResultDto<ComparisonIgnoreCategoryConfiguration> queryResult =
         ignoreCategoryConfigurationRepository.pageQueryComparisonConfig(
             pageQueryComparisonDto);
@@ -115,7 +124,7 @@ public class ComparisonIgnoreCategoryConfigurableHandler
         applicationOperationConfigurationRepository);
     Map<String, Dependency> dependencyInfos = getDependencyInfos(configs, appContractRepository);
 
-    PageQueryComparisonResponseType result = new PageQueryComparisonResponseType();
+
     result.setTotalCount(queryResult.getTotalCount());
     result.setIgnoreCategories(contractFromDto(configs, operationInfos, dependencyInfos));
     return result;

@@ -14,8 +14,10 @@ import com.arextest.web.core.repository.mongo.ComparisonTransformConfigurationRe
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonTransformConfiguration;
 import com.arextest.web.model.contract.contracts.config.replay.PageQueryComparisonRequestType;
 import com.arextest.web.model.contract.contracts.config.replay.PageQueryComparisonResponseType;
+import com.arextest.web.model.contract.contracts.config.replay.PageQueryTransformRequestType;
 import com.arextest.web.model.dto.config.PageQueryComparisonDto;
 import com.arextest.web.model.dto.config.PageQueryComparisonResultDto;
+import com.arextest.web.model.dto.config.PageQueryTransformDto;
 import com.arextest.web.model.dto.filesystem.FSInterfaceDto;
 import com.arextest.web.model.mapper.PageQueryComparisonMapper;
 import jakarta.annotation.Resource;
@@ -94,9 +96,16 @@ public class ComparisonTransformConfigurableHandler
   }
 
   public PageQueryComparisonResponseType pageQueryComparisonConfig(
-      PageQueryComparisonRequestType requestType) {
-    PageQueryComparisonDto pageQueryComparisonDto = PageQueryComparisonMapper.INSTANCE.dtoFromContract(
+      PageQueryTransformRequestType requestType) {
+    PageQueryTransformDto pageQueryComparisonDto = PageQueryComparisonMapper.INSTANCE.dtoFromContract(
         requestType);
+
+    PageQueryComparisonResponseType result = new PageQueryComparisonResponseType();
+    if (!queryIdsByKeywords(pageQueryComparisonDto, applicationOperationConfigurationRepository)) {
+      result.setTotalCount(0L);
+      result.setRootTransformInfos(Collections.emptyList());
+      return result;
+    }
     PageQueryComparisonResultDto<ComparisonTransformConfiguration> queryResult =
         comparisonTransformConfigurationRepository.pageQueryComparisonConfig(
             pageQueryComparisonDto);
@@ -107,7 +116,6 @@ public class ComparisonTransformConfigurableHandler
         applicationOperationConfigurationRepository);
     Map<String, Dependency> dependencyInfos = getDependencyInfos(configs, appContractRepository);
 
-    PageQueryComparisonResponseType result = new PageQueryComparisonResponseType();
     result.setTotalCount(queryResult.getTotalCount());
     result.setRootTransformInfos(contractFromDto(configs, operationInfos, dependencyInfos));
     return result;

@@ -8,6 +8,7 @@ import com.arextest.web.core.business.config.AbstractConfigurableHandler;
 import com.arextest.web.core.repository.AppContractRepository;
 import com.arextest.web.model.contract.contracts.config.replay.AbstractComparisonDetailsConfiguration;
 import com.arextest.web.model.dto.AppContractDto;
+import com.arextest.web.model.dto.config.PageQueryComparisonDto;
 import com.arextest.web.model.enums.ContractTypeEnum;
 import java.util.Collections;
 import java.util.Date;
@@ -181,5 +182,30 @@ public abstract class AbstractComparisonConfigurableHandler<T extends AbstractCo
         comparisonDetail.setDependencyId(dependencyId);
       }
     }
+  }
+
+  protected boolean queryIdsByKeywords(PageQueryComparisonDto dto,
+      ApplicationOperationConfigurationRepositoryImpl serviceOperationRepository) {
+    if (StringUtils.isNotBlank(dto.getKeyOfOperationName())) {
+      List<ApplicationOperationConfiguration> serviceOperations = serviceOperationRepository.queryLikeOperationName(
+          dto.getAppId(), dto.getKeyOfOperationName());
+      if (CollectionUtils.isEmpty(serviceOperations)) {
+        return false;
+      }
+      dto.setOperationIds(serviceOperations.stream().map(ApplicationOperationConfiguration::getId)
+          .collect(Collectors.toList()));
+    }
+
+    if (StringUtils.isNotBlank(dto.getKeyOfDependencyName())) {
+      List<AppContractDto> contractDtos = appContractRepository.queryLikeOperationName(
+          dto.getAppId(),
+          dto.getKeyOfDependencyName());
+      if (CollectionUtils.isEmpty(contractDtos)) {
+        return false;
+      }
+      dto.setDependencyIds(
+          contractDtos.stream().map(AppContractDto::getId).collect(Collectors.toList()));
+    }
+    return true;
   }
 }

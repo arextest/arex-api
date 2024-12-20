@@ -2,14 +2,17 @@ package com.arextest.web.core.repository.mongo;
 
 import com.arextest.config.repository.ConfigRepositoryProvider;
 import com.arextest.web.common.LogUtils;
+import com.arextest.web.common.RegexUtils;
 import com.arextest.web.core.repository.mongo.util.MongoHelper;
 import com.arextest.web.model.contract.contracts.common.enums.CompareConfigType;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonTransformConfiguration;
 import com.arextest.web.model.dao.mongodb.ConfigComparisonTransformCollection;
 import com.arextest.web.model.dao.mongodb.entity.AbstractComparisonDetails.Fields;
 import com.arextest.web.model.dao.mongodb.entity.TransformDetailDao;
+import com.arextest.web.model.dao.mongodb.entity.TransformDetailDao.TransformMethodDao;
 import com.arextest.web.model.dto.config.PageQueryComparisonDto;
 import com.arextest.web.model.dto.config.PageQueryComparisonResultDto;
+import com.arextest.web.model.dto.config.PageQueryTransformDto;
 import com.arextest.web.model.mapper.ConfigComparisonTransformMapper;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
@@ -231,7 +234,7 @@ public class ComparisonTransformConfigurationRepositoryImpl
   }
 
   public PageQueryComparisonResultDto<ComparisonTransformConfiguration> pageQueryComparisonConfig(
-      PageQueryComparisonDto pageQueryComparisonDto) {
+      PageQueryTransformDto pageQueryComparisonDto) {
     PageQueryComparisonResultDto<ComparisonTransformConfiguration> resultDto
         = new PageQueryComparisonResultDto<>();
 
@@ -250,6 +253,13 @@ public class ComparisonTransformConfigurationRepositoryImpl
     if (CollectionUtils.isNotEmpty(pageQueryComparisonDto.getDependencyIds())) {
       query.addCriteria(Criteria.where(Fields.dependencyId)
           .in(pageQueryComparisonDto.getDependencyIds()));
+    }
+    if (StringUtils.isNotEmpty(pageQueryComparisonDto.getKeyOfMethodName())) {
+      query.addCriteria(Criteria.where(ConfigComparisonTransformCollection.Fields.transformDetail
+              .concat(".").concat(TransformDetailDao.Fields.transformMethods))
+          .elemMatch(Criteria.where(TransformMethodDao.Fields.methodName)
+              .regex(RegexUtils.getRegexForFuzzySearch(pageQueryComparisonDto.getKeyOfMethodName()), "i"))
+      );
     }
     if (Objects.equals(pageQueryComparisonDto.getNeedTotal(), true)) {
       resultDto.setTotalCount(

@@ -1,12 +1,15 @@
 package com.arextest.web.core.repository.mongo;
 
 import com.arextest.config.repository.ConfigRepositoryProvider;
+import com.arextest.web.common.RegexUtils;
 import com.arextest.web.core.repository.mongo.util.MongoHelper;
 import com.arextest.web.model.contract.contracts.common.enums.CompareConfigType;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonIgnoreCategoryConfiguration;
 import com.arextest.web.model.dao.mongodb.ConfigComparisonIgnoreCategoryCollection;
 import com.arextest.web.model.dao.mongodb.entity.AbstractComparisonDetails;
 import com.arextest.web.model.dao.mongodb.entity.AbstractComparisonDetails.Fields;
+import com.arextest.web.model.dao.mongodb.entity.CategoryDetailDao;
+import com.arextest.web.model.dto.config.PageQueryCategoryDto;
 import com.arextest.web.model.dto.config.PageQueryComparisonDto;
 import com.arextest.web.model.dto.config.PageQueryComparisonResultDto;
 import com.arextest.web.model.mapper.ConfigComparisonIgnoreCategoryMapper;
@@ -136,7 +139,7 @@ public class ComparisonIgnoreCategoryConfigurationRepositoryImpl
   }
 
   public PageQueryComparisonResultDto<ComparisonIgnoreCategoryConfiguration> pageQueryComparisonConfig(
-      PageQueryComparisonDto pageQueryComparisonDto) {
+      PageQueryCategoryDto pageQueryComparisonDto) {
     PageQueryComparisonResultDto<ComparisonIgnoreCategoryConfiguration> resultDto
         = new PageQueryComparisonResultDto<>();
 
@@ -151,6 +154,18 @@ public class ComparisonIgnoreCategoryConfigurationRepositoryImpl
     if (CollectionUtils.isNotEmpty(pageQueryComparisonDto.getDependencyIds())) {
       query.addCriteria(Criteria.where(Fields.dependencyId)
           .in(pageQueryComparisonDto.getDependencyIds()));
+    }
+    if (StringUtils.isNotEmpty(pageQueryComparisonDto.getKeyOfIgnoreOperationType())) {
+      query.addCriteria(Criteria.where(
+              ConfigComparisonIgnoreCategoryCollection.Fields.ignoreCategoryDetail.concat(".").concat(
+                  CategoryDetailDao.Fields.operationType))
+          .regex(RegexUtils.getRegexForFuzzySearch(pageQueryComparisonDto.getKeyOfIgnoreOperationType()), "i"));
+    }
+    if (StringUtils.isNotEmpty(pageQueryComparisonDto.getKeyOfIgnoreOperationName())){
+      query.addCriteria(Criteria.where(
+              ConfigComparisonIgnoreCategoryCollection.Fields.ignoreCategoryDetail.concat(".").concat(
+                  CategoryDetailDao.Fields.operationName))
+          .regex(RegexUtils.getRegexForFuzzySearch(pageQueryComparisonDto.getKeyOfIgnoreOperationName()), "i"));
     }
     if (Objects.equals(pageQueryComparisonDto.getNeedTotal(), true)) {
       resultDto.setTotalCount(
