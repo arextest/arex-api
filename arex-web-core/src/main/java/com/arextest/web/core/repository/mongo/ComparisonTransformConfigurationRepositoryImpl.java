@@ -2,6 +2,7 @@ package com.arextest.web.core.repository.mongo;
 
 import com.arextest.config.repository.ConfigRepositoryProvider;
 import com.arextest.web.common.LogUtils;
+import com.arextest.web.common.RegexUtils;
 import com.arextest.web.core.repository.mongo.util.MongoHelper;
 import com.arextest.web.model.contract.contracts.common.enums.CompareConfigType;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonTransformConfiguration;
@@ -257,7 +258,7 @@ public class ComparisonTransformConfigurationRepositoryImpl
       query.addCriteria(Criteria.where(ConfigComparisonTransformCollection.Fields.transformDetail
               .concat(".").concat(TransformDetailDao.Fields.transformMethods))
           .elemMatch(Criteria.where(TransformMethodDao.Fields.methodName)
-              .regex(".*?" + pageQueryComparisonDto.getKeyOfMethodName() + ".*", "i"))
+              .regex(RegexUtils.getRegexForFuzzySearch(pageQueryComparisonDto.getKeyOfMethodName()), "i"))
       );
     }
     if (Objects.equals(pageQueryComparisonDto.getNeedTotal(), true)) {

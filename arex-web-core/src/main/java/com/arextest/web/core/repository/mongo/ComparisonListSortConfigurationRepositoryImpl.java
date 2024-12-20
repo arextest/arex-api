@@ -2,6 +2,7 @@ package com.arextest.web.core.repository.mongo;
 
 import com.arextest.config.repository.ConfigRepositoryProvider;
 import com.arextest.web.common.LogUtils;
+import com.arextest.web.common.RegexUtils;
 import com.arextest.web.core.repository.mongo.util.MongoHelper;
 import com.arextest.web.model.contract.contracts.common.enums.CompareConfigType;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonExclusionsConfiguration;
@@ -232,11 +233,11 @@ public class ComparisonListSortConfigurationRepositoryImpl
     }
     if (StringUtils.isNotEmpty(pageQueryComparisonDto.getKeyOfListPath())) {
       criteria.and("listPathStr")
-          .regex(".*?" + pageQueryComparisonDto.getKeyOfListPath() + ".*", "i");
+          .regex(RegexUtils.getRegexForFuzzySearch(pageQueryComparisonDto.getKeyOfListPath()), "i");
     }
     if (StringUtils.isNotEmpty(pageQueryComparisonDto.getKeyOfValue())) {
       criteria.and("keyStr")
-          .regex(".*?" + pageQueryComparisonDto.getKeyOfValue() + ".*", "i");
+          .regex(RegexUtils.getRegexForFuzzySearch(pageQueryComparisonDto.getKeyOfValue()), "i");
     }
     AggregationOperation match = Aggregation.match(criteria);
 

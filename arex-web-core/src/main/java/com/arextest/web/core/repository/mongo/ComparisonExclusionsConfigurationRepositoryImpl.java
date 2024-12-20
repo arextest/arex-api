@@ -2,6 +2,7 @@ package com.arextest.web.core.repository.mongo;
 
 import com.arextest.config.repository.ConfigRepositoryProvider;
 import com.arextest.web.common.LogUtils;
+import com.arextest.web.common.RegexUtils;
 import com.arextest.web.core.repository.mongo.util.MongoHelper;
 import com.arextest.web.model.contract.contracts.common.enums.CompareConfigType;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonExclusionsConfiguration;
@@ -261,7 +262,7 @@ public class ComparisonExclusionsConfigurationRepositoryImpl
     }
     if (StringUtils.isNotEmpty(pageQueryComparisonDto.getKeyOfExclusionPath())) {
       criteria.and("exclusionPath")
-          .regex(".*?" + pageQueryComparisonDto.getKeyOfExclusionPath() + ".*", "i");
+          .regex(RegexUtils.getRegexForFuzzySearch(pageQueryComparisonDto.getKeyOfExclusionPath()), "i");
     }
     AggregationOperation match = Aggregation.match(criteria);
 
