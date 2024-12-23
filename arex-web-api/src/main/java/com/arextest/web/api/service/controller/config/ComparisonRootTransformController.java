@@ -8,6 +8,7 @@ import com.arextest.web.core.business.config.replay.ComparisonTransformConfigura
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonRootTransformConfiguration;
 import com.arextest.web.model.contract.contracts.config.replay.ComparisonTransformConfiguration;
 import com.arextest.web.model.contract.contracts.config.replay.PageQueryComparisonRequestType;
+import com.arextest.web.model.contract.contracts.config.replay.PageQueryTransformRequestType;
 import com.arextest.web.model.contract.contracts.config.replay.QueryComparisonRequestType;
 import com.arextest.web.model.mapper.ConfigComparisonTransformMapper;
 import java.util.List;
@@ -72,7 +73,7 @@ public class ComparisonRootTransformController {
 
   @PostMapping("/pageQueryComparisonConfig")
   @ResponseBody
-  public Response pageQueryComparisonConfig(@RequestBody PageQueryComparisonRequestType request) {
+  public Response pageQueryComparisonConfig(@RequestBody PageQueryTransformRequestType request) {
     return ResponseUtils.successResponse(
         comparisonTransformConfigurableHandler.pageQueryComparisonConfig(request)
     );

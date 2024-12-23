@@ -1,6 +1,7 @@
 package com.arextest.web.core.repository.mongo;
 
 import com.arextest.web.common.LogUtils;
+import com.arextest.web.common.RegexUtils;
 import com.arextest.web.core.repository.ReplayCompareResultRepository;
 import com.arextest.web.model.contract.contracts.QueryReplayCaseRequestType;
 import com.arextest.web.model.dao.mongodb.ReplayCompareResultCollection;
@@ -367,8 +368,8 @@ public class ReplayCompareResultRepositoryImpl implements ReplayCompareResultRep
     }
     if (Strings.isNotBlank(keyWord)) {
       query.addCriteria(
-          new Criteria().orOperator(Criteria.where(REPLAY_ID).regex(".*?" + keyWord + ".*"),
-              Criteria.where(RECORD_ID).regex(".*?" + keyWord + ".*")));
+          new Criteria().orOperator(Criteria.where(REPLAY_ID).regex(RegexUtils.getRegexForFuzzySearch(keyWord)),
+              Criteria.where(RECORD_ID).regex(RegexUtils.getRegexForFuzzySearch(keyWord))));
     }
     return query;
   }

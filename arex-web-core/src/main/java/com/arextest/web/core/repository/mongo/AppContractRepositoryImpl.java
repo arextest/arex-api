@@ -1,6 +1,7 @@
 package com.arextest.web.core.repository.mongo;
 
 import com.arextest.web.common.LogUtils;
+import com.arextest.web.common.RegexUtils;
 import com.arextest.web.core.repository.AppContractRepository;
 import com.arextest.web.core.repository.mongo.util.MongoHelper;
 import com.arextest.web.model.dao.mongodb.AppContractCollection;
@@ -223,5 +224,19 @@ public class AppContractRepositoryImpl implements AppContractRepository {
     return mongoTemplate.find(query, AppContractCollection.class)
         .stream().map(AppContractMapper.INSTANCE::dtoFromDao)
         .collect(Collectors.toList());
+  }
+
+  @Override
+  public List<AppContractDto> queryLikeOperationName(String appId,
+      String operationName) {
+    if (StringUtils.isBlank(operationName)) {
+      return Collections.emptyList();
+    }
+    Query query = Query.query(Criteria.where(AppContractCollection.Fields.appId).is(appId)
+        .and(AppContractCollection.Fields.operationName).regex(
+            RegexUtils.getRegexForFuzzySearch(operationName), "i"));
+
+    return mongoTemplate.find(query, AppContractCollection.class)
+        .stream().map(AppContractMapper.INSTANCE::dtoFromDao).collect(Collectors.toList());
   }
 }

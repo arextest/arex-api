@@ -461,8 +461,6 @@
       <id>jar-local</id>
       <properties>
         <packagingType>jar</packagingType>
-        <releases.repo></releases.repo>
-        <snapshots.repo></snapshots.repo>
       </properties>
       <build>
         <plugins>
@@ -490,10 +488,10 @@
 
   <properties>
     <!-- Maven CI Friendly Versions https://maven.apache.org/maven-ci-friendly.html -->
-    <revision>0.7.0.1</revision>
+    <revision>0.7.0.3</revision>
     <arex-common.version>1.0.1</arex-common.version>
     <arex-extension-interface.version>0.0.1</arex-extension-interface.version>
-    <arex-storage-config.version>2.0.2</arex-storage-config.version>
+    <arex-storage-config.version>2.0.5</arex-storage-config.version>
     <arex-storage.version>1.1.27</arex-storage.version>
     <arex-compare-extension.version>0.0.1</arex-compare-extension.version>
     <caffeine.version>2.9.3</caffeine.version>
@@ -524,6 +522,8 @@
     <spring.boot.version>3.2.3</spring.boot.version>
     <springfox-boot-starter.version>3.0.0</springfox-boot-starter.version>
     <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
+    <releases.repo></releases.repo>
+    <snapshots.repo></snapshots.repo>
   </properties>
 
   <scm>

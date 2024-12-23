@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import lombok.experimental.FieldNameConstants;
 import org.springframework.util.CollectionUtils;
 
 /**
@@ -14,6 +15,7 @@ import org.springframework.util.CollectionUtils;
 @NoArgsConstructor
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
+@FieldNameConstants
 public class ComparisonListSortConfiguration extends AbstractComparisonDetailsConfiguration {
 
   private List<String> listPath;
